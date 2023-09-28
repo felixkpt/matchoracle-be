@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Str from '@/utils/Str';
 import { Icon } from '@iconify/react/dist/iconify.js';
@@ -11,6 +11,31 @@ const Index = () => {
 
   const { user } = useAuth()
   const { roles, setCurrentRole, currentRole, userMenu, loadingMenu: loading } = useRolePermissionsContext();
+
+
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+
+  useEffect(() => {
+
+    const expand = document.body.querySelector('.btn-expand-collapse');
+    if (expand) {
+      expand.addEventListener('click', collapseEvent);
+    }
+
+    function collapseEvent() {
+      const trg = document.body.querySelector('#layoutWrapper')
+
+      if (trg) {
+        trg.classList.toggle('collapsed');
+        setIsOpen(trg.classList.contains('collapsed'))
+
+      }
+    }
+
+    return () => removeEventListener('click', collapseEvent)
+
+  }, [currentRole])
+
 
   const memoizeMenu = useMemo(() => {
 
@@ -36,15 +61,15 @@ const Index = () => {
                   if (shouldShowFolder)
 
                     return (
-                      <div key={currentId}>
+                      <div key={currentId} className='position-relative top-0'>
                         <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target={`#${currentId}`} aria-expanded="false" aria-controls="collapsePages">
                           <span className='d-flex align-items-center gap-1'>
-                            <Icon icon={`${icon || 'prime:bookmark'}`} />
-                            <span>{Str.title(Str.afterLast(folder, '/'))}</span>
+                            <Icon className='nav-icon' icon={`${icon || 'prime:bookmark'}`} />
+                            <span className='nav-label'>{Str.title(Str.afterLast(folder, '/'))}</span>
                           </span>
                           <div className="sb-sidenav-collapse-arrow"><Icon className='arrow-section' icon={`bi-chevron-down`} /></div>
                         </a>
-                        <div className="collapse" id={`${currentId}`} aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
+                        <div className="collapse position-fixed-collaped sb-sidenav-light" id={`${currentId}`} aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
                           <nav className="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
                             <RoutesList routes={routes} />
                             {
@@ -88,18 +113,24 @@ const Index = () => {
           <div className="nav pt-2">
 
             <div className='px-1'>
-              <Select
-                className="basic-single text-dark mb-2"
-                classNamePrefix="select"
-                value={currentRole || []}
-                isSearchable={true}
-                name="roles"
-                options={roles}
-                getOptionValue={(option) => `${option['id']}`}
-                getOptionLabel={(option) => `${option['name']}`}
-                onChange={(item) => setCurrentRole(item)}
-              />
+              <div id='role-switcher'>
+                <Select
+                  className="basic-single text-dark mb-2"
+                  classNamePrefix="select"
+                  value={currentRole || []}
+                  isSearchable={true}
+                  name="roles"
+                  options={roles}
+                  getOptionValue={(option: any) => `${option['id']}`}
+                  getOptionLabel={(option: any) => `${option['name']}`}
+                  onChange={(item: any) => setCurrentRole(item)}
+                />
+              </div>
+
               {memoizeMenu}
+              <span className="btn-expand-collapse d-none d-md-inline">
+                <Icon className='nav-icon' icon={`${isOpen ? 'pajamas:collapse-right' : 'pajamas:collapse-left'}`} />
+              </span>
             </div>
           </div>
         </div>
@@ -107,15 +138,19 @@ const Index = () => {
     )
 };
 
-export const toggleSidebar = (event: Event, action: string | undefined = undefined) => {
+export const toggleSidebar = (event?: Event, action: string | undefined = undefined, forceClose = false) => {
 
   if (action && action === 'hide') {
 
     if (document.body.classList.contains('sb-sidenav-toggled')) {
       document.body.classList.remove('sb-sidenav-toggled');
-    } 
+    }
 
-  } else {
+    if (forceClose) {
+      document.body.classList.add('sb-sidenav-toggled');
+    }
+
+  } else if (event) {
     event.preventDefault();
     document.body.classList.toggle('sb-sidenav-toggled');
   }

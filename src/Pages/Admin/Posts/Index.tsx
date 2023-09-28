@@ -9,7 +9,7 @@ const Posts = ({ category }: Props) => {
 
     return (
     <div>
-      <PageHeader title={'Posts List'} action="link" actionText="Create Doc" actionLink={`/admin/posts/create?category_id=${category ? category.id : '0'}`} permission='/admin/posts' />
+      <PageHeader title={'Posts List'} action="link" actionText="Create Post" actionLink={`/admin/posts/create?category_id=${category ? category.id : '0'}`} permission='/admin/posts' />
       <div>
         <AutoTable
           baseUri={`/admin/posts?category_id=${category ? category.id : '0'}`}

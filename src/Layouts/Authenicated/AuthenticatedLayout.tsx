@@ -133,11 +133,11 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
             {user ? (
                 <>
                     <Navbar />
-                    <div id="layoutSidenav">
-                        <div id="layoutSidenav_nav">
+                    <div id="layoutWrapper">
+                        <div id="sideNav">
                             <SideNav />
                         </div>
-                        <div id="layoutSidenav_content"
+                        <div id="mainContent"
                             onClick={(e: any) => {
 
                                 if (window.innerWidth < 992) {
@@ -146,22 +146,25 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                             }
                             }
                         >
-                            <main className='container-fluid mt-4 px-4 min-h-100vh position-relative'>
-                                {
-                                    isAllowed === true && checked === true ?
-                                        <Component />
-                                        :
-                                        <>
-                                            {
-                                                loadingRoutePermissions === false && checked === true ? (
-                                                    environment === 'local' ? <Error403 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} /> : <Error404 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} />
-                                                ) : (
-                                                    <Loader message='Granting you page access...' />
-                                                )
-                                            }
-                                        </>
-                                }
-                            </main>
+                            <div className='main-content'>
+                                <main className='container-fluid mt-4 px-4 min-h-100vh position-relative'>
+                                    {
+                                        isAllowed === true && checked === true ?
+                                            <Component />
+                                            :
+                                            <>
+                                                {
+                                                    loadingRoutePermissions === false && checked === true ? (
+                                                        environment === 'local' ? <Error403 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} /> : <Error404 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} />
+                                                    ) : (
+                                                        <Loader message='Granting you page access...' />
+                                                    )
+                                                }
+                                            </>
+                                    }
+                                </main>
+                            </div>
+
                             <Footer />
                         </div>
                     </div>

@@ -42,6 +42,7 @@ export const emitAjaxPostDone = (response: any) => {
 export const baseURL = (uri: string) => import.meta.env.VITE_APP_BASE_API + ('/' + uri).replace(/\/+/, '/')
 
 export const environment: 'local' | 'production' = import.meta.env.VITE_APP_ENV || 'local'
+export const tnymce_key: string = import.meta.env.VITE_APP_CRYPO_TINYMCE_KEY || ''
 
 export const convertToLaravelPattern = (uri:string) => {
     // Replace :id with {id}

@@ -4,7 +4,7 @@ import React from 'react'
 import RoutesList from './RoutesList';
 
 type Props = {
-    child: RoutesSection
+    child: RouteCollectionInterface
     indent: number
     prevId: string
 }

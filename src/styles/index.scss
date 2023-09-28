@@ -100,10 +100,9 @@ a:focus {
 }
 
 
-
 /* start aside nav */
 .fixed-top,
-.sb-nav-fixed #layoutSidenav #layoutSidenav_nav,
+.sb-nav-fixed #layoutWrapper #sideNav,
 .sb-nav-fixed .sb-topnav {
   position: fixed;
   top: 0;
@@ -127,11 +126,11 @@ a:focus {
   min-width: 0;
 }
 
-#layoutSidenav {
+#layoutWrapper {
   display: flex;
 }
 
-#layoutSidenav #layoutSidenav_nav {
+#layoutWrapper #sideNav {
   flex-basis: 310px;
   flex-shrink: 0;
   transition: transform 0.15s ease-in-out;
@@ -139,7 +138,7 @@ a:focus {
   transform: translateX(-310px);
 }
 
-#layoutSidenav #layoutSidenav_content {
+#layoutWrapper #mainContent {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -150,11 +149,11 @@ a:focus {
   margin-left: -310px;
 }
 
-.sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
+.sb-sidenav-toggled #layoutWrapper #sideNav {
   transform: translateX(0);
 }
 
-.sb-sidenav-toggled #layoutSidenav #layoutSidenav_content:before {
+.sb-sidenav-toggled #layoutWrapper #mainContent:before {
   content: "";
   display: block;
   position: absolute;
@@ -168,51 +167,110 @@ a:focus {
   transition: opacity 0.3s ease-in-out;
 }
 
-@media (min-width: 992px) {
-  #layoutSidenav #layoutSidenav_nav {
-    transform: translateX(0);
-  }
-
-  #layoutSidenav #layoutSidenav_content {
-    margin-left: 0;
-    transition: margin 0.15s ease-in-out;
-  }
-
-  .sb-sidenav-toggled #layoutSidenav #layoutSidenav_nav {
-    transform: translateX(-310px);
-  }
-
-  .sb-sidenav-toggled #layoutSidenav #layoutSidenav_content {
-    margin-left: -310px;
-  }
-
-  .sb-sidenav-toggled #layoutSidenav #layoutSidenav_content:before {
-    display: none;
-  }
-}
-
 .sb-nav-fixed .sb-topnav {
   z-index: 1039;
 }
 
-.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
+.sb-nav-fixed #layoutWrapper #sideNav {
   width: 310px;
   height: 100vh;
   z-index: 1038;
 }
 
-.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav {
+.sb-nav-fixed #layoutWrapper #sideNav .sb-sidenav {
   padding-top: 56px;
 }
 
-.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav .sb-sidenav-menu {
+.sb-nav-fixed #layoutWrapper:not(.collapsed) #sideNav .sb-sidenav .sb-sidenav-menu {
   overflow-y: auto;
 }
 
-.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
+.sb-nav-fixed #layoutWrapper #mainContent {
   padding-left: 310px;
   top: 56px;
 }
+
+
+@media (min-width: 992px) {
+  #layoutWrapper #sideNav {
+    transform: translateX(0);
+  }
+
+  #layoutWrapper #mainContent {
+    margin-left: 0;
+    transition: margin 0.15s ease-in-out;
+  }
+
+  .sb-sidenav-toggled #layoutWrapper #sideNav {
+    transform: translateX(-310px);
+  }
+
+  .sb-sidenav-toggled #layoutWrapper #mainContent {
+    margin-left: -310px;
+  }
+
+  .sb-sidenav-toggled #layoutWrapper #mainContent:before {
+    display: none;
+  }
+
+  #layoutWrapper.collapsed #sideNav .nav-icon {
+    font-size: 22px;
+  }
+
+  #layoutWrapper.collapsed #sideNav .nav-label {
+    display: none;
+  }
+
+  #layoutWrapper.collapsed #sideNav .sb-sidenav-collapse-arrow {
+    display: none !important;
+  }
+
+  #layoutWrapper.collapsed #sideNav #role-switcher {
+    display: none !important;
+  }
+
+  #layoutWrapper.collapsed #sideNav .position-fixed-collaped {
+    position: absolute !important;
+    margin-left: 40px;
+    top: 0;
+    width: 200px;
+    overflow: visible;
+    transition: none;
+  }
+
+  .sb-nav-fixed #layoutWrapper.collapsed #sideNav {
+    width: 60px;
+  }
+
+  .sb-nav-fixed #layoutWrapper.collapsed #mainContent {
+    padding-left: 60px;
+  }
+
+}
+
+.btn-expand-collapse {
+  position: absolute;
+  display: block;
+  left: 0px;
+  bottom: 0;
+  width: 100%;
+  padding: 8px 0;
+  border-top: solid 1px #666;
+  color: grey;
+  font-size: 20px;
+  text-align: center;
+}
+
+.btn-expand-collapse:hover,
+.btn-expand-collapse:focus {
+  background-color: #222;
+  color: white;
+}
+
+.btn-expand-collapse:active {
+  background-color: #111;
+}
+
 
 #layoutError {
   display: flex;
@@ -245,8 +303,8 @@ a:focus {
 }
 
 .sb-navbar-dark {
-background: #393f51;
-color: white;
+  background: #393f51;
+  color: white;
 }
 
 .sb-topnav .navbar-brand {
@@ -626,6 +684,7 @@ color: white;
   0% {
     transform: scale(1);
   }
+
   100% {
     transform: scale(0.95);
   }
@@ -635,6 +694,7 @@ color: white;
   float: left;
   width: 25%;
 }
+
 p {
   margin: 0;
 }

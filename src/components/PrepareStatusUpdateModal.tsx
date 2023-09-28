@@ -7,7 +7,7 @@ const PrepareStatusUpdateModal = () => {
 
     const [statuses, setStatuses] = useState([])
     const [record, setRecord] = useState<any>(false)
-    const [selected, setSelected] = useState<PropsValue<object> | undefined>();
+    const [selected, setSelected] = useState<PropsValue<object> | null>();
 
     const [actionUrl, setActionUrl] = useState<string>('')
 
@@ -29,7 +29,7 @@ const PrepareStatusUpdateModal = () => {
         if (record) {
             const status = statuses.find((status: any) => status.id === record.status_id)
             if (status) setSelected(status)
-            else setSelected({})
+            else setSelected(null)
         }
 
     }, [record])
@@ -68,11 +68,11 @@ const PrepareStatusUpdateModal = () => {
                             <div className="section">
                                 <form method="post" action-url={actionUrl} onSubmit={(e: any) => publish('ajaxPost', e)} >
                                     <input type="hidden" name="_method" value="patch" />
-                                    <div>
+                                    <div className='form-group'>
                                         {
-                                            (record && selected) ?
+                                            (record && (selected || selected === null)) ?
                                                 <Select
-                                                    className="basic-single"
+                                                    className="form-control"
                                                     classNamePrefix="select"
                                                     defaultValue={selected}
                                                     isDisabled={false}

@@ -29,8 +29,8 @@ const useAxios = <T = any>() => {
                 config.headers = {
                     ...config.headers,
                     Authorization: `Bearer ${user.token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
+                    // 'Content-Type': 'application/json',
+                    // 'Accept': 'application/json',
                 };
             }
             return config;

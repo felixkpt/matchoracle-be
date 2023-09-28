@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import useAxios from "@/hooks/useAxios";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { toggleSidebar } from "../SideNav/Index";
