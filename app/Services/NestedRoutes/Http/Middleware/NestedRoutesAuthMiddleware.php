@@ -90,6 +90,7 @@ class NestedRoutesAuthMiddleware
     protected function authorize($currentRoute)
     {
 
+        // return true;
         // Define routes that are allowed without specific permissions...
         $allowedRoutes = [
             '/',

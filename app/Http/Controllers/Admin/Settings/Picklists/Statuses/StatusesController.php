@@ -29,7 +29,7 @@ class StatusesController extends Controller
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item autotable-view" data-id="' . $status->id . '" href="/admin/settings/picklists/statuses/default/' . $status->id . '">View</a></li>
                 <li><a class="dropdown-item autotable-edit" data-id="' . $status->id . '" href="/admin/settings/picklists/statuses/default/' . $status->id . '">Edit</a></li>
-                <li><a class="dropdown-item autotable-status-update" data-id="' . $status->id . '" href="/admin/settings/picklists/statuses/default/' . $status->id . '/status-update">' . ($status->status == 1 ? 'Deactivate' : 'Activate') . '</a></li>
+                <li><a class="dropdown-item autotable-status-update" data-id="' . $status->id . '" href="/admin/settings/picklists/statuses/default/' . $status->id . '/status-update">Status update</a></li>
             </ul>
         </div>
         ';

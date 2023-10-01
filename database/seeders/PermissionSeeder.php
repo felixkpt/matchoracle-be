@@ -23,7 +23,7 @@ class PermissionSeeder extends Seeder
 
         // create permissions
 
-        $permissions = [
+        $permissions =  [
             [
                 "name" => "posts",
                 "guard_name" => "api",
@@ -443,8 +443,119 @@ class PermissionSeeder extends Seeder
                 "icon" => null,
                 "hidden" => 0,
                 "position" => 999999
+            ],
+            [
+                "name" => "settings.role.permissions.permissions.view.id.status.update.at.patch",
+                "guard_name" => "api",
+                "parent_folder" => "settings",
+                "uri" => "settings/role-permissions/permissions/view/{id}/status-update@PATCH",
+                "title" => "Status Update",
+                "icon" => null,
+                "hidden" => 0,
+                "position" => 999999
+            ],
+            [
+                "name" => "settings.picklists",
+                "guard_name" => "api",
+                "parent_folder" => "settings",
+                "uri" => "settings/picklists",
+                "title" => "settings/picklists",
+                "icon" => null,
+                "hidden" => 0,
+                "position" => 999999
+            ],
+            [
+                "name" => "settings.picklists.statuses",
+                "guard_name" => "api",
+                "parent_folder" => "settings",
+                "uri" => "settings/picklists/statuses",
+                "title" => "settings/picklists/statuses",
+                "icon" => null,
+                "hidden" => 0,
+                "position" => 999999
+            ],
+            [
+                "name" => "settings.picklists.statuses.default",
+                "guard_name" => "api",
+                "parent_folder" => "settings",
+                "uri" => "settings/picklists/statuses/default",
+                "title" => "settings/picklists/statuses/default",
+                "icon" => null,
+                "hidden" => 0,
+                "position" => 999999
+            ],
+            [
+                "name" => "settings.picklists.statuses.default.at.get.at.head",
+                "guard_name" => "api",
+                "parent_folder" => "settings",
+                "uri" => "settings/picklists/statuses/default@GET|@HEAD",
+                "title" => "List",
+                "icon" => null,
+                "hidden" => 0,
+                "position" => 999999
+            ],
+            [
+                "name" => "settings.picklists.statuses.default.at.post",
+                "guard_name" => "api",
+                "parent_folder" => "settings",
+                "uri" => "settings/picklists/statuses/default@POST",
+                "title" => "Store",
+                "icon" => null,
+                "hidden" => 0,
+                "position" => 999999
+            ],
+            [
+                "name" => "settings.picklists.statuses.default.id.at.put",
+                "guard_name" => "api",
+                "parent_folder" => "settings",
+                "uri" => "settings/picklists/statuses/default/{id}@PUT",
+                "title" => "Update",
+                "icon" => null,
+                "hidden" => 0,
+                "position" => 999999
+            ],
+            [
+                "name" => "settings.picklists.statuses.post",
+                "guard_name" => "api",
+                "parent_folder" => "settings",
+                "uri" => "settings/picklists/statuses/post",
+                "title" => "settings/picklists/statuses/post",
+                "icon" => null,
+                "hidden" => 0,
+                "position" => 999999
+            ],
+            [
+                "name" => "settings.picklists.statuses.post.at.get.at.head",
+                "guard_name" => "api",
+                "parent_folder" => "settings",
+                "uri" => "settings/picklists/statuses/post@GET|@HEAD",
+                "title" => "List",
+                "icon" => null,
+                "hidden" => 0,
+                "position" => 999999
+            ],
+            [
+                "name" => "settings.picklists.statuses.post.at.post",
+                "guard_name" => "api",
+                "parent_folder" => "settings",
+                "uri" => "settings/picklists/statuses/post@POST",
+                "title" => "Store  Post Status",
+                "icon" => null,
+                "hidden" => 0,
+                "position" => 999999
+            ],
+            [
+                "name" => "settings.picklists.statuses.post.id.at.put",
+                "guard_name" => "api",
+                "parent_folder" => "settings",
+                "uri" => "settings/picklists/statuses/post/{id}@PUT",
+                "title" => "Update  Post Status",
+                "icon" => null,
+                "hidden" => 0,
+                "position" => 999999
             ]
-        ];
+        ];;
+
 
         $attach = [];
         foreach ($permissions as $row) {

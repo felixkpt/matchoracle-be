@@ -168,9 +168,11 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        
+
         App\Services\Filerepo\FileRepoProvider::class,
         App\Services\NestedRoutes\Providers\NestedRoutesBindingServiceProvider::class,
+        App\Providers\RepositoryServiceProvider::class,
+        App\Providers\ValidationServiceProvider::class,
 
     ])->toArray(),
 

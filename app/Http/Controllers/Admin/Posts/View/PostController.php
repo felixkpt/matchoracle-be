@@ -4,22 +4,19 @@ namespace App\Http\Controllers\Admin\Posts\View;
 
 use App\Http\Controllers\Admin\Posts\PostsController;
 use App\Http\Controllers\Controller;
-use App\Models\Post;
-use App\Models\PostStatus;
-use App\Repositories\SearchRepo;
+use App\Repositories\Post\PostRepositoryInterface;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
+    function __construct(
+        private PostRepositoryInterface $postRepositoryInterface,
+    ) {
+    }
+
     public function show($id)
     {
-        $posts = Post::where('id', $id);
-
-        $res = SearchRepo::of($posts, [], [])
-            ->addColumn('content', fn ($item) => refreshTemporaryTokensInString($item->content))
-            ->statuses(PostStatus::select('id', 'name')->get())->first();
-
-        return response(['results' => $res]);
+        return $this->postRepositoryInterface->show($id);
     }
 
     function update(Request $request, $id)
@@ -28,8 +25,16 @@ class PostController extends Controller
         return app(PostsController::class)->store($request);
     }
 
+    function statusUpdate($id)
+    {
+        return $this->postRepositoryInterface->statusUpdate($id);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy($id)
     {
-        // Delete a posts/doc page
+        return $this->postRepositoryInterface->destroy($id);
     }
 }

@@ -43,7 +43,7 @@ class TopicsController extends Controller
                         '')
                     .
                     '
-                            <li><a class="dropdown-item autotable-status-update" data-id="' . $item->id . '" href="/admin/posts/categories/' . $item->id . '/topics/view/' . $item->id . '/status-update">' . ($item->status == 1 ? 'Deactivate' : 'Activate') . '</a></li>
+                            <li><a class="dropdown-item autotable-status-update" data-id="' . $item->id . '" href="/admin/posts/categories/' . $item->id . '/topics/view/' . $item->id . '/status-update">Status update</a></li>
                         </ul>
                     </div>
                     ';

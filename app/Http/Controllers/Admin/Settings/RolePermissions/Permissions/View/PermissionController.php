@@ -2,61 +2,41 @@
 
 namespace App\Http\Controllers\Admin\Settings\RolePermissions\Permissions\View;
 
+use App\Http\Controllers\Admin\Settings\RolePermissions\Permissions\PermissionsController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Permission;
-use App\Models\Role;
+use App\Repositories\Permission\PermissionRepositoryInterface;
+use App\Services\Validations\Permission\PermissionValidationInterface;
 
 class PermissionController extends Controller
 {
-   
+    function __construct(
+        private PermissionRepositoryInterface $permissionRepositoryInterface,
+        private PermissionValidationInterface $permissionValidationInterface
+    ) {
+    }
+
     public function show($id)
     {
-        $role = Role::findOrFail($id);
-        return response()->json([
-            'status' => true,
-            'results' => $role,
-        ]);
+        return $this->permissionRepositoryInterface->show($id);
     }
 
     function update(Request $request, $id)
     {
         $request->merge(['id' => $id]);
-        return $this->store($request);
+        return app(PermissionsController::class)->store($request);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    function statusUpdate($id)
     {
-        //
+        return $this->permissionRepositoryInterface->statusUpdate($id);
     }
-
-    function getRolePermissions($id)
-    {
-
-        if ($id === 'all') {
-            $permissions = Permission::whereNotNull('uri');
-        } else {
-            $permission = Role::findOrFail($id);
-            $permissions = $permission->permissions();
-        }
-
-        $permissions = $permissions->get();
-
-        if (request()->uri)
-            $permissions = $permissions->pluck('uri');
-
-        return response(['results' => $permissions]);
-    }
-
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        return $this->permissionRepositoryInterface->destroy($id);
     }
 }

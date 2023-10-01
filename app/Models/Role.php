@@ -11,5 +11,5 @@ class Role extends SpatieRole
     use HasFactory, HasUlids;
     protected $keyType = 'string';
 
-    protected $fillable = ['name', 'description', 'guard_name'];
+    protected $fillable = ['name', 'description', 'guard_name', 'status_id'];
 }

@@ -39,7 +39,7 @@ class CategoriesController extends Controller
                         '')
                     .
                     '
-                            <li><a class="dropdown-item autotable-status-update" data-id="' . $item->id . '" href="/admin/posts/' . $item->slug . '/status-update">' . ($item->status == 1 ? 'Deactivate' : 'Activate') . '</a></li>
+                            <li><a class="dropdown-item autotable-status-update" data-id="' . $item->id . '" href="/admin/posts/' . $item->slug . '/status-update">Status update</a></li>
                         </ul>
                     </div>
                     ';
