@@ -58,6 +58,9 @@ const showErrors = (data: any, validationElementId: string | null = null) => {
             invalidFeedback.classList.add('invalid-feedback');
             invalidFeedback.innerHTML = errors[key];
             const formGroup = element.closest('.form-group') || element.closest('.form-floating');
+            if (formGroup?.classList.contains('inside-accordion')) {
+                formGroup.closest('.accordion-item')?.classList.add('has-error')
+            }
 
             if (!formGroup) continue
 
@@ -69,12 +72,18 @@ const showErrors = (data: any, validationElementId: string | null = null) => {
                 if (!element) return
                 element.classList.remove('is-invalid');
                 invalidFeedback.remove();
+                if (formGroup?.classList.contains('inside-accordion')) {
+                    formGroup.closest('.accordion-item')?.classList.remove('has-error')
+                }
             });
 
             element.addEventListener('click', function () {
                 if (!element) return
                 element.classList.remove('is-invalid');
                 invalidFeedback.remove();
+                if (formGroup?.classList.contains('inside-accordion')) {
+                    formGroup.closest('.accordion-item')?.classList.remove('has-error')
+                }
             });
         }
     }
@@ -89,12 +98,15 @@ const clearErrors = (validationElementId: string | null = null) => {
         element.classList.remove('is-invalid');
         const el = element.closest('.form-group') || element.closest('.form-floating');
         if (!el) return
-        
+
         el.classList.remove('has-error');
         const invalidFeedback = el.querySelector('.invalid-feedback');
         if (invalidFeedback) {
             invalidFeedback.remove();
         }
+
+        el.closest('.accordion-item')?.classList.remove('has-error')
+
     });
 };
 

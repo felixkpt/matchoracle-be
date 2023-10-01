@@ -22,20 +22,35 @@ const Index = () => {
       expand.addEventListener('click', collapseEvent);
     }
 
-    function collapseEvent() {
-      const trg = document.body.querySelector('#layoutWrapper')
-
-      if (trg) {
-        trg.classList.toggle('collapsed');
-        setIsOpen(trg.classList.contains('collapsed'))
-
-      }
-    }
-
     return () => removeEventListener('click', collapseEvent)
 
   }, [currentRole])
 
+
+  function collapseEvent() {
+    const trg = document.body.querySelector('#layoutWrapper')
+
+    if (trg) {
+      trg.classList.toggle('collapsed');
+      setIsOpen(trg.classList.contains('collapsed'))
+
+      const isToggled = trg.classList.contains('collapsed');
+      localStorage.setItem('sb|sidebar-collapse', isToggled.toString());
+    }
+  }
+
+
+  useEffect(() => {
+
+    let exists = localStorage.getItem('sb|sidebar-collapse')
+    if (exists) {
+      const collaped = JSON.parse(exists)
+      if (collaped === true) {
+        collapseEvent()
+      }
+    }
+
+  }, [])
 
   const memoizeMenu = useMemo(() => {
 
@@ -43,7 +58,7 @@ const Index = () => {
       <>
         {
           user && Array.isArray(userMenu) ?
-            <ul className="metismenu list-unstyled nested-routes main" id="menu">
+            <ul className="list-unstyled nested-routes main" id="menu">
 
               {
                 userMenu.map((child: RouteCollectionInterface) => {
@@ -61,7 +76,7 @@ const Index = () => {
                   if (shouldShowFolder)
 
                     return (
-                      <div key={currentId} className='position-relative top-0'>
+                      <div key={currentId} className='position-relative top-0 first-level'>
                         <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target={`#${currentId}`} aria-expanded="false" aria-controls="collapsePages">
                           <span className='d-flex align-items-center gap-1'>
                             <Icon className='nav-icon' icon={`${icon || 'prime:bookmark'}`} />
