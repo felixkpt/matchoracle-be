@@ -49,3 +49,4 @@ export const convertToLaravelPattern = (uri:string) => {
     const laravelPattern = uri.replace(/:\w+/g, (match) => `{${match.substring(1)}}`);
     return laravelPattern;
   };
+  

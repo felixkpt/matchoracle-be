@@ -4,7 +4,14 @@ import { debounce } from 'lodash';
 import Pagination from './Pagination';
 import { convertToTitleCase } from '@/utils/helpers';
 
-const AutoTableRecursive = ({ baseUri, listUri, search, sortColumns }) => {
+interface Props {
+  baseUri: any
+  listUri: any
+  search: any
+  sortColumns: any
+}
+
+const AutoTableRecursive = ({ baseUri, listUri, search, sortColumns }: Props) => {
   const { tableData, loading, handleOrderBy, handleSearch, setPage, setPerPage } = useAutoTableEffect(
     baseUri,
     listUri

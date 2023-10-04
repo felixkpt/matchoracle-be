@@ -7,7 +7,7 @@ interface Props {
 
 const Posts = ({ category }: Props) => {
 
-    return (
+  return (
     <div>
       <PageHeader title={'Posts List'} action="link" actionText="Create Post" actionLink={`/admin/posts/create?category_id=${category ? category.id : '0'}`} permission='/admin/posts' />
       <div>
@@ -15,27 +15,20 @@ const Posts = ({ category }: Props) => {
           baseUri={`/admin/posts?category_id=${category ? category.id : '0'}`}
           columns={[
             {
-              label: 'ID',
-              key: 'id',
-            },
-            {
               label: 'Title',
               key: 'title',
             },
             {
-              label: 'slug',
-              key: 'slug',
-            }, {
-              label: 'Content Short',
-              key: 'content_short',
-            },
-            {
               label: 'Created At',
-              key: 'created_at',
+              key: 'Created_at',
+            },{
+              label: 'Created By',
+              key: 'user.name',
             },
             {
               label: 'Status',
-              key: 'status',
+              key: 'Status',
+              is_html: true,
             },
             {
               label: 'Action',

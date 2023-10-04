@@ -8,6 +8,7 @@ import PageHeader from '@/components/PageHeader';
 import { baseURL, tnymce_key } from '@/utils/helpers';
 import { toggleSidebar } from '@/Layouts/Authenicated/SideNav/Index';
 import Settings from './Includes/Settings';
+import { PostInterface } from '@/interfaces/PostInterfaces';
 
 const CreateOrUpdate = () => {
 
@@ -16,7 +17,7 @@ const CreateOrUpdate = () => {
   const navigate = useNavigate()
 
   const [key, setKey] = useState(0)
-  const [post, setPost] = useState()
+  const [post, setPost] = useState<PostInterface | null>()
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -52,8 +53,10 @@ const CreateOrUpdate = () => {
     if (post) {
 
       setTitle(post.title)
+      setContent(post.content)
       setInitialContent(post.content)
-
+      let f = post.image
+      setFiles([f]);
 
     }
     else if (!id) {
@@ -67,6 +70,7 @@ const CreateOrUpdate = () => {
           setPost(null);
           setTitle('');
           setContent('');
+          setFiles([]);
 
         }
       })
@@ -116,6 +120,8 @@ const CreateOrUpdate = () => {
     }
 
   }, [post, statuses])
+
+      console.log(statuses)
 
   return (
     <div>

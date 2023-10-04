@@ -63,6 +63,7 @@ interface ColumnInterface {
     label: string
     key: string
     column?: string
+    is_html?: boolean
 }
 
 interface ActionInterface {

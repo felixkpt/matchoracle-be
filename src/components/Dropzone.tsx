@@ -1,6 +1,7 @@
 import { useDropzone, FileRejection, DropEvent } from 'react-dropzone';
 import "@/styles/dropzone.scss";
-import React, { useCallback, useState, useMemo } from "react";
+import React, { useCallback, useState, useMemo, useEffect } from "react";
+import { baseURL } from '@/utils/helpers';
 
 interface Props<T extends Blob | MediaSource> {
   files: T[];
@@ -43,6 +44,10 @@ export default function Dropzone<T extends Blob | MediaSource>({ files, setFiles
     [isDragAccept, isDragReject]
   );
 
+  useEffect(() => {
+    setSelectedImages(files)
+  }, [files])
+
   return (
     <div className='dropzone-container' id={id || 'DropzoneSection'}>
       <div className={'dropzone'} {...getRootProps({ style })}>
@@ -57,7 +62,7 @@ export default function Dropzone<T extends Blob | MediaSource>({ files, setFiles
       <div className={'images'}>
         {selectedImages.length > 0 &&
           selectedImages.map((image, index) => (
-            <img src={`${URL.createObjectURL(image)}`} key={index} alt="" />
+            <img src={`${(image === null || typeof image === 'string') ? baseURL(image) : URL.createObjectURL(image)}`} key={index} alt="" />
           ))}
       </div>
     </div>

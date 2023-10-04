@@ -241,6 +241,16 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, getModelDetail
 
     };
 
+    function getDynamicValue(row, path) {
+
+        if (!path.match(/\./)) {
+            const val = row[path] || 'N/A'
+            return typeof val === 'object' ? '[object]' : val;
+        } else {
+            return path.split('.').reduce((acc, prop) => acc && acc[prop], row);
+        }
+    }
+
     return (
         <div id={id} className={`autotable shadow rounded-3 px-1 my-3 relative overflow-x-auto shadow-md sm:rounded-lg ${modelDataLength >= 0 ? 'overflow-hidden' : 'overflow-auto'}`}>
             <div className="bg-gray-50 dark:bg-gray-800 py-3.5 overflow-auto">
@@ -314,7 +324,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, getModelDetail
 
                                 {columns && columns.map(column => {
                                     return (
-                                        <td key={column.key} scope="col" className="px-6 py-3">{column.key === 'action' ? __dangerousHtml(row[column.key]) : row[column.key]}</td>
+                                        <td key={column.key} scope="col" className="px-6 py-3">{(column.key === 'action' || column.is_html === true) ? __dangerousHtml(row[column.key]) : getDynamicValue(row, column.key)}</td>
                                     )
                                 })}
 
