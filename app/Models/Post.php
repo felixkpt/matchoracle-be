@@ -13,4 +13,23 @@ class Post extends Model
 
     protected $fillable = ['title', 'slug', 'content_short', 'content', 'image', 'category_id', 'topic_id', 'status_id', 'user_id', 'priority_number'];
 
+    function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    
+    function status()
+    {
+        return $this->belongsTo(PostStatus::class);
+    }
+
+    function category()
+    {
+        return $this->belongsTo(PostCategory::class);
+    }
+
+    function topic()
+    {
+        return $this->belongsTo(PostTopic::class);
+    }
 }

@@ -12,14 +12,14 @@ class PostTopicsSeeder extends Seeder
     public function run()
     {
         $topics = [
-            ['category_id' => PostCategory::inRandomOrder()->first()->id, 'title' => 'Introduction'],
-            ['category_id' => PostCategory::inRandomOrder()->first()->id, 'title' => 'Components'],
-            ['category_id' => PostCategory::inRandomOrder()->first()->id, 'title' => 'Database Schema'],
+            ['category_id' => PostCategory::inRandomOrder()->first()->id, 'name' => 'Introduction'],
+            ['category_id' => PostCategory::inRandomOrder()->first()->id, 'name' => 'Components'],
+            ['category_id' => PostCategory::inRandomOrder()->first()->id, 'name' => 'Database Schema'],
         ];
 
         foreach ($topics as $topic) {
-            $slug = Str::slug($topic['title']);
-            PostTopic::updateOrCreate(['slug' => $slug], ['category_id' => $topic['category_id'], 'title' => $topic['title'], 'slug' => $slug]);
+            $slug = Str::slug($topic['name']);
+            PostTopic::updateOrCreate(['slug' => $slug], ['category_id' => $topic['category_id'], 'name' => $topic['name'], 'slug' => $slug]);
         }
     }
 }

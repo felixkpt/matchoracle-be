@@ -389,7 +389,7 @@ class SearchRepo
 
         $fillable = $this->mergeFillable($fillable);
 
-        $statuses = $this->statuses ?: Status::select('id', 'name')->get()->toArray();
+        $statuses = $this->statuses ?: Status::select('id', 'name', 'icon', 'class')->get()->toArray();
 
         $arr = [
             'sortable' => $this->sortable,

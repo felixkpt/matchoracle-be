@@ -9,15 +9,23 @@ class PostStatusSeeder extends Seeder
 {
     public function run()
     {
-        $statusNames = [
-            'draft', 'pending_review', 'scheduled', 'published',
-            'private', 'trash', 'archived', 'draft_in_review', 'rejected'
+        $statuses = [
+            ['name' => 'draft', 'icon' => 'ontisto:checkbox-active'],
+            ['name' => 'pending_review', 'icon' => 'mdi:receipt-text-pending'],
+            ['name' => 'scheduled', 'icon' => 'mdi:scheduled-payment'],
+            ['name' => 'published', 'icon' => 'ic:sharp-published-with-changes'],
+            ['name' => 'private', 'icon' => 'ri:git-repository-private-line'],
+            ['name' => 'trash', 'icon' => 'fe:trash'],
+            ['name' => 'archived', 'icon' => 'bi:archive'],
+            ['name' => 'draft_in_review', 'icon' => 'carbon:result-draft'],
+            ['name' => 'rejected', 'icon' => 'icon-park-outline:reject'],
         ];
 
-        foreach ($statusNames as $name) {
+        foreach ($statuses as $status) {
             PostStatus::updateOrCreate([
-                'name' => $name,
-                'description' => ucfirst(str_replace('_', ' ', $name)) . ' status.',
+                'name' => $status['name'],
+                'description' => ucfirst(str_replace('_', ' ', $status['name'])) . ' status.',
+                'icon' => $status['icon'],
             ]);
         }
     }

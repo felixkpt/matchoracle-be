@@ -11,5 +11,5 @@ class PostTopic extends Model
     use HasFactory;
     use HasUlids;
 
-    protected $fillable = ['category_id', 'title', 'slug', 'description', 'image', 'status_id', 'user_id', 'priority_number'];
+    protected $fillable = ['category_id', 'name', 'slug', 'description', 'image', 'status_id', 'user_id', 'priority_number'];
 }

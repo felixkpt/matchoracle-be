@@ -20,9 +20,8 @@ class CategoriesController extends Controller
             ->when(isset(request()->id) && request()->id > 0, fn ($q) => $q->where('id', request()->id))
             ->when(isset(request()->parent_category_id), fn ($q) => $q->where('parent_category_id', request()->parent_category_id));
 
-        $res = SearchRepo::of($docs, ['id', 'title', 'image'])
+        $res = SearchRepo::of($docs, ['id', 'name', 'image'])
             ->sortable(['id', 'image'])
-            ->addColumn('name', fn ($item) => $item->title)
             ->addColumn('action', function ($item) {
                 return '
                     <div class="dropdown">
@@ -59,11 +58,11 @@ class CategoriesController extends Controller
 
         // Validate the incoming request data
         $validatedData = $request->validate([
-            'title' => [
+            'name' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('postcategories', 'title')->where(function ($query) use ($request) {
+                Rule::unique('postcategories', 'name')->where(function ($query) use ($request) {
                     return $query->where('parent_category_id', $request->parent_category_id);
                 })->ignore($request->id),
             ],
@@ -82,8 +81,8 @@ class CategoriesController extends Controller
         if ($request->slug) {
             $slug = Str::slug($validatedData['slug']);
         } else {
-            // Generate the slug from the title and parent_category slug
-            $slug = Str::slug($validatedData['title']);
+            // Generate the slug from the name and parent_category slug
+            $slug = Str::slug($validatedData['name']);
 
 
             if ($request->id) {
@@ -119,8 +118,8 @@ class CategoriesController extends Controller
             $validatedData['user_id'] = auth()->user()->id;
         }
 
-        // Create a new Documentation instance with the validated data
-        $validatedData['title'] = Str::title($validatedData['title']);
+        // Create a new PostCat instance with the validated data
+        $validatedData['name'] = Str::title($validatedData['name']);
 
         $documentation = PostCategory::updateOrCreate(['id' => $request->id], $validatedData);
 

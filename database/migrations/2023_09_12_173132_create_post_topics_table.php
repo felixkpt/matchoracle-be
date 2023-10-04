@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('post_topics', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('category_id')->references('id')->on('post_categories');
-            $table->string('title');
+            $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->string('image')->nullable();

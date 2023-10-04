@@ -12,16 +12,25 @@ class PostValidation implements PostValidationInterface
     public function store(Request $request): mixed
     {
 
-        // Validate the incoming request data
-        $validatedData = $request->validate([
+        $rules = [
             'category_id' => 'required|exists:post_categories,id',
             'topic_id' => 'nullable|exists:post_topics,id',
             'title' => 'required|string|max:255|unique:posts,title,' . $request->id . ',id', // Ensure title is unique
             'content_short' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'required|image',
+            'image' => ['required', 'image'],
             'priority_number' => 'nullable|integer|between:0,99999999',
-        ]);
+            'status_id' => 'required|exists:post_statuses,id',
+        ];
+
+        if ($request->id) {
+            $rules['image'] = ['nullable'];
+        }
+
+
+        // Validate the incoming request data
+        $validatedData = $request->validate($rules);
+        unset($validatedData['image']);
 
         if ($request->slug) {
             $slug = Str::slug($validatedData['slug']);

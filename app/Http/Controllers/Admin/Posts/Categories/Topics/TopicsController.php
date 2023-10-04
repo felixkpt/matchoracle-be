@@ -24,9 +24,8 @@ class TopicsController extends Controller
                 $q->where('category_id', $cat->id);
             });
 
-        $res = SearchRepo::of($docs, ['id', 'title', 'image'])
+        $res = SearchRepo::of($docs, ['id', 'name', 'image'])
             ->sortable(['id', 'image'])
-            ->addColumn('name', fn ($item) => $item->title)
             ->addColumn('action', function ($item) {
                 return '
                     <div class="dropdown">
@@ -64,7 +63,7 @@ class TopicsController extends Controller
         // Validate the incoming request data
         $validatedData = $request->validate([
             'category_id' => 'required|exists:post_categories,id', // Ensure id exists
-            'title' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'slug' => [
                 'nullable',
                 'string',
@@ -79,8 +78,8 @@ class TopicsController extends Controller
         if ($request->slug) {
             $slug = Str::slug($validatedData['slug']);
         } else {
-            // Generate the slug from the title
-            $slug = Str::slug($validatedData['title']);
+            // Generate the slug from the name
+            $slug = Str::slug($validatedData['name']);
 
             if (!$request->id) {
 

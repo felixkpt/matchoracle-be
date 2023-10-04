@@ -10,7 +10,7 @@ class PostStatus extends Model
 {
     use HasUlids;
 
-    protected $fillable = ['name', 'description', 'icon'];
+    protected $fillable = ['name', 'description', 'icon', 'class'];
 
     use HasFactory;
 }

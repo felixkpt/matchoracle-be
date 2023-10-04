@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('description');
             $table->string('icon')->nullable();
+            $table->string('class')->nullable();
             $table->uuid('user_id')->default(0);
             $table->timestamps();
         });

@@ -51,6 +51,7 @@ class PostStatusesController extends Controller
                 'name' => 'required|string|unique:post_statuses,name,' . $request->id . ',id',
                 'description' => 'required|string',
                 'icon' => 'required|string',
+                'class' => 'nullable|string',
 
             ]
         );

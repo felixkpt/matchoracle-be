@@ -13,6 +13,7 @@ class PostController extends Controller
         private PostRepositoryInterface $postRepositoryInterface,
     ) {
     }
+    
 
     public function show($id)
     {

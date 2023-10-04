@@ -9,14 +9,22 @@ class StatusSeeder extends Seeder
 {
     public function run()
     {
-        $statusNames = [
-            'active', 'in_active'
+        $statuses = [
+            [
+                'name' => 'active',
+                'icon' => 'ontisto:checkbox-active'
+            ],
+            [
+                'name' => 'in_active',
+                'icon' => 'material-symbols:inactive-order-rounded'
+            ],
         ];
 
-        foreach ($statusNames as $name) {
+        foreach ($statuses as $status) {
             Status::updateOrCreate([
-                'name' => $name,
-                'description' => ucfirst(str_replace('_', ' ', $name)) . ' status.',
+                'name' => $status['name'],
+                'description' => ucfirst(str_replace('_', ' ', $status['name'])) . ' status.',
+                'icon' => $status['icon'],
             ]);
         }
     }

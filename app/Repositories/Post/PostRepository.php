@@ -8,6 +8,7 @@ use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
 use App\Services\Filerepo\Controllers\FilesController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostRepository implements PostRepositoryInterface
 {
@@ -21,9 +22,10 @@ class PostRepository implements PostRepositoryInterface
 
     public function index()
     {
-        $posts = $this->model::query()->when(isset(request()->category_id) && request()->category_id > 0, fn ($q) => $q->where('category_id', request()->category_id));
+        $posts = $this->model::with(['user', 'status'])
+            ->when(isset(request()->category_id) && request()->category_id > 0, fn ($q) => $q->where('category_id', request()->category_id));
 
-        $res = SearchRepo::of($posts, ['title', 'content_short'], ['id', 'title', 'status', 'user_id'], ['title', 'content_short', 'content', 'image', 'status'])
+        $res = SearchRepo::of($posts, ['title', 'content_short', 'status', 'user_id'])
             ->addColumn('action', function ($item) {
                 return '
                     <div class="dropdown">
@@ -45,16 +47,19 @@ class PostRepository implements PostRepositoryInterface
                     </div>
                     ';
             })
-            ->statuses(PostStatus::select('id', 'name')->get())
+            ->addColumn('Created_at', fn ($q) => $q->created_at->toDayDateTimeString())
+            ->addColumn('Status', function ($q) {
+                $status = $q->status;
+                if ($status) {
+                    return '<div class="d-flex justify-content-center align-items-center"><iconify-icon icon="'.$status->icon.'" class="me-1"></iconify-icon>'.Str::ucfirst(Str::replace('_', ' ', $status->name)).'</div>';
+                } else return null;
+            })
+            ->statuses(PostStatus::select('id', 'name', 'icon', 'class')->get())
             ->paginate();
 
         return response(['results' => $res]);
     }
 
-    public function create()
-    {
-        // Show the create posts/doc page form
-    }
 
     public function store(Request $request, $data)
     {
@@ -63,6 +68,7 @@ class PostRepository implements PostRepositoryInterface
         $post = $this->model::updateOrCreate(['id' => $request->id], $data);
 
         if (request()->hasFile('image')) {
+
             $uploader = new FilesController();
             $image_data = $uploader->saveFiles($post, [request()->file('image')]);
 
@@ -79,11 +85,17 @@ class PostRepository implements PostRepositoryInterface
 
     public function show($id)
     {
-        $posts = $this->model::where('id', $id);
+        // Benchmark::dd([
+        //     'Post 1' => fn () => Post::first(),
+        //     'Post 5' => fn () => Post::first(),
+        // ]);
+
+        $posts = $this->model::with(['category', 'topic'])->where('id', $id);
 
         $res = SearchRepo::of($posts, [], [])
             ->addColumn('content', fn ($item) => refreshTemporaryTokensInString($item->content))
-            ->statuses(PostStatus::select('id', 'name')->get())->first();
+            ->addColumn('image', fn ($item) => $item->image ? assetUriWithToken($item->image) : $item->image)
+            ->statuses(PostStatus::select('id', 'name', 'icon', 'class')->get())->first();
 
         return response(['results' => $res]);
     }
@@ -93,6 +105,4 @@ class PostRepository implements PostRepositoryInterface
         $request->merge(['id' => $id]);
         return app(PostsController::class)->store($request);
     }
-    
-    
 }

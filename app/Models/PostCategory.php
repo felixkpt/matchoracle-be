@@ -10,6 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 class PostCategory extends Model
 {
     use HasFactory, ExcludeSystemFillable, HasUlids;
-    protected $fillable = ['title', 'slug', 'description', 'image', 'status_id', 'user_id', 'parent_category_id', 'priority_number'];
+    protected $fillable = ['name', 'slug', 'description', 'image', 'status_id', 'user_id', 'parent_category_id', 'priority_number'];
     protected $systemFillable = ['parent_category_id'];
 }
