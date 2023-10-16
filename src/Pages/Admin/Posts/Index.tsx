@@ -19,16 +19,16 @@ const Posts = ({ category }: Props) => {
               key: 'title',
             },
             {
+              label: 'Author',
+              key: 'user.name',
+            },
+            {
               label: 'Created At',
               key: 'Created_at',
-            },{
-              label: 'Created By',
-              key: 'user.name',
             },
             {
               label: 'Status',
               key: 'Status',
-              is_html: true,
             },
             {
               label: 'Action',

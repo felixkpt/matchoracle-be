@@ -10,7 +10,7 @@ const Index = (props: Props) => {
 
     const [modelDetails, setModelDetails] = useState({})
 
-    const {rolePermissions: list_sources } = useListSources()
+    const { rolePermissions: list_sources } = useListSources()
 
     return (
 
@@ -33,13 +33,18 @@ const Index = (props: Props) => {
                     },
                     {
                         label: 'Created At',
-                        key: 'created_at',
+                        key: 'Created_at',
+                    },
+                    {
+                        label: 'Status',
+                        key: 'Status',
                     },
                     {
                         label: 'Action',
                         key: 'action',
                     },
                 ]}
+                exclude={['created_at']}
                 getModelDetails={setModelDetails}
                 search={true}
             />

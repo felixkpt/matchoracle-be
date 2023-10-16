@@ -35,6 +35,15 @@ const Index = () => {
                         key: 'slug',
                     },
                     {
+                        label: 'Created At',
+                        key: 'Created_at',
+                    },
+                    {
+                        label: 'Status',
+                        key: 'Status',
+                        is_html: true,
+                    },
+                    {
                         label: 'Action',
                         key: 'action',
                     }

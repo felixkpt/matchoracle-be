@@ -1,36 +1,51 @@
+import AutoModal from "@/components/AutoModal";
 import AutoTable from "@/components/AutoTable";
-import DefaultLayout from "@/Layouts/DefaultLayout";
-import { Head } from "@inertiajs/react";
+import PageHeader from "@/components/PageHeader";
+import useListSources from "@/hooks/apis/useListSources";
+import { useState } from "react";
 
 const Show = () => {
-  const baseUri = 'countries';
-  const listUri = 'list';
-  const search = true;
+  const [modelDetails, setModelDetails] = useState({})
+
+  const { competitions: list_sources } = useListSources()
+
   const columns = [
-    { label: 'id', key: 'id' },
+    {
+      label: 'Flag',
+      key: 'flag',
+    },
     { label: 'Name', key: 'name' },
-    { label: 'Has Competitions', key: 'has_competitions'},
-    { label: 'priority_no', key: 'priority_no' },
-    { label: 'status', key: 'status' },
-    { label: 'created by', key: 'created_by', column: 'users.name' },
+    {
+      label: 'Slug',
+      key: 'slug',
+    },
+    { label: 'Continent', key: 'continent' },
+    { label: 'Has Competitions', key: 'has_competitions' },
+    { label: 'priority_no', key: 'priority_number' },
+    {
+      label: 'Created At',
+      key: 'Created_at',
+    },
+    {
+      label: 'Status',
+      key: 'Status',
+    },
+    {
+      label: 'Action',
+      key: 'action',
+    },
   ]
 
   return (
-    <DefaultLayout title="Countries List">
-      <AutoTable
-        baseUri={baseUri}
-        listUri={listUri}
-        singleUri={`/countries/country`}
-        search={search}
-        columns={columns}
-        action={{
-          label: 'Actions',
-          mode: 'buttons', // or 'dropdown'
-          view: 'page',
-          edit: 'modal',
-        }}
-      />
-    </DefaultLayout>
+    <div>
+      <PageHeader title={'Countries list'} action="button" actionText="Create Country" actionTargetId="AutoModal" permission='admin/countries' />
+      <div>
+        <AutoTable columns={columns} baseUri={'/admin/countries'} search={true} getModelDetails={setModelDetails} />
+      </div>
+      {
+        modelDetails && <><AutoModal modelDetails={modelDetails} actionUrl='/admin/countries' list_sources={list_sources} /></>
+      }
+    </div>
   );
 };
 

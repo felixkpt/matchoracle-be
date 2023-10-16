@@ -1,10 +1,10 @@
+import Str from "@/utils/Str";
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
 // Define the type for each tab item
 type Tab = {
   name: string;
-  link: string;
   content: JSX.Element;
 };
 
@@ -22,7 +22,7 @@ const AutoTabs: React.FC<Props> = ({ tabs, currentTab, active }) => {
     // Get the 'tab' URL parameter from the query string
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get("tab");
-    const defaultTab = active || tabs[0]?.link; // Use the 'active' prop if provided, or use the first tab
+    const defaultTab = active || Str.slug(tabs[0].name); // Use the 'active' prop if provided, or use the first tab
     return tabParam || defaultTab; // Use the 'tab' URL parameter if available, otherwise use the default tab
   });
 
@@ -48,14 +48,14 @@ const AutoTabs: React.FC<Props> = ({ tabs, currentTab, active }) => {
   }
 
   // Get the content of the currently active tab
-  const currentTabContent = tabs.find((tab) => tab.link === openTab)?.content;
+  const currentTabContent = tabs.find((tab) => Str.slug(tab.name) === openTab)?.content;
 
   // Effect to handle popstate event (back/forward navigation)
   useEffect(() => {
     const handlePopstate = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get("tab");
-      setOpenTab(tabParam || tabs[0]?.link); // Use the 'tab' URL parameter if available, otherwise use the first tab
+      setOpenTab(tabParam || Str.slug(tabs[0].name)); // Use the 'tab' URL parameter if available, otherwise use the first tab
     };
 
     window.addEventListener("popstate", handlePopstate);
@@ -67,15 +67,15 @@ const AutoTabs: React.FC<Props> = ({ tabs, currentTab, active }) => {
 
   // Render the AutoTabs component
   return (
-    <div>
+    <div className="tabs-section">
       <ul className="nav nav-tabs" role="tablist">
 
         {tabs.map((tab) => (
           <li key={tab.name} className="nav-item" role="presentation">
             <NavLink
-              to={`?tab=${tab.link}`} // Set the URL parameter for the tab link
-              onClick={(e) => handleTab(e, tab.link)} 
-              className={`nav-link ${openTab === tab.link ? "active bg-body-secondary" : "border-bottom"}`}
+              to={`?tab=${Str.slug(tab.name)}`} // Set the URL parameter for the tab link
+              onClick={(e) => handleTab(e, Str.slug(tab.name))}
+              className={`nav-link ${openTab === Str.slug(tab.name) ? "active bg-body-secondary" : "border-bottom"}`}
               data-toggle="tab"
             >
               {tab.name}

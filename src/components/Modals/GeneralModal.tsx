@@ -1,5 +1,4 @@
 import { publish, subscribe, unsubscribe } from '@/utils/events';
-import { emitAjaxPost } from '@/utils/helpers'
 import React, { ReactNode, useEffect, useState } from 'react'
 
 interface GeneralModalProps {

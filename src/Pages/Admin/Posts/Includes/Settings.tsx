@@ -1,6 +1,5 @@
 import Select from "react-select";
 import useQueryParams from '@/hooks/useQueryParams';
-import useAxios from "@/hooks/useAxios";
 import { useEffect, useState } from "react";
 import Dropzone from '@/components/Dropzone';
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -25,7 +24,8 @@ const Settings = ({ post, files, setFiles, statuses }: Props) => {
     const [selectedTopic, setSelectedTopic] = useState(null);
 
     const [contentShort, setContentShort] = useState('')
-    const [status_id, setStatusId] = useState()
+    const [status_id, setStatusId] = useState<string>()
+    const [priority_number, setPriorityNumber] = useState(9999)
 
     const { fetchSelectData, handleSelectChange } = useListDependsOn()
 
@@ -38,6 +38,7 @@ const Settings = ({ post, files, setFiles, statuses }: Props) => {
         if (post) {
             setContentShort(post.content_short);
             setStatusId(post.status_id)
+            setPriorityNumber(post.priority_number)
 
             if (post?.category) {
                 setSelectedCategory(post?.category)
@@ -47,11 +48,13 @@ const Settings = ({ post, files, setFiles, statuses }: Props) => {
                 setSelectedTopic(post?.topic)
             }
 
+        } else {
+
+            if (statuses && statuses.length > 0) {
+                setStatusId(statuses.find((status: any) => status.name === 'published').id || 0);
+            }
         }
 
-        if (statuses && statuses.length > 0) {
-            setStatusId(statuses.find((status: any) => status.name === 'published').id || 0);
-        }
     }, [post])
 
     return (
@@ -106,7 +109,7 @@ const Settings = ({ post, files, setFiles, statuses }: Props) => {
                             </div>
                             <div className='form-group mb-4 inside-accordion'>
                                 <label htmlFor="priority_number">Priority number</label>
-                                <input type="number" name="priority_number" className="form-control" id="priority_number" defaultValue={post?.priority_number ?? 9999} />
+                                <input type="number" name="priority_number" className="form-control" id="priority_number" key={priority_number} defaultValue={priority_number} />
                             </div>
                         </div>
                     </div>
@@ -135,7 +138,7 @@ const Settings = ({ post, files, setFiles, statuses }: Props) => {
                                                         checked={status.id === status_id}
                                                     />
                                                     <label className="form-check-label d-flex gap-2 align-items-center" htmlFor={`${status.id}_status`}>
-                                                        <Icon icon={`${status.icon}`} className={`${status.class}`} />{Str.title(status.name)}
+                                                        <Icon icon={`${status.icon}`} id={`${status.id}`} className={`${status.class}`} />{Str.title(status.name)}
                                                     </label>
                                                 </div>
                                             </li>

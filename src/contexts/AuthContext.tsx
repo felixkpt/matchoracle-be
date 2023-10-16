@@ -23,6 +23,7 @@ interface AuthenticatedUser {
   setVerified: (val: boolean) => void;
   redirectTo: string
   setRedirectTo: (location: string) => void;
+  fileAccessToken: string | null
 }
 
 // Function to decrypt the user object
@@ -57,6 +58,7 @@ const AuthContent = createContext<AuthenticatedUser>({
   setVerified: () => { },
   redirectTo: '/',
   setRedirectTo: () => { },
+  fileAccessToken: null
 
 });
 
@@ -112,6 +114,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (encryptedUser) {
         localStorage.setItem('user', encryptedUser);
         setVerified(true)
+        setFileAccessToken(updatedUserData.fileAccessToken); // Set the file access token
+
 
       }
 
@@ -131,9 +135,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     _setUser(null);
   };
 
+  const [fileAccessToken, setFileAccessToken] = useState<string | null>(null);
+
   // Provide the authentication data and functions to the children components
   return (
-    <AuthContent.Provider value={{ user, updateUser, csrfToken, setUser, deleteUser, verified, setVerified, redirectTo, setRedirectTo }}>
+    <AuthContent.Provider value={{ user, updateUser, csrfToken, setUser, deleteUser, verified, setVerified, redirectTo, setRedirectTo, fileAccessToken }}>
       {children}
     </AuthContent.Provider>
   );

@@ -8,8 +8,10 @@ const useListDependsOn = () => {
 
     const fetchSelectData = (url: string, setDataFunction?: (data: []) => any) => {
         get(url).then((results) => {
-            if (results && setDataFunction)
+            
+            if (!!(results && setDataFunction)) {
                 setDataFunction(results.data);
+            }
         });
     };
 

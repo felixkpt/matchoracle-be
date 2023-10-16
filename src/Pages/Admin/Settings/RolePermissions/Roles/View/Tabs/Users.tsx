@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useRolePermissionsContext } from "@/contexts/RolePermissionsContext";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { useAuth } from "@/contexts/AuthContext";
+import async from "node_modules/react-select/dist/declarations/src/async";
 
 type Props = {
     role: RoleInterface;
@@ -71,24 +72,25 @@ const Users = ({ role }: Props) => {
 const AddUser = ({ role }: Pick<Props, 'role'>) => {
 
     const { fetchRolesAndDirectPermissions } = useRolePermissionsContext();
+
     const { user } = useAuth()
 
     const { get } = useAxios()
 
-    const debouncedLoadOptions = (roleId: number) =>
-        debounce(async (q: string, callback: (data: any[]) => void) => {
-            const { data } = await get(`/admin/settings/users?role_id=${roleId}&negate=1&all=1&q=${q}`);
-            callback(data || []);
-        }, 1000);
+    const loadOptions = async (q: string) => {
+        const { data } = await get(`/admin/settings/users?role_id=${role.id}&negate=1&all=1&q=${q}`);
+
+        return data ?? []
+    }
 
     const handleIsCurrentUser = (event: CustomEvent<{ [key: string]: any }>) => {
-   
+
         if (user && event.detail) {
             const detail = event.detail;
 
             if (detail.results) {
                 if (detail.elementId === 'addUserToRole') {
-                   
+
                     if (user.id == detail.results.id) {
                         // refetch user roles
                         fetchRolesAndDirectPermissions()
@@ -111,9 +113,9 @@ const AddUser = ({ role }: Pick<Props, 'role'>) => {
                     className="form-control"
                     name={`user_id`}
                     defaultOptions
-                    loadOptions={debouncedLoadOptions(role.id)}
-                    getOptionValue={(option:any) => `${option['id']}`}
-                    getOptionLabel={(option:any) => `${option['name']}`}
+                    loadOptions={(q: any) => loadOptions(q)}
+                    getOptionValue={(option: any) => `${option['id']}`}
+                    getOptionLabel={(option: any) => `${option['name']}`}
                 />
             </div>
             <div className="form-group">

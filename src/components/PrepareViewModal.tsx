@@ -11,7 +11,11 @@ const PrepareViewModal = () => {
 
         const detail = event?.detail
         if (detail) {
-            setModelDetails({ ...detail.modelDetails, exclude: ['id', 'action'] })
+            let allExclude = ['id', 'action']
+            if (detail.exclude)
+                allExclude.push(detail.exclude)
+
+            setModelDetails({ ...detail.modelDetails, exclude: allExclude })
             setRecord(detail.record)
         }
 

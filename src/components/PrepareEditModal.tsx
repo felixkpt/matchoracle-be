@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { subscribe, unsubscribe } from '@/utils/events'
+import { publish, subscribe, unsubscribe } from '@/utils/events'
 import AutoModal from './AutoModal'
 import { ListSourceInterface } from '@/interfaces/UncategorizedInterfaces'
 
@@ -9,7 +9,7 @@ const PrepareEditModal = () => {
     const [record, setRecord] = useState<any>(undefined)
     const [list_sources, setListSources] = useState<{ [key: string]: () => Promise<ListSourceInterface[]> }>()
 
-    const [action, setActionUrl] = useState<string>('')
+    const [actionUrl, setActionUrl] = useState<string>('')
     const [modalSize, setModalSize] = useState(undefined)
 
     const prepareEdit = async (event: CustomEvent<{ [key: string]: any }>) => {
@@ -41,7 +41,12 @@ const PrepareEditModal = () => {
 
             const customEvent = event as CustomEvent<{ [key: string]: any }>;
             if (customEvent.detail) {
-                prepareEdit(customEvent);
+
+                if (customEvent.detail.customModalId) {
+                    publish('prepareEditCustom', customEvent.detail)
+                } else {
+                    prepareEdit(customEvent);
+                }
             }
         };
 
@@ -68,7 +73,7 @@ const PrepareEditModal = () => {
                         key={record.id}
                         modelDetails={modelDetails}
                         record={record}
-                        actionUrl={action}
+                        actionUrl={actionUrl}
                         list_sources={list_sources}
                         id='AutoModalEdit'
                         modalSize={modalSize}

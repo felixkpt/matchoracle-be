@@ -28,5 +28,8 @@ export interface TeamInterface {
     id: string;
     name: string;
     slug: string;
+    short_name: string;
+    tla: string;
+    crest: string;
     games: GameInterface[]
 }

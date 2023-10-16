@@ -14,12 +14,12 @@ const ViewModal: React.FC<ModalShowProps> = ({ record, modelDetails, size, id })
 
     const [modelName, setModelName] = useState<string>('Record')
     const [exclude, setExclude] = useState<string[]>([])
+    const [htmls, setHtmls] = useState<string[]>([])
 
     useEffect(() => {
 
         if (record && Object.keys(record).length > 0) {
             setIsModalOpen(true)
-            console.log(record)
         }
 
     }, [record])
@@ -52,26 +52,12 @@ const ViewModal: React.FC<ModalShowProps> = ({ record, modelDetails, size, id })
         if (modelDetails) {
             setModelName(modelDetails?.model_name || null);
             setExclude(modelDetails?.exclude || []);
+            setHtmls(modelDetails?.htmls || []);
         }
     }, [modelDetails]);
 
 
     return (
-
-        // <div>
-        //     <M show={isModalOpen} onClose={handleCancelClick} size={size} className="z-9999">
-        //         <M.Header>
-        //             Match Details
-        //         </M.Header>
-        //         <M.Body>
-        //             {record &&
-        //                 <div className="text-gray-200">
-        //                     <SimpleTable record={record} />
-        //                 </div>
-        //             }
-        //         </M.Body>
-        //     </M>
-        // </div>
 
         <div className={`modal fade`} id={id || 'ViewModal'} data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1} aria-labelledby="staticBackdropLabel" aria-hidden={`${isModalOpen ? 'true' : 'false'}`}>
 
@@ -84,7 +70,7 @@ const ViewModal: React.FC<ModalShowProps> = ({ record, modelDetails, size, id })
                     <div className="modal-body">
                         {record &&
                             <div className="text-gray-200">
-                                <SimpleTable record={record} exclude={exclude} />
+                                <SimpleTable record={record} exclude={exclude} htmls={htmls} />
                             </div>
                         }
                     </div>

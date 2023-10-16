@@ -6,6 +6,7 @@ export interface UserInterface {
     name: string;
     email: string;
     avatar?: string
+    fileAccessToken: string | null
 }
 
 export interface UsersApiResponseInterface {

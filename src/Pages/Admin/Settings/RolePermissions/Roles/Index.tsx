@@ -3,9 +3,10 @@ import AutoModal from '@/components/AutoModal';
 import { useState } from 'react';
 import PageHeader from '@/components/PageHeader';
 import useListSources from '@/hooks/apis/useListSources';
+import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces';
 
 const Index = () => {
-  const [modelDetails, setModelDetails] = useState({})
+  const [modelDetails, setModelDetails] = useState<CollectionItemsInterface>()
 
   const { rolePermissions: list_sources } = useListSources()
 
@@ -29,7 +30,11 @@ const Index = () => {
           },
           {
             label: 'Created At',
-            key: 'created_at',
+            key: 'Created_at',
+          },
+          {
+            label: 'Status',
+            key: 'Status',
           },
           {
             label: 'Action',

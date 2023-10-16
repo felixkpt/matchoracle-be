@@ -3,6 +3,7 @@ import SimpleTable from '@/components/SimpleTable';
 import { useAuth } from '@/contexts/AuthContext';
 import useListSources from '@/hooks/apis/useListSources';
 import useAxios from '@/hooks/useAxios'
+import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces';
 import { UserInterface } from '@/interfaces/UserInterface';
 import { publish } from '@/utils/events';
 import { Icon } from '@iconify/react/dist/iconify.js';
@@ -24,7 +25,7 @@ const Index = (props: Props) => {
   const { data: userData, loading, errors, get } = useAxios()
   const { data: dataLoggedIn, loading: loggingIn, errors: errorsLoggingIn, post: postLogin } = useAxios()
 
-  const [modelDetails, setModelDetails] = useState({})
+  const [modelDetails, setModelDetails] = useState<CollectionItemsInterface>()
 
   useEffect(() => {
     get('admin/settings/users/view/' + id)
@@ -66,7 +67,6 @@ const Index = (props: Props) => {
 
   }, [dataLoggedIn, loggingIn]);
 
-
   const { rolePermissions: list_sources } = useListSources()
 
   return (
@@ -81,27 +81,27 @@ const Index = (props: Props) => {
                     <div className="model-view">
                       {
                         modelDetails &&
-                        <SimpleTable record={user} />
+                        <SimpleTable htmls={modelDetails.htmls} exclude={['created_at']} record={user} />
                       }
                     </div>
                   </div>
                   <div className="col-md-6">
                     <h3>Main Actions</h3>
 
-                    <div className='row gap-2 gap-md-0'>
-                      <div className='col-12 col-md-4 px-1'>
+                    <div className='row gap-2 gap-lg-0'>
+                      <div className='col-12 col-lg-4 px-1'>
                         <button type="button" className="btn btn-info text-white w-100 text-start" data-bs-toggle="modal" data-bs-target="#UpdateUserInfo">
                           <Icon fontSize={26} icon="streamline:interface-user-edit-actions-close-edit-geometric-human-pencil-person-single-up-user-write" />
                           <span className='ms-2'>Edit User</span>
                         </button>
                       </div>
-                      <div className='col-12 col-md-4 px-1'>
+                      <div className='col-12 col-lg-5 px-1'>
                         <button type="button" className="btn btn-info text-white w-100 text-start" data-bs-toggle="modal" data-bs-target="#update_password">
                           <Icon fontSize={26} icon={`ooui:edit-lock`} />
                           <span className='ms-2'>Change Password</span>
                         </button>
                       </div>
-                      <div className='col-12 col-md-4 px-1'>
+                      <div className='col-12 col-lg-3 px-1'>
                         <button onClick={loginUser} className="btn btn-outline-primary w-100 text-start">
                           <Icon fontSize={26} icon={`uiw:login`} />
                           <span className='ms-2'>Login</span>

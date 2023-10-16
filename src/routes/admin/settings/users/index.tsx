@@ -1,6 +1,6 @@
-import CreateOrUpdateUser from "@/Pages/Admin/Settings/Users/CreateOrUpdateUser"
-import Users from '@/Pages/Admin/Settings/Users/Index';
-import Detail from "@/Pages/Admin/Settings/Users/View/Index"
+import CreateOrUpdateUser from "../../../../Pages/Admin/Settings/Users/CreateOrUpdateUser"
+import Users from '../../../../Pages/Admin/Settings/Users/Index';
+import Detail from "../../../../Pages/Admin/Settings/Users/View/Index"
 import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 
 const relativeUri = 'settings/users/'

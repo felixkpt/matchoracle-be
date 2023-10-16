@@ -1,34 +1,60 @@
-import { usePage } from "@inertiajs/react";
-import DefaultLayout from "@/Layouts/DefaultLayout";
-import CompetitionsList from "./CompetitionsList";
-
-interface CountryInterface {
-    id: string,
-    name: string,
-    slug: string,
-    competitions: []
-
-}
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import CompetitionsList from "./Includes/CompetitionsList";
+import useAxios from "@/hooks/useAxios";
+import { useEffect, useState } from "react";
+import TeamsNav from "./View/TeamNav";
+import { CountryInterface } from "@/interfaces/CompetitionInterface";
 
 const Index = () => {
 
-    const { props } = usePage<any>();
-    const { countries } = props
+    const location = useLocation();
+
+    // Access different parts of the location object
+    const { pathname } = location;
+    const navigate = useNavigate();
+    const { get } = useAxios()
+    const [countries, setCountries] = useState<any[]>()
+
+    useEffect(() => {
+        if (pathname) {
+            if (!pathname.endsWith('club-teams') && !pathname.endsWith('national-teams'))
+                navigate('/admin/teams/club-teams')
+            else {
+                const suffix = pathname.endsWith('club-teams') ? 'club-teams' : 'national-teams'
+
+                get(`admin/countries/where-has-${suffix}`).then((res) => {
+                    if (res) {
+                        setCountries(res.data)
+                    }
+                })
+            }
+        }
+
+    }, [pathname])
 
     return (
-        <DefaultLayout title="Teams list">
-            <div>
+        <div>
+            <h5>Teams</h5>
+            <TeamsNav />
+            <div className="accordion" id="countriesAccordion">
                 {countries && countries.map((country: CountryInterface) => (
-                    <div key={country.id} className="flex flex-col w-full my-2">
-                        <div className="flex items-center gap-2 cursor-pointer">
-                            <div className="w-8 h-8 bg-white rounded-full inline-block"></div>
-                            <div className="inline-block">{country.name}</div>
+                    <div className="accordion-item mb-1" key={country.id}>
+                        <h2 className="accordion-header" id="headingTwo">
+                            <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={`#collapse${country.id}`} aria-expanded="false" aria-controls={`collapse${country.id}`}>
+                                <NavLink to={`/admin/countries/view/${country.id}`} onClick={(e) => e.preventDefault()} className="text-decoration-none text-dark">
+                                    <img src={`${country.flag}`} className="rounded-circle me-2 bg-body-secondary border" style={{ width: "28px", height: "28px" }} alt="" /> <span>{country.name}</span>
+                                </NavLink>
+                            </button>
+                        </h2>
+                        <div id={`collapse${country.id}`} className="accordion-collapse collapse" aria-labelledby={`#heading${country.id}`}>
+                            <div className="accordion-body">
+                                <div className="ml-14"><CompetitionsList country={country} competitions={country.competitions} /></div>
+                            </div>
                         </div>
-                        <div className="ml-14"><CompetitionsList competitions={country.competitions} /></div>
                     </div>
                 ))}
             </div>
-        </DefaultLayout>
+        </div>
     );
 };
 

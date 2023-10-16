@@ -33,6 +33,7 @@ export interface CollectionItemsInterface {
     model_name_plural: string
     fillable: { [key: string]: any }
     sortable: []
+    htmls: []
 }
 
 export interface Link {
@@ -60,7 +61,7 @@ export interface ResponseDataInterface {
 }
 
 interface ColumnInterface {
-    label: string
+    label?: string
     key: string
     column?: string
     is_html?: boolean
@@ -80,6 +81,7 @@ export interface AutoTableInterface {
     singleUri?: string;
     search?: boolean;
     columns: ColumnInterface[];
+    exclude?: string[];
     action?: ActionInterface;
     reload?: number;
     hideCreate?: boolean
@@ -87,6 +89,7 @@ export interface AutoTableInterface {
     list_sources?: { [key: string]: () => Promise<ListSourceInterface[]> }
     tableId?: string
     modalSize?: ModalSizeType
+    customModalId?: string
 }
 
 export interface ListSourceInterface {

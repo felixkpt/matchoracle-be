@@ -25,8 +25,16 @@ const Index = () => {
               key: 'name',
             },
             {
+              label: 'Icon',
+              key: 'Icon',
+            },
+            {
+              label: 'Class',
+              key: 'class',
+            },
+            {
               label: 'Created At',
-              key: 'created_at',
+              key: 'Created_at',
             },
             {
               label: 'Action',

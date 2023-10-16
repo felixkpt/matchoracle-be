@@ -13,3 +13,15 @@ export interface PostInterface {
     updated_at: string
     status_id: string
 }
+
+export interface PostCategoryInterface {
+    id: string
+    name: string
+    image: string
+    category: any
+    parent_category_id: string
+    priority_number: number
+    created_at: string
+    updated_at: string
+    status_id: string
+}

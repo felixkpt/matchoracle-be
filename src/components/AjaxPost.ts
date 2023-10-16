@@ -9,6 +9,7 @@ const AjaxPost = () => {
     const { data, post, put, destroy, patch } = useAxios();
 
     const [form, setForm] = useState();
+    const [key, setKey] = useState(0);
 
     const handleEvent = async (event: CustomEvent<{ [key: string]: any }>) => {
 
@@ -61,6 +62,7 @@ const AjaxPost = () => {
         }
 
         publish('ajaxPostDone', { elementId, results })
+        setKey(key + 1)
 
         if (button) {
             button.disabled = false
@@ -76,15 +78,17 @@ const AjaxPost = () => {
 
             if (modal && !modal.classList.contains('persistent-modal')) {
 
-                const modalToggleBtn = modal.querySelector('button[data-bs-dismiss="modal"]') || modal.querySelector('button[data-bs-toggle="modal"]');
+                const modalToggleBtn = modal.querySelector('button[data-bs-dismiss="modal"]');
 
                 if (modalToggleBtn) {
                     modalToggleBtn.click();
+                    setForm(undefined)
+
                 }
             }
         }
 
-    }, [data])
+    }, [data, key])
 
     const eventListener = (event: CustomEvent<{ [key: string]: any }>) => {
         event.preventDefault()
@@ -93,6 +97,7 @@ const AjaxPost = () => {
 
     useEffect(() => {
 
+        unsubscribe('ajaxPost', eventListener as EventListener);
         subscribe('ajaxPost', eventListener as EventListener);
 
         // Cleanup the event listener when the component unmounts
@@ -100,7 +105,7 @@ const AjaxPost = () => {
             unsubscribe('ajaxPost', eventListener as EventListener);
         };
 
-    }, []);
+    }, [key]);
 
     return null
 }

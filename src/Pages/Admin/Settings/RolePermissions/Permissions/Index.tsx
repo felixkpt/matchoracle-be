@@ -8,7 +8,7 @@ const Index = () => {
 
   const [modelDetails, setModelDetails] = useState({})
 
-  const {rolePermissions: list_sources} = useListSources();
+  const { rolePermissions: list_sources } = useListSources();
 
   return (
     <div>
@@ -30,7 +30,11 @@ const Index = () => {
           },
           {
             label: 'Created At',
-            key: 'created_at',
+            key: 'Created_at',
+          },
+          {
+            label: 'Status',
+            key: 'Status',
           },
           {
             label: 'Action',

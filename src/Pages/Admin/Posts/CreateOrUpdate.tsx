@@ -121,8 +121,6 @@ const CreateOrUpdate = () => {
 
   }, [post, statuses])
 
-      console.log(statuses)
-
   return (
     <div>
       <PageHeader title={`${id ? 'Edit Post #' + id : 'Create Post'}`} listUrl='/admin/posts' />

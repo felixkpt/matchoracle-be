@@ -1,7 +1,4 @@
-
-import { Link } from "@inertiajs/react";
-import DropdownDefault from "@/components/DropdownDefault";
-import request from "@/utils/request";
+import { NavLink } from "react-router-dom";
 
 interface CompetitionInterface {
     id: string;
@@ -32,16 +29,16 @@ const Nav = ({ competition, setCompetition }: Props) => {
         <div>
             {competition &&
                 <div className="flex justify-end w-full mb-4">
-                    <DropdownDefault text="Competition Actions">
+                    <div text="Competition Actions">
                         <ul>
-                            <li><Link className="rounded-sm py-1.5 px-4 cursor-pointer text-sm hover:bg-gray-950 dark:hover:bg-meta-4 block" href={`/competitions/competition/${competition.id}`}>Teams</Link></li>
-                            <li><Link className="rounded-sm py-1.5 px-4 cursor-pointer text-sm hover:bg-gray-950 dark:hover:bg-meta-4 block" href={`/competitions/competition/${competition.id}/predictions`}>Predictions</Link></li>
-                            <li><Link className="rounded-sm py-1.5 px-4 cursor-pointer text-sm hover:bg-gray-950 dark:hover:bg-meta-4 block" href={`/competitions/competition/${competition.id}/fixtures`}>Fixtures</Link></li>
-                            <li><Link className="rounded-sm py-1.5 px-4 cursor-pointer text-sm hover:bg-gray-950 dark:hover:bg-meta-4 block" href={`/competitions/competition/${competition.id}/detailed-fixtures`}>Detailed Fixtures</Link></li>
-                            <li><Link className="rounded-sm py-1.5 px-4 cursor-pointer text-sm hover:bg-gray-950 dark:hover:bg-meta-4 block" href={`/competitions/competition/${competition.id}/update`}>Update</Link></li>
+                            <li><NavLink className="rounded-sm py-1.5 px-4 cursor-pointer text-sm hover:bg-gray-950 dark:hover:bg-meta-4 block" to={`/competitions/competition/${competition.id}`}>Teams</NavLink></li>
+                            <li><NavLink className="rounded-sm py-1.5 px-4 cursor-pointer text-sm hover:bg-gray-950 dark:hover:bg-meta-4 block" to={`/competitions/competition/${competition.id}/predictions`}>Predictions</NavLink></li>
+                            <li><NavLink className="rounded-sm py-1.5 px-4 cursor-pointer text-sm hover:bg-gray-950 dark:hover:bg-meta-4 block" to={`/competitions/competition/${competition.id}/fixtures`}>Fixtures</NavLink></li>
+                            <li><NavLink className="rounded-sm py-1.5 px-4 cursor-pointer text-sm hover:bg-gray-950 dark:hover:bg-meta-4 block" to={`/competitions/competition/${competition.id}/detailed-fixtures`}>Detailed Fixtures</NavLink></li>
+                            <li><NavLink className="rounded-sm py-1.5 px-4 cursor-pointer text-sm hover:bg-gray-950 dark:hover:bg-meta-4 block" to={`/competitions/competition/${competition.id}/update`}>Update</NavLink></li>
                             <li className="rounded-sm py-1.5 px-4 cursor-pointer text-sm hover:bg-gray-950 dark:hover:bg-meta-4" onClick={changeStatus}>{competition.status == '1' ? 'Disable' : 'Enable'}</li>
                         </ul>
-                    </DropdownDefault>
+                    </div>
                 </div>
             }
 

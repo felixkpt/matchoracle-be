@@ -60,7 +60,7 @@ const Index = (props: Props) => {
                 !loading && post &&
 
                 <div>
-                    <PageHeader title={post.title} action="link" actionText="Edit Ppst" actionLink={`/admin/posts/view/${post.id}/edit`} permission='/admin/posts/view/{id}' method='put' listUrl='/admin/posts' />
+                    <PageHeader title={post.title} action="link" actionText="Edit Post" actionLink={`/admin/posts/view/${post.id}/edit`} permission='/admin/posts/view/{id}' method='put' listUrl='/admin/posts' />
                     <div className='row mb-4'>
                         <div className='col-12 gap-2 row d-md-inline'>
                             {post.image &&

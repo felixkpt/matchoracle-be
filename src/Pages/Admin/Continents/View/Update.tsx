@@ -50,7 +50,7 @@ const Update = () => {
 
 
     const [source, setSource] = useState('')
-    const [is_domestic, setIsDomestic] = useState(true)
+    const [has_teams, setIsDomestic] = useState(true)
 
     const [res, setRes] = useState<Res>()
     const [message, setMessage] = useState('')
@@ -59,7 +59,7 @@ const Update = () => {
         e.preventDefault()
 
         if (competition)
-            request.post(`/competitions/competition/${competition.id}`, { source, is_domestic }).then(function (resp) {
+            request.post(`/competitions/competition/${competition.id}`, { source, has_teams }).then(function (resp) {
                 const { data } = resp
 
                 if (data?.message)
@@ -88,7 +88,7 @@ const Update = () => {
                                     <input value={source} onChange={(e) => setSource(e.target.value)} name="url" type="text" readOnly placeholder="Enter Competition url" className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" />
                                 </div>
                                 <div className="mb-4.5">
-                                    <Checkbox checked={is_domestic} message="Is Domestic?" onChange={(v: boolean) => setIsDomestic(v)} />
+                                    <Checkbox checked={has_teams} message="Is Domestic?" onChange={(v: boolean) => setIsDomestic(v)} />
                                 </div>
                                 <button className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray">Fetch!</button>
                             </div>

@@ -147,7 +147,7 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                             }
                         >
                             <div className='main-content'>
-                                <main className='container-fluid mt-4 px-4 min-h-100vh position-relative'>
+                                <main className='container-fluid mt-4 px-4 min-h-100vh v'>
                                     {
                                         isAllowed === true && checked === true ?
                                             <Component />

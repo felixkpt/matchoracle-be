@@ -5,8 +5,9 @@ import { useEffect, useState } from 'react';
 import { convertToTitleCase } from '@/utils/helpers';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
-import { publish, subscribe, unsubscribe } from '@/utils/events';
+import { subscribe, unsubscribe } from '@/utils/events';
 import { AutoTableInterface } from '../interfaces/UncategorizedInterfaces';
+import AutoActions from './AutoActions';
 
 // Define the __dangerousHtml function
 function __dangerousHtml(html: HTMLElement) {
@@ -14,7 +15,7 @@ function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
-const AutoTable = ({ baseUri, listUri, search, columns: initCols, getModelDetails, list_sources, tableId, modalSize }: AutoTableInterface) => {
+const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getModelDetails, list_sources, tableId, modalSize, customModalId }: AutoTableInterface) => {
     const {
         tableData,
         loading,
@@ -32,6 +33,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, getModelDetail
     const [modelDataLength, setModelDataLength] = useState<number>(-1);
 
     const [modelDetails, setModelDetails] = useState({})
+    const [htmls, setHtmls] = useState<string[]>([])
 
     useEffect(() => {
         if (tableData) {
@@ -46,6 +48,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, getModelDetail
                 const rest = { ...others, tableId: id }
 
                 setModelDetails(rest)
+                setHtmls(rest.htmls)
                 if (getModelDetails) {
                     getModelDetails(rest)
                 }
@@ -106,7 +109,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, getModelDetail
 
             return (
                 <th key={key} scope='col' className='px-6 py-3 cursor-pointer' onClick={handleHeaderClick}>
-                    {convertToTitleCase(label)}
+                    {convertToTitleCase(label || key.split('.')[0])}
                     {isSorted && (
                         <span className='ml-1'>
                             {sortDirection === 'asc' ? (
@@ -133,119 +136,50 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, getModelDetail
 
     const navigate = useNavigate()
 
+    const autoActions = new AutoActions(modelDetails, tableData, navigate, list_sources, exclude, modalSize, customModalId)
+
     useEffect(() => {
         if (modelDataLength) {
 
-            const autotableViewElements = document.querySelectorAll('.autotable .autotable-view');
-            autotableViewElements.forEach((element) => {
-                element.addEventListener('click', handleView);
-            });
-
             const autotableNavigateElements = document.querySelectorAll('.autotable .autotable-navigate');
             autotableNavigateElements.forEach((element) => {
-                element.addEventListener('click', handleNavigation);
+                element.addEventListener('click', autoActions.handleNavigation);
             });
 
-            const autotableEditElements = document.querySelectorAll('.autotable .autotable-edit');
-            autotableEditElements.forEach((element) => {
-                element.addEventListener('click', handleEdit);
+            const autotableViewElements = document.querySelectorAll('.autotable .autotable-modal-view');
+            autotableViewElements.forEach((element) => {
+                element.addEventListener('click', autoActions.handleView);
             });
 
-            const autotableStatusUpdateElements = document.querySelectorAll('.autotable .autotable-status-update');
-            autotableStatusUpdateElements.forEach((element) => {
-                element.addEventListener('click', handleStatusUpdate);
+            const autotableModalActionElements = document.querySelectorAll('.autotable [class*="autotable-modal-"]');
+            autotableModalActionElements.forEach((element) => {
+                element.addEventListener('click', autoActions.handleModalAction);
             });
 
             return () => {
                 // Clean up event listeners when the component unmounts
                 autotableViewElements.forEach((element) => {
-                    element.removeEventListener('click', handleView);
+                    element.removeEventListener('click', autoActions.handleView);
                 });
 
                 autotableNavigateElements.forEach((element) => {
-                    element.removeEventListener('click', handleNavigation);
+                    element.removeEventListener('click', autoActions.handleNavigation);
                 });
 
-                autotableEditElements.forEach((element) => {
-                    element.removeEventListener('click', handleEdit);
-                });
-
-                autotableStatusUpdateElements.forEach((element) => {
-                    element.removeEventListener('click', handleStatusUpdate);
+                autotableModalActionElements.forEach((element) => {
+                    element.removeEventListener('click', autoActions.handleModalAction);
                 });
             };
         }
 
     }, [navigate, modelDataLength, handleOrderBy]);
 
-    const handleNavigation = (event: Event) => {
-
-        event.preventDefault()
-
-        const target = event.target as HTMLElement; // Narrow down the type to HTMLElement
-
-        const href = target.getAttribute('href')
-        if (href) {
-            navigate(href)
-        }
-    };
-
-    const handleView = (event: Event) => {
-
-        event.preventDefault()
-
-        const target = event.target as HTMLElement; // Narrow down the type to HTMLElement
-
-        const id = target.getAttribute('data-id');
-        const action = target.getAttribute('href');
-
-        if (!id || !action) return;
-
-        const record = tableData.data.find((item: any) => item.id == id)
-
-        publish('prepareView', { modelDetails, record, action, modalSize })
-
-    };
-
-    const handleEdit = (event: Event) => {
-
-        event.preventDefault()
-
-        const target = event.target as HTMLElement; // Narrow down the type to HTMLElement
-
-        const id = target.getAttribute('data-id');
-        const action = target.getAttribute('data-action') || target.getAttribute('href');
-
-        if (!id || !action) return;
-
-        const record = tableData.data.find((item: any) => item.id == id)
-
-        publish('prepareEdit', { modelDetails, record, action, list_sources, modalSize })
-
-    };
-
-    const handleStatusUpdate = (event: Event) => {
-
-        event.preventDefault()
-
-        const target = event.target as HTMLElement; // Narrow down the type to HTMLElement
-
-        const id = target.getAttribute('data-id');
-        const action = target.getAttribute('href');
-
-        if (!id || !action) return;
-
-        const record = tableData.data.find((item: any) => item.id == id)
-
-        publish('prepareStatusUpdate', { modelDetails, record, action, modalSize })
-
-    };
 
     function getDynamicValue(row, path) {
 
         if (!path.match(/\./)) {
-            const val = row[path] || 'N/A'
-            return typeof val === 'object' ? '[object]' : val;
+            const val = row[path]
+            return String(val);
         } else {
             return path.split('.').reduce((acc, prop) => acc && acc[prop], row);
         }
@@ -256,9 +190,6 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, getModelDetail
             <div className="bg-gray-50 dark:bg-gray-800 py-3.5 overflow-auto">
                 <div className={`mt-2 h-6 px-3 pb-1 text-sm font-medium leading-none text-center text-blue-800 dark:text-white${modelDataLength >= 0 && loading ? ' animate-pulse' : ''}`}>{modelDataLength >= 0 && loading ? 'Loading...' : ''}</div>
                 <div className="flex items-center justify-between pb-2 px-1.5 float-right gap-2">
-                    <div className='hidden'>
-                        {/* Dropdown */}
-                    </div>
                     <label htmlFor="table-search" className="sr-only d-none">Search</label>
                     {
                         search &&
@@ -324,7 +255,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, getModelDetail
 
                                 {columns && columns.map(column => {
                                     return (
-                                        <td key={column.key} scope="col" className="px-6 py-3">{(column.key === 'action' || column.is_html === true) ? __dangerousHtml(row[column.key]) : getDynamicValue(row, column.key)}</td>
+                                        <td key={column.key} scope="col" className="px-6 py-3">{(column.key === 'action' || htmls.includes(column.key) === true) ? __dangerousHtml(row[column.key]) : getDynamicValue(row, column.key)}</td>
                                     )
                                 })}
 

@@ -2,16 +2,18 @@ import AutoTable from '@/components/AutoTable';
 import AutoModal from '@/components/AutoModal';
 import { useState } from 'react';
 import PageHeader from '@/components/PageHeader';
+import useListSources from '@/hooks/apis/useListSources';
 
 type Props = {
   category?: any
+  params?: string
+  list_selects?: any
 }
 
-const Index = ({ category }: Props) => {
+const Index = ({ category, params, list_selects }: Props) => {
   const [modelDetails, setModelDetails] = useState({})
 
-  const list_sources = {
-  };
+  const { posts: list_sources } = useListSources(params)
 
   return (
     <div>
@@ -24,12 +26,21 @@ const Index = ({ category }: Props) => {
             key: 'id',
           },
           {
-            label: 'Category Title',
-            key: 'title',
+            label: 'Category Name',
+            key: 'name',
           },
           {
             label: 'Category Slug',
             key: 'slug',
+          },
+          {
+            label: 'Created At',
+            key: 'Created_at',
+          },
+          {
+            label: 'Status',
+            key: 'Status',
+            is_html: true,
           },
           {
             label: 'Action',
@@ -42,7 +53,7 @@ const Index = ({ category }: Props) => {
         modalSize='modal-lg'
       />
       {
-        modelDetails && <><AutoModal modelDetails={modelDetails} actionUrl={`/admin/posts/categories?parent_category_id=${category ? category.id : '0'}`} list_sources={list_sources} modalSize='modal-lg' /></>
+        modelDetails && <><AutoModal modelDetails={modelDetails} actionUrl={`/admin/posts/categories?parent_category_id=${category ? category.id : '0'}`} list_sources={list_sources} list_selects={list_selects} modalSize='modal-lg' /></>
       }
     </div>
   );

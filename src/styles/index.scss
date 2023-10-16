@@ -95,5 +95,32 @@ p {
 
 .accordion-item.has-error .accordion-button:focus,
 .accordion-item.has-error:not(:first-of-type) .accordion-button:focus {
-  box-shadow: none!important;
+  box-shadow: none !important;
+}
+
+.tabs-section h3.heading {
+  font-size: 22px !important;
+}
+
+.symbol-image {
+  vertical-align: middle;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.symbol-image-sm {
+  vertical-align: middle;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+
+}
+
+.striped-section>div:nth-of-type(odd) {
+  background: var(--bs-gray-200);
+}
+
+.striped-section>div:hover {
+  background: var(--bs-gray-300);
 }
