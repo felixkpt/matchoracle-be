@@ -8,7 +8,6 @@ use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
 use App\Services\Filerepo\Controllers\FilesController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class PostRepository implements PostRepositoryInterface
 {
@@ -22,38 +21,21 @@ class PostRepository implements PostRepositoryInterface
 
     public function index()
     {
+
+        // Benchmark::dd([
+        //     'Post 1' => fn () => Post::first(),
+        //     'Post 5' => fn () => Post::first(),
+        // ]);
+
+        $uri = '/admin/posts/';
         $posts = $this->model::with(['user', 'status'])
             ->when(isset(request()->category_id) && request()->category_id > 0, fn ($q) => $q->where('category_id', request()->category_id));
 
         $res = SearchRepo::of($posts, ['title', 'content_short', 'status', 'user_id'])
-            ->addColumn('action', function ($item) {
-                return '
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="icon icon-list2 font-20"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item autotable-navigate" href="/admin/posts/view/' . $item->id . '">View</a></li>
-                            '
-                    .
-                    (checkPermission('posts', 'post') ?
-                        '<li><a class="dropdown-item autotable-navigate" data-id="' . $item->id . '" href="/admin/posts/view/' . $item->id . '/edit">Edit</a></li>'
-                        :
-                        '')
-                    .
-                    '
-                            <li><a class="dropdown-item autotable-status-update" data-id="' . $item->id . '" href="/admin/posts/view/' . $item->id . '/status-update">Status update</a></li>
-                        </ul>
-                    </div>
-                    ';
-            })
-            ->addColumn('Created_at', fn ($q) => $q->created_at->toDayDateTimeString())
-            ->addColumn('Status', function ($q) {
-                $status = $q->status;
-                if ($status) {
-                    return '<div class="d-flex justify-content-center align-items-center"><iconify-icon icon="'.$status->icon.'" class="me-1"></iconify-icon>'.Str::ucfirst(Str::replace('_', ' ', $status->name)).'</div>';
-                } else return null;
-            })
+            ->addColumn('Created_at', 'Created_at')
+            ->addColumn('Status', 'Status')
+            ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, 'link'. 'link'))
+            ->htmls(['Status'])
             ->statuses(PostStatus::select('id', 'name', 'icon', 'class')->get())
             ->paginate();
 
@@ -64,8 +46,7 @@ class PostRepository implements PostRepositoryInterface
     public function store(Request $request, $data)
     {
         // Create a new Post instance with the validated data
-
-        $post = $this->model::updateOrCreate(['id' => $request->id], $data);
+        $post = $this->autoSave($data);
 
         if (request()->hasFile('image')) {
 
@@ -85,14 +66,10 @@ class PostRepository implements PostRepositoryInterface
 
     public function show($id)
     {
-        // Benchmark::dd([
-        //     'Post 1' => fn () => Post::first(),
-        //     'Post 5' => fn () => Post::first(),
-        // ]);
 
-        $posts = $this->model::with(['category', 'topic'])->where('id', $id);
+        $post = $this->model::with(['category', 'topic'])->where('id', $id);
 
-        $res = SearchRepo::of($posts, [], [])
+        $res = SearchRepo::of($post, [], [])
             ->addColumn('content', fn ($item) => refreshTemporaryTokensInString($item->content))
             ->addColumn('image', fn ($item) => $item->image ? assetUriWithToken($item->image) : $item->image)
             ->statuses(PostStatus::select('id', 'name', 'icon', 'class')->get())->first();

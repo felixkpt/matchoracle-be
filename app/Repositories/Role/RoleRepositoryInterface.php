@@ -25,8 +25,6 @@ interface RoleRepositoryInterface extends CommonRepoActionsInterface
 
     public function show($id);
 
-    function update(Request $request, $id);
-
     function storeRoleMenuAndCleanPermissions(Request $request, $id);
     /**
      * Update the specified resource in storage.

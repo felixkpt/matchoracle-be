@@ -9,3 +9,5 @@ Route::get('/create', [$controller, 'create'])->name('Create topic')->hidden();
 Route::post('/', [$controller, 'store'])->name('Store topic');
 Route::put('/{id}', [$controller, 'update'])->name('Update topic');
 Route::get('/detail/{id}', [$controller, 'show'])->name('Show topic')->everyone();
+
+Route::patch('/{id}/status-update', [$controller, 'statusUpdate'])->hidden();

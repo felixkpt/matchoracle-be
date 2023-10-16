@@ -19,8 +19,7 @@ class User extends Authenticatable
         HasFactory,
         Notifiable,
         HasRoles,
-        ExcludeSystemFillable,
-        HasUlids;
+        HasUlids, ExcludeSystemFillable, CommonModelRelationShips;
 
     // Use an alias for the permissions relationship
     use HasPermissions {
@@ -39,7 +38,7 @@ class User extends Authenticatable
         'name',
         'email',
         'phone',
-        'status',
+        'status_id',
         'two_factor_valid',
         'last_login_date',
         'two_factor_expires_at',
@@ -59,7 +58,7 @@ class User extends Authenticatable
     ];
 
     protected $systemFillable = [
-        'status',
+        'status_id',
         'first_name',
         'middle_name',
         'last_name',
@@ -109,9 +108,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     function tickets()
     {
         return $this->hasMany(Ticket::class);
     }
-
 }

@@ -3,6 +3,7 @@
 namespace Database\Seeders\Admin;
 
 use App\Models\Role;
+use App\Models\Status;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Seeder;
@@ -25,7 +26,7 @@ class AdminRoleSeeder extends Seeder
                 'name' => 'Super Admin',
                 'guard_name' => 'api',
                 'user_id' => User::first()->id,
-                'status_id' => 0,
+                'status_id' => Status::where('name', 'active')->first()->id ?? 0
             ]
         );
 
@@ -33,7 +34,7 @@ class AdminRoleSeeder extends Seeder
         $user->assignRole($role);
         $user->default_role_id = $role->id;
         $user->save();
-        
+
         if ($role_counts === 0) {
 
             try {

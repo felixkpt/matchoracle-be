@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('competition_game_source', function (Blueprint $table) {
             $table->uuid('competition_id')->default(0);
             $table->uuid('game_source_id')->default(0);
-            $table->string('url');
+            $table->string('uri')->nullable();
+            $table->uuid('source_id')->nullable();
+            $table->string('subscription_expires')->nullable();
+            $table->boolean('is_subscribed')->default(0);
             $table->unsignedInteger('priority_number')->default(9999);
             $table->uuid('status_id')->default(0);
             $table->uuid('user_id')->default(0);

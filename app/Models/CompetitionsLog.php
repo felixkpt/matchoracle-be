@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CompetitionsLog extends Model
 {
-    use HasFactory, HasUlids;
+    use HasFactory, HasUlids, CommonModelRelationShips;
 
     protected $fillable = [
         'competition_id',

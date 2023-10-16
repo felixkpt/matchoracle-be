@@ -17,10 +17,10 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->text('description')->nullable();
             $table->string('website')->nullable();
-            $table->string('img')->nullable();
+            $table->string('image')->nullable();
             $table->uuid('team_id')->nullable();
-            $table->uuid('user_id');
-            $table->string('status')->default('published');
+            $table->uuid('status_id')->default(0);
+            $table->uuid('user_id')->default(0);
             $table->timestamps();
         });
     }

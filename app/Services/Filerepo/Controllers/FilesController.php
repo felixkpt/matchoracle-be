@@ -121,6 +121,8 @@ class FilesController extends Controller
     {
         $filePath = $path;
 
+        // dd($path);
+
         if (Storage::disk('local')->exists($filePath)) {
             $file = Storage::disk('local')->get($filePath);
 

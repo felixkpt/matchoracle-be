@@ -6,6 +6,7 @@ use App\Models\Status;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -25,15 +26,30 @@ class SearchRepo
     protected $builder;
 
     protected $addedColumns = [];
-    protected $sortable = [];
     protected $model;
     protected $model_name = '';
     protected $fillable;
     protected $addedFillable = [];
     protected $removedFillable = [];
+    protected $htmls = [];
     protected $excludeFromFillables = ['user_id', 'status_id'];
     protected $statuses = [];
     protected $request_data;
+
+    protected $actionItems = [
+        [
+            'title' => 'View',
+            'action' => ['title' => 'view', 'modal' => 'view', 'native' => 'navigate', 'use' => 'modal']
+        ],
+        [
+            'title' => 'Edit',
+            'action' => ['title' => 'edit', 'modal' => 'edit', 'native' => 'edit', 'use' => 'modal']
+        ],
+        [
+            'title' => 'Status update',
+            'action' => ['title' => 'status-update', 'modal' => 'status-update', 'native' => null, 'use' => 'modal']
+        ]
+    ];
 
     /**
      * Create a new instance of SearchRepo.
@@ -109,14 +125,14 @@ class SearchRepo
                             $relation = Str::camel($relation);
 
                             // Apply search condition within the relation
-                            $q->whereHas($relation, function (EloquentBuilder $query) use ($column, $term, $strategy) {
+                            $q->orWhereHas($relation, function (EloquentBuilder $query) use ($column, $term, $strategy) {
                                 $query->where($column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
                             });
                         } else {
                             // Apply search condition on the main table
                             $q->orWhere($model_table . '.' . $column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
 
-                            // Log::critical("Search results:", ['res' => $q->first()]);
+                            // Log::critical("Search results:", ['tbl' => $model_table . '.' . $column, 'res' => $q->first()]);
                         }
                     }
                 });
@@ -162,12 +178,12 @@ class SearchRepo
                 if ($this->model && method_exists($this->model, $possibleRelation)) {
 
                     $orderBy = $relation . '_id';
-                    if (Schema::hasColumn($model_table, $orderBy) || in_array($orderBy, $this->sortable)) {
+                    if (Schema::hasColumn($model_table, $orderBy)) {
                         $order_direction = request()->order_direction ?? 'asc';
                         $builder->orderBy($orderBy, $order_direction);
                     }
                 }
-            } elseif ($this->model && Schema::hasColumn($model_table, $orderBy) || in_array($orderBy, $this->sortable)) {
+            } elseif ($this->model && Schema::hasColumn($model_table, $orderBy)) {
                 $order_direction = request()->order_direction ?? 'asc';
                 $builder->orderBy($orderBy, $order_direction);
             }
@@ -204,6 +220,20 @@ class SearchRepo
     }
 
     /**
+     * Add a custom column to the search results.
+     *
+     * @param string $column The column name.
+     * @param \Closure $callback The callback function to generate the column value.
+     * @return $this The SearchRepo instance.
+     */
+    public function addActionColumn($column, $uri, $view = 'modal', $edit = 'modal', $hide = null)
+    {
+        $this->addedColumns[$column] = ['method' => 'action', 'parameters' => [$uri, $view, $edit, $hide]];
+
+        return $this;
+    }
+
+    /**
      * Paginate the search results.
      *
      * @param int $perPage The number of items per page.
@@ -217,7 +247,7 @@ class SearchRepo
 
         $builder = $this->builder;
 
-        $perPage = request()->per_page ?? 10;
+        $perPage = (request()->per_page ?? $perPage) ?? 20;
         $page = request()->page ?? 1;
 
         // Handle last page results
@@ -282,9 +312,14 @@ class SearchRepo
         $result = $this->builder->first($columns);
 
         if ($result) {
+            $item = $result;
             // Loop through added custom columns and add them to the stdClass object
             foreach ($this->addedColumns as $column => $callback) {
-                $result->$column = $callback($result);
+                if (is_array($callback) && isset($callback['method'])) {
+
+                    $item->$column = $this->action($item, ...$callback['parameters']);
+                } else
+                    $item->$column = $callback($item);
             }
         }
 
@@ -308,25 +343,16 @@ class SearchRepo
 
         foreach ($data as $item) {
             foreach ($this->addedColumns as $column => $callback) {
-                $item->$column = $callback($item);
+
+                if (is_array($callback) && isset($callback['method'])) {
+
+                    $item->$column = $this->action($item, ...$callback['parameters']);
+                } else
+                    $item->$column = $callback($item);
             }
         }
 
         return $data;
-    }
-
-    /**
-     * Specify sortable columns for the search results.
-     *
-     * @param array $sortable The sortable columns.
-     * @return $this The SearchRepo instance.
-     */
-    public function sortable($sortable = [])
-    {
-        if (!empty($sortable))
-            $this->sortable = $sortable;
-
-        return $this;
     }
 
     /**
@@ -370,6 +396,20 @@ class SearchRepo
     }
 
     /**
+     * Specify htmls columns for the search results.
+     *
+     * @param array $htmls The htmls columns.
+     * @return $this The SearchRepo instance.
+     */
+    public function htmls($htmls = [])
+    {
+        if (is_array($htmls))
+            $this->htmls = $htmls;
+
+        return $this;
+    }
+
+    /**
      * Get an array of custom data to include in the search results.
      *
      * @return array An array of custom data.
@@ -392,10 +432,10 @@ class SearchRepo
         $statuses = $this->statuses ?: Status::select('id', 'name', 'icon', 'class')->get()->toArray();
 
         $arr = [
-            'sortable' => $this->sortable,
             'fillable' => $this->getFillable($fillable),
             'model_name' => $this->model_name, 'model_name_plural' => Str::plural($this->model_name),
-            'statuses' => $statuses
+            'statuses' => $statuses,
+            'htmls' => $this->htmls,
         ];
         return $arr;
     }
@@ -476,6 +516,9 @@ class SearchRepo
 
             'img' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
             'image' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
+            'emblem' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
+            'crest' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
+            'flag' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
             'avatar' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
 
             '*_time' => ['input' => 'input', 'type' => 'datetime-local'],
@@ -487,15 +530,6 @@ class SearchRepo
 
             'is_*' => ['input' => 'input', 'type' => 'checkbox'],
         ];
-
-        foreach ($this->addedFillable as $fill) {
-
-            [$field, $before, $inputTypeInfo] = $fill;
-
-            if (is_array($inputTypeInfo) && count($inputTypeInfo) > 0) {
-                $guess_array[$field] = $inputTypeInfo;
-            }
-        }
 
         $guessed = [];
 
@@ -511,7 +545,48 @@ class SearchRepo
 
             if ($matchedType) {
                 $guessed[$field]['input'] = $matchedType['input'];
-                $guessed[$field]['type'] = $matchedType['type'];
+
+                if (isset($matchedType['type']))
+                    $guessed[$field]['type'] = $matchedType['type'];
+
+                if (isset($matchedType['min']))
+                    $guessed[$field]['min'] = $matchedType['min'];
+
+                if (isset($matchedType['max']))
+                    $guessed[$field]['max'] = $matchedType['max'];
+
+                if (isset($matchedType['rows']))
+                    $guessed[$field]['rows'] = $matchedType['rows'];
+
+                if (isset($matchedType['accept']))
+                    $guessed[$field]['accept'] = $matchedType['accept'];
+            } else {
+                $guessed[$field] = ['input' => 'input', 'type' => 'text'];
+            }
+        }
+
+        // addedfillabes here
+
+        foreach ($this->addedFillable as $fill) {
+
+            [$field, $before, $inputTypeInfo] = $fill;
+
+            if (is_array($inputTypeInfo) && count($inputTypeInfo) > 0) {
+                $guess_array[$field] = $matchedType;
+            }
+
+            $matchedType = $inputTypeInfo;
+
+            if ($matchedType) {
+                $guessed[$field]['input'] = $matchedType['input'];
+
+                if (isset($matchedType['type']))
+                    $guessed[$field]['type'] = $matchedType['type'];
+                else
+                    unset($guessed[$field]['type']);
+
+                if (isset($matchedType['source']))
+                    $guessed[$field]['source'] = $matchedType['source'];
 
                 if (isset($matchedType['min']))
                     $guessed[$field]['min'] = $matchedType['min'];
@@ -545,5 +620,61 @@ class SearchRepo
         }
 
         return $this;
+    }
+
+    function addActionItem($newItem, $before)
+    {
+        if ($before !== null) {
+            // Find the index of the item to insert before
+            $index = array_search(strtolower($before), array_map(fn ($item) => strtolower($item), array_column($this->actionItems, 'title')));
+
+            if ($index !== false) {
+                // Insert the new item before the specified item
+                array_splice($this->actionItems, $index, 0, [$newItem]);
+            } else {
+                // If the specified item is not found, add the new item at the start
+                array_push($this->actionItems, $newItem);
+            }
+        } else {
+            // If no specific item is specified, add the new item at the end
+            array_push($this->actionItems, $newItem);
+        }
+
+        return $this;
+    }
+
+    function action($q, $uri, $view = 'modal', $edit = 'modal', $hide = null)
+    {
+
+        $str = '';
+        foreach ($this->actionItems as $item) {
+            if ($item['action']['title'] === 'view') {
+                $use = $view === 'native' ? $item['action']['title'] : $item['action']['use'];
+                $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . $item['title'] . '</a></li>';
+            } else if ($item['action']['title'] === 'edit') {
+                $use = $edit === 'native' ? $item['action']['title'] : $item['action']['use'];
+                $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/' . $item['action']['title'] . '">' . $item['title'] . '</a></li>';
+            } else {
+                $use = $item['action']['use'];
+                $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/' . $item['action']['title'] . '">' . $item['title'] . '</a></li>';
+                // $str .= (!preg_match('#status-update#', $hide) ? '<li><a class="dropdown-item autotable-status-update" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/status-update">Status update</a></li>' : '');
+            }
+        }
+
+        return $this->dropdown($str);
+    }
+
+    private function dropdown($str)
+    {
+        return '
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="icon icon-list2 font-20"></i>
+            </button>
+            <ul class="dropdown-menu">
+                ' . $str . '
+            </ul>
+        </div>
+        ';
     }
 }

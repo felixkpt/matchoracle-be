@@ -8,20 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    use HasFactory;
-    use HasUlids;
+    use HasFactory, HasUlids, CommonModelRelationShips;
 
     protected $fillable = ['title', 'slug', 'content_short', 'content', 'image', 'category_id', 'topic_id', 'status_id', 'user_id', 'priority_number'];
-
-    function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-    
-    function status()
-    {
-        return $this->belongsTo(PostStatus::class);
-    }
 
     function category()
     {
@@ -31,5 +20,10 @@ class Post extends Model
     function topic()
     {
         return $this->belongsTo(PostTopic::class);
+    }
+
+    function status()
+    {
+        return $this->belongsTo(PostStatus::class);
     }
 }

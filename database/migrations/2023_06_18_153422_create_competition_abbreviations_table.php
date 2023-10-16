@@ -15,8 +15,8 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name')->unique();
             $table->uuid('competition_id')->nullable();
-            $table->uuid('user_id');
-            $table->tinyInteger('status')->default(1);
+            $table->uuid('status_id')->default(0);
+            $table->uuid('user_id')->default(0);
             $table->timestamps();
         });
     }

@@ -8,17 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Stadium extends Model
 {
-    use HasFactory, HasUlids;
+    use HasFactory, HasUlids, CommonModelRelationShips;
+
     protected $fillable = [
         'name',
         'location',
         'team_id',
         'user_id',
-        'status',
+        'status_id',
     ];
-    public static function boot()
-    {
-        parent::boot();
-        static::creating(fn ($model) => defaultColumns($model));
-    }
 }

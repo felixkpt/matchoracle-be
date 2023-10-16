@@ -18,8 +18,8 @@ return new class extends Migration
             // Add the unique constraint to `year` and `team_id`
             $table->unique(['year', 'team_id']);
             $table->dateTime('fetched_at')->nullable();
-            $table->uuid('user_id');
-            $table->boolean('status')->default(1);
+            $table->uuid('status_id')->default(0);
+            $table->uuid('user_id')->default(0);
             $table->timestamps();
         });
     }

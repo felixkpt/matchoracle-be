@@ -10,15 +10,15 @@ class PostStatusSeeder extends Seeder
     public function run()
     {
         $statuses = [
-            ['name' => 'draft', 'icon' => 'ontisto:checkbox-active'],
-            ['name' => 'pending_review', 'icon' => 'mdi:receipt-text-pending'],
-            ['name' => 'scheduled', 'icon' => 'mdi:scheduled-payment'],
-            ['name' => 'published', 'icon' => 'ic:sharp-published-with-changes'],
-            ['name' => 'private', 'icon' => 'ri:git-repository-private-line'],
-            ['name' => 'trash', 'icon' => 'fe:trash'],
-            ['name' => 'archived', 'icon' => 'bi:archive'],
-            ['name' => 'draft_in_review', 'icon' => 'carbon:result-draft'],
-            ['name' => 'rejected', 'icon' => 'icon-park-outline:reject'],
+            ['name' => 'published', 'icon' => 'ic:sharp-published-with-changes', 'class' => 'text-success'],
+            ['name' => 'pending_review', 'icon' => 'mdi:receipt-text-pending', 'class' => 'text-primary'],
+            ['name' => 'scheduled', 'icon' => 'mdi:scheduled-payment', 'class' => 'text-info'],
+            ['name' => 'private', 'icon' => 'ri:git-repository-private-line', 'class' => 'text-secondary'],
+            ['name' => 'archived', 'icon' => 'bi:archive', 'class' => 'text-dark'],
+            ['name' => 'draft_in_review', 'icon' => 'carbon:result-draft', 'class' => 'text-warning'],
+            ['name' => 'draft', 'icon' => 'carbon:result-draft', 'class' => 'text-warning'],
+            ['name' => 'rejected', 'icon' => 'icon-park-outline:reject', 'class' => 'text-danger'],
+            ['name' => 'trash', 'icon' => 'fe:trash', 'class' => 'text-danger'],
         ];
 
         foreach ($statuses as $status) {
@@ -26,6 +26,7 @@ class PostStatusSeeder extends Seeder
                 'name' => $status['name'],
                 'description' => ucfirst(str_replace('_', ' ', $status['name'])) . ' status.',
                 'icon' => $status['icon'],
+                'class' => $status['class'],
             ]);
         }
     }

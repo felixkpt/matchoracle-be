@@ -2,45 +2,88 @@
 
 namespace App\Models;
 
+use App\Traits\ExcludeSystemFillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 class Competition extends Model
 {
-    use HasFactory, HasUlids;
+  use HasFactory, HasUlids, CommonModelRelationShips, ExcludeSystemFillable;
 
-    protected $fillable = [
-        'name',
-        'slug',
-        'abbreviation',
-        'country_id',
-        'url',
-        'img',
-        'last_fetch',
-        'last_detailed_fetch',
-        'user_id',
-        'status',
-        'is_domestic',
-    ];
+  protected $fillable = [
+    'name',
+    'slug',
+    'code',
+    'type',
+    'emblem',
+    'plan',
+    
+    'abbreviation',
+    'continent_id',
+    'country_id',
+    
+    'last_updated',
+    'last_fetch',
+    'last_detailed_fetch',
+    'user_id',
+    'status_id',
+    'has_teams',
+    'priority_number',
+  ];
 
-    function country()
-    {
-      return $this->belongsTo(Country::class);
-    }
+  protected $systemFillable = [
+    'user_id',
+    'status_id',
+  ];
 
-    function teams()
-    {
-      return $this->hasMany(Team::class);
-    }
+  function continent()
+  {
+    return $this->belongsTo(Continent::class);
+  }
 
-    function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+  function country()
+  {
+    return $this->belongsTo(Country::class);
+  }
 
-    public static function boot()
-    {
-        parent::boot();
-        static::creating(fn ($model) => defaultColumns($model));
-    }
+  function teams()
+  {
+    return $this->hasMany(Team::class);
+  }
+
+  function gameSources()
+  {
+    return $this->belongsToMany(GameSource::class)->withPivot(['uri', 'source_id', 'subscription_expires', 'is_subscribed'])->withTimestamps();
+  }
+
+  public function matches()
+  {
+    return $this->hasMany(Game::class);
+  }
+
+  public function currentSeason()
+  {
+    return $this->hasOne(Season::class, 'competition_id')->where('is_current', true);
+  }
+
+  public function seasons()
+  {
+    return $this->hasMany(Season::class, 'competition_id');
+  }
+
+  public function stages()
+  {
+    return $this->hasMany(Stage::class, 'competition_id');
+  } 
+
+  public function standings()
+  {
+    return $this->hasMany(Standing::class, 'competition_id');
+  }
+
+  public function teamsStandings()
+  {
+    return $this->hasMany(Standing::class, 'competition_id')->with('standingTable.team');
+  }
 }

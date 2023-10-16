@@ -8,16 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class CompetitionAbbreviation extends Model
 {
-    use HasFactory, HasUlids;
+    use HasFactory, HasUlids, CommonModelRelationShips;
 
     protected $fillable = [
         'name',
         'competition_id',
     ];
 
-    public static function boot()
-    {
-        parent::boot();
-        static::creating(fn ($model) => defaultColumns($model));
-    }
 }

@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthTests\AbilitiesController;
+use App\Http\Controllers\Admin\CompetitionsController;
+use App\Http\Controllers\Admin\FootballDataController;
+use App\Http\Controllers\Admin\TeamsController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,7 +32,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
-
+require __DIR__ . '/auth.php';
 
 Route::get('/auth-tests/abilities', [AbilitiesController::class, 'index']);
+
+Route::get('/football-data', [FootballDataController::class, 'index']);
+Route::get('/football-data/show', [FootballDataController::class, 'show']);
+Route::get('/football-data/find/{id}', [FootballDataController::class, 'findTeamById']);
+
+Route::get('/football-data/competitions/update-or-create/{id}', [CompetitionsController::class, 'updateOrCreate']);
+Route::get('/football-data/competitions/find-standings-by-competition/{id}', [CompetitionsController::class, 'findStandingsByCompetition']);
+
+Route::get('/football-data/teams/update-by-competition/{id}', [TeamsController::class, 'updateByCompetition']);

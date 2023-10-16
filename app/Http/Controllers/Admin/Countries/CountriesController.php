@@ -3,93 +3,39 @@
 namespace App\Http\Controllers\Admin\Countries;
 
 use App\Http\Controllers\Controller;
-use App\Models\Country;
-use App\Repositories\EloquentRepository;
-use App\Repositories\SearchRepo;
+use App\Repositories\Country\CountryRepositoryInterface;
+use App\Services\Validations\Country\CountryValidationInterface;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class CountriesController extends Controller
 {
-    private $countryRepository;
 
-
-    public function __construct()
-    {
-        $this->countryRepository = new EloquentRepository(Country::class);
+    function __construct(
+        private CountryRepositoryInterface $countryRepositoryInterface,
+        private CountryValidationInterface $countryValidationInterface,
+    ) {
     }
 
-    public function index()
+    function index()
     {
-        return response('Countries/Index', $this->countryRepository->all());
+        return $this->countryRepositoryInterface->index();
     }
 
-    //Create country
-    public function create()
+    function whereHasClubTeams()
     {
-        return response('Countries/Create');
+        return $this->countryRepositoryInterface->whereHasClubTeams();
     }
 
-    //Get country by id
-    public function find(Request $request)
+    function whereHasNationalTeams()
     {
-        $id = $request->id;
-        return response()->json($this->countryRepository->find($id, ['*'], ['keytoken', 'endpoint']), 200);
+        return $this->countryRepositoryInterface->whereHasNationalTeams();
     }
 
-    function list()
-    {
-
-        sleep(1);
-        // Example usage
-        $searchableColumns = ['name', 'has_competitions']; // Columns to search against
-        $sortableColumns = ['id', 'name', 'status']; // Columns available for sorting
-
-        // Create a query builder for the "Country" model
-        $queryBuilder = Country::with('user')->where([]);
-
-        // Apply search and sorting using SearchRepo
-        $searchRepo = SearchRepo::of($queryBuilder, $searchableColumns, $sortableColumns);
-
-        // Add a custom column "image_url" to the search results
-        $searchRepo->addColumn('image_url', function ($country) {
-            // Logic to generate the image URL based on the "image" field of the country
-            return asset('images/' . $country->image);
-        })->addColumn('created_by', function ($country) {
-            return $country->user->name ?? '-';
-        });
-
-        // Paginate the search results
-        $results = $searchRepo->paginate(10); // 10 items per page
-
-        return response(['results' => $results]);
-    }
-
-    //Store country
     public function store(Request $request)
     {
 
-        $request->validate([
-            'name' => 'required|unique:countries,name,' . $request->id . ',id',
-            'code' => 'required|unique:countries,code,' . $request->id . ',id',
-            'dial_code' => 'required',
-            'priority_no' => 'numeric'
-        ]);
+        $data = $this->countryValidationInterface->store($request);
 
-        $data = $request->all();
-        $this->countryRepository->updateOrCreate(['id' => $request->id], $data);
-
-        return to_route('countries.index');
-    }
-
-    function update(Request $request)
-    {
-        return $this->store($request, true);
-    }
-
-    function destroy($id)
-    {
-        $this->countryRepository->deleteById($id);
-        return to_route('countries.index');
+        return $this->countryRepositoryInterface->store($request, $data);
     }
 }

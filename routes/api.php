@@ -29,6 +29,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         $user = $request->user();
         $roles = $user->getRoleNames();
         $user->roles = $roles;
+        $user->fileAccessToken = generateTemporaryToken(60);
         return ['results' => $user];
     });
 

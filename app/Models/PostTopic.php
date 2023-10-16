@@ -8,8 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PostTopic extends Model
 {
-    use HasFactory;
-    use HasUlids;
+    use HasFactory, HasUlids, CommonModelRelationShips;
 
     protected $fillable = ['category_id', 'name', 'slug', 'description', 'image', 'status_id', 'user_id', 'priority_number'];
 }

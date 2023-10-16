@@ -10,14 +10,8 @@ class StatusSeeder extends Seeder
     public function run()
     {
         $statuses = [
-            [
-                'name' => 'active',
-                'icon' => 'ontisto:checkbox-active'
-            ],
-            [
-                'name' => 'in_active',
-                'icon' => 'material-symbols:inactive-order-rounded'
-            ],
+            ['name' => 'active', 'icon' => 'ic:sharp-published-with-changes', 'class' => 'text-success'],
+            ['name' => 'in_active', 'icon' => 'fe:disabled', 'class' => 'text-danger'],
         ];
 
         foreach ($statuses as $status) {
@@ -25,6 +19,7 @@ class StatusSeeder extends Seeder
                 'name' => $status['name'],
                 'description' => ucfirst(str_replace('_', ' ', $status['name'])) . ' status.',
                 'icon' => $status['icon'],
+                'class' => $status['class'],
             ]);
         }
     }

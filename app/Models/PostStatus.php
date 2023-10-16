@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PostStatus extends Model
 {
-    use HasUlids;
+    use HasUlids, CommonModelRelationShips;
 
     protected $fillable = ['name', 'description', 'icon', 'class'];
 

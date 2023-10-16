@@ -3,12 +3,9 @@
 use App\Http\Controllers\Admin\Countries\CountriesController;
 use Illuminate\Support\Facades\Route;
 
-Route::name('countries.')->group(function () {
-    Route::get('/', [CountriesController::class, 'index'])->name('index');
-    Route::get('/list', [CountriesController::class, 'list'])->name('list');
-    Route::get('create', [CountriesController::class, 'create'])->name('create');
-    Route::post('/', [CountriesController::class, 'store'])->name('store');
-    Route::put('/', [CountriesController::class, 'update'])->name('update');
-    Route::get('/{id}', [CountriesController::class, 'show'])->name('show');
-    Route::delete('/{id}', [CountriesController::class, 'destroy'])->name('destroy');
-});
+$controller = CountriesController::class;
+Route::get('/', [$controller, 'index'])->name('List');
+Route::get('/where-has-club-teams', [$controller, 'whereHasClubTeams'])->name('Club Teams');
+Route::get('/where-has-national-teams', [$controller, 'whereHasNationalTeams'])->name('National Teams');
+
+Route::post('/', [$controller, 'store'])->name('store');

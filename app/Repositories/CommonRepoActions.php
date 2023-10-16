@@ -2,8 +2,28 @@
 
 namespace App\Repositories;
 
+use App\Models\Status;
+
 trait CommonRepoActions
 {
+
+    function autoSave($data)
+    {
+
+        $id = $data['id'] ?? request()->id;
+        $data['id'] = $id;
+
+        if (!$id) {
+            $data['user_id'] = auth()->user()->id;
+
+            if (!isset($data['status_id'])) {
+                $data['status_id'] = Status::wherename('active')->first()->id ?? 0;
+            }
+        }
+
+        $record = $this->model::updateOrCreate(['id' => $id], $data);
+        return $record;
+    }
 
     function statusUpdate($id)
     {
@@ -20,4 +40,5 @@ trait CommonRepoActions
         $this->model::find($id)->delete();
         return response(['message' => "Record deleted successfully."]);
     }
+
 }

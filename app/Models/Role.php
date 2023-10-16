@@ -8,8 +8,9 @@ use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
-    use HasFactory, HasUlids;
+    use HasFactory, HasUlids, CommonModelRelationShips;
     protected $keyType = 'string';
 
     protected $fillable = ['name', 'description', 'guard_name', 'status_id'];
+
 }

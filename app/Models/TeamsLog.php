@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TeamsLog extends Model
 {
-    use HasFactory, HasUlids;
+    use HasFactory, HasUlids, CommonModelRelationShips;
 
     protected $fillable = [
         'team_id',
@@ -18,9 +18,4 @@ class TeamsLog extends Model
         'detailed_fetch_details',
     ];
 
-    public static function boot()
-    {
-        parent::boot();
-        static::creating(fn ($model) => defaultColumns($model));
-    }
 }

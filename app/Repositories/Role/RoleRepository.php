@@ -30,27 +30,22 @@ class RoleRepository implements RoleRepositoryInterface
     public function index()
     {
 
-        $roles = Role::query();
+        $roles = $this->model::query();
 
         if (request()->all == '1')
             return response(['results' => $roles->get()]);
 
+        $uri =  '/admin/settings/role-permissions/roles/';
+        $view = 'link';
+        $edit = 'modal';
         $roles = SearchRepo::of($roles, ['name', 'id'])
             ->fillable(['name', 'guard_name'])
-            ->addColumn('action', function ($role) {
-                return '
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="icon icon-list2 font-20"></i>
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item autotable-navigate" href="/admin/settings/role-permissions/roles/view/' . $role->id . '">View</a></li>
-                <li><a class="dropdown-item autotable-edit" data-id="' . $role->id . '" href="/admin/settings/role-permissions/roles/view/' . $role->id . '">Edit</a></li>
-                <li><a class="dropdown-item autotable-status-update" data-id="' . $role->id . '" href="/admin/settings/role-permissions/roles/view/' . $role->id . '/status-update">Status update</a></li>
-            </ul>
-        </div>
-        ';
-            })->paginate();
+            ->addColumn('Created_at', 'Created_at')
+            ->addColumn('Created_by', 'Created_by')
+            ->addColumn('Status', 'Status')
+            ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, $view, $edit))
+            ->htmls(['Status'])
+            ->paginate();
 
         return response(['results' => $roles]);
     }
@@ -62,10 +57,9 @@ class RoleRepository implements RoleRepositoryInterface
         if ($request->id)
             $action = 'updated';
 
-        $res = Role::updateOrCreate(['id' => $request->id], $data);
+        $res = $this->autoSave($data);
         return response(['type' => 'success', 'message' => 'Role ' . $action . ' successfully', 'results' => $res]);
     }
-
 
     function getUserRolesAndDirectPermissions()
     {
@@ -79,7 +73,7 @@ class RoleRepository implements RoleRepositoryInterface
 
     public function show($id)
     {
-        $role = Role::findOrFail($id);
+        $role = $this->model::findOrFail($id);
         return response()->json([
             'status' => true,
             'results' => $role,
@@ -104,7 +98,7 @@ class RoleRepository implements RoleRepositoryInterface
         $parent_folder = $current_folder['folder'];
 
         // Find the role by ID along with its permissions, excluding those from the current folder
-        $role = Role::find($id);
+        $role = $this->model::find($id);
 
         // If the role doesn't exist, return a 404 response
         if (!$role) {
@@ -122,7 +116,7 @@ class RoleRepository implements RoleRepositoryInterface
         try {
             DB::beginTransaction();
 
-            $existing = Role::with(['permissions' => function ($q) use ($parent_folder) {
+            $existing = $this->model::with(['permissions' => function ($q) use ($parent_folder) {
                 $q->where('parent_folder', '=', $parent_folder);
             }])->find($id)->permissions->pluck('id')->toArray();
 
@@ -149,12 +143,6 @@ class RoleRepository implements RoleRepositoryInterface
         }
     }
 
-    function update(Request $request, $id)
-    {
-        $request->merge(['id' => $id]);
-        return app(RolesController::class)->store($request);
-    }
-
     function storeRoleMenuAndCleanPermissions(Request $request, $id)
     {
 
@@ -162,7 +150,7 @@ class RoleRepository implements RoleRepositoryInterface
         $saved_folders = $request->saved_folders;
         $all_folders = $request->all_folders;
 
-        $role = Role::find($id);
+        $role = $this->model::find($id);
         if (!$role) return response(['message' => 'Role not found', 'status' => false,], 404);
 
         // 1. Remove permissions for parent folders not in the list of saved folders (probably the current role does not need the folders anymore)
@@ -194,7 +182,7 @@ class RoleRepository implements RoleRepositoryInterface
     public function getRoleMenu($id)
     {
         // a user can have more than 1 roles
-        $role = Role::find($id);
+        $role = $this->model::find($id);
         if (!$role) {
             return response()->json(['message' => 'Role not found!!'], 404);
         }
@@ -218,7 +206,7 @@ class RoleRepository implements RoleRepositoryInterface
 
     function getUserRoutePermissions($id)
     {
-        $role = Role::findOrFail($id);
+        $role = $this->model::findOrFail($id);
         $user = User::find(auth()->user()->id);
 
         if (!$user->hasRole($role)) return response(['message' => "User doesnt have the {$role->id} role."], 404);
@@ -232,7 +220,7 @@ class RoleRepository implements RoleRepositoryInterface
     function addUser($id)
     {
 
-        $role = Role::find($id);
+        $role = $this->model::find($id);
         if (!$role) return response(['message' => 'Role not found', 'status' => false,], 404);
 
         $user = User::find(request()->user_id);

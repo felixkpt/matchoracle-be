@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Status;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\PermissionRegistrar;
@@ -561,7 +562,11 @@ class PermissionSeeder extends Seeder
         foreach ($permissions as $row) {
             $attach[] = Permission::updateOrCreate(
                 ['name' => $row['name']],
-                $row
+                [
+                    ...$row,
+                    'status_id' => Status::where('name', 'active')->first()->id ?? 0,
+                    'user_id' => User::first()->id ?? 0,
+                ]
             )->id;
         }
 

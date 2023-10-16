@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Settings\RolePermissions\Roles\View;
 
+use App\Http\Controllers\Admin\Settings\RolePermissions\Roles\RolesController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\Role\RoleRepositoryInterface;
@@ -43,7 +44,8 @@ class RoleController extends Controller
 
     function update(Request $request, $id)
     {
-        return $this->roleRepositoryInterface->update($request, $id);
+        $request->merge(['id' => $id]);
+        return app(RolesController::class)->store($request);
     }
 
     /**

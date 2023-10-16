@@ -2,12 +2,28 @@
 
 namespace App\Providers;
 
+use App\Repositories\Competition\CompetitionRepository;
+use App\Repositories\Competition\CompetitionRepositoryInterface;
+use App\Repositories\Continent\ContinentRepository;
+use App\Repositories\Continent\ContinentRepositoryInterface;
+use App\Repositories\Country\CountryRepository;
+use App\Repositories\Country\CountryRepositoryInterface;
+use App\Repositories\GameSource\GameSourceRepository;
+use App\Repositories\GameSource\GameSourceRepositoryInterface;
 use App\Repositories\Permission\PermissionRepository;
 use App\Repositories\Permission\PermissionRepositoryInterface;
+use App\Repositories\Post\Category\PostCategoryRepository;
+use App\Repositories\Post\Category\PostCategoryRepositoryInterface;
 use App\Repositories\Post\PostRepository;
 use App\Repositories\Post\PostRepositoryInterface;
+use App\Repositories\PostStatus\PostStatusRepository;
+use App\Repositories\PostStatus\PostStatusRepositoryInterface;
 use App\Repositories\Role\RoleRepository;
 use App\Repositories\Role\RoleRepositoryInterface;
+use App\Repositories\Status\StatusRepository;
+use App\Repositories\Status\StatusRepositoryInterface;
+use App\Repositories\Team\TeamRepository;
+use App\Repositories\Team\TeamRepositoryInterface;
 use App\Repositories\User\UserRepository;
 use App\Repositories\User\UserRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
@@ -25,6 +41,14 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(PermissionRepositoryInterface::class, PermissionRepository::class);
         $this->app->singleton(UserRepositoryInterface::class, UserRepository::class);
         $this->app->singleton(PostRepositoryInterface::class, PostRepository::class);
+        $this->app->singleton(PostCategoryRepositoryInterface::class, PostCategoryRepository::class);
+        $this->app->singleton(GameSourceRepositoryInterface::class, GameSourceRepository::class);
+        $this->app->singleton(StatusRepositoryInterface::class, StatusRepository::class);
+        $this->app->singleton(PostStatusRepositoryInterface::class, PostStatusRepository::class);
+        $this->app->singleton(ContinentRepositoryInterface::class, ContinentRepository::class);
+        $this->app->singleton(CountryRepositoryInterface::class, CountryRepository::class);
+        $this->app->singleton(CompetitionRepositoryInterface::class, CompetitionRepository::class);
+        $this->app->singleton(TeamRepositoryInterface::class, TeamRepository::class);
     }
 
     /**

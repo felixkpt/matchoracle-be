@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\Admin;
 
+use App\Models\Status;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -21,6 +22,7 @@ class AdminUserSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => Hash::make('admin@example.com'),
             'email_verified_at' => Carbon::now(),
+            'status_id' => Status::where('name', 'active')->first()->id ?? 0
         ]);
     }
 }

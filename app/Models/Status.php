@@ -8,9 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Status extends Model
 {
-    use HasUlids;
+    use HasFactory, HasUlids, CommonModelRelationShips;
 
     protected $fillable = ['name', 'description', 'icon', 'class'];
 
-    use HasFactory;
 }

@@ -4,28 +4,35 @@ namespace App\Http\Controllers\Admin\Teams\View;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\SearchRepo;
-use App\Repositories\TeamRepository;
+use App\Repositories\Team\TeamRepositoryInterface;
 use App\Services\Common;
 use App\Services\Games\Games;
+use App\Services\Validations\Team\TeamValidationInterface;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
 
 class TeamController extends Controller
 {
-    private $repo;
-
-    public function __construct(TeamRepository $repo)
-    {
-        $this->repo = $repo;
+    function __construct(
+        private TeamRepositoryInterface $teamRepositoryInterface,
+        private TeamValidationInterface $teamValidationInterface,
+    ) {
     }
 
     function show($id)
     {
-        $team = $this->repo->findById($id);
+        return $this->teamRepositoryInterface->show($id);
+    }
 
-        return response('Teams/Team/Show', compact('team'));
+    function addSources(Request $request, $id)
+    {
+        $request->merge(['id' => $id]);
+
+        $data = $this->teamValidationInterface->addSources();
+
+        return $this->teamRepositoryInterface->addSources($request, $data);
     }
 
     function getGames($id)

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('post_statuses', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->string('description');
+            $table->text('description');
             $table->string('icon')->nullable();
             $table->string('class')->nullable();
             $table->uuid('user_id')->default(0);

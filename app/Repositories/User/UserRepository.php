@@ -42,10 +42,13 @@ class UserRepository implements UserRepositoryInterface
                 return implode(', ', $user->roles()->get()->pluck('name')->toArray());
             })
             ->addFillable('password_confirmation', 'avatar')
-            ->addFillable('roles_multilist')
-            ->addFillable('direct_permissions_multilist')
+            ->addFillable('roles_multilist', 'two_factor_enabled', ['input' => 'input', 'type' => 'checkbox'])
+            ->addFillable('direct_permissions_multilist', 'roles_multilist', ['input' => 'input', 'type' => 'checkbox'])
             ->addFillable('two_factor_enabled', 'theme', ['input' => 'input', 'type' => 'checkbox'])
             ->addFillable('allowed_session_no', 'theme', ['input' => 'input', 'type' => 'number', 'min' => 1, 'max' => 10])
+            ->addColumn('Created_at', 'Created_at')
+            ->addColumn('Status', 'Status')
+            ->htmls(['Status'])
             ->addColumn('action', function ($user) {
                 return '
     <div class="dropdown">
@@ -79,7 +82,11 @@ class UserRepository implements UserRepositoryInterface
     public function store(Request $request, $data)
     {
 
-        $user = $this->model::updateOrCreate(['id' => $request->id], $data);
+        if (!$request->id) {
+            $data['password'] = bcrypt($data['password']);
+        }
+
+        $user = $this->autoSave($data);
 
         if (!$user->default_role_id) {
             $user->default_role_id = $request->roles_list[0];
@@ -101,16 +108,22 @@ class UserRepository implements UserRepositoryInterface
 
     public function show($id)
     {
-        $user = $this->model::with(['roles', 'direct_permissions'])->where(['users.id' => $id]);
+        $user = $this->model::with(['user', 'roles', 'direct_permissions'])->where(['users.id' => $id]);
 
-        return response(['results' => SearchRepo::of($user)
+        $res = SearchRepo::of($user)
+            ->addColumn('Created_by', 'Created_by')
+            ->addColumn('Status', 'Status')
+            ->addColumn('two_factor_enabled', fn ($q) => $q->two_factor_enabled ? 'Yes' : 'No')
             ->removeFillable(['password'])
-            ->addFillable('roles_multilist')
-            ->addFillable('direct_permissions_multilist')
+            ->addFillable('roles_multilist', 'refresh_api_token', ['input' => 'select', 'type' => 'multi'])
+            ->addFillable('direct_permissions_multilist', 'refresh_api_token', ['input' => 'select', 'type' => 'multi'])
             ->addFillable('two_factor_enabled', 'theme', ['input' => 'input', 'type' => 'checkbox'])
             ->addFillable('allowed_session_no', 'theme', ['input' => 'input', 'type' => 'number', 'min' => 1, 'max' => 10])
             ->addFillable('refresh_api_token', null, ['input' => 'input', 'type' => 'checkbox'])
-            ->first()]);
+            ->htmls(['Status'])
+            ->first();
+
+        return response(['results' => $res]);
     }
 
     public function edit($id)
@@ -171,6 +184,7 @@ class UserRepository implements UserRepositoryInterface
             'user_name' => $user->name,
             'user_email' => $user->email,
         ];
+
         try {
             Mail::to($user->email)->send(new SendPassword($data));
         } catch (\Exception $e) {

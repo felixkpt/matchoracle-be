@@ -3,69 +3,28 @@
 namespace App\Http\Controllers\Admin\Settings\Picklists\Statuses;
 
 use App\Http\Controllers\Controller;
-use App\Models\Status;
-use App\Repositories\SearchRepo;
+use App\Repositories\Status\StatusRepositoryInterface;
+use App\Services\Validations\Status\StatusValidationInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class StatusesController extends Controller
 {
+    function __construct(
+        private StatusRepositoryInterface $statusRepositoryInterface,
+        private StatusValidationInterface $statusValidationInterface,
+    ) {
+    }
+
     public function index()
     {
-
-        $statuses = Status::query();
-
-        if (request()->all == '1')
-            return response(['results' => $statuses->get()]);
-
-        $statuses = SearchRepo::of($statuses, ['id', 'name'])
-            ->sortable(['id', 'name'])
-            ->addColumn('action', function ($status) {
-                return '
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="icon icon-list2 font-20"></i>
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item autotable-view" data-id="' . $status->id . '" href="/admin/settings/picklists/statuses/default/' . $status->id . '">View</a></li>
-                <li><a class="dropdown-item autotable-edit" data-id="' . $status->id . '" href="/admin/settings/picklists/statuses/default/' . $status->id . '">Edit</a></li>
-                <li><a class="dropdown-item autotable-status-update" data-id="' . $status->id . '" href="/admin/settings/picklists/statuses/default/' . $status->id . '/status-update">Status update</a></li>
-            </ul>
-        </div>
-        ';
-            })->paginate();
-
-        return response(['results' => $statuses]);
+        return $this->statusRepositoryInterface->index();
     }
 
     public function store(Request $request)
     {
+        $data = $this->statusValidationInterface->store($request);
 
-        $data = $request->all();
-
-        $validateUser = Validator::make(
-            $data,
-            [
-                'name' => 'required|string|unique:statuses,name,' . $request->id . ',id',
-                'description' => 'required|string',
-                'icon' => 'required|string',
-                'class' => 'nullable|string',
-            ]
-        );
-
-        if ($validateUser->fails()) {
-            return response()->json([
-                'message' => 'validation error',
-                'errors' => $validateUser->errors()
-            ], 401);
-        }
-
-        $action = 'created';
-        if ($request->id)
-            $action = 'updated';
-
-        $res = Status::updateOrCreate(['id' => $request->id], $data);
-        return response(['type' => 'success', 'message' => 'Status ' . $action . ' successfully', 'results' => $res]);
+        return $this->statusRepositoryInterface->store($request, $data);
     }
 
     function update(Request $request, $id)
@@ -74,28 +33,21 @@ class StatusesController extends Controller
         return $this->store($request);
     }
 
-
     public function show($id)
     {
-        $status = Status::findOrFail($id);
-        return response()->json([
-            'results' => $status,
-        ]);
+        return $this->statusRepositoryInterface->show($id);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    function statusUpdate($id)
     {
-        //
+        return $this->statusRepositoryInterface->statusUpdate($id);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        return $this->statusRepositoryInterface->destroy($id);
     }
 }

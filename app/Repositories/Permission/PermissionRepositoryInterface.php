@@ -16,6 +16,4 @@ interface PermissionRepositoryInterface extends CommonRepoActionsInterface
 
     function getRolePermissions($id);
 
-    function statusUpdate($id);
-
 }

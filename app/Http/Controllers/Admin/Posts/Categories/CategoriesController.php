@@ -6,136 +6,32 @@ use App\Http\Controllers\Admin\Posts\Categories\Topics\TopicsController;
 use App\Http\Controllers\Controller;
 use App\Models\PostCategory;
 use App\Models\PostStatus;
+use App\Repositories\Post\Category\PostCategoryRepositoryInterface;
 use App\Repositories\SearchRepo;
-use App\Services\Filerepo\Controllers\FilesController;
+use App\Services\Validations\Post\Category\PostCategoryValidationInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class CategoriesController extends Controller
 {
-    public function index()
-    {
-        $docs = PostCategory::query()
-            ->when(isset(request()->id) && request()->id > 0, fn ($q) => $q->where('id', request()->id))
-            ->when(isset(request()->parent_category_id), fn ($q) => $q->where('parent_category_id', request()->parent_category_id));
-
-        $res = SearchRepo::of($docs, ['id', 'name', 'image'])
-            ->sortable(['id', 'image'])
-            ->addColumn('action', function ($item) {
-                return '
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="icon icon-list2 font-20"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item autotable-navigate" href="/admin/posts/' . $item->slug . '">View</a></li>
-                            '
-                    .
-                    (checkPermission('docs.categories', 'post') ?
-                        '<li><a class="dropdown-item autotable-edit" data-id="' . $item->id . '" href="/admin/posts/categories/' . $item->id . '">Edit</a></li>'
-                        :
-                        '')
-                    .
-                    '
-                            <li><a class="dropdown-item autotable-status-update" data-id="' . $item->id . '" href="/admin/posts/' . $item->slug . '/status-update">Status update</a></li>
-                        </ul>
-                    </div>
-                    ';
-            })
-            ->paginate();
-
-        return response(['results' => $res]);
+    function __construct(
+        private PostCategoryRepositoryInterface $postCategoryRepositoryInterface,
+        private PostCategoryValidationInterface $postCategoryValidationInterface
+    ) {
     }
 
-    public function create()
+    public function index()
     {
-        // Show the create docs/doc page form
+
+        return $this->postCategoryRepositoryInterface->index();
+
     }
 
     public function store(Request $request)
     {
 
-        // Validate the incoming request data
-        $validatedData = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('postcategories', 'name')->where(function ($query) use ($request) {
-                    return $query->where('parent_category_id', $request->parent_category_id);
-                })->ignore($request->id),
-            ],
-            'slug' => [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('postcategories', 'slug')->ignore($request->id),
-            ],
-            'description' => 'nullable|string|max:255',
-            'image' => 'required|image',
-            'parent_category_id' => 'nullable|exists:post_categories,id',
-            'priority_number' => 'nullable|integer|between:0,99999999',
-        ]);
+        $validatedData = $this->postCategoryValidationInterface->store($request);
 
-        if ($request->slug) {
-            $slug = Str::slug($validatedData['slug']);
-        } else {
-            // Generate the slug from the name and parent_category slug
-            $slug = Str::slug($validatedData['name']);
-
-
-            if ($request->id) {
-                $exists = PostCategory::find($request->id);
-                if ($exists) {
-                    $request->merge(['parent_category_id' => $exists->parent_category_id]);
-                }
-            }
-
-            // Check if the generated slug is unique, if not, add a prefix
-            $parent_category_id = $request->parent_category_id;
-            while ($parent_category_id > 0) {
-                $category = PostCategory::find($parent_category_id);
-                if ($category) {
-                    $slug = $category->slug . '-' . $slug;
-                    break;
-                } else {
-                    break;
-                }
-            }
-
-            // Check if the generated slug is unique, if not, add a suffix
-            $count = 1;
-            while (PostCategory::where('slug', $slug)->exists()) {
-                $slug = Str::slug($slug) . '-' . Str::random($count);
-                $count++;
-            }
-        }
-
-        // Include the generated slug in the validated data
-        $validatedData['slug'] = Str::lower($slug);
-        if (!$request->id) {
-            $validatedData['user_id'] = auth()->user()->id;
-        }
-
-        // Create a new PostCat instance with the validated data
-        $validatedData['name'] = Str::title($validatedData['name']);
-
-        $documentation = PostCategory::updateOrCreate(['id' => $request->id], $validatedData);
-
-        if (request()->hasFile('image')) {
-            $uploader = new FilesController();
-            $image_data = $uploader->saveFiles($documentation, [request()->file('image')]);
-
-            $path = $image_data[0]['path'] ?? null;
-            $documentation->image = $path;
-            $documentation->save();
-        }
-
-        $action = 'created';
-        if ($request->id)
-            $action = 'updated';
-        return response(['type' => 'success', 'message' => 'Documentation category ' . $action . ' successfully', 'results' => $documentation]);
+        return $this->postCategoryRepositoryInterface->store($request, $validatedData);
     }
 
     function update(Request $request, $id)
@@ -146,9 +42,9 @@ class CategoriesController extends Controller
 
     public function show($slug)
     {
-        $docs = PostCategory::where('slug', $slug);
+        $postcats = PostCategory::with('category')->where('slug', $slug);
 
-        $res = SearchRepo::of($docs, [], [])
+        $res = SearchRepo::of($postcats, [], [])
             ->addColumn('name', fn ($item) => $item->name)
             ->statuses(PostStatus::select('id', 'name')->get())->first();
 
@@ -159,5 +55,10 @@ class CategoriesController extends Controller
     {
         request()->merge(['slug' => $slug]);
         return app(TopicsController::class)->index();
+    }
+
+    function statusUpdate($id)
+    {
+        return $this->postCategoryRepositoryInterface->statusUpdate($id);
     }
 }

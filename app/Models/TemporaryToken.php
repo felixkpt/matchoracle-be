@@ -8,8 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TemporaryToken extends Model
 {
-    use HasFactory;
-    use HasUlids;
+    use HasFactory, HasUlids, CommonModelRelationShips;
 
     protected $fillable = [
         'token',

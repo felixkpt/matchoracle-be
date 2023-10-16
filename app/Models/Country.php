@@ -8,32 +8,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class Country extends Model
 {
-    use HasFactory, HasUlids;
+    use HasFactory, HasUlids, CommonModelRelationShips;
 
     protected $fillable = [
         'name',
         'slug',
         'code',
         'dial_code',
-        'priority_no',
+        'continent_id',
+        'priority_number',
         'has_competitions',
+        'flag',
         'user_id',
-        'status',
+        'status_id',
     ];
 
     function competitions()
     {
-        return $this->hasMany(Competition::class);
+        return $this->hasMany(Competition::class)->orderby('priority_number');
     }
-
-    function user()
+    
+    function continent()
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-        static::creating(fn ($model) => defaultColumns($model));
+        return $this->belongsTo(Continent::class);
     }
 }

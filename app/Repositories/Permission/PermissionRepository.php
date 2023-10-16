@@ -4,42 +4,39 @@ namespace App\Repositories\Permission;
 
 use App\Models\Permission;
 use App\Models\Role;
+use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
 use Illuminate\Http\Request;
 
 class PermissionRepository implements PermissionRepositoryInterface
 {
+
+    use CommonRepoActions;
+
+    private $checked_permissions = [];
+
     protected $leftTrim = 'api';
     protected $permissions = [];
     protected $folder_icons = [];
     protected $hidden_folders = [];
 
-    protected $checked_permissions = [];
+    function __construct(protected Permission $model)
+    {
+    }
 
     public function index()
     {
 
-        $permissions = Permission::whereNull('uri');
+        $permissions = $this->model::whereNull('uri');
 
-        if (request()->all == '1')
-            return response(['results' => $permissions->get()]);
-
+        $uri = '/admin/settings/role-permissions/permissions/';
         $permissions = SearchRepo::of($permissions, ['name', 'id'])
             ->fillable(['name', 'guard_name'])
-            ->addColumn('action', function ($permission) {
-                return '
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="icon icon-list2 font-20"></i>
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item autotable-view" data-id="' . $permission->id . '" href="/admin/settings/role-permissions/view/' . $permission->id . '">View</a></li>
-                <li><a class="dropdown-item autotable-edit" data-id="' . $permission->id . '" href="/admin/settings/role-permissions/permissions/view/' . $permission->id . '">Edit</a></li>
-                <li><a class="dropdown-item autotable-status-update" data-id="' . $permission->id . '" href="/admin/settings/role-permissions/permissions/view/' . $permission->id . '/status-update">Status Update</a></li>
-            </ul>
-        </div>
-        ';
-            })->paginate();
+            ->addColumn('Created_at', 'Created_at')
+            ->addColumn('Status', 'Status')
+            ->addActionColumn('action', $uri)
+            ->htmls(['Status'])
+            ->paginate();
 
         return response(['results' => $permissions]);
     }
@@ -50,7 +47,7 @@ class PermissionRepository implements PermissionRepositoryInterface
         if ($request->id)
             $action = 'updated';
 
-        $res = Permission::updateOrCreate(['id' => $request->id], $data);
+        $res = $this->autoSave($data);
         return response(['type' => 'success', 'message' => 'Permission ' . $action . ' successfully', 'results' => $res]);
     }
 
@@ -67,7 +64,7 @@ class PermissionRepository implements PermissionRepositoryInterface
     {
 
         if ($id === 'all') {
-            $permissions = Permission::whereNotNull('uri');
+            $permissions = $this->model::whereNotNull('uri');
         } else {
             $permission = Role::findOrFail($id);
             $permissions = $permission->permissions();
@@ -84,7 +81,7 @@ class PermissionRepository implements PermissionRepositoryInterface
     function statusUpdate($id)
     {
         $status_id = request()->status_id;
-        Permission::find($id)->update(['status_id' => $status_id]);
+        $this->model::find($id)->update(['status_id' => $status_id]);
         return response(['message' => "Status updated successfully."]);
     }
 

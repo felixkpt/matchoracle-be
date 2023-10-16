@@ -8,13 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Odd extends Model
 {
-    use HasFactory, HasUlids;
-    public static function boot()
-    {
-        parent::boot();
-        static::creating(fn ($model) => defaultColumns($model));
-    }
-
+    use HasFactory, HasUlids, CommonModelRelationShips;
+    
     protected $fillable = [
         'date_time',
         'year',

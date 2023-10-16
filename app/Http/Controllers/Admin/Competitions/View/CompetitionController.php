@@ -2,45 +2,34 @@
 
 namespace App\Http\Controllers\Admin\Competitions\View;
 
+use App\Http\Controllers\Admin\Competitions\CompetitionsController;
 use App\Http\Controllers\Controller;
-use App\Repositories\CompetitionRepository;
+use App\Repositories\Competition\CompetitionRepositoryInterface;
 use App\Repositories\TeamRepository;
 use App\Services\Common;
 use App\Services\Games\Games;
+use App\Services\Validations\Competition\CompetitionValidationInterface;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Inertia\Inertia;
 
 class CompetitionController extends Controller
 {
-    private $repo;
 
-    public function __construct(CompetitionRepository $repo)
-    {
-        $this->repo = $repo;
+    public function __construct(
+        private CompetitionRepositoryInterface $competitionRepositoryInterface,
+        private CompetitionValidationInterface $competitionValidationInterface,
+    ) {
     }
 
     function index($id)
     {
-        $competition = $this->repo->findById($id, ['*'], ['teams'])->toArray();
+        $competition = $this->competitionRepositoryInterface->model::findById($id, ['*'], ['teams'])->toArray();
         return response('Competitions/Competition/Show', compact('competition'));
-    }
-
-    function store($id)
-    {
-        request()->validate([
-            'source' => 'required'
-        ]);
-
-        $is_domestic = request()->is_domestic;
-
-        $competition = $this->repo->findById($id, ['*'], ['country']);
-
-        return Common::updateCompetitionAndHandleTeams($competition, $competition->country, $is_domestic, null);
     }
 
     function checkMatches($id)
     {
-        $competition = $this->repo->findById($id);
+        $competition = $this->competitionRepositoryInterface->model::findById($id);
         return response('Competitions/Competition/Actions', compact('competition'));
     }
 
@@ -57,7 +46,7 @@ class CompetitionController extends Controller
 
     protected function predictions($id)
     {
-        $competition = $this->repo->findById($id);
+        $competition = $this->competitionRepositoryInterface->model::findById($id);
         return response('Competitions/Competition/Predictions', compact('competition'));
     }
 
@@ -79,11 +68,11 @@ class CompetitionController extends Controller
         $all_res = [];
         $repo = new TeamRepository();
         $repo->model
-        // ->where('id', '01h40p8jm45fzpkwwvk121hnzr')
-        ->where('competition_id', $id)->where(function ($q) use ($testdate) {
-            $q->where('last_fetch', '<=', $testdate)->orWhereNull('last_fetch');
-        })
-        ->orderby('last_fetch', 'asc')
+            // ->where('id', '01h40p8jm45fzpkwwvk121hnzr')
+            ->where('competition_id', $id)->where(function ($q) use ($testdate) {
+                $q->where('last_fetch', '<=', $testdate)->orWhereNull('last_fetch');
+            })
+            ->orderby('last_fetch', 'asc')
             ->chunk($chunk, function ($teams) use (&$all_res) {
 
                 // Stop chunk processing of limit is supplied and reached
@@ -107,11 +96,11 @@ class CompetitionController extends Controller
     {
         $testdate = Carbon::now()->subDays(1)->toDateTimeString();
 
-        $competition = $this->repo->findById($id, ['*'], ['teams' => function ($q) use ($testdate) {
+        $competition = $this->competitionRepositoryInterface->model::findById($id, ['*'], ['teams' => function ($q) use ($testdate) {
             $q->where('last_fetch', '<=', $testdate)->orWhereNull('last_fetch');
         }]);
 
-        $recently_fetched_teams = $this->repo->findById($id, ['*'], ['teams' => function ($q) use ($testdate) {
+        $recently_fetched_teams = $this->competitionRepositoryInterface->model::findById($id, ['*'], ['teams' => function ($q) use ($testdate) {
             $q->where('last_fetch', '>', $testdate)->orderby('last_fetch', 'desc');
         }])->teams;
 
@@ -144,7 +133,7 @@ class CompetitionController extends Controller
         $games = new Games();
         $all_res = $games->detailedFixture($id, $game, true);
 
-        $this->repo->update($id, ['last_detailed_fetch' => Carbon::now()]);
+        $this->competitionRepositoryInterface->model::update($id, ['last_detailed_fetch' => Carbon::now()]);
 
         $competition = $this->getGames($id);
         return response(['results' => ['res' => $all_res, 'competition' => $competition]]);
@@ -157,7 +146,7 @@ class CompetitionController extends Controller
 
         $game = autoModel($table);
 
-        $competition = $this->repo->findById($id, ['*']);
+        $competition = $this->competitionRepositoryInterface->model::findById($id, ['*']);
 
         $games = $game->where('competition_id', $id)->where('update_status', 0)->get();
         $recently_fetched_games = $game->where('competition_id', $id)->where('update_status', '>', 0)->get();
@@ -167,10 +156,10 @@ class CompetitionController extends Controller
         return $competition;
     }
 
-    protected function update($id)
+    protected function update(Request $request, $id)
     {
-        $competition = $this->repo->findById($id);
-        return response('Competitions/Competition/Update', compact('competition'));
+        $request->merge(['id' => $id]);
+        return app(CompetitionsController::class)->store($request);
     }
 
     protected function results($id)
@@ -178,14 +167,52 @@ class CompetitionController extends Controller
         dd($id, 'ress');
     }
 
-    protected function changeStatus($id)
+    function show($id)
     {
-        $item = $this->repo->model->find($id);
+        return $this->competitionRepositoryInterface->show($id);
+    }
 
-        $state = $item->status == 1 ? 'Activated' : 'Deactivated';
-        $item->update(['status' => !$item->status]);
+    function fetchStandings($id)
+    {
+        return $this->competitionRepositoryInterface->fetchStandings($id);
+    }
 
-        $item = $this->repo->findById($id, ['*'], ['teams']);
-        return response(['results' => ['competition' => $item, 'status' => $state]]);
+    function addSources(Request $request, $id)
+    {
+        $request->merge(['id' => $id]);
+
+        $data = $this->competitionValidationInterface->addSources();
+
+        return $this->competitionRepositoryInterface->addSources($request, $data);
+    }
+
+    function listSources(Request $request, $id)
+    {
+        return $this->competitionRepositoryInterface->listSources($id);
+    }
+
+    function seasons($id)
+    {
+        return $this->competitionRepositoryInterface->seasons($id);
+    }
+
+    function standings($id, $season_id = null)
+    {
+        return $this->competitionRepositoryInterface->standings($id, $season_id);
+    }
+
+    function teams($id)
+    {
+        return $this->competitionRepositoryInterface->teams($id);
+    }
+
+    function statusUpdate($id)
+    {
+        return $this->competitionRepositoryInterface->statusUpdate($id);
+    }
+
+    function destroy($id)
+    {
+        return $this->competitionRepositoryInterface->destroy($id);
     }
 }

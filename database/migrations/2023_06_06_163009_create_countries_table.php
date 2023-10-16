@@ -17,11 +17,12 @@ return new class extends Migration
             $table->string('slug');
             $table->string('code')->nullable();
             $table->string('dial_code')->nullable();
-            $table->string('img')->nullable();
-            $table->integer('priority_no')->default(9999);
+            $table->string('flag')->nullable();
+            $table->uuid('continent_id')->default(0);
             $table->boolean('has_competitions')->default(0);
-            $table->tinyInteger('status')->default(1);
-            $table->uuid('user_id');
+            $table->integer('priority_number')->default(9999);
+            $table->uuid('status_id')->default(0);
+            $table->uuid('user_id')->default(0);
             $table->timestamps();
         });
     }

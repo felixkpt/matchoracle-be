@@ -38,7 +38,7 @@ class Common
      * 
      * @return mixed The API response with the updated competition and associated teams.
      */
-    static function updateCompetitionAndHandleTeams($competition, $country, $is_domestic, $crawler = null, $response_type = null, $ignore_last_fetch = false)
+    static function updateCompetitionAndHandleTeams($competition, $country, $has_teams, $crawler = null, $response_type = null, $ignore_last_fetch = false)
     {
 
         $last_fetch = Carbon::createFromDate($competition->last_fetch);
@@ -75,7 +75,7 @@ class Common
         if ($competition->action === 'updated')
             $fetch_details = 'Competition updated.';
 
-        $added = Common::saveTeams($teams, $competition, $country, $is_domestic, $competition->action === 'created' ? false : true);
+        $added = Common::saveTeams($teams, $competition, $country, $has_teams, $competition->action === 'created' ? false : true);
 
         $removed = self::teamRepo()->model->where('competition_id', $competition->id)->whereNotIn('id', array_column($added, 'id'));
         $removedTeams = $removed->get(['id', 'name']);
@@ -89,7 +89,7 @@ class Common
         return response(['results' => ['competition' => $competition->toArray(), 'teams' => $added, 'removedTeams' => $removedTeams]], 200, $response_type);
     }
 
-    static function saveCompetition(string|array $source, string $name = null, $is_domestic = null)
+    static function saveCompetition(string|array $source, string $name = null, $has_teams = null)
     {
 
         $img = null;
@@ -149,7 +149,7 @@ class Common
             'country_id' => $country->id,
             'url' => $source,
             'status' => 1,
-            'is_domestic' => $is_domestic
+            'has_teams' => $has_teams
         ];
 
         $competition = self::competitionRepo()->model->where([
@@ -256,14 +256,14 @@ class Common
         return $res;
     }
 
-    static function saveTeams($teams, $competition, $country, $is_domestic, $is_fetch = false)
+    static function saveTeams($teams, $competition, $country, $has_teams, $is_fetch = false)
     {
         $added = [];
         foreach ($teams as $team) {
 
             ['name' => $name, 'url' => $url] = $team[1]['team'];
 
-            $team = Common::saveTeam($name, $url, $competition, $country, $is_domestic, $is_fetch);
+            $team = Common::saveTeam($name, $url, $competition, $country, $has_teams, $is_fetch);
 
             $arr = [
                 'action' => $team->action,
@@ -278,7 +278,7 @@ class Common
 
         return $added;
     }
-    static function saveTeam($name, $url, $competition, $country, $is_domestic, $is_fetch = false)
+    static function saveTeam($name, $url, $competition, $country, $has_teams, $is_fetch = false)
     {
         $data = [
             'name' => $name,
@@ -290,7 +290,7 @@ class Common
             'country_id' => $country->id,
         ];
 
-        if ($is_domestic === true)
+        if ($has_teams === true)
             $data = array_merge($data, [
                 'competition_id' => $competition->id,
             ]);

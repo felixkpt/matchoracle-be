@@ -3,4 +3,7 @@
 use App\Http\Controllers\Admin\Teams\TeamsController;
 use Illuminate\Support\Facades\Route;
 
-Route::resource('/', TeamsController::class, ['parameters' => ['' => 'id']]);
+$controller = TeamsController::class;
+Route::get('/', [$controller, 'index'])->name('List');
+Route::get('/competition/{id}', [$controller, 'index'])->name('List');
+Route::post('/', [$controller, 'store'])->name('store');

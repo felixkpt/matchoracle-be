@@ -16,13 +16,18 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $arr = [
+            StatusSeeder::class,
             AdminUserSeeder::class,
             AdminRoleSeeder::class,
-            StatusSeeder::class,
             PostStatusSeeder::class,
             PostCategoriesSeeder::class,
             PostTopicsSeeder::class,
             PermissionSeeder::class,
+            ContinentsTableSeeder::class,
+            CountriesSeeder::class,
+            CompetitionSeeder::class,
+            // AreaSeeder::class,
+            // SeasonSeeder::class,
             // RoleSeeder::class,
             // UsersTableSeeder::class,
             // CompanyTypeSeeder::class,

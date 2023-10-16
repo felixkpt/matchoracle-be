@@ -15,10 +15,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('slug');
-            $table->string('img')->nullable();
+            $table->string('image')->nullable();
             $table->string('source_img');
-            $table->uuid('user_id');
-            $table->boolean('status')->default(1);
+            $table->uuid('status_id')->default(0);
+            $table->uuid('user_id')->default(0);
             $table->timestamps();
         });
     }
