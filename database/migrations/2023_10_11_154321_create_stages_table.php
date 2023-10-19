@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('competition_id')->default(0);
             $table->string('name');
             $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0);
+            $table->uuid('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

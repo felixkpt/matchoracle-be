@@ -19,10 +19,11 @@ return new class extends Migration
             $table->boolean('is_current')->default(false);
             $table->unsignedInteger('current_matchday')->nullable();
             $table->unsignedInteger('total_matchdays')->nullable();
+            $table->unsignedInteger('played_games')->nullable();
             $table->uuid('winner_id')->nullable();
             $table->json('stages')->nullable();
             $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0);
+            $table->uuid('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

@@ -15,5 +15,12 @@ class CoachContract extends Model
         'coach_id',
         'start',
         'until',
+        'user_id',
+        'status_id',
     ];
+
+    function coach()
+    {
+        return $this->belongsTo(Coach::class);
+    }
 }

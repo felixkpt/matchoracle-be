@@ -68,8 +68,8 @@ class RoleController extends Controller
         return $this->roleRepositoryInterface->addUser($id);
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
-        return $this->roleRepositoryInterface->statusUpdate($id);
+        return $this->roleRepositoryInterface->updateStatus($id);
     }
 }

@@ -64,7 +64,7 @@ class UserRepository implements UserRepositoryInterface
                         :
                         '')
                     .
-                    '<li><a class="dropdown-item autotable-status-update" data-id="' . $user->id . '" href="/admin/settings/users/view/' . $user->id . '/status-update">Status update</a></li>
+                    '<li><a class="dropdown-item autotable-update-status" data-id="' . $user->id . '" href="/admin/settings/users/view/' . $user->id . '/update-status">Status update</a></li>
             <li><a class="dropdown-item autotable-delete" data-id="' . $user->id . '" href="/admin/settings/users/view/' . $user->id . '">Delete</a></li>
         </ul>
     </div>

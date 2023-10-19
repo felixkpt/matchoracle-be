@@ -96,7 +96,7 @@ if (!function_exists('actionLinks')) {
 
         $a = '<li><a class="dropdown-item autotable-' . ($view === 'modal' ? 'modal-view' : 'navigate') . '" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">View</a></li>';
         $b = '<li><a class="dropdown-item autotable-' . ($edit === 'modal' ? 'modal-edit' : 'edit') . '" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/edit">Edit</a></li>';
-        $c = (!preg_match('#status-update#', $hide) ? '<li><a class="dropdown-item autotable-status-update" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/status-update">Status update</a></li>' : '');
+        $c = (!preg_match('#update-status#', $hide) ? '<li><a class="dropdown-item autotable-update-status" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/update-status">Status update</a></li>' : '');
 
         $str = $a . $b . $c;
 

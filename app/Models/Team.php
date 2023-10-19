@@ -2,20 +2,20 @@
 
 namespace App\Models;
 
+use App\Traits\ExcludeSystemFillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Team extends Model
 {
-    use HasFactory, HasUlids, CommonModelRelationShips;
+    use HasFactory, HasUlids, CommonModelRelationShips, ExcludeSystemFillable;
 
     protected $fillable = [
         'name',
         'slug',
         'short_name',
         'tla',
-        'country_id',
         'crest',
         'address_id',
         'website',
@@ -23,11 +23,10 @@ class Team extends Model
         'club_colors',
         'venue_id',
         'coach_id',
-        
-        'url',
+
         'competition_id',
+        'continent_id',
         'country_id',
-        'image',
         'last_updated',
         'last_fetch',
         'last_detailed_fetch',
@@ -35,18 +34,7 @@ class Team extends Model
         'status_id',
     ];
 
-    protected $searchable = [
-        'id',
-        'name',
-        'slug',
-        'url',
-        'competition_id',
-        'country_id',
-        'last_fetch',
-        'last_detailed_fetch',
-        'user_id',
-        'status_id',
-    ];
+    protected $systemFillable = ['continent_id', 'last_updated'];
 
     function gameSources()
     {
@@ -66,6 +54,21 @@ class Team extends Model
     public function matches()
     {
         return $this->hasMany(Game::class);
+    }
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function venue()
+    {
+        return $this->belongsTo(Venue::class);
+    }
+
+    public function coachContract()
+    {
+        return $this->hasOne(CoachContract::class);
     }
 
     public function predictions()

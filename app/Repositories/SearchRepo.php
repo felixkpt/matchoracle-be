@@ -46,8 +46,8 @@ class SearchRepo
             'action' => ['title' => 'edit', 'modal' => 'edit', 'native' => 'edit', 'use' => 'modal']
         ],
         [
-            'title' => 'Status update',
-            'action' => ['title' => 'status-update', 'modal' => 'status-update', 'native' => null, 'use' => 'modal']
+            'title' => 'Update status',
+            'action' => ['title' => 'update-status', 'modal' => 'update-status', 'native' => null, 'use' => 'modal']
         ]
     ];
 
@@ -585,6 +585,9 @@ class SearchRepo
                 else
                     unset($guessed[$field]['type']);
 
+                if (isset($matchedType['capitalize']))
+                    $guessed[$field]['capitalize'] = $matchedType['capitalize'];
+
                 if (isset($matchedType['source']))
                     $guessed[$field]['source'] = $matchedType['source'];
 
@@ -646,6 +649,8 @@ class SearchRepo
     function action($q, $uri, $view = 'modal', $edit = 'modal', $hide = null)
     {
 
+        $uri = preg_replace('#/+#', '/', $uri . '/');
+
         $str = '';
         foreach ($this->actionItems as $item) {
             if ($item['action']['title'] === 'view') {
@@ -657,7 +662,7 @@ class SearchRepo
             } else {
                 $use = $item['action']['use'];
                 $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/' . $item['action']['title'] . '">' . $item['title'] . '</a></li>';
-                // $str .= (!preg_match('#status-update#', $hide) ? '<li><a class="dropdown-item autotable-status-update" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/status-update">Status update</a></li>' : '');
+                // $str .= (!preg_match('#update-status#', $hide) ? '<li><a class="dropdown-item autotable-update-status" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/update-status">Status update</a></li>' : '');
             }
         }
 

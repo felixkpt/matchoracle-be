@@ -38,9 +38,9 @@ class PostStatusesController extends Controller
         return $this->postStatusRepositoryInterface->show($id);
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
-        return $this->postStatusRepositoryInterface->statusUpdate($id);
+        return $this->postStatusRepositoryInterface->updateStatus($id);
     }
 
     /**

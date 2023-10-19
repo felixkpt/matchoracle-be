@@ -30,9 +30,9 @@ class CountryController extends Controller
         return app(CountriesController::class)->store($request);
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
-        return $this->countryRepositoryInterface->statusUpdate($id);
+        return $this->countryRepositoryInterface->updateStatus($id);
     }
 
     function destroy($id)

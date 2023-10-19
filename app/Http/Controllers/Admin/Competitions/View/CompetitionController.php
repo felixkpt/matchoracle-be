@@ -172,9 +172,24 @@ class CompetitionController extends Controller
         return $this->competitionRepositoryInterface->show($id);
     }
 
+    function standings($id, $season_id = null)
+    {
+        return $this->competitionRepositoryInterface->standings($id, $season_id);
+    }
+
     function fetchStandings($id)
     {
         return $this->competitionRepositoryInterface->fetchStandings($id);
+    }
+
+    function matches($id)
+    {
+        return $this->competitionRepositoryInterface->matches($id);
+    }
+
+    function fetchMatches($id)
+    {
+        return $this->competitionRepositoryInterface->fetchMatches($id);
     }
 
     function addSources(Request $request, $id)
@@ -196,19 +211,14 @@ class CompetitionController extends Controller
         return $this->competitionRepositoryInterface->seasons($id);
     }
 
-    function standings($id, $season_id = null)
-    {
-        return $this->competitionRepositoryInterface->standings($id, $season_id);
-    }
-
     function teams($id)
     {
         return $this->competitionRepositoryInterface->teams($id);
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
-        return $this->competitionRepositoryInterface->statusUpdate($id);
+        return $this->competitionRepositoryInterface->updateStatus($id);
     }
 
     function destroy($id)

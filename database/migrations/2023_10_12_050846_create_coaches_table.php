@@ -17,10 +17,9 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('name');
             $table->string('date_of_birth')->nullable();
-            $table->string('nationality')->nullable();
-            $table->uuid('contract_id')->nullable();
+            $table->string('nationality_id')->nullable();
             $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0);
+            $table->uuid('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

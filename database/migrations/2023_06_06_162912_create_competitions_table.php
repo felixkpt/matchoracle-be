@@ -27,13 +27,14 @@ return new class extends Migration
             $table->string('plan')->nullable();
 
             $table->dateTime('last_updated')->nullable();
-            $table->unsignedInteger('number_of_available_seasons')->nullable()->default(0);
+            $table->unsignedInteger('games_per_season')->nullable()->default(0);
+            $table->unsignedInteger('available_seasons')->nullable()->default(0);
             $table->dateTime('last_fetch')->nullable();
             $table->dateTime('last_detailed_fetch')->nullable();
             $table->integer('priority_number')->default(9999);
             $table->uuid('stage_id')->default(0);
             $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0);
+            $table->uuid('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

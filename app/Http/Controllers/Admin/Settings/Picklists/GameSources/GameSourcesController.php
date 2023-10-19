@@ -39,9 +39,9 @@ class GameSourcesController extends Controller
         return $this->gameSourceRepositoryInterface->show($id);
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
-        return $this->gameSourceRepositoryInterface->statusUpdate($id);
+        return $this->gameSourceRepositoryInterface->updateStatus($id);
     }
 
     /**

@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 
 class Teams
 {
-    protected $api;
+    public $api;
 
     public function __construct()
     {
@@ -66,6 +66,7 @@ class Teams
                 ],
                 [
                     'name' => $teamData->venue,
+                    'slug' => Str::slug($teamData->venue),
                 ]
             );
 

@@ -18,9 +18,10 @@ class CompetitionSeeder extends Seeder
     {
         // Instantiate the context class
         $this->sourceContext = new GameSourceStrategy();
-
+        
         // Set the desired game source (can switch between sources dynamically)
         $this->sourceContext->setGameSourceStrategy(new FootballDataStrategy());
+
     }
 
     public function run()
@@ -46,7 +47,7 @@ class CompetitionSeeder extends Seeder
             $emblem = $competitionData->emblem;
             $plan = $competitionData->plan;
             $last_updated = $competitionData->lastUpdated;
-            $number_of_available_seasons = $competitionData->numberOfAvailableSeasons;
+            $available_seasons = $competitionData->numberOfAvailableSeasons;
             $current_season = $competitionData->currentSeason;
 
             $competition = Competition::create([
@@ -59,7 +60,7 @@ class CompetitionSeeder extends Seeder
                 'country_id' => $country->id,
                 'plan' => $plan,
                 'last_updated' => Carbon::parse($last_updated)->format('Y-m-d H:i:s'),
-                'number_of_available_seasons' => $number_of_available_seasons,
+                'available_seasons' => $available_seasons,
             ]);
 
             // Check if the game source with the given ID doesn't exist

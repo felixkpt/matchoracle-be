@@ -59,7 +59,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                     'title' => 'Add Sources',
                     'action' => ['title' => 'add-sources', 'modal' => 'add-sources', 'native' => null, 'use' => 'modal']
                 ],
-                'Status update'
+                'Update status'
             )
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status', 'Emblem'])
@@ -105,9 +105,25 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
     function fetchStandings($id)
     {
+        $competition = $this->model::findOrFail($id);
+
         $competitions = $this->sourceContext->competitions();
 
-        return $competitions->findStandingsByCompetition($id);
+        return $competitions->fetchStandings($competition->id);
+    }
+
+    function matches($id) {
+
+    }
+
+    function fetchMatches($id)
+    {
+        $competition = $this->model::findOrFail($id);
+        $match_day = 9;
+
+        $competitions = $this->sourceContext->competitions();
+
+        return $competitions->fetchMatches($competition->id, $match_day);
     }
 
     public function show($id)

@@ -18,12 +18,14 @@ class Competition extends Model
     'type',
     'emblem',
     'plan',
-    
+
     'abbreviation',
     'continent_id',
     'country_id',
-    
+
     'last_updated',
+    'games_per_season',
+    'available_seasons',
     'last_fetch',
     'last_detailed_fetch',
     'user_id',
@@ -75,7 +77,7 @@ class Competition extends Model
   public function stages()
   {
     return $this->hasMany(Stage::class, 'competition_id');
-  } 
+  }
 
   public function standings()
   {

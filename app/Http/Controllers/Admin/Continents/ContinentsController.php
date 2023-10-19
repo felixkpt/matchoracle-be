@@ -40,9 +40,9 @@ class ContinentsController extends Controller
         return $this->continentRepositoryInterface->show($id);
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
-        return $this->continentRepositoryInterface->statusUpdate($id);
+        return $this->continentRepositoryInterface->updateStatus($id);
     }
 
     /**

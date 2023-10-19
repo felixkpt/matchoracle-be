@@ -78,7 +78,7 @@ class PermissionRepository implements PermissionRepositoryInterface
         return response(['results' => $permissions]);
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
         $status_id = request()->status_id;
         $this->model::find($id)->update(['status_id' => $status_id]);

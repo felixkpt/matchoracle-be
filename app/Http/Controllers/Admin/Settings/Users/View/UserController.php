@@ -63,9 +63,9 @@ class UserController extends Controller
         return $this->userRepositoryInterface->listAttemptedLogins();
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
-        return $this->userRepositoryInterface->statusUpdate($id);
+        return $this->userRepositoryInterface->updateStatus($id);
     }
 
     /**

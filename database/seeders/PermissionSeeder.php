@@ -299,8 +299,8 @@ class PermissionSeeder extends Seeder
                 "name" => "settings.role.permissions.roles.view.id.status.update.at.patch",
                 "guard_name" => "api",
                 "parent_folder" => "settings",
-                "uri" => "settings/role-permissions/roles/view/{id}/status-update@PATCH",
-                "title" => "Status Update",
+                "uri" => "settings/role-permissions/roles/view/{id}/update-status@PATCH",
+                "title" => "Update Status",
                 "icon" => null,
                 "hidden" => 0,
                 "position" => 999999
@@ -449,8 +449,8 @@ class PermissionSeeder extends Seeder
                 "name" => "settings.role.permissions.permissions.view.id.status.update.at.patch",
                 "guard_name" => "api",
                 "parent_folder" => "settings",
-                "uri" => "settings/role-permissions/permissions/view/{id}/status-update@PATCH",
-                "title" => "Status Update",
+                "uri" => "settings/role-permissions/permissions/view/{id}/update-status@PATCH",
+                "title" => "Update Status",
                 "icon" => null,
                 "hidden" => 0,
                 "position" => 999999

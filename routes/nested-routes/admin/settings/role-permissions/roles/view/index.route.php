@@ -14,5 +14,5 @@ Route::post('/{id}/add-user', [$controller, 'addUser'])->hidden();
 
 Route::get('/{id}', [$controller, 'show'])->hidden();
 Route::put('/{id}', [$controller, 'update'])->hidden();
-Route::patch('/{id}/status-update', [$controller, 'statusUpdate'])->hidden();
+Route::patch('/{id}/update-status', [$controller, 'updateStatus'])->hidden();
 Route::delete('/{id}', [$controller, 'destroy'])->hidden();

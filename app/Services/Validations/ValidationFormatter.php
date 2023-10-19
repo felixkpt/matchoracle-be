@@ -2,6 +2,7 @@
 
 namespace App\Services\Validations;
 
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 trait ValidationFormatter
@@ -10,6 +11,8 @@ trait ValidationFormatter
     function ensuresSlugIsUnique($name, $model)
     {
         $slug = '';
+
+        if (!Schema::hasColumn((new $model())->getTable(), 'slug')) return false;
 
         if (request()->slug) {
             $slug = Str::slug(request()->slug);

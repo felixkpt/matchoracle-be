@@ -27,7 +27,7 @@ return new class extends Migration
             $table->uuid('default_role_id')->default(0);
             $table->string('theme')->default('light');
             $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0);
+            $table->uuid('user_id')->default(0)->nullable();
             
         });
     }

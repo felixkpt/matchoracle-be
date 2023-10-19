@@ -7,7 +7,7 @@ interface CommonRepoActionsInterface
 
     function autoSave($data);
 
-    function statusUpdate($id);
+    function updateStatus($id);
 
     function destroy($id);
 

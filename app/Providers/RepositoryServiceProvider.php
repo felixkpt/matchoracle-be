@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Repositories\Address\AddressRepository;
+use App\Repositories\Address\AddressRepositoryInterface;
+use App\Repositories\Coach\CoachRepository;
+use App\Repositories\Coach\CoachRepositoryInterface;
+use App\Repositories\CoachContract\CoachContractRepository;
+use App\Repositories\CoachContract\CoachContractRepositoryInterface;
 use App\Repositories\Competition\CompetitionRepository;
 use App\Repositories\Competition\CompetitionRepositoryInterface;
 use App\Repositories\Continent\ContinentRepository;
@@ -26,6 +32,8 @@ use App\Repositories\Team\TeamRepository;
 use App\Repositories\Team\TeamRepositoryInterface;
 use App\Repositories\User\UserRepository;
 use App\Repositories\User\UserRepositoryInterface;
+use App\Repositories\Venue\VenueRepository;
+use App\Repositories\Venue\VenueRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -49,6 +57,10 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(CountryRepositoryInterface::class, CountryRepository::class);
         $this->app->singleton(CompetitionRepositoryInterface::class, CompetitionRepository::class);
         $this->app->singleton(TeamRepositoryInterface::class, TeamRepository::class);
+        $this->app->singleton(AddressRepositoryInterface::class, AddressRepository::class);
+        $this->app->singleton(CoachRepositoryInterface::class, CoachRepository::class);
+        $this->app->singleton(VenueRepositoryInterface::class, VenueRepository::class);
+        $this->app->singleton(CoachContractRepositoryInterface::class, CoachContractRepository::class);
     }
 
     /**

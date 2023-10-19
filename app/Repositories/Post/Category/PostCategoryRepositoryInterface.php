@@ -16,5 +16,5 @@ interface PostCategoryRepositoryInterface extends CommonRepoActionsInterface
 
     public function listCatTopics($slug);
 
-    function statusUpdate($id);
+    function updateStatus($id);
 }

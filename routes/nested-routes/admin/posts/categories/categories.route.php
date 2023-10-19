@@ -16,4 +16,4 @@ Route::get('/{slug}', [$controller, 'show'])
 
 Route::get('/{slug}/topics', [$controller, 'listCatTopics'])->name('List Cat Topics')->everyone(true);
 
-Route::patch('/{id}/status-update', [$controller, 'statusUpdate'])->hidden();
+Route::patch('/{id}/update-status', [$controller, 'updateStatus'])->hidden();

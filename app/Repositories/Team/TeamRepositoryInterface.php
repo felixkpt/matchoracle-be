@@ -12,11 +12,13 @@ interface TeamRepositoryInterface extends CommonRepoActionsInterface
 
     public function store(Request $request, $data);
 
-    public function storeFetch(Request $request);
+    public function storeFromSource(Request $request, $data);
 
     public function show($id);
 
     function addSources(Request $request, $data);
+    
+    function updateCoach(Request $request, $data);
 
     public function seasons($id);
 

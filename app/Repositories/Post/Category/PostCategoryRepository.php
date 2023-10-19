@@ -59,7 +59,7 @@ class PostCategoryRepository implements PostCategoryRepositoryInterface
                         '')
                     .
                     '
-                            <li><a class="dropdown-item autotable-status-update" data-id="' . $item->id . '" href="/admin/posts/categories/' . $item->id . '/status-update">Status update</a></li>
+                            <li><a class="dropdown-item autotable-update-status" data-id="' . $item->id . '" href="/admin/posts/categories/' . $item->id . '/update-status">Status update</a></li>
                         </ul>
                     </div>
                     ';

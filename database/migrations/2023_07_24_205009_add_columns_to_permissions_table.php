@@ -19,7 +19,7 @@ return new class extends Migration
             $table->boolean('hidden')->default(false);
             $table->unsignedBigInteger('position')->default(999999);
             $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0);
+            $table->uuid('user_id')->default(0)->nullable();
         });
     }
 

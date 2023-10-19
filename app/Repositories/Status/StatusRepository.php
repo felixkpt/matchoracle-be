@@ -32,7 +32,7 @@ class StatusRepository implements StatusRepositoryInterface
             ->addColumn('Icon', function ($q) {
                 return '<div class="d-flex align-items-center"><iconify-icon icon="' . $q->icon . '" class="' . $q->class . ' me-1"></iconify-icon>' . Str::ucfirst(Str::replace('_', ' ', $q->name)) . '</div>';
             })
-            ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, 'modal', 'modal', 'status-update'))
+            ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, 'modal', 'modal', 'update-status'))
             ->htmls(['Icon'])
             ->paginate();
 

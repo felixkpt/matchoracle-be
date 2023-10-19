@@ -27,9 +27,9 @@ class PermissionController extends Controller
         return app(PermissionsController::class)->store($request);
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
-        return $this->permissionRepositoryInterface->statusUpdate($id);
+        return $this->permissionRepositoryInterface->updateStatus($id);
     }
 
     /**

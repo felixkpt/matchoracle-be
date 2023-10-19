@@ -7,7 +7,7 @@ use App\Repositories\FootballData;
 
 class Seasons
 {
-    protected $api;
+    public $api;
 
     public function __construct()
     {

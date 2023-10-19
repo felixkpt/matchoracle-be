@@ -22,7 +22,7 @@ return new class extends Migration
             $table->boolean('has_competitions')->default(0);
             $table->integer('priority_number')->default(9999);
             $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0);
+            $table->uuid('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedInteger('detailed_fetch_counts')->default(0);
             $table->text('detailed_fetch_details')->nullable();
             $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0);
+            $table->uuid('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

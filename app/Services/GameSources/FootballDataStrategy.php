@@ -20,21 +20,21 @@ class FootballDataStrategy implements GameSourceStrategyInterface
 
     public function competitions()
     {
-        return $this->footballData->competitions;
+        return $this->footballData->competitions();
     }
 
     public function seasons()
     {
-        return $this->footballData->seasons;
+        return $this->footballData->seasons();
     }
 
     public function standings()
     {
-        return $this->footballData->standings;
+        return $this->footballData->standings();
     }
 
     public function teams()
     {
-        return $this->footballData->teams;
+        return $this->footballData->teams();
     }
 }

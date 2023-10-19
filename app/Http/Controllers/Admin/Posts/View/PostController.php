@@ -26,9 +26,9 @@ class PostController extends Controller
         return app(PostsController::class)->store($request);
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
-        return $this->postRepositoryInterface->statusUpdate($id);
+        return $this->postRepositoryInterface->updateStatus($id);
     }
 
     /**

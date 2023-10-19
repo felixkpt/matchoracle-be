@@ -87,6 +87,55 @@ class FootballData
         return json_decode($response);
     }
 
+    public function findMatchesByCompetitionAndSeason($c, $season = null, $match_day = null)
+    {
+        $resource = 'competitions/' . $c . '/matches/?';
+    
+        if (!is_null($season)) {
+            $resource .= 'season=' . $season . '&';
+        }
+    
+        if (!is_null($match_day)) {
+            $resource .= 'matchday=' . $match_day . '&';
+        }
+    
+        // Remove trailing '&' if there are parameters
+        $resource = rtrim($resource, '&');
+    
+        $response = file_get_contents(
+            $this->baseUri . $resource,
+            false,
+            stream_context_create($this->reqPrefs)
+        );
+    
+        return json_decode($response);
+    }
+    
+    public function findMatchesByCompetitionWithDateRange($c, $start = null, $end = null)
+    {
+        $resource = 'competitions/' . $c . '/matches/?';
+    
+        // Add parameters if they exist
+        if (!is_null($start)) {
+            $resource .= 'dateFrom=' . $start . '&';
+        }
+    
+        if (!is_null($end)) {
+            $resource .= 'dateTo=' . $end . '&';
+        }
+        
+        // Remove trailing '&' if there are parameters
+        $resource = rtrim($resource, '&');
+    
+        $response = file_get_contents(
+            $this->baseUri . $resource,
+            false,
+            stream_context_create($this->reqPrefs)
+        );
+    
+        return json_decode($response);
+    }
+    
     public function findMatchesByCompetitionAndMatchday($c, $m)
     {
         $resource = 'competitions/' . $c . '/matches/?matchday=' . $m;

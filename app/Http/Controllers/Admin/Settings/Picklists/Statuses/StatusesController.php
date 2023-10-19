@@ -38,9 +38,9 @@ class StatusesController extends Controller
         return $this->statusRepositoryInterface->show($id);
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
-        return $this->statusRepositoryInterface->statusUpdate($id);
+        return $this->statusRepositoryInterface->updateStatus($id);
     }
 
     /**

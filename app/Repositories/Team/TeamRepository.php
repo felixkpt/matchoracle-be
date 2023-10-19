@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Team;
 
+use App\Models\CoachContract;
 use App\Models\Country;
 use App\Models\Team;
 use App\Repositories\CommonRepoActions;
@@ -23,26 +24,44 @@ class TeamRepository implements TeamRepositoryInterface
     {
     }
 
-    public function index()
+    public function index($id = null)
     {
         sleep(1);
 
-        $teams = $this->model::with(['country'])
-            ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id));
-
-        // Log::alert('cc', [$teams->count()]);
+        $teams = $this->model::with(['country', 'competition', 'address', 'venue', 'coachContract' => fn($q) => $q->with('coach'), 'gameSources'])
+            ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
+            ->when($id, fn ($q) => $q->where('id', $id));
 
         $uri = '/admin/teams/';
-        $statuses = SearchRepo::of($teams, ['id', 'name'])
+        $results = SearchRepo::of($teams, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'Status')
             ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->crest ?? asset('storage/football/defaultflag.png')) . '" />')
+            ->addActionItem(
+                [
+                    'title' => 'Add Sources',
+                    'action' => ['title' => 'add-sources', 'modal' => 'add-sources', 'native' => null, 'use' => 'modal']
+                ],
+                'Update Status'
+            )
+            ->addActionItem(
+                [
+                    'title' => 'Update Coach',
+                    'action' => ['title' => 'update-coach', 'modal' => 'update-coach', 'native' => null, 'use' => 'modal']
+                ],
+                'Update status'
+            )
             ->addActionColumn('action', $uri, 'native')
+            ->addFillable('website', 'website', ['input' => 'input', 'type' => 'url'])
+            ->addFillable('tla', 'tla', ['input' => 'input', 'type' => 'text', 'capitalize' => true])
+            ->addFillable('founded', 'founded', ['input' => 'input', 'type' => 'number'])
             ->htmls(['Status', 'Crest'])
-            ->orderby('name')
-            ->paginate(request()->competition_id ? $teams->count() : 20);
+            ->removeFillable(['coach_id'])
+            ->orderby('name');
 
-        return response(['results' => $statuses]);
+        $results = $id ? $results->first() : $results->paginate();
+
+        return response(['results' => $results]);
     }
 
     public function store(Request $request, $data)
@@ -52,85 +71,33 @@ class TeamRepository implements TeamRepositoryInterface
         $action = 'created';
         if ($request->id)
             $action = 'updated';
-        return response(['type' => 'success', 'message' => 'Status ' . $action . ' successfully', 'results' => $res]);
+        return response(['type' => 'success', 'message' => 'Team ' . $action . ' successfully', 'results' => $res]);
     }
 
-    function storeFetch(Request $request)
+    public function storeFromSource(Request $request, $data)
     {
 
-        $source = request()->source;
-        $has_teams = request()->has_teams;
+        foreach ($data as $key => $item) {
 
-        if ($has_teams) {
-            $source = rtrim($source, '/');
-            if (!Str::endsWith($source, '/standing'))
-                $source .= '/standing';
+            $subscription_expires = $item['subscription_expires'];
+            $is_subscribed = $subscription_expires === 'never';
+            if (!$is_subscribed && $subscription_expires) {
+                $subscription_expires = Carbon::parse($subscription_expires)->format('Y-m-d H:i:s');
+                $is_subscribed = Carbon::parse($subscription_expires)->isFuture();
+            }
+
+            $arr = ['uri' => $item['uri'], 'source_id' => $item['source_id'], 'competition_game_source.subscription_expires' => $subscription_expires, 'competition_game_source.is_subscribed' => $is_subscribed];
+
+            // Get competitions from the selected game source
+            $competitions = $this->sourceContext->competitions();
+
+            return $competitions->updateOrCreate($arr);
         }
-
-        $source = parse_url($source);
-
-        $source = $source['path'];
-
-        $suff = '/standing';
-        if (Str::endsWith($source, $suff)) {
-            $source = Str::beforeLast($source, $suff);
-        } else {
-            if (Client::status(Common::resolve($source . $suff)) === 200)
-                $has_teams = true;
-        }
-
-        $exists = Team::where('url', $source)->first();
-        if ($exists)
-            return response(['results' => ['message' => 'Whoops! It seems the team is already saved (#' . $exists->id . ').']]);
-
-        if (!Country::count())
-            return response(['results' => ['message' => 'Countries list is empty.']]);
-
-        $country = Common::saveCountry($source);
-
-        $html = Client::request(Common::resolve($source));
-
-        if ($html === null) return;
-
-        $crawler = new Crawler($html);
-
-        $team = $crawler->filter('h1.frontH')->each(fn (Crawler $node) => ['src' => $source, 'name' => $node->text(), 'img' => $node->filter('img')->attr('src')]);
-        $team = $team[0] ?? null;
-
-        $team = Common::saveTeam($team, null, $has_teams);
-
-        if ($team)
-            return Common::updateTeamAndHandleTeams($team, $country, $has_teams, null, false);
-        else
-            return response(['results' => ['message' => 'Cannot get team.']]);
     }
 
     public function show($id)
     {
-        // $countries = $this->model::with(['continent', 'country', 'gameSources'])->where('id', $id);
-        $team = $this->model::with(['country', 'gameSources'])->where('id', $id);
-
-        $uri = '/admin/teams/';
-        $statuses = SearchRepo::of($team, ['id', 'name', 'country.name', 'slug'])
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
-            ->addColumn('has_teams', fn ($q) => $q->has_teams ? 'Yes' : 'No')
-            ->addActionItem(
-                [
-                    'title' => 'Add Sources',
-                    'action' => ['title' => 'add-sources', 'modal' => 'add-sources', 'native' => null, 'use' => 'modal']
-                ],
-                'Status update'
-            )
-            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->crest ?? asset('storage/football/defaultflag.png')) . '" />')
-            ->addActionColumn('action', $uri, 'native')
-            ->htmls(['Status', 'Crest'])
-            ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
-            ->addFillable('has_teams', 'has_teams', ['input' => 'select'])
-            ->orderby('priority_number')
-            ->first();
-
-        return response(['results' => $statuses]);
+        return $this->index($id);
     }
 
     function addSources(Request $request, $data)
@@ -163,9 +130,22 @@ class TeamRepository implements TeamRepositoryInterface
             }
 
             return response(['type' => 'success', 'message' => "Sources for {$team->name} updated successfully"]);
-
         }
     }
+
+    function updateCoach(Request $request, $data)
+    {
+        $team = $this->model::find($request->id);
+
+        $arr = ['team_id' => $request->id];
+        CoachContract::updateOrCreate(
+            $arr,
+            array_merge($arr, $data)
+        );
+
+        return response(['type' => 'success', 'message' => "Coach for {$team->name} updated successfully"]);
+    }
+
 
     public function seasons($id)
     {

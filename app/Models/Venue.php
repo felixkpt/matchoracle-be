@@ -12,5 +12,10 @@ class Venue extends Model
 
     protected $fillable = [
         'name',
+        'slug',
+        'description',
+        'priority_number',
+        'user_id',
+        'status_id',
     ];
 }

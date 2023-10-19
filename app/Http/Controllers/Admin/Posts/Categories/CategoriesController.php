@@ -57,8 +57,8 @@ class CategoriesController extends Controller
         return app(TopicsController::class)->index();
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
-        return $this->postCategoryRepositoryInterface->statusUpdate($id);
+        return $this->postCategoryRepositoryInterface->updateStatus($id);
     }
 }

@@ -7,4 +7,4 @@ $controller = PostController::class;
 Route::get('/{id}', [$controller, 'show'])->name('post.show')->everyone(true);
 Route::put('/{id}', [$controller, 'update'])->name('post.update');
 Route::delete('/{id}', [$controller, 'destroy'])->name('destroy');
-Route::patch('/{id}/status-update', [$controller, 'statusUpdate'])->hidden();
+Route::patch('/{id}/update-status', [$controller, 'updateStatus'])->hidden();

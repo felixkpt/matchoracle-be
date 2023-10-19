@@ -27,4 +27,4 @@ Route::get('/{id}/failed-logins', [$controller, 'listAttemptedLogins']);
 Route::get('/{id}/activity-based-usage', [$controller, 'activityBasedUsage']);
 Route::get('/{id}/inactivity-based-usage', [$controller, 'inactivityBasedUsage']);
 
-Route::patch('/{id}/status-update', [$controller, 'statusUpdate'])->hidden();
+Route::patch('/{id}/update-status', [$controller, 'updateStatus'])->hidden();

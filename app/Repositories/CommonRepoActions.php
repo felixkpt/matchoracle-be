@@ -25,7 +25,7 @@ trait CommonRepoActions
         return $record;
     }
 
-    function statusUpdate($id)
+    function updateStatus($id)
     {
 
         request()->validate(['status_id' => 'required']);

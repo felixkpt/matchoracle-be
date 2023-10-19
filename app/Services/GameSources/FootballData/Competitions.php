@@ -11,13 +11,14 @@ use App\Models\Standing;
 use App\Models\Team;
 use App\Models\Venue;
 use App\Repositories\FootballData;
+use App\Services\GameSources\Interfaces\CompetitionsInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class Competitions
+class Competitions implements CompetitionsInterface
 {
-    protected $api;
+    public $api;
 
     public function __construct()
     {
@@ -32,7 +33,7 @@ class Competitions
             2021,
             // Championship
             2016,
-            // spainESP 
+            // primera division 
             2014,
             // italy 0
             2124,
@@ -46,7 +47,7 @@ class Competitions
             2013,
             // Copa Libertadores 
             2152,
-            // European Championship 
+            // European Championship 0
             2018,
             // UEFA Champions League 
             2001,
@@ -126,7 +127,7 @@ class Competitions
         return response(['message' => 'Successfully saved competition.']);
     }
 
-    function findStandingsByCompetition($id)
+    function fetchStandings($id)
     {
 
         $competition = Competition::whereHas('gameSources', function ($q) use ($id) {
@@ -178,8 +179,10 @@ class Competitions
 
                 // Create or update the standings record
                 $standing = Standing::updateOrCreate(
-                    ['season_id' => $season->id, 'stage' => $standingsData->stage, 'type' => $standingsData->type, 
-                    'competition_id' => $competition->id],
+                    [
+                        'season_id' => $season->id, 'stage' => $standingsData->stage, 'type' => $standingsData->type,
+                        'competition_id' => $competition->id
+                    ],
                     [
                         'season_id' => $season->id, 'stage' => $standingsData->stage, 'type' => $standingsData->type,
                         'competition_id' => $competition->id,
@@ -193,6 +196,39 @@ class Competitions
         }
 
         return response(['message' => 'Standings for ' . $competition->name . ' updated.']);
+    }
+
+    /**
+     * @param int $id
+     * @param int $match_day
+     */
+    function fetchMatches($id, $match_day)
+    {
+        Log::alert('Match day::', [$id, $match_day]);
+
+        $competition = Competition::whereHas('gameSources', function ($q) use ($id) {
+            $q->where('competition_id', $id);
+        })->first();
+
+        if (!$competition) {
+            return response(['message' => 'Competition #' . $id . ' not found.'], 404);
+        }
+
+        // Access the source_id value for the pivot
+        $source = $competition->gameSources->first()->pivot;
+        if (!$source) {
+            return response(['message' => 'Source for competition #' . $id . ' not found.'], 404);
+        }
+
+        if (!$source->is_subscribed) {
+            return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
+        }
+
+        $matches = $this->api->findMatchesByCompetitionAndMatchday($source->source_id, $match_day);
+
+        Log::critical('MATCHES',[$matches]);
+        
+        return response(['message' => 'Matches for ' . $competition->name . ' updated.']);
     }
 
     function show()

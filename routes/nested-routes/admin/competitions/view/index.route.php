@@ -15,11 +15,15 @@ Route::get('/{id}/update', [$controller, 'update']);
 Route::post('/{id}/update', [$controller, 'getUpdates']);
 Route::post('/{id}/add-sources', [$controller, 'addSources']);
 Route::get('/{id}/seasons', [$controller, 'seasons']);
-Route::get('/{id}/standings/{season_id?}', [$controller, 'standings']);
 Route::get('/{id}/teams/{season_id?}', [$controller, 'teams']);
+
+Route::get('/{id}/standings/{season_id?}', [$controller, 'standings']);
 Route::post('/{id}/fetch-standings/', [$controller, 'fetchStandings']);
+
+Route::get('/{id}/matches/', [$controller, 'matches']);
+Route::post('/{id}/fetch-matches/', [$controller, 'fetchMatches']);
 
 Route::get('/{id}', [$controller, 'show'])->name('show');
 Route::put('/{id}', [$controller, 'update'])->name('update');
-Route::patch('/{id}/status-update', [$controller, 'statusUpdate'])->hidden();
+Route::patch('/{id}/update-status', [$controller, 'updateStatus'])->hidden();
 Route::delete('/{id}', [$controller, 'destroy'])->name('destroy');

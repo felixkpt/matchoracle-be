@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('venues', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
+            $table->string('slug');
+            $table->text('description')->nullable();
+            $table->unsignedInteger('priority_number')->default(9999);
             $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0);
+            $table->uuid('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

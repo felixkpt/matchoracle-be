@@ -10,4 +10,4 @@ Route::post('/', [$controller, 'store'])->name('Store topic');
 Route::put('/{id}', [$controller, 'update'])->name('Update topic');
 Route::get('/detail/{id}', [$controller, 'show'])->name('Show topic')->everyone();
 
-Route::patch('/{id}/status-update', [$controller, 'statusUpdate'])->hidden();
+Route::patch('/{id}/update-status', [$controller, 'updateStatus'])->hidden();

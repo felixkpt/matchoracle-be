@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin\Teams\View;
 
+use App\Http\Controllers\Admin\Teams\TeamsController;
+use App\Http\Controllers\CommonMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\SearchRepo;
 use App\Repositories\Team\TeamRepositoryInterface;
@@ -15,15 +17,24 @@ use Illuminate\Support\Facades\DB;
 
 class TeamController extends Controller
 {
+    use CommonMethods;
+
     function __construct(
         private TeamRepositoryInterface $teamRepositoryInterface,
         private TeamValidationInterface $teamValidationInterface,
     ) {
+        $this->repo = $teamRepositoryInterface;
     }
 
     function show($id)
     {
         return $this->teamRepositoryInterface->show($id);
+    }
+
+    protected function update(Request $request, $id)
+    {
+        $request->merge(['id' => $id]);
+        return app(TeamsController::class)->store($request);
     }
 
     function addSources(Request $request, $id)
@@ -33,6 +44,15 @@ class TeamController extends Controller
         $data = $this->teamValidationInterface->addSources();
 
         return $this->teamRepositoryInterface->addSources($request, $data);
+    }
+
+    function updateCoach(Request $request, $id)
+    {
+        $request->merge(['id' => $id]);
+
+        $data = $this->teamValidationInterface->updateCoach();
+
+        return $this->teamRepositoryInterface->updateCoach($request, $data);
     }
 
     function getGames($id)
@@ -207,16 +227,5 @@ class TeamController extends Controller
     protected function results($id)
     {
         dd($id, 'ress');
-    }
-
-    protected function changeStatus($id)
-    {
-        $item = $this->repo->model->find($id);
-
-        $state = $item->status == 1 ? 'Activated' : 'Deactivated';
-        $item->update(['status' => !$item->status]);
-
-        $item = $this->repo->findById($id, ['*']);
-        return response(['results' => ['team' => $item, 'status' => $state]]);
     }
 }

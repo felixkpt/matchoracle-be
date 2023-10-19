@@ -27,7 +27,7 @@ return new class extends Migration
             $table->unsignedInteger('goals_against');
             $table->integer('goal_difference');
             $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0);
+            $table->uuid('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }
