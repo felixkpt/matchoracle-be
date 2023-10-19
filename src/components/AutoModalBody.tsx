@@ -150,7 +150,7 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
                         {hasFillable ? (
                             Object.keys(fillable).map((key: any) => {
                                 const obj = fillable[key]
-                                const { input, type, min, max, rows } = obj;
+                                const { input, type, min, max, rows, capitalize } = obj;
                                 const accept = obj.accept || '*'
 
                                 const current_key = key.replace(/_multilist$/, '_list')
@@ -163,7 +163,7 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
                                             <div className="mb-2 block">
                                                 {
                                                     type !== 'checkbox' &&
-                                                    <label htmlFor="small">{Str.title(current_key)}</label>
+                                                    <label htmlFor="small">{Str.title(capitalize ? Str.upper(current_key) : current_key)}</label>
                                                 }
                                             </div>
                                             {input === 'input' && type === 'checkbox' && (
@@ -178,7 +178,7 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
                                                         onChange={(e) => handleInputChange(current_key, e.target.checked ? '1' : '0')}
                                                     />
                                                     <label className="form-check-label" htmlFor={current_key}>
-                                                        {Str.title(current_key)}
+                                                        {Str.title(capitalize ? Str.upper(current_key) : current_key)}
                                                     </label>
                                                 </div>
 

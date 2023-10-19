@@ -3,12 +3,10 @@ import GeneralModal from "@/components/Modals/GeneralModal"
 import useAxios from "@/hooks/useAxios"
 import { Icon } from "@iconify/react/dist/iconify.js"
 import AsyncSelect from 'react-select/async';
-import { debounce } from 'lodash';
 import { useEffect, useState } from "react";
 import { useRolePermissionsContext } from "@/contexts/RolePermissionsContext";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { useAuth } from "@/contexts/AuthContext";
-import async from "node_modules/react-select/dist/declarations/src/async";
 
 type Props = {
     role: RoleInterface;

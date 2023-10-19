@@ -6,14 +6,13 @@ import Details from "./Tabs/Details";
 import Predictions from "./Tabs/Predictions";
 import PageHeader from "@/components/PageHeader";
 import AutoTabs from "@/components/AutoTabs";
-import UpcomingGames from "./Tabs/UpcomingGames";
 import { CompetitionInterface } from "@/interfaces/CompetitionInterface";
-import PlayedGames from "./Tabs/PlayedGames";
 import Standings from "./Tabs/Standings";
 import Teams from "./Tabs/Teams";
 import Sources from "./Tabs/Sources";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces";
+import Matches from "./Tabs/Matches";
 
 const Index = () => {
     const { id } = useParams<any>();
@@ -76,12 +75,8 @@ const Index = () => {
             content: <Teams record={record} />,
         },
         {
-            name: "Played games",
-            content: <PlayedGames record={record} />,
-        },
-        {
-            name: "Upcoming games",
-            content: <UpcomingGames record={record} />,
+            name: "Matches",
+            content: <Matches record={record} />,
         },
         {
             name: "Predictions",

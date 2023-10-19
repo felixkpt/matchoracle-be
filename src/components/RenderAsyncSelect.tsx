@@ -50,7 +50,9 @@ const RenderAsyncSelect = ({ list_sources, list_selects, current_key, currentDat
             return { options, selected: selected };
 
         } else {
-            throw new Error(`Function '${fn}' not found in list_sources.`);
+            const err = `Function '${fn}' not found in list_sources.`
+            console.log(err)
+            throw new Error(err);
         }
     }
 
@@ -88,7 +90,6 @@ const RenderAsyncSelect = ({ list_sources, list_selects, current_key, currentDat
                     : current_key
             }
             key={current_key}
-            defaultValue={selected}
             value={selected}
             isMulti={isMulti}
             defaultOptions

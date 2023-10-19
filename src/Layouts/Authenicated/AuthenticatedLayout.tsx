@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 import Navbar from './Navbar/Index';
 import Footer from './Footer/Index';
@@ -170,16 +170,28 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                     </div>
                 </>
             ) :
-                <div>
-                    {
-                        loadingUser ?
-                            <div className="d-flex align-items-center gap-3">
-                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                Please wait, logging you in...
+                <div className='container-fluid mt-4 px-4 min-h-100vh v'>
+                    <div className="position-absolute top-50 start-50 translate-middle w-100">
+                        <div className="row justify-content-center">
+                            <div className="col-5">
+
+                                {
+                                    loadingUser ?
+                                            <div className="d-flex justify-content-center align-items-center gap-3">
+                                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                Please wait, logging you in...
+                                            </div>
+                                        :
+
+                                        <div className='alert text-center'>
+                                            <p>Unknown server error occured.</p>
+                                            <a href={location.pathname} className="link_404 rounded">Reload</a>
+
+                                        </div>
+                                }
                             </div>
-                            :
-                            <div className='alert alert-danger text-center'>Unknown server error occured.</div>
-                    }
+                        </div>
+                    </div>
                 </div>
             }
         </div>

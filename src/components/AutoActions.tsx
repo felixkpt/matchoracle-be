@@ -30,7 +30,7 @@ class AutoActions {
 
         if (event.target?.classList.contains('autotable-modal-edit')) {
             this.handleEdit(event)
-        } else if (event.target?.classList.contains('autotable-modal-status-update')) {
+        } else if (event.target?.classList.contains('autotable-modal-update-status')) {
             this.handleStatusUpdate(event)
         } else {
 

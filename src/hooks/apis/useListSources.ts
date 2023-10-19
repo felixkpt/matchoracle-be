@@ -21,13 +21,13 @@ const useListSources = (params?: string) => {
     },
 
     async rolesList(q?: string) {
-      const res = await get('admin/settings/role-permissions/roles?&' + params + '&q=' + q).then((res) => res.data || [])
+      const res = await get('admin/settings/role-permissions/roles' + prepareParams(q)).then((res) => res.data || [])
       return res || []
 
     },
 
     async directPermissionsList(q?: string) {
-      const res = await get('admin/settings/role-permissions/permissions?&' + params + '&q=' + q).then((res) => res.data || [])
+      const res = await get('admin/settings/role-permissions/permissions' + prepareParams(q)).then((res) => res.data || [])
       return res || []
 
     },
@@ -37,7 +37,7 @@ const useListSources = (params?: string) => {
   const posts = {
 
     async parentCategoryId(q?: string) {
-      const res = await get('/admin/posts/categories?all=1&' + params + '&q=' + q).then((res) => res.data || [])
+      const res = await get('/admin/posts/categories' + prepareParams(q)).then((res) => res.data || [])
       return res || []
 
     },
@@ -64,16 +64,39 @@ const useListSources = (params?: string) => {
       return booleanOptions
     },
     async continentId(q?: string) {
-      const res = await get('/admin/continents?' + params + '&q=' + q).then((res) => res.data || [])
+      const res = await get('/admin/continents' + prepareParams(q)).then((res) => res.data || [])
       return res || []
 
     },
     async countryId(q?: string) {
-      const res = await get('/admin/countries?' + params + '&q=' + q).then((res) => res.data || [])
+      const res = await get('/admin/countries' + prepareParams(q)).then((res) => res.data || [])
       return res || []
 
     },
-
+    async nationalityId(q?: string) {
+      const res = await get('/admin/countries' + prepareParams(q)).then((res) => res.data || [])
+      return res || []
+    },
+    async addressId(q?: string) {
+      const res = await get('/admin/teams/addresses' + prepareParams(q)).then((res) => res.data || [])
+      return res || []
+    },
+    async venueId(q?: string) {
+      const res = await get('/admin/teams/venues' + prepareParams(q)).then((res) => res.data || [])
+      return res || []
+    },
+    async coachId(q?: string) {
+      const res = await get('/admin/teams/coaches' + prepareParams(q)).then((res) => res.data || [])
+      return res || []
+    },
+    async competitionId(q?: string) {
+      const res = await get('/admin/competitions' + prepareParams(q)).then((res) => res.data || [])
+      return res || []
+    },
+    async teamId(q?: string) {
+      const res = await get('/admin/teams' + prepareParams(q)).then((res) => res.data || [])
+      return res || []
+    },
 
   }
 
@@ -82,6 +105,19 @@ const useListSources = (params?: string) => {
     posts,
     competitions
   }
+
+  function prepareParams(q: string | undefined) {
+    let query
+
+    if (params)
+      query = params + '&q=' + q
+    else
+      query = '?q=' + q
+
+    return query
+  }
+
 }
+
 
 export default useListSources

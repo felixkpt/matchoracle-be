@@ -43,10 +43,16 @@ class Str {
         for (var chr = 0; chr < str.length; chr++) {
             let sub = str[chr]
             if (sub === 'id') sub = 'ID'
-            
+
             strVal += sub.substring(0, 1).toUpperCase() + sub.substring(1, sub.length) + ' '
         }
         return strVal
+    }
+    
+    static upper(subject: string): string {
+        if (!subject) return subject
+
+        return subject.toUpperCase()
     }
 
     static studly(subject: string): string {

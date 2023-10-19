@@ -44,6 +44,7 @@ const Index = () => {
         },
 
     ];
+    
     const addSources = (e: CustomEvent) => {
 
         if (e.detail) {
