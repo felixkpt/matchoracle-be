@@ -1,9 +1,14 @@
 import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import Matches from "@/Pages/Admin/Matches/Index";
+import Match from "@/Pages/Admin/Matches/View/Index";
 
 const relativeUri = 'matches/';
 
 const routes = [
+    {
+        path: `view/:id`,
+        element: <AuthenticatedLayout uri={`${relativeUri}view/:id`} permission="" Component={Match} />,
+    },
     {
         path: ``,
         element: <AuthenticatedLayout uri={relativeUri} permission="" Component={Matches} />,

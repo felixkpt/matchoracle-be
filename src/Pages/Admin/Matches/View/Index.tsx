@@ -2,7 +2,9 @@ import React from 'react'
 
 const Index = () => {
   return (
-    <div>Index</div>
+    <div>
+      <h4>Match Preview</h4>
+    </div>
   )
 }
 
