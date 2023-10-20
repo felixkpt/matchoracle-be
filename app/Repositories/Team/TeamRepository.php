@@ -59,7 +59,7 @@ class TeamRepository implements TeamRepositoryInterface
             ->removeFillable(['coach_id'])
             ->orderby('name');
 
-        $results = $id ? $results->first() : $results->paginate();
+        $results = $id ? $results->first() : $results->paginate(25);
 
         return response(['results' => $results]);
     }

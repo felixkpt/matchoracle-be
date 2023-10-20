@@ -21,7 +21,6 @@ class Game extends Model
         'matchday',
         'stage',
         'group',
-        'game_score_id',
         'last_updated',
         'last_fetch',
         'priority_number',
@@ -34,14 +33,14 @@ class Game extends Model
         return $this->belongsTo(Competition::class);
     }
 
-    public function team1()
+    public function home_team()
     {
-        return $this->belongsTo(Team::class, 'team1_id');
+        return $this->belongsTo(Team::class, 'home_team_id');
     }
 
-    public function team2()
+    public function away_team()
     {
-        return $this->belongsTo(Team::class, 'team2_id');
+        return $this->belongsTo(Team::class, 'away_team_id');
     }
 
     public function winner()
@@ -51,7 +50,7 @@ class Game extends Model
 
     public function score()
     {
-        return $this->belongsTo(GameScore::class);
+        return $this->hasOne(GameScore::class);
     }
 
     public function predictions()
@@ -63,7 +62,7 @@ class Game extends Model
     {
         return $this->belongsToMany(GameSource::class)->withPivot(['uri', 'source_id'])->withTimestamps();
     }
-    
+
     public function referees()
     {
         return $this->belongsToMany(Referee::class)->withTimestamps();

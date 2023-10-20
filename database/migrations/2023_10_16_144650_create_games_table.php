@@ -23,7 +23,6 @@ return new class extends Migration
             $table->integer('matchday')->nullable();
             $table->string('stage');
             $table->string('group')->nullable();
-            $table->uuid('game_score_id')->nullable();
             $table->dateTime('last_updated')->nullable();
             $table->dateTime('last_fetch')->nullable();
             $table->unsignedInteger('priority_number')->default(9999);

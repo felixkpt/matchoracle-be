@@ -132,7 +132,7 @@ class SearchRepo
                             // Apply search condition on the main table
                             $q->orWhere($model_table . '.' . $column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
 
-                            // Log::critical("Search results:", ['tbl' => $model_table . '.' . $column, 'res' => $q->first()]);
+                            Log::critical("Search results:", ['tbl' => $model_table . '.' . $column, 'res' => $q->first()]);
                         }
                     }
                 });
@@ -198,9 +198,9 @@ class SearchRepo
      * @param string $column The column to order by.
      * @return $this The SearchRepo instance.
      */
-    function orderBy($column)
+    function orderBy($column, $direction = 'asc')
     {
-        $this->builder = $this->builder->orderBy($column);
+        $this->builder = $this->builder->orderBy($column, $direction);
 
         return $this;
     }
@@ -240,14 +240,14 @@ class SearchRepo
      * @param array $columns The columns to retrieve.
      * @return \Illuminate\Pagination\LengthAwarePaginator The paginated results.
      */
-    function paginate($perPage = 20, $columns = ['*'])
+    function paginate($perPage = null, $columns = ['*'])
     {
 
         $this->sort();
 
         $builder = $this->builder;
 
-        $perPage = (request()->per_page ?? $perPage) ?? 20;
+        $perPage = ($perPage ?? request()->per_page) ?? 20;
         $page = request()->page ?? 1;
 
         // Handle last page results

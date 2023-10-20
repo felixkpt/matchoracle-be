@@ -13,4 +13,6 @@ interface GameSourceStrategyInterface
     public function standings();
 
     public function teams();
+
+    public function matches();
 }

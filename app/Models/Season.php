@@ -15,14 +15,14 @@ class Season extends Model
         'end_date',
         'current_matchday',
         'total_matchdays',
-        'played_games',
+        'played',
         'competition_id',
         'is_current',
         'winner_id',
     ];
 
     protected $casts = [
-        'stages' => 'json', // Assuming it's stored as JSON
+        'stages' => 'json',
     ];
 
     public function competition()

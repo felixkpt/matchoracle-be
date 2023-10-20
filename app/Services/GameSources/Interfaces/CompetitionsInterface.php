@@ -6,7 +6,9 @@ interface CompetitionsInterface
 {
     function updateOrCreate($data);
 
-    function fetchStandings($id);
+    function fetchSeasons($id, $season = null);
 
-    function fetchMatches($id, $match_day);
+    function fetchStandings($id, $season = null);
+
+    function fetchMatches($id, $matchday);
 }

@@ -51,8 +51,8 @@ class CompetitionValidation implements CompetitionValidationInterface
         foreach ($data as $key => $value) {
 
             $m = preg_match('/^([^_]+)_uri$/', $key, $matches);
-         
-            if(!isset($matches[1]) || !GameSource::find($matches[1])) continue;
+
+            if (!isset($matches[1]) || !GameSource::find($matches[1])) continue;
 
             request()->validate([
                 $key => ['nullable', new ValidGameSourceUri],
@@ -64,7 +64,6 @@ class CompetitionValidation implements CompetitionValidationInterface
         }
 
         return $validateData;
-
     }
 
     public function storeFetch(): mixed
@@ -96,6 +95,45 @@ class CompetitionValidation implements CompetitionValidationInterface
                 $validateData[$matches[1]] = ['uri' => $value, 'source_id' => $data[$matches[1] . '_source_id'], 'subscription_expires' => isset($data[$matches[1] . '_subscription_expires_check_input']) ? 'never' : $data[$matches[1] . '_subscription_expires']];
             }
         }
+
+        return $validateData;
+    }
+
+    function fetchSeasons()
+    {
+
+        $validateData = request()->validate(
+            [
+                'season_id' => 'nullable|exists:seasons,id',
+                'matchday' => 'nullable|integer|between:1,200',
+            ]
+        );
+
+        return $validateData;
+    }
+
+    function fetchStandings()
+    {
+
+        $validateData = request()->validate(
+            [
+                'season_id' => 'required|exists:seasons,id',
+                'matchday' => 'nullable|integer|between:1,200',
+            ]
+        );
+
+        return $validateData;
+    }
+
+    function fetchMatches()
+    {
+
+        $validateData = request()->validate(
+            [
+                'season_id' => 'required|exists:seasons,id',
+                'matchday' => 'nullable|integer|between:1,200',
+            ]
+        );
 
         return $validateData;
     }

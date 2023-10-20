@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Game;
 use App\Repositories\SearchRepo;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class GamesController extends Controller
 {

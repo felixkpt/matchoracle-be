@@ -10,5 +10,11 @@ interface CompetitionValidationInterface
 
     public function storeFetch(): mixed;
 
+    function fetchSeasons();
+
+    function fetchStandings();
+
+    function fetchMatches();
+
     function addSources();
 }

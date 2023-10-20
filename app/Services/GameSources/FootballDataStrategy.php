@@ -37,4 +37,9 @@ class FootballDataStrategy implements GameSourceStrategyInterface
     {
         return $this->footballData->teams();
     }
+
+    public function matches()
+    {
+        return $this->footballData->matches();
+    }
 }

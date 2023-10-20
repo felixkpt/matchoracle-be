@@ -83,7 +83,7 @@ if (!function_exists('Created_by')) {
 if (!function_exists('Status')) {
     function status($q)
     {
-        $status = $q->status;
+        $status = $q->status()->first();
         if ($status) {
             return '<div class="d-flex align-items-center"><iconify-icon icon="' . $status->icon . '" class="' . $status->class . ' me-1"></iconify-icon>' . Str::ucfirst(Str::replace('_', ' ', $status->name)) . '</div>';
         } else return null;

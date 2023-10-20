@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Services\GameSources\FootballData;
 
-use App\Http\Controllers\Controller;
 use App\Models\Competition;
 use App\Models\Country;
 use App\Models\Game;
@@ -11,11 +10,12 @@ use App\Models\Referee;
 use App\Models\Team;
 use App\Repositories\FootballData;
 use App\Services\GameSources\FootballData\Seasons;
+use App\Services\GameSources\Interfaces\MatchesInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class FootballDataTestController extends Controller
+class Matches implements MatchesInterface
 {
 
     protected $api;
@@ -25,15 +25,12 @@ class FootballDataTestController extends Controller
         $this->api = new FootballData();
     }
 
-    function index()
+    function fetchMatches($id, $season = null, $matchday = null)
     {
 
         try {
 
             DB::beginTransaction();
-
-            $id = '01hd22b28593ajb12pa2d8k0bv';
-            $season = 2023;
 
             $competition = Competition::whereHas('gameSources', function ($q) use ($id) {
                 $q->where('competition_id', $id);
@@ -56,7 +53,7 @@ class FootballDataTestController extends Controller
                 return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
             }
 
-            $results = $this->api->findMatchesByCompetitionAndSeason($source->source_id, $season);
+            $results = $this->api->findMatchesByCompetitionAndSeason($source->source_id, $season, $matchday);
 
             $played = $results->resultSet->played;
 
@@ -284,7 +281,7 @@ class FootballDataTestController extends Controller
         }
     }
 
-    function storeScores($game, $score)
+    private function storeScores($game, $score)
     {
 
         $full_time = (array) $score->fullTime;

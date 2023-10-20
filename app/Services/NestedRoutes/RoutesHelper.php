@@ -122,10 +122,12 @@ class RoutesHelper
 
                 require $file_path;
 
+                $filename = Str::title(Str::before(basename($file_path), '.route.php'));
+
                 // Get the newly added routes and their corresponding folders
                 $routes = collect(Route::getRoutes())->filter(function ($route) use ($existingRoutes) {
                     return !in_array($route->uri, $existingRoutes->toArray());
-                })->map(function ($route) use ($folder_after_nested) {
+                })->map(function ($route) use ($folder_after_nested, $filename) {
 
                     $uri = $route->uri;
 
@@ -145,10 +147,9 @@ class RoutesHelper
                     }
 
                     if ($route->getName()) {
-                        $parts = explode('.', $route->getName());
-                        $title = end($parts);
+                        $parts = preg_replace('#\.#', ' ', $route->getName());
+                        $title = Str::title($parts);
                     }
-
 
                     // Convert camel case to words
                     $words = preg_split('/(?=[A-Z])/', $title, -1, PREG_SPLIT_NO_EMPTY);
@@ -166,7 +167,8 @@ class RoutesHelper
                         'folder' => $folder_after_nested,
                         'hidden' => $route->hiddenRoute(),
                         'icon' => $route->getIcon(),
-                        'checked' => $route->everyoneRoute()
+                        'checked' => $route->everyoneRoute(),
+                        'filename' => $filename,
                     ];
                 });
 

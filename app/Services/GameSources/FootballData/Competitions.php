@@ -127,7 +127,7 @@ class Competitions implements CompetitionsInterface
         return response(['message' => 'Successfully saved competition.']);
     }
 
-    function fetchStandings($id)
+    function fetchSeasons($id, $season = null)
     {
 
         $competition = Competition::whereHas('gameSources', function ($q) use ($id) {
@@ -148,7 +148,44 @@ class Competitions implements CompetitionsInterface
             return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
         }
 
-        $standing = $this->api->findStandingsByCompetition($source->source_id);
+        $country = $competition->country;
+
+        $res = $this->api->findCompetitionById($source->source_id);
+
+        $currentSeason = $res->currentSeason;
+        $seasonsData = $res->seasons;
+
+        foreach ($seasonsData as $seasonData) {
+            $is_current = $currentSeason->id == $seasonData->id;
+
+            $season = app(Seasons::class)->updateOrCreate($seasonData, $country, $competition, $is_current);
+        }
+
+        return response(['message' => 'Seasons for ' . $competition->name . ' updated.']);
+    }
+
+    function fetchStandings($id, $season = null)
+    {
+
+        $competition = Competition::whereHas('gameSources', function ($q) use ($id) {
+            $q->where('competition_id', $id);
+        })->first();
+
+        if (!$competition) {
+            return response(['message' => 'Competition #' . $id . ' not found.'], 404);
+        }
+
+        // Access the source_id value for the pivot
+        $source = $competition->gameSources->first()->pivot;
+        if (!$source) {
+            return response(['message' => 'Source for competition #' . $id . ' not found.'], 404);
+        }
+
+        if (!$source->is_subscribed) {
+            return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
+        }
+
+        $standing = $this->api->findStandingsByCompetition($source->source_id, $season);
 
         $jsonResult = json_encode($standing, JSON_PRETTY_PRINT);
         // dd($jsonResult);
@@ -200,11 +237,12 @@ class Competitions implements CompetitionsInterface
 
     /**
      * @param int $id
-     * @param int $match_day
+     * @param int $season
+     * @param int $matchday
      */
-    function fetchMatches($id, $match_day)
+    function fetchMatches($id, $season = null, $matchday = null)
     {
-        Log::alert('Match day::', [$id, $match_day]);
+        Log::alert('Match day::', [$id, $matchday]);
 
         $competition = Competition::whereHas('gameSources', function ($q) use ($id) {
             $q->where('competition_id', $id);
@@ -224,10 +262,10 @@ class Competitions implements CompetitionsInterface
             return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
         }
 
-        $matches = $this->api->findMatchesByCompetitionAndMatchday($source->source_id, $match_day);
+        $matches = $this->api->findMatchesByCompetition($source->source_id, $season, $matchday);
 
-        Log::critical('MATCHES',[$matches]);
-        
+        Log::critical('MATCHES', [$matches]);
+
         return response(['message' => 'Matches for ' . $competition->name . ' updated.']);
     }
 

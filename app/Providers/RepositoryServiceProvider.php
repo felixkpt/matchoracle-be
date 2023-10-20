@@ -14,6 +14,8 @@ use App\Repositories\Continent\ContinentRepository;
 use App\Repositories\Continent\ContinentRepositoryInterface;
 use App\Repositories\Country\CountryRepository;
 use App\Repositories\Country\CountryRepositoryInterface;
+use App\Repositories\Game\GameRepository;
+use App\Repositories\Game\GameRepositoryInterface;
 use App\Repositories\GameSource\GameSourceRepository;
 use App\Repositories\GameSource\GameSourceRepositoryInterface;
 use App\Repositories\Permission\PermissionRepository;
@@ -26,6 +28,8 @@ use App\Repositories\PostStatus\PostStatusRepository;
 use App\Repositories\PostStatus\PostStatusRepositoryInterface;
 use App\Repositories\Role\RoleRepository;
 use App\Repositories\Role\RoleRepositoryInterface;
+use App\Repositories\Season\SeasonRepository;
+use App\Repositories\Season\SeasonRepositoryInterface;
 use App\Repositories\Status\StatusRepository;
 use App\Repositories\Status\StatusRepositoryInterface;
 use App\Repositories\Team\TeamRepository;
@@ -61,6 +65,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(CoachRepositoryInterface::class, CoachRepository::class);
         $this->app->singleton(VenueRepositoryInterface::class, VenueRepository::class);
         $this->app->singleton(CoachContractRepositoryInterface::class, CoachContractRepository::class);
+        $this->app->singleton(SeasonRepositoryInterface::class, SeasonRepository::class);
+        $this->app->singleton(GameRepositoryInterface::class, GameRepository::class);
     }
 
     /**

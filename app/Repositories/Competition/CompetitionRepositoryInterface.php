@@ -13,14 +13,14 @@ interface CompetitionRepositoryInterface extends CommonRepoActionsInterface
     public function store(Request $request, $data);
 
     public function storeFromSource(Request $request, $data);
-   
+
     function standings($id, $season_id = null);
 
-    function fetchStandings($id);
-    
-    function fetchMatches($id);
+    function fetchSeasons($id, $data);
 
-    function matches($id);
+    function fetchStandings($id, $data);
+
+    function fetchMatches($id, $data);
 
     public function show($id);
 

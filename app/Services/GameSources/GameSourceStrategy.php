@@ -36,4 +36,9 @@ class GameSourceStrategy
         return $this->gameSourceStrategyInterface->teams();
     }
 
+    public function matches()
+    {
+        return $this->gameSourceStrategyInterface->matches();
+    }
+
 }

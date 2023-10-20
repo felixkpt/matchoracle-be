@@ -4,13 +4,16 @@ namespace App\Repositories\Competition;
 
 use App\Http\Controllers\Admin\Teams\TeamsController;
 use App\Models\Competition;
+use App\Models\Game;
 use App\Models\GameSource;
+use App\Models\Season;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
 use App\Services\GameSources\FootballDataStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class CompetitionRepository implements CompetitionRepositoryInterface
 {
@@ -103,29 +106,6 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         }
     }
 
-    function fetchStandings($id)
-    {
-        $competition = $this->model::findOrFail($id);
-
-        $competitions = $this->sourceContext->competitions();
-
-        return $competitions->fetchStandings($competition->id);
-    }
-
-    function matches($id) {
-
-    }
-
-    function fetchMatches($id)
-    {
-        $competition = $this->model::findOrFail($id);
-        $match_day = 9;
-
-        $competitions = $this->sourceContext->competitions();
-
-        return $competitions->fetchMatches($competition->id, $match_day);
-    }
-
     public function show($id)
     {
         return $this->index(true, $id);
@@ -164,6 +144,49 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         return response(['type' => 'success', 'message' => "Sources for {$competition->name} updated successfully"]);
     }
 
+    function fetchSeasons($id, $data)
+    {
+        $season_id = $data['season_id'];
+
+        $competition = $this->model::findOrFail($id);
+
+        $competitions = $this->sourceContext->competitions();
+
+        $season = null;
+        if ($season_id) {
+            $season = Carbon::parse(Season::find($season_id)->start_date)->format('Y');
+        }
+
+        return $competitions->fetchSeasons($competition->id, $season);
+    }
+
+    function fetchStandings($id, $data)
+    {
+        $season_id = $data['season_id'];
+
+        $competition = $this->model::findOrFail($id);
+
+        $competitions = $this->sourceContext->competitions();
+
+        $season = Carbon::parse(Season::find($season_id)->start_date)->format('Y');
+
+        return $competitions->fetchStandings($competition->id, $season);
+    }
+
+    function fetchMatches($id, $data)
+    {
+        $season_id = $data['season_id'];
+        $matchday = $data['matchday'];
+
+        $competition = $this->model::findOrFail($id);
+
+        $matches = $this->sourceContext->matches();
+
+        $season = Carbon::parse(Season::find($season_id)->start_date)->format('Y');
+
+        return $matches->fetchMatches($competition->id, $season, $matchday);
+    }
+
     function listSources($id)
     {
         $competition = $this->model::with(['gameSources'])->findOrFail($id);
@@ -184,9 +207,19 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
     public function seasons($id)
     {
-        $competition = $this->model::with(['seasons'])->findOrFail($id);
 
-        return response(['results' => $competition->seasons]);
+        $seasons = Season::where('competition_id', $id)->with(['competition', 'winner']);
+
+        $uri = '/admin/countries/';
+        $res = SearchRepo::of($seasons, ['id', 'name'])
+            ->addColumn('Created_at', 'Created_at')
+            ->addColumn('Status', 'Status')
+            ->addActionColumn('action', $uri)
+            ->htmls(['Status'])
+            ->orderBy('start_date')
+            ->paginate();
+
+        return response(['results' => $res]);
     }
 
     public function standings($id, $season_id = null)

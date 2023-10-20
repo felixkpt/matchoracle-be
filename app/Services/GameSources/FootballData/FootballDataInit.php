@@ -11,6 +11,7 @@ class FootballDataInit
     public $seasons;
     public $standings;
     public $teams;
+    public $matches;
 
     public function __construct()
     {
@@ -19,6 +20,7 @@ class FootballDataInit
         $this->seasons = new Seasons($this->api);
         $this->standings = new Standings($this->api);
         $this->teams = new Teams($this->api);
+        $this->matches = new Matches($this->api);
     }
 
     public function competitions()
@@ -39,5 +41,10 @@ class FootballDataInit
     public function teams()
     {
         return new Teams($this->api);
+    }
+
+    public function matches()
+    {
+        return new Matches($this->api);
     }
 }

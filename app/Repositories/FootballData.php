@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\GameSource;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 /**
  * This service class encapsulates football-data.org's RESTful API.
@@ -87,55 +89,81 @@ class FootballData
         return json_decode($response);
     }
 
-    public function findMatchesByCompetitionAndSeason($c, $season = null, $match_day = null)
+    public function findMatchesByCompetitionAndSeason($c, $season = null, $matchday = null)
     {
+
         $resource = 'competitions/' . $c . '/matches/?';
-    
+
         if (!is_null($season)) {
             $resource .= 'season=' . $season . '&';
         }
-    
-        if (!is_null($match_day)) {
-            $resource .= 'matchday=' . $match_day . '&';
+
+        if (!is_null($matchday)) {
+            $resource .= 'matchday=' . $matchday . '&';
         }
-    
+
         // Remove trailing '&' if there are parameters
         $resource = rtrim($resource, '&');
-    
+
         $response = file_get_contents(
             $this->baseUri . $resource,
             false,
             stream_context_create($this->reqPrefs)
         );
-    
+
         return json_decode($response);
     }
-    
+
     public function findMatchesByCompetitionWithDateRange($c, $start = null, $end = null)
     {
         $resource = 'competitions/' . $c . '/matches/?';
-    
+
         // Add parameters if they exist
         if (!is_null($start)) {
             $resource .= 'dateFrom=' . $start . '&';
         }
-    
+
         if (!is_null($end)) {
             $resource .= 'dateTo=' . $end . '&';
         }
-        
+
         // Remove trailing '&' if there are parameters
         $resource = rtrim($resource, '&');
-    
+
         $response = file_get_contents(
             $this->baseUri . $resource,
             false,
             stream_context_create($this->reqPrefs)
         );
-    
+
         return json_decode($response);
     }
-    
+
+    public function findMatchesByCompetition($c, $season = null, $matchday = null)
+    {
+
+        $resource = 'competitions/' . $c . '/matches?';
+
+        $q = '';
+        if ($season) {
+            $q .= 'season=' . $season . '&';
+        }
+        if ($matchday) {
+            $q .= 'matchday=' . $matchday . '&';
+        }
+
+        // Remove trailing '&' if there are parameters
+        $resource = rtrim($resource, '&');
+
+        $response = file_get_contents(
+            $this->baseUri . $resource,
+            false,
+            stream_context_create($this->reqPrefs)
+        );
+
+        return json_decode($response);
+    }
+
     public function findMatchesByCompetitionAndMatchday($c, $m)
     {
         $resource = 'competitions/' . $c . '/matches/?matchday=' . $m;
@@ -149,9 +177,13 @@ class FootballData
         return json_decode($response);
     }
 
-    public function findStandingsByCompetition($id)
+    public function findStandingsByCompetition($id, $season = null)
     {
         $resource = 'competitions/' . $id . '/standings';
+        if ($season) {
+            $resource = $resource . '?season=' . $season;
+        }
+
         $response = file_get_contents(
             $this->baseUri . $resource,
             false,
@@ -160,7 +192,6 @@ class FootballData
 
         return json_decode($response);
     }
-
 
     public function findHomeMatchesByTeam($teamId)
     {
