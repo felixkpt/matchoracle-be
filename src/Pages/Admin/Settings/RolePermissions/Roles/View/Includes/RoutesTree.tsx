@@ -53,7 +53,7 @@ function getRouteIcon(allPermissions: any[], uri: string) {
 }
 
 // The main RoutesTree component
-const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, indent, counter, isInitialRender, setFoldersCheckState }) => {
+const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, indent, counter, isInitialRender }) => {
 
     const { routes, children } = child
 
@@ -93,7 +93,7 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
 
                 const hasDisabled = !!targetElement.querySelectorAll<HTMLInputElement>(`input[id$="-child-checkbox"]:disabled`).length;
                 targetCheckbox.indeterminate = unchecked !== 0 ? false : hasDisabled
-              
+
                 // Work on children
                 const children = targetElement.querySelectorAll(`div[id^="${PARENT_FOLDER_ID_PREFIX}"]`);
                 children.forEach((child: Element) => {
@@ -101,7 +101,7 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                     const hasDisabled = !!child.querySelectorAll<HTMLInputElement>(`input[id$="-child-checkbox"]:disabled`).length;
                     const unchecked = child.querySelectorAll(`input[type="checkbox"]:not(:checked).${ROUTE_CHECKBOX_CLASS}`).length;
                     const checked = child.querySelectorAll(`input[type="checkbox"]:checked.${ROUTE_CHECKBOX_CLASS}`).length;
-             
+
                     if (checked === 0) {
                         targetCheckbox.checked = false;
                         targetCheckbox.indeterminate = hasDisabled;
@@ -114,7 +114,7 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                             targetCheckbox.indeterminate = true;
                         }
                     }
-                    
+
                 })
 
             } else {
@@ -194,11 +194,11 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
 
     // Function to find a permission based on uriMethods
     function found(uriMethods: string, permissions: any) {
-        return !!permissions?.find((permission: Route) => permission.uri === uriMethods);
+        return !!permissions?.find((permission: RouteInterface) => permission.uri === uriMethods);
     }
 
     // Function to determine whether a checkbox should be checked or not
-    function shouldCheckChildCheckbox(route: Route, permissions: string[], parentChecked: boolean): boolean {
+    function shouldCheckChildCheckbox(route: RouteInterface, permissions: PermissionInterface[], parentChecked: boolean) {
 
         const inputId: string = `${Str.uriMethods(route.uri_methods)}-child-checkbox`
 
@@ -224,6 +224,9 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
         }, 200);
 
     }
+
+    let filname: string | null = null
+    let echo: string | null = null
 
     return (
         <div key={currentId} className={`mt-1 parent-folder ps-${indent} border-start border-primary-subtle p-1`} id={`${PARENT_FOLDER_ID_PREFIX}${currentId}`}>
@@ -282,56 +285,72 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
 
                                 {routes.map((route, i) => {
 
+                                    if (echo && route.filename == echo)
+                                        echo = null
+
+                                    if (filname === null || filname != route.filename) {
+                                        filname = route.filename
+                                        echo = filname
+                                    }
+
                                     return (
-                                        <tr className='link routes-parent route-section' key={`${i}+${folder}_${route.slug}`} style={{ opacity: route.checked ? 0.5 : 1 }}>
-                                            <td className='col-1 border border-right cursor-pointer'>
-                                                <label className="form-check-label py-1 px-3 d-flex gap-2 rounded w-100 cursor-pointer" title={route.uri_methods}>
-                                                    <input
-                                                        type='checkbox'
-                                                        value={route.uri_methods}
-                                                        id={`${Str.uriMethods(route.uri_methods)}-child-checkbox`}
-                                                        className={`${ROUTE_CHECKBOX_CLASS} form-check-input me-2`}
-                                                        onChange={(e) => debouncedHandleCheckedSingle(e, currentId, true, true)}
-                                                        defaultChecked=
-                                                        {(isInitialRender && permissions && shouldCheckChildCheckbox(route, permissions, parentChecked))}
-                                                        disabled={route.checked}
-                                                    />
-                                                    <input
-                                                        type='hidden'
-                                                        className='route-title'
-                                                        value={route.title}
-                                                    />
-                                                    <input
-                                                        type='hidden'
-                                                        className='folder-hidden'
-                                                        value={route.hidden.toString()}
-                                                    />
-                                                </label>
-                                            </td>
-                                            <td className='col-6 align-text-start' title={route.uri_methods}>
-                                                {route.title}
-                                            </td>
-                                            <td className='col-3 align-text-start' title={route.methods || 'GET'}>
-                                                <span className="d-inline-block text-truncate" style={{ maxWidth: '170px' }}>
-                                                    {route.methods || 'GET'}
-                                                </span>
-                                            </td>
-                                            <td className='col-2 align-text-start'>
-                                                <div className='bg-light col-4 d-flex justify-content-between rounded gap-1'>
-                                                    <label>
-                                                        <input placeholder='Icon' defaultValue={getRouteIcon(allPermissions, route.uri_methods)} style={{ width: '100px' }} type="text" className='folder-icon ms-1 border border-secondary rounded' />
-                                                    </label>
-                                                    <label className='form-check-label d-flex align-items-center cursor-pointer'>
+                                        <>
+                                            {
+                                                echo &&
+                                                <tr>
+                                                    <td colSpan={4} className='col-12 fst-italic'>--- {echo && echo} ---</td>
+                                                </tr>
+                                            }
+                                            <tr className='link routes-parent route-section' key={`${i}+${folder}_${route.slug}`} style={{ opacity: route.checked ? 0.5 : 1 }}>
+                                                <td className='col-1 border border-right cursor-pointer'>
+                                                    <label className="form-check-label py-1 px-3 d-flex gap-2 rounded w-100 cursor-pointer" title={route.uri_methods}>
                                                         <input
                                                             type='checkbox'
-                                                            defaultChecked={route.hidden}
-                                                            className='d-none folder-hidden'
+                                                            value={route.uri_methods}
+                                                            id={`${Str.uriMethods(route.uri_methods)}-child-checkbox`}
+                                                            className={`${ROUTE_CHECKBOX_CLASS} form-check-input me-2`}
+                                                            onChange={(e) => debouncedHandleCheckedSingle(e, currentId, true, true)}
+                                                            defaultChecked=
+                                                            {(isInitialRender && permissions && shouldCheckChildCheckbox(route, permissions, parentChecked)) || false}
+                                                            disabled={route.checked}
                                                         />
-                                                        {route.hidden ? 'True' : 'False'}
+                                                        <input
+                                                            type='hidden'
+                                                            className='route-title'
+                                                            value={route.title}
+                                                        />
+                                                        <input
+                                                            type='hidden'
+                                                            className='folder-hidden'
+                                                            value={route.hidden.toString()}
+                                                        />
                                                     </label>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                                </td>
+                                                <td className='col-6 align-text-start' title={route.uri_methods}>
+                                                    {route.title}
+                                                </td>
+                                                <td className='col-3 align-text-start' title={route.methods || 'GET'}>
+                                                    <span className="d-inline-block text-truncate" style={{ maxWidth: '170px' }}>
+                                                        {route.methods || 'GET'}
+                                                    </span>
+                                                </td>
+                                                <td className='col-2 align-text-start'>
+                                                    <div className='bg-light col-4 d-flex justify-content-between rounded gap-1'>
+                                                        <label>
+                                                            <input placeholder='Icon' defaultValue={getRouteIcon(allPermissions, route.uri_methods)} style={{ width: '100px' }} type="text" className='folder-icon ms-1 border border-secondary rounded' />
+                                                        </label>
+                                                        <label className='form-check-label d-flex align-items-center cursor-pointer'>
+                                                            <input
+                                                                type='checkbox'
+                                                                defaultChecked={route.hidden}
+                                                                className='d-none folder-hidden'
+                                                            />
+                                                            {route.hidden ? 'True' : 'False'}
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </>
                                     )
                                 })
                                 }

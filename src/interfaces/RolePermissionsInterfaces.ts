@@ -34,7 +34,8 @@ interface RouteInterface {
   title: string;
   hidden: boolean;
   icon: string | null;
-  checked: boolean;
+  checked: boolean; 
+  filename: string;
 }
 interface RouteCollectionInterface {
   folder: string;

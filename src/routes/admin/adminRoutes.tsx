@@ -4,6 +4,9 @@ import posts from './posts';
 import continents from './continents';
 import countries from './countries';
 import competitions from './competitions';
+import seasons from './seasons';
+import predictions from './predictions';
+import matches from './matches';
 import teams from './teams';
 import AuthenticatedLayout from '@/Layouts/Authenicated/AuthenticatedLayout';
 import Error404 from '@/Pages/ErrorPages/Error404';
@@ -18,20 +21,32 @@ const adminRoutes = [
     children: posts,
   },
   {
+    path: 'competitions',
+    children: competitions,
+  },
+  {
+    path: 'continents',
+    children: continents,
+  },
+  {
     path: 'countries',
     children: countries,
   },
   {
-    path: 'competitions',
-    children: competitions,
+    path: 'matches',
+    children: matches,
   },
   {
     path: 'teams',
     children: teams,
   },
   {
-    path: 'continents',
-    children: continents,
+    path: 'predictions',
+    children: predictions,
+  },
+  {
+    path: 'seasons',
+    children: seasons,
   },
   {
     path: 'settings',

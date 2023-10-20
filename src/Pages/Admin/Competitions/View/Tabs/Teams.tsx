@@ -8,57 +8,20 @@ import { useEffect, useState } from "react";
 import AutoModalBody from "@/components/AutoModalBody";
 import CreateOrUpdateFromSource from "@/components/CreateOrUpdateFromSource";
 import AddSource from "@/components/AddSource";
-import useAxios from "@/hooks/useAxios";
-import { SeasonInterface, TeamInterface } from "@/interfaces/CompetitionInterface";
+import { CompetitionTabInterface } from "@/interfaces/CompetitionInterface";
 import UpdateCoach from "@/components/UpdateCoach";
 
-interface Props {
-    record: TeamInterface | undefined;
-}
+const Index: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setSelectedSeason, setKey }) => {
 
-const Index: React.FC<Props> = ({ record }) => {
-
-    const [competition, setCompetition] = useState<TeamInterface | undefined>()
+    const competition = record
 
     const [modelDetails, setModelDetails] = useState({})
-    const [key, setKey] = useState(0)
     const [team, setTeam] = useState<CollectionItemsInterface>()
     const [record2, setRecord2] = useState<CollectionItemsInterface>()
     const [record3, setRecord3] = useState<CollectionItemsInterface>()
 
     const { competitions: list_sources } = useListSources()
     const [actionUrl, setActionUrl] = useState<string>('/admin/teams')
-
-    const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
-    const [seasons, setSeasons] = useState<SeasonInterface[] | null>(null);
-    const [competitionTeamsUri, setCompetitionTeamsUri] = useState<string>();
-
-    const { get, loading } = useAxios<TeamInterface[]>();
-
-    useEffect(() => {
-        setCompetition(record)
-    }, [record]);
-
-    useEffect(() => {
-        if (competition) {
-            get(`admin/competitions/view/${competition.id}/seasons`).then((res) => {
-                if (res) {
-                    setSeasons(res);
-                    if (res.length > 0) {
-                        // Set the first season as the default selected season
-                        setSelectedSeason(res[0].id);
-                    }
-                }
-            });
-        }
-    }, [competition]);
-
-    useEffect(() => {
-
-        if (competition && selectedSeason) {
-            setCompetitionTeamsUri(`admin/competitions/view/${competition.id}/teams/${selectedSeason}`)
-        }
-    }, [competition, selectedSeason]);
 
     const columns = [
         { key: 'Crest' },
@@ -195,8 +158,8 @@ const Index: React.FC<Props> = ({ record }) => {
             <PageHeader title={'Teams list'} action="button" actionText="Create Team" actionTargetId="teamModal" permission='admin/teams' setRecord={setTeam} />
             <div>
                 {
-                    competitionTeamsUri &&
-                    <AutoTable columns={columns} baseUri={competitionTeamsUri} search={true} getModelDetails={setModelDetails} list_sources={list_sources} tableId={'teamsTable'} customModalId="teamModal" />
+                    competition &&
+                    <AutoTable columns={columns} baseUri={`admin/competitions/view/${competition.id}/teams/${selectedSeason?.id || ''}`} search={true} getModelDetails={setModelDetails} list_sources={list_sources} tableId={'teamsTable'} customModalId="teamModal" />
                 }
 
             </div>

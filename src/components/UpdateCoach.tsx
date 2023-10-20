@@ -32,7 +32,7 @@ const UpdateCoach = ({ record }: Props) => {
 
             const { data: fetchedOptions } = await get(`/admin/teams/coaches?all=1&q=${q}`);
 
-            setSelected(fetchedOptions.find(itm => itm.id === currentValue.id));
+            setSelected(fetchedOptions.find((itm: any) => itm.id === currentValue.id));
 
             // Include the existing record's option in fetchedOptions if not already present
             if (currentValue && !fetchedOptions.some((option: any) => option.id === currentValue.id)) {
@@ -45,7 +45,7 @@ const UpdateCoach = ({ record }: Props) => {
     }
 
     const [selected, setSelected] = useState<PropsValue<object> | undefined>();
-    console.log(selected)
+
     return (
         <div key={team?.id}>
             {

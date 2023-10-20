@@ -28,6 +28,7 @@ export interface TeamInterface {
     club_colors: string | null;
     venue_id: string | null;
     coach_id: string | null;
+    coach_contract: any;
     competition_id: string;
     competitions: CompetitionInterface[];
     continent_id: string;
@@ -119,4 +120,11 @@ export interface CompetitionInterface {
     updated_at: string;
     standings: StandingInterface[];
     seasons: SeasonInterface[];
+}
+
+export interface CompetitionTabInterface {
+    record: CompetitionInterface | undefined;
+    selectedSeason: SeasonInterface | null
+    setSelectedSeason: React.Dispatch<React.SetStateAction<SeasonInterface | null>>;
+    setKey?: React.Dispatch<React.SetStateAction<number>>;
 }

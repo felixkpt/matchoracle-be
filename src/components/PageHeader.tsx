@@ -23,7 +23,7 @@ const PageHeader = ({ title, action, actionText, actionLink, permission, method 
   const renderAction = () => {
     if (isButton) {
       return (
-          <button type="button" className="btn btn-info text-white" data-bs-toggle="modal" id={`${actionTargetId || 'ActionButton'}Trigger`} data-bs-target={`#${actionTargetId || 'ActionButton'}`} onClick={(e) => setRecord && e.isTrusted && setRecord(undefined)}>{actionText}</button>
+          <button type="button" className="btn btn-primary text-white" data-bs-toggle="modal" id={`${actionTargetId || 'ActionButton'}Trigger`} data-bs-target={`#${actionTargetId || 'ActionButton'}`} onClick={(e) => setRecord && e.isTrusted && setRecord(undefined)}>{actionText}</button>
       );
     } else if (actionLink) {
       return (

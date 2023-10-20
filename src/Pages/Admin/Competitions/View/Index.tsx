@@ -6,13 +6,16 @@ import Details from "./Tabs/Details";
 import Predictions from "./Tabs/Predictions";
 import PageHeader from "@/components/PageHeader";
 import AutoTabs from "@/components/AutoTabs";
-import { CompetitionInterface } from "@/interfaces/CompetitionInterface";
+import { CompetitionInterface, SeasonInterface } from "@/interfaces/CompetitionInterface";
 import Standings from "./Tabs/Standings";
 import Teams from "./Tabs/Teams";
 import Sources from "./Tabs/Sources";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces";
-import Matches from "./Tabs/Matches";
+import { OptionsOrGroups } from "react-select";
+import UpcomingMatches from "./Tabs/UpcomingMatches";
+import PlayedMatches from "./Tabs/PlayedMatches";
+import Seasons from "./Tabs/Seasons";
 
 const Index = () => {
     const { id } = useParams<any>();
@@ -20,7 +23,11 @@ const Index = () => {
 
     const [key, setKey] = useState<number>(0)
     const [record, setRecord] = useState<CompetitionInterface>()
+    const [seasons] = useState<OptionsOrGroups<SeasonInterface[], any> | []>([]);
+    const [selectedSeason, setSelectedSeason] = useState<SeasonInterface | null>(null);
+
     const [modelDetails, setModelDetails] = useState<CollectionItemsInterface>()
+
 
     useEffect(() => {
 
@@ -61,26 +68,35 @@ const Index = () => {
         return () => unsubscribe('recordUpdated', recordUpdated as EventListener)
     }, [])
 
+
     const tabs = [
         {
             name: "Details",
             content: <Details record={record} modelDetails={modelDetails} />,
         },
         {
+            name: "Seasons",
+            content: <Seasons record={record} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+        },
+        {
             name: "Standings",
-            content: <Standings record={record} setKey={setKey} />,
+            content: <Standings record={record} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
         },
         {
             name: "Teams",
-            content: <Teams record={record} />,
+            content: <Teams record={record} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
         },
         {
-            name: "Matches",
-            content: <Matches record={record} />,
+            name: "Played Matches",
+            content: <PlayedMatches record={record} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+        },
+        {
+            name: "Upcoming Matches",
+            content: <UpcomingMatches record={record} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
         },
         {
             name: "Predictions",
-            content: <Predictions record={record} />,
+            content: <Predictions record={record} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
         },
         {
             name: "Sources",

@@ -1,5 +1,5 @@
+import AddSource from '@/components/AddSource';
 import { CompetitionInterface } from '@/interfaces/CompetitionInterface';
-import AddSource from '../../../../../components/AddSource';
 import { publish } from '@/utils/events';
 
 interface Props {

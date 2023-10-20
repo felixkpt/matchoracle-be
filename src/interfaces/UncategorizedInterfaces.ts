@@ -95,7 +95,6 @@ export interface AutoTableInterface {
 export interface ListSourceInterface {
     id: string;
     name: string;
-    // You can add more properties here if needed
 }
 
 export interface DocsInterface {

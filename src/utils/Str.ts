@@ -20,6 +20,8 @@ class Str {
     }
 
     static before(subject: string, search: string): string {
+        if (!subject) return subject
+
         return subject.split(search)[0];
     }
 

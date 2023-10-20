@@ -255,7 +255,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
 
                                 {columns && columns.map(column => {
                                     return (
-                                        <td key={column.key} scope="col" className="px-6 py-3">{(column.key === 'action' || htmls.includes(column.key) === true) ? __dangerousHtml(row[column.key]) : getDynamicValue(row, column.key)}</td>
+                                        <td key={column.key} scope="col" className="px-6 py-3">{(column.key === 'action' || htmls.includes(column.key) === true) ? __dangerousHtml(row[column.key]) : String(getDynamicValue(row, column.key))}</td>
                                     )
                                 })}
 
