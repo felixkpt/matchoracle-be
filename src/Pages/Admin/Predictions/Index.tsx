@@ -1,9 +1,11 @@
 import Error404 from '@/Pages/ErrorPages/Error404';
 import AutoTable from '@/components/AutoTable';
-import PageHeader from '@/components/PageHeader';
 import useListSources from '@/hooks/apis/useListSources';
 import useRouteParamValidation from '@/hooks/useRouteParamValidation';
 import { useEffect, useState } from 'react';
+import "react-datepicker/dist/react-datepicker.css";
+import FormatDate from '@/utils/FormatDate';
+import MatchesPageHeader from './Includes/MatchesPageHeader';
 
 const Index = () => {
 
@@ -33,14 +35,17 @@ const Index = () => {
 
     }, [location.pathname]);
 
+    const [startDate, setStartDate] = useState(FormatDate.YYYYMMDD(new Date()));
+
     return (
         <div>
             {
                 errorsState === 0 ?
                     <div>
-                        <PageHeader title={'Predictions List'} permission='admin.matches' />
+                        <MatchesPageHeader title={'Predictions List'} startDate={startDate} setStartDate={setStartDate} />
                         <AutoTable
-                            baseUri='/admin/matches'
+                            key={startDate}
+                            baseUri={`/admin/predictions/${startDate}`}
                             columns={columns}
                             search={true}
                             list_sources={list_sources}

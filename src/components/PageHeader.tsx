@@ -45,7 +45,7 @@ const PageHeader = ({ title, action, actionText, actionLink, permission, method 
   };
 
   return (
-    <div className='header-title shadow-sm p-2 rounded mb-3 row justify-content-betwee'>
+    <div className='header-title shadow-sm p-2 rounded mb-3 row justify-content-between'>
       {
         listUrl && isAllowed() &&
         <div className={`col-6 col-md-1 col-lg-2 d-flex justify-content-start mb-2 mb-md-2`}>
