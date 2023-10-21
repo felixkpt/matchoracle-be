@@ -117,10 +117,22 @@ p {
 
 }
 
-.striped-section>div:nth-of-type(odd) {
+.symbol-image-xm {
+  vertical-align: middle;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+
+}
+
+.fs-small {
+  font-size: small;
+}
+
+.striped-section>div:nth-of-type(odd), .striped-section>a:nth-of-type(odd)>div {
   background: var(--bs-gray-200);
 }
 
-.striped-section>div:hover {
+.striped-section>div:hover, .striped-section>a>div:hover {
   background: var(--bs-gray-300);
 }

@@ -2,7 +2,7 @@
 const Index = () => {
   return (
     <div>
-      <h4>Predictions Index</h4>
+      <h4>Predictions Preview</h4>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { CompetitionTabInterface } from '@/interfaces/CompetitionInterface'
+import { CompetitionTabInterface } from '@/interfaces/FootballInterface'
 import CompetitionHeader from '../Inlcudes/CompetitionHeader';
 import AutoTable from '@/components/AutoTable';
 import Str from '@/utils/Str';

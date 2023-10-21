@@ -1,7 +1,7 @@
 import GeneralModal from '@/components/Modals/GeneralModal'
 import SimpleTable from '@/components/SimpleTable'
 import useListSources from '@/hooks/apis/useListSources'
-import { CountryInterface } from '@/interfaces/CompetitionInterface'
+import { CountryInterface } from '@/interfaces/FootballInterface'
 import { useState } from 'react'
 
 type Props = {

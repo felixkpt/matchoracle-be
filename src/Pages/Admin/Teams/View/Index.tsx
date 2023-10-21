@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom"
 import Details from "./Tabs/Details"
 import Matches from "./Tabs/Matches"
 import AutoTabs from "@/components/AutoTabs"
-import { TeamInterface } from "@/interfaces/CompetitionInterface"
+import { TeamInterface } from "@/interfaces/FootballInterface"
 import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces"
 import { subscribe, unsubscribe } from "@/utils/events"
 

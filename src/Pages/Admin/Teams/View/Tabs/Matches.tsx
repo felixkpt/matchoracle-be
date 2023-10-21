@@ -1,4 +1,4 @@
-import { TeamInterface } from "@/interfaces/CompetitionInterface"
+import { TeamInterface } from "@/interfaces/FootballInterface"
 
 type Props = {
   record: TeamInterface | undefined

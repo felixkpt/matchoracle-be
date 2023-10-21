@@ -1,4 +1,4 @@
-import { CompetitionInterface, CompetitionTabInterface } from '@/interfaces/CompetitionInterface'
+import { CompetitionInterface, CompetitionTabInterface } from '@/interfaces/FootballInterface'
 import CompetitionHeader from '../Inlcudes/CompetitionHeader';
 import AutoTable from '@/components/AutoTable';
 import GeneralModal from '@/components/Modals/GeneralModal';

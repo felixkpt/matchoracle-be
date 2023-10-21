@@ -1,4 +1,4 @@
-import { CompetitionTabInterface } from "@/interfaces/CompetitionInterface"
+import { CompetitionTabInterface } from "@/interfaces/FootballInterface"
 import CompetitionHeader from "../Inlcudes/CompetitionHeader"
 import GeneralModal from "@/components/Modals/GeneralModal"
 import AsyncSeasonsList from "../Inlcudes/AsyncSeasonsList"

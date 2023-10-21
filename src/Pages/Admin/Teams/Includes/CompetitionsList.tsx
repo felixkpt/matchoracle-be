@@ -1,7 +1,7 @@
 import Loader from "@/components/Loader";
 import { useAuth } from "@/contexts/AuthContext";
 import useAxios from "@/hooks/useAxios";
-import { CompetitionInterface, CountryInterface, TeamInterface } from "@/interfaces/CompetitionInterface";
+import { CompetitionInterface, CountryInterface, TeamInterface } from "@/interfaces/FootballInterface";
 import { baseURL } from "@/utils/helpers";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useState } from "react";

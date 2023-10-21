@@ -6,7 +6,7 @@ import Details from "./Tabs/Details";
 import Predictions from "./Tabs/Predictions";
 import PageHeader from "@/components/PageHeader";
 import AutoTabs from "@/components/AutoTabs";
-import { CompetitionInterface, SeasonInterface } from "@/interfaces/CompetitionInterface";
+import { CompetitionInterface, SeasonInterface } from "@/interfaces/FootballInterface";
 import Standings from "./Tabs/Standings";
 import Teams from "./Tabs/Teams";
 import Sources from "./Tabs/Sources";

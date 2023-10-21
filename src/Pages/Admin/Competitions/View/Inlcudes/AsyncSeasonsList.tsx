@@ -1,5 +1,5 @@
 import useAxios from '@/hooks/useAxios';
-import { CompetitionTabInterface } from '@/interfaces/CompetitionInterface';
+import { CompetitionTabInterface } from '@/interfaces/FootballInterface';
 import Str from '@/utils/Str';
 import AsyncSelect from 'react-select/async';
 

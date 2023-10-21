@@ -1,5 +1,5 @@
 import useAxios from "@/hooks/useAxios"
-import { TeamInterface } from "@/interfaces/CompetitionInterface"
+import { TeamInterface } from "@/interfaces/FootballInterface"
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useEffect, useState } from "react"
 import AsyncSelect from 'react-select/async';

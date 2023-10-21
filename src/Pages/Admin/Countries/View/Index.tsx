@@ -3,7 +3,7 @@ import Details from "./Tabs/Details";
 import Competitions from "./Tabs/Competitions";
 import AutoTabs from "@/components/AutoTabs";
 import { useParams } from "react-router-dom";
-import { CompetitionInterface, CountryInterface } from "@/interfaces/CompetitionInterface";
+import { CompetitionInterface, CountryInterface } from "@/interfaces/FootballInterface";
 import useAxios from "@/hooks/useAxios";
 import PageHeader from "@/components/PageHeader";
 

@@ -1,5 +1,5 @@
 import CompetitionsList from '@/Pages/Admin/Teams/Includes/CompetitionsList'
-import { CompetitionInterface, CountryInterface } from '@/interfaces/CompetitionInterface'
+import { CompetitionInterface, CountryInterface } from '@/interfaces/FootballInterface'
 import React from 'react'
 
 type Props = {

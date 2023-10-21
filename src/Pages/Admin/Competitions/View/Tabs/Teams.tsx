@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import AutoModalBody from "@/components/AutoModalBody";
 import CreateOrUpdateFromSource from "@/components/CreateOrUpdateFromSource";
 import AddSource from "@/components/AddSource";
-import { CompetitionTabInterface } from "@/interfaces/CompetitionInterface";
+import { CompetitionTabInterface } from "@/interfaces/FootballInterface";
 import UpdateCoach from "@/components/UpdateCoach";
 
 const Index: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setSelectedSeason, setKey }) => {

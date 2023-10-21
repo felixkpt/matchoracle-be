@@ -3,7 +3,7 @@ import CompetitionsList from "./Includes/CompetitionsList";
 import useAxios from "@/hooks/useAxios";
 import { useEffect, useState } from "react";
 import TeamsNav from "./View/TeamNav";
-import { CountryInterface } from "@/interfaces/CompetitionInterface";
+import { CountryInterface } from "@/interfaces/FootballInterface";
 
 const Index = () => {
 
