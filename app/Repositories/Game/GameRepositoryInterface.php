@@ -16,4 +16,5 @@ interface GameRepositoryInterface extends CommonRepoActionsInterface
     public function yearMonth($year, $month);
     public function yearMonthDate($year, $month, $date);
     public function store(Request $request, $data);
+    public function show($id);
 }

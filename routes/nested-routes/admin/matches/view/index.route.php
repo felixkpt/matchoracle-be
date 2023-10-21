@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\Matchs\View\MatchController;
+use App\Http\Controllers\Admin\Matches\View\MatchController;
 use Illuminate\Support\Facades\Route;
 
 $controller = MatchController::class;

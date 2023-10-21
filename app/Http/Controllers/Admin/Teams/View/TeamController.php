@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin\Teams\View;
 
+use App\Http\Controllers\Admin\Matches\MatchesController;
+use App\Http\Controllers\Admin\Matches\View\MatchController;
+use App\Http\Controllers\Admin\Predictions\PredictionsController;
 use App\Http\Controllers\Admin\Teams\TeamsController;
 use App\Http\Controllers\CommonMethods;
 use App\Http\Controllers\Controller;
@@ -53,6 +56,19 @@ class TeamController extends Controller
         $data = $this->teamValidationInterface->updateCoach();
 
         return $this->teamRepositoryInterface->updateCoach($request, $data);
+    }
+
+    function matches($id)
+    {
+        sleep(2);
+        request()->merge(['team_id' => $id]);
+        return app(MatchesController::class)->index();
+    }
+
+    function predictions($id)
+    {
+        request()->merge(['team_id' => $id]);
+        return app(PredictionsController::class)->index();
     }
 
     function getGames($id)

@@ -14,6 +14,9 @@ Route::post('/{id}/detailed-fixtures', [$controller, 'getDetailedFixtures']);
 Route::post('/{id}/add-sources', [$controller, 'addSources']);
 
 Route::get('/{id}/get-games', [$controller, 'getGames']);
+Route::get('/{id}/matches', [$controller, 'matches']);
+Route::get('/{id}/predictions', [$controller, 'predictions']);
+
 Route::post('/{id}/update-coach', [$controller, 'updateCoach'])->hidden();
 
 Route::get('/{id}', [$controller, 'show'])->name('show');

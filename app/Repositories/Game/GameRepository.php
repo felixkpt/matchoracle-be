@@ -8,6 +8,7 @@ use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class GameRepository implements GameRepositoryInterface
 {
@@ -31,10 +32,11 @@ class GameRepository implements GameRepositoryInterface
         }
 
         $now = Carbon::now();
-
+        Log::info('dd', [request()->team_id]);
         $competitions = $this->model::with(['competition', 'home_team', 'away_team', 'score'])
             ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
+            ->when(request()->team_id, fn ($q) => $q->where('home_team_id', request()->team_id)->orWhere('away_team_id', request()->team_id))
             ->when($seasons, fn ($q) => $q->whereIn('season_id', $seasons))
             ->when(request()->type, fn ($q) => request()->type == 'played' ? $q->where('utc_date', '<', $now) : (request()->type == 'upcoming' ? $q->where('utc_date', '>=', $now) :  true))
             ->when(request()->yesterday, fn ($q) => $q->whereDate('utc_date', Carbon::yesterday()))
@@ -62,7 +64,7 @@ class GameRepository implements GameRepositoryInterface
             ->htmls(['Status'])
             ->orderby('priority_number');
 
-        $results = false ? $results->first() : $results->paginate();
+        $results = $id ? $results->first() : $results->paginate();
 
         return response(['results' => $results]);
     }
@@ -111,5 +113,11 @@ class GameRepository implements GameRepositoryInterface
         if ($request->id)
             $action = 'updated';
         return response(['type' => 'success', 'message' => 'Status ' . $action . ' successfully', 'results' => $res]);
+    }
+
+    public function show($id)
+    {
+        sleep(1);
+        return $this->index($id);
     }
 }
