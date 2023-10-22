@@ -1,13 +1,16 @@
 import { StandingInterface, StandingTableInterface } from '@/interfaces/FootballInterface'
 import Composer from '@/utils/Composer'
+import Str from '@/utils/Str'
 import { NavLink } from 'react-router-dom'
 
 type Props = {
   standings: StandingInterface[] | undefined
   minimal?: boolean
+  homeTeamId?: string
+  awayTeamId?: string
 }
 
-const StandingsTable = ({ standings, minimal }: Props) => {
+const StandingsTable = ({ standings, minimal, homeTeamId, awayTeamId }: Props) => {
   return (
     <div className='card'>
       {
@@ -16,7 +19,10 @@ const StandingsTable = ({ standings, minimal }: Props) => {
           return (
             <>
               <div className="card-header">
-                <p>{standing.stage}</p>
+                <div className="d-flex justify-content-between">
+                  <p>{standing.stage}</p>
+                  <p>{Str.before(standing.season.start_date, '-') + '/' + Str.before(standing.season.end_date, '-')}</p>
+                </div>
                 <div className="card-body standings">
                   <div className="team-standing row">
                     <div className="position col">
@@ -43,13 +49,13 @@ const StandingsTable = ({ standings, minimal }: Props) => {
                 <div className="cursor-default striped-section">
                   {standing.standing_table.map((teamStanding: StandingTableInterface) => (
                     <NavLink key={teamStanding.id} to={`/admin/teams/view/${teamStanding.team.id}`} className={`text-decoration-none text-dark`}>
-                      <div className="team-standing row mb-2">
+                      <div className={`team-standing row py-1 mb-1 rounded ${(teamStanding.team.id === homeTeamId || teamStanding.team.id === awayTeamId) ? 'bg-warning' : ''}`}>
                         <div className="position col">
                           <div className="p-1 bg-secondary rounded text-white text-center" style={{ width: 40 }}>
                             #{teamStanding.position}
                           </div>
                         </div>
-                        <div className={`team-name ${minimal ? 'col-7' : 'col-2'} text-nowrap`}>{Composer.team(teamStanding.team)}</div>
+                        <div className={`team-name ${minimal ? 'col-7' : 'col-2'} text-nowrap text-truncate`} title={Composer.team(teamStanding.team)}>{Composer.team(teamStanding.team)}</div>
                         <div className="played-games col">{teamStanding.played_games}</div>
                         {!minimal && (
                           <>

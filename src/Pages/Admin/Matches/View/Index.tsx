@@ -3,6 +3,7 @@ import StandingsTable from '@/components/StandingsTable'
 import TeamMatchesCard from '@/components/TeamMatchesCard'
 import useAxios from '@/hooks/useAxios'
 import { GameInterface, StandingInterface, TeamInterface } from '@/interfaces/FootballInterface'
+import FormatDate from '@/utils/FormatDate'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -45,7 +46,7 @@ const Index = () => {
   useEffect(() => {
 
     if (homeTeam) {
-      getHomeTeamGames(`admin/teams/view/${homeTeam.id}/matches`).then((res) => {
+      getHomeTeamGames(`admin/teams/view/${homeTeam.id}/matches?type=played&per_page=15`).then((res) => {
 
         const { data } = res
         if (data) {
@@ -60,7 +61,7 @@ const Index = () => {
   useEffect(() => {
 
     if (awayTeam) {
-      getAwayTeamGames(`admin/teams/view/${awayTeam.id}/matches`).then((res) => {
+      getAwayTeamGames(`admin/teams/view/${awayTeam.id}/matches?type=played&per_page=15`).then((res) => {
 
         const { data } = res
         if (data) {
@@ -90,7 +91,7 @@ const Index = () => {
       {
         homeTeam && awayTeam ?
           <div className=''>
-            <h4>Match Preview for {homeTeam.name} vs {awayTeam.name}</h4>
+            <h4>Match Preview for {homeTeam.name} vs {awayTeam.name} - {FormatDate.DDMMYYYY(game?.utc_date)}</h4>
 
             <div className="row">
               <div className="col-12 col-md-9">
@@ -112,7 +113,7 @@ const Index = () => {
                 </div>
               </div>
               <div className="col-12 col-md-3">
-                <StandingsTable standings={standings} minimal={true} />
+                <StandingsTable standings={standings} minimal={true} homeTeamId={homeTeam.id} awayTeamId={awayTeam.id} />
               </div>
             </div>
           </div>

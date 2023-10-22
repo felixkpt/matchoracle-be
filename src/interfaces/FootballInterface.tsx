@@ -69,6 +69,7 @@ export interface StandingInterface {
     id: string;
     competition_id: string;
     season_id: string;
+    season: SeasonInterface;
     stage: string;
     type: string;
     group: string | null;

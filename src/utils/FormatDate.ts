@@ -9,19 +9,25 @@ class FormatDate {
         return `${year}/${month}/${day}`;
     }
 
-    static DDMMYY(date: Date | string) {
+    static DDMMYY(date: Date | string, full: boolean = false) {
         if (!date) return
 
         if (typeof date === 'string') {
             date = new Date(date)
         }
 
-        const year = date.getFullYear() % 100;
+        let year = date.getFullYear();
+        year = full ? year : year % 100;
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
 
         return `${day}/${month}/${year}`;
     }
+
+    static DDMMYYYY(date: Date | string) {
+        return this.DDMMYY(date, true)
+    }
+
     static HHMM(date: Date | string) {
         if (!date) return
 
