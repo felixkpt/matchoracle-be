@@ -25,7 +25,6 @@ class TopicsController extends Controller
             });
 
         $res = SearchRepo::of($docs, ['id', 'name', 'image'])
-            ->sortable(['id', 'image'])
             ->addColumn('action', function ($item) {
                 return '
                     <div class="dropdown">

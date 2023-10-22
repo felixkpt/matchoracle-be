@@ -2,6 +2,7 @@
 
 namespace App\Services\Validations\Post;
 
+use App\Models\Post;
 use App\Services\Validations\ValidationFormatter;
 use Illuminate\Http\Request;
 
