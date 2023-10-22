@@ -60,7 +60,6 @@ class TeamController extends Controller
 
     function matches($id)
     {
-        sleep(2);
         request()->merge(['team_id' => $id]);
         return app(MatchesController::class)->index();
     }
@@ -106,8 +105,6 @@ class TeamController extends Controller
                     return $q->home_team . ' vs ' . $q->away_team;
                 }
             )->paginate(1, ['*']);
-
-        sleep(1);
 
         return response(['results' => $games]);
     }

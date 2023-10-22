@@ -19,7 +19,6 @@ class CoachRepository implements CoachRepositoryInterface
 
     public function index()
     {
-        sleep(1);
 
         $teams = $this->model::with(['nationality']);
         

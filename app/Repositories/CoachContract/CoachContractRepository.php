@@ -18,7 +18,6 @@ class CoachContractRepository implements CoachContractRepositoryInterface
 
     public function index()
     {
-        sleep(1);
 
         $teams = $this->model::query();
 

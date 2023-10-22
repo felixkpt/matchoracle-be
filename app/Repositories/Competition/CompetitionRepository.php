@@ -231,7 +231,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         request()->merge(['season_id' => $season_id]);
 
-        $query = $this->model::with(['standings.standingTable.team']);
+        $query = $this->model::with(['standings.standingTable.team', 'standings.season']);
 
         if ($season_id) {
             $query = $query->whereHas('seasons', function ($query) use ($season_id) {

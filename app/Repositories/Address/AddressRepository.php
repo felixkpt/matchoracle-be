@@ -19,7 +19,6 @@ class AddressRepository implements AddressRepositoryInterface
 
     public function index()
     {
-        sleep(1);
 
         $teams = $this->model::query()
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id));

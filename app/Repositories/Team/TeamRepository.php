@@ -26,7 +26,6 @@ class TeamRepository implements TeamRepositoryInterface
 
     public function index($id = null)
     {
-        sleep(1);
 
         $teams = $this->model::with(['country', 'competition', 'address', 'venue', 'coachContract' => fn($q) => $q->with('coach'), 'gameSources'])
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))

@@ -44,7 +44,6 @@ class GamesController extends Controller
     function list()
     {
 
-        sleep(1);
         // Example usage
         $searchableColumns = ['title', 'content']; // Columns to search against
         $sortableColumns = ['id', 'title']; // Columns available for sorting

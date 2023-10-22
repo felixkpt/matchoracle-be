@@ -3,7 +3,6 @@
 namespace App\Services\NestedRoutes\Http\Middleware;
 
 use App\Models\Role;
-use App\Models\User;
 use Closure;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;

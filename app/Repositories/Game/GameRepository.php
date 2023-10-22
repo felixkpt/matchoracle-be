@@ -32,13 +32,12 @@ class GameRepository implements GameRepositoryInterface
         }
 
         $now = Carbon::now();
-        Log::info('dd', [request()->team_id]);
         $competitions = $this->model::with(['competition', 'home_team', 'away_team', 'score'])
             ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
-            ->when(request()->team_id, fn ($q) => $q->where('home_team_id', request()->team_id)->orWhere('away_team_id', request()->team_id))
+            ->when(request()->team_id, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', request()->team_id)->orWhere('away_team_id', request()->team_id)))
             ->when($seasons, fn ($q) => $q->whereIn('season_id', $seasons))
-            ->when(request()->type, fn ($q) => request()->type == 'played' ? $q->where('utc_date', '<', $now) : (request()->type == 'upcoming' ? $q->where('utc_date', '>=', $now) :  true))
+            ->when(request()->type, fn ($q) => request()->type == 'played' ? $q->where('utc_date', '<', $now) : (request()->type == 'upcoming' ? $q->where('utc_date', '>=', $now) :  $q))
             ->when(request()->yesterday, fn ($q) => $q->whereDate('utc_date', Carbon::yesterday()))
             ->when(request()->today, fn ($q) => $q->whereDate('utc_date', Carbon::today()))
             ->when(request()->tomorrow, fn ($q) => $q->whereDate('utc_date', Carbon::tomorrow()))
@@ -62,7 +61,7 @@ class GameRepository implements GameRepositoryInterface
             ->addColumn('Status', 'Status')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status'])
-            ->orderby('priority_number');
+            ->orderby('utc_date', request()->type == 'upcoming' ? 'asc' : 'desc');
 
         $results = $id ? $results->first() : $results->paginate();
 
@@ -117,7 +116,6 @@ class GameRepository implements GameRepositoryInterface
 
     public function show($id)
     {
-        sleep(1);
         return $this->index($id);
     }
 }

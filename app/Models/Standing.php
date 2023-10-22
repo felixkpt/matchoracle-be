@@ -25,6 +25,11 @@ class Standing extends Model
         return $this->belongsTo(Competition::class);
     }
 
+    public function season()
+    {
+        return $this->belongsTo(Season::class);
+    }
+
     public function standingTable()
     {
         return $this->hasMany(StandingTable::class, 'standing_id');
