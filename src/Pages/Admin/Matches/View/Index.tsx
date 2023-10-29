@@ -1,11 +1,13 @@
 import Loader from '@/components/Loader'
-import StandingsTable from '@/components/StandingsTable'
-import TeamMatchesCard from '@/components/TeamMatchesCard'
 import useAxios from '@/hooks/useAxios'
 import { GameInterface, StandingInterface, TeamInterface } from '@/interfaces/FootballInterface'
-import FormatDate from '@/utils/FormatDate'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import LastMatches from './LastMatches'
+import StandingsTable from '@/components/Teams/StandingsTable'
+import MatchPageHeader from './MatchPageHeader'
+import VotesSection from './VotesSection'
+import Head2HeadCard from '@/components/Teams/Head2HeadCard'
 
 const Index = () => {
 
@@ -15,11 +17,8 @@ const Index = () => {
   const [game, setGame] = useState<GameInterface>()
   const [homeTeam, setHomeTeam] = useState<TeamInterface>()
   const [awayTeam, setAwayTeam] = useState<TeamInterface>()
-
-  const { get: getHomeTeamGames } = useAxios()
-  const { get: getAwayTeamGames } = useAxios()
-  const [homeTeamGames, setHomeTeamGames] = useState<GameInterface[]>()
-  const [awayTeamGames, setAwayTeamGames] = useState<GameInterface[]>()
+  const [homeTeamRecentResults, setHomeTeamRecentResults] = useState<string[]>(['U', 'U', 'U', 'U', 'U'])
+  const [awayTeamRecentResults, setAwayTeamRecentResults] = useState<string[]>(['U', 'U', 'U', 'U', 'U'])
 
   const { get: getStandings } = useAxios()
   const [standings, setStandings] = useState<StandingInterface[]>()
@@ -28,9 +27,6 @@ const Index = () => {
   useEffect(() => {
 
     if (id) {
-      setHomeTeamGames(undefined)
-      setAwayTeamGames(undefined)
-
       getGameDetails(`admin/matches/view/${id}`).then((res) => {
         const { data } = res
         if (data) {
@@ -41,35 +37,6 @@ const Index = () => {
       })
     }
   }, [id])
-
-  // Getting homeTeam games
-  useEffect(() => {
-
-    if (homeTeam) {
-      getHomeTeamGames(`admin/teams/view/${homeTeam.id}/matches?type=played&per_page=15`).then((res) => {
-
-        const { data } = res
-        if (data) {
-          setHomeTeamGames(data)
-        }
-      })
-    }
-  }, [homeTeam])
-
-
-  // Getting awayTeam games
-  useEffect(() => {
-
-    if (awayTeam) {
-      getAwayTeamGames(`admin/teams/view/${awayTeam.id}/matches?type=played&per_page=15`).then((res) => {
-
-        const { data } = res
-        if (data) {
-          setAwayTeamGames(data)
-        }
-      })
-    }
-  }, [awayTeam])
 
   // Getting standings
   useEffect(() => {
@@ -89,31 +56,31 @@ const Index = () => {
   return (
     <div>
       {
-        homeTeam && awayTeam ?
+        game && homeTeam && awayTeam ?
           <div className=''>
-            <h4>Match Preview for {homeTeam.name} vs {awayTeam.name} - {FormatDate.DDMMYYYY(game?.utc_date)}</h4>
-
             <div className="row">
-              <div className="col-12 col-md-9">
-                <div className="card">
-                  <div className="card-body">
-                    <div className="row">
-                      <div className="col-12"><h5 className='rounded text-center'>Past matches</h5></div>
-                      {/* Home Card */}
-                      <div className='col-6'>
-                        <TeamMatchesCard team={homeTeam} teamGames={homeTeamGames} context={'h'} />
-                      </div>
-                      {/* Away Card */}
-                      <div className='col-6'>
-                        <TeamMatchesCard team={awayTeam} teamGames={awayTeamGames} context={'a'} />
-                      </div>
-
-                    </div>
+              <div className="col-12 col-xl-9">
+                <MatchPageHeader game={game} homeTeam={homeTeam} awayTeam={awayTeam} homeTeamRecentResults={homeTeamRecentResults} awayTeamRecentResults={awayTeamRecentResults} />
+                <VotesSection game={game} />
+                <div className="row">
+                  <div className="col-12">
+                    <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} />
+                  </div>
+                  <div className="col-12 col-xl-8">
+                    <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} currentground={true} perPage={5} setHomeTeamRecentResults={setHomeTeamRecentResults} setAwayTeamRecentResults={setAwayTeamRecentResults} />
                   </div>
                 </div>
               </div>
+              <div className="col-12 col-xl-3">
+                <div className='mb-5'>
+                  <StandingsTable standings={standings} minimal={true} homeTeamId={homeTeam.id} awayTeamId={awayTeam.id} />
+                </div>
+                <div className='mb-5'>
+                  <Head2HeadCard key={game.id} game={game} homeTeam={homeTeam} awayTeam={awayTeam} />
+                </div>
+              </div>
               <div className="col-12 col-md-3">
-                <StandingsTable standings={standings} minimal={true} homeTeamId={homeTeam.id} awayTeamId={awayTeam.id} />
+
               </div>
             </div>
           </div>

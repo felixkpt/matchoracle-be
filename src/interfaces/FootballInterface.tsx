@@ -123,7 +123,7 @@ export interface CompetitionInterface {
     seasons: SeasonInterface[];
     games_per_season: number;
     available_seasons: number;
-} 
+}
 export interface ScoreInterface {
     id: string;
     game_id: string;
@@ -135,7 +135,7 @@ export interface ScoreInterface {
     away_scores_half_time: string;
     created_at: string;
     updated_at: string;
-  }
+}
 
 export interface GameInterface {
     id: string;
@@ -144,6 +144,7 @@ export interface GameInterface {
     away_team_id: string;
     season_id: string;
     country_id: string;
+    is_future: boolean;
     utc_date: string;
     status: string;
     matchday: number;
@@ -165,8 +166,13 @@ export interface GameInterface {
     home_team: TeamInterface;
     away_team: TeamInterface;
     score: ScoreInterface;
-  }
-  
+    home_win_votes: number
+    draw_votes: number
+    away_win_votes: number
+    winner_voted: boolean
+
+}
+
 export interface CompetitionTabInterface {
     record: CompetitionInterface | undefined;
     selectedSeason: SeasonInterface | null

@@ -102,6 +102,19 @@ p {
   font-size: 22px !important;
 }
 
+.symbol-image-lg {
+  vertical-align: middle;
+  width: 80px;
+  height: 80px;
+}
+
+.symbol-image-md {
+  vertical-align: middle;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+}
+
 .symbol-image {
   vertical-align: middle;
   width: 40px;
@@ -129,10 +142,112 @@ p {
   font-size: small;
 }
 
-.striped-section>div:nth-of-type(odd), .striped-section>a:nth-of-type(odd)>div {
+.striped-section>div:nth-of-type(odd),
+.striped-section>a:nth-of-type(odd)>div {
   background: var(--bs-gray-200);
 }
 
-.striped-section>div:hover, .striped-section>a>div:hover {
+.striped-section>div:hover,
+.striped-section>a>div:hover {
   background: var(--bs-gray-300);
+}
+
+.link-unstyled,
+.link-unstyled:link,
+.link-unstyled:hover {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.btn-link,
+.btn-link:link {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.btn-link:hover {
+  color: currentColor !important;
+  text-decoration: underline;
+}
+
+.results-icon,
+.results-icon-md {
+  width: 30px;
+  height: 30px;
+  font-size: normal;
+  line-height: 1.4;
+
+}
+
+.results-icon-sm {
+  width: 24px;
+  font-size: small;
+  line-height: 1.1;
+}
+
+.vote-section {
+  min-height: 40px;
+
+  .vote-btn.home {
+    background: #3498db;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+
+  .vote-btn.draw {
+    background: #f1c40f;
+  }
+
+  .vote-btn.away {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  .vote-btn.home,
+  .vote-btn.draw,
+  .vote-btn.away {
+    color: var(--bs-gray-300);
+  }
+
+  .transistion,
+  .transistion {
+    display: inline-block;
+    transition: all 1.7s;
+    padding: 0;
+
+    .vote-counts {
+      transition: visibility 1.2s, width 1.2s, opacity 1.2s;
+      visibility: hidden;
+      opacity: 0.4;
+      font-size: 0px !important;
+
+      &.shown {
+        visibility: unset;
+        opacity: 1;
+        width: auto;
+        font-size: initial !important;
+      }
+    }
+
+    .vote-btn {
+      padding: 0px !important;
+      transition: visibility 1.2s, width 1.2s, opacity 1.2s;
+      font-size: 0px !important;
+
+      &.shown {
+        padding: 5px !important;
+        font-size: initial !important;
+
+      }
+    }
+  }
+}
+
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }

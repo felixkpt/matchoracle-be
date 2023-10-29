@@ -64,6 +64,38 @@ class Composer {
         return 'u'
     }
 
+    static winnerId(game: any) {
+
+        const { score } = game
+        if (!score?.winner) return null
+
+        if (score.winner === 'DRAW') return null
+
+        if (score.winner === 'HOME_TEAM') {
+            return game.home_team_id
+        } else if (score.winner === 'AWAY_TEAM') {
+            return game.away_team_id
+        }
+
+        return null
+    }
+
+    static hasResults(game: any) {
+
+        const { score } = game
+        if (!score?.winner) return null
+
+        if (score.winner === 'DRAW') return true
+
+        if (score.winner === 'HOME_TEAM') {
+            return true
+        } else if (score.winner === 'AWAY_TEAM') {
+            return true
+        }
+
+        return null
+    }
+
 }
 
 export default Composer

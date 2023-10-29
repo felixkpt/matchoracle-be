@@ -1,10 +1,10 @@
 import useAxios from '@/hooks/useAxios';
 import React, { useEffect, useState } from 'react';
-import { CompetitionInterface, CompetitionTabInterface, StandingInterface, StandingTableInterface } from '@/interfaces/FootballInterface';
+import { CompetitionInterface, CompetitionTabInterface } from '@/interfaces/FootballInterface';
 import CompetitionHeader from '../Inlcudes/CompetitionHeader';
 import GeneralModal from '@/components/Modals/GeneralModal';
 import AsyncSeasonsList from '../Inlcudes/AsyncSeasonsList';
-import StandingsTable from '@/components/StandingsTable';
+import StandingsTable from '@/components/Teams/StandingsTable';
 
 
 const Standings: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setSelectedSeason, setKey }) => {

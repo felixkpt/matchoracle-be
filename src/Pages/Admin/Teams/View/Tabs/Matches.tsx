@@ -1,4 +1,4 @@
-import TeamMatchesCard from "@/components/TeamMatchesCard"
+import TeamMatchesCard from "@/components/Teams/TeamMatchesCard"
 import useAxios from "@/hooks/useAxios"
 import { GameInterface, TeamInterface } from "@/interfaces/FootballInterface"
 import { useEffect, useState } from "react"

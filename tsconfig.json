@@ -21,6 +21,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/components/ProgressLine/ProgressLine.jsx", "src/components/ProgressLine/Index.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
