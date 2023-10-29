@@ -1,0 +1,22 @@
+.progressLine {
+  .progressVisualFull {
+    display: flex;
+    height: 8px;
+    margin: 20px 0;
+  }
+
+  .progressVisualPart {
+    transition: width 2.5s;
+    position: relative;
+
+    .progressValue {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 90%;
+    }
+
+  }
+
+}
