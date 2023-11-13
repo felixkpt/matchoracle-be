@@ -32,49 +32,28 @@ class FootballDataTestController extends Controller
 
             DB::beginTransaction();
 
-            $id = '01hd22b28593ajb12pa2d8k0bv';
-            $season = 2023;
+            $id = '01hd4hec19q777j2b8wwx5g0w2';
 
-            $competition = Competition::whereHas('gameSources', function ($q) use ($id) {
-                $q->where('competition_id', $id);
+            $game = Game::whereHas('gameSources', function ($q) use ($id) {
+                $q->where('game_id', $id);
             })->first();
 
-            if (!$competition) {
-                return response(['message' => 'Competition #' . $id . ' not found.'], 404);
+            if (!$game) {
+                return response(['message' => 'Game #' . $id . ' not found.'], 404);
             }
 
             // Access the source_id value for the pivot
-            $source = $competition->gameSources()->where(function ($q) use ($id) {
-                $q->where('game_source_id', $this->api->sourceId)->where('competition_id', $id);
+            $source = $game->gameSources()->where(function ($q) use ($id) {
+                $q->where('game_source_id', $this->api->sourceId)->where('game_id', $id);
             })->first()->pivot;
 
             if (!$source) {
-                return response(['message' => 'Source for competition #' . $id . ' not found.'], 404);
+                return response(['message' => 'Source for game #' . $id . ' not found.'], 404);
             }
 
-            if (!$source->is_subscribed) {
-                return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
-            }
-
-            $results = $this->api->findMatchesByCompetitionAndSeason($source->source_id, $season);
-
-            $played = $results->resultSet->played;
-
-            $competitionData = $results->competition;
-
-            $exists = Competition::where([
-                ['name', $competitionData->name],
-                ['code', $competitionData->code],
-                ['type', $competitionData->type],
-            ])->first();
-
-            if ($exists->id !== $competition->id) {
-                return response(['message' => 'Source competition does not match stored one.'], 422);
-            }
+            $results = $this->api->head2head(435951);
 
             $matchesData = $results->matches;
-
-            $country = $competition->country;
 
             $country_not_found = [];
             $competition_not_found = [];
@@ -85,22 +64,19 @@ class FootballDataTestController extends Controller
             $season = null;
             foreach ($matchesData as $match) {
 
-                // If source country is different from current one in subject then we want to find this country in db, if not found we continue to the next loop pointer
-                if ($country->code !== $match->area->code) {
-                    $country = $match->area;
-                    $country = Country::where('name', $country->name)->where('code', $country->code)->first();
+                $country = $match->area;
+                $country = Country::where('name', $country->name)->where('code', $country->code)->first();
 
-                    if (!$country->id) {
+                if (!$country->id) {
 
-                        if (!isset($country_not_found[$country->name])) {
-                            $country_not_found[$country->name] = 1;
-                        } else {
-                            $country_not_found[$country->name] = $country_not_found[$country->name] + 1;
-                        }
-
-                        Log::critical('Searched country not found',  (array) $match->area);
-                        continue;
+                    if (!isset($country_not_found[$country->name])) {
+                        $country_not_found[$country->name] = 1;
+                    } else {
+                        $country_not_found[$country->name] = $country_not_found[$country->name] + 1;
                     }
+
+                    Log::critical('Searched country not found',  (array) $match->area);
+                    continue;
                 }
 
                 $homeTeam = Team::whereHas('gameSources', function ($q) use ($match) {
@@ -135,12 +111,8 @@ class FootballDataTestController extends Controller
                         }
                     }
 
-
                     $p = null;
-                    if (!$season) {
-                        $p = $played;
-                    }
-
+                    
                     // All is set can now save game!
                     $this->saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam, $saved, $updated, $p);
                 } else {

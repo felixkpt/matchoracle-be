@@ -10,6 +10,10 @@ interface TeamRepositoryInterface extends CommonRepoActionsInterface
 
     public function index();
 
+    function matches($id);
+
+    function head2head($id);
+
     public function store(Request $request, $data);
 
     public function storeFromSource(Request $request, $data);
@@ -17,7 +21,7 @@ interface TeamRepositoryInterface extends CommonRepoActionsInterface
     public function show($id);
 
     function addSources(Request $request, $data);
-    
+
     function updateCoach(Request $request, $data);
 
     public function seasons($id);

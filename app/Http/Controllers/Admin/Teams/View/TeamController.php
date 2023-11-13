@@ -60,8 +60,12 @@ class TeamController extends Controller
 
     function matches($id)
     {
-        request()->merge(['team_id' => $id]);
-        return app(MatchesController::class)->index();
+        return $this->teamRepositoryInterface->matches($id);
+    }
+
+    function head2head($id)
+    {
+        return $this->teamRepositoryInterface->head2head($id);
     }
 
     function predictions($id)

@@ -4,6 +4,8 @@ namespace App\Repositories\Team;
 
 use App\Models\CoachContract;
 use App\Models\Country;
+use App\Models\Game;
+use App\Models\Season;
 use App\Models\Team;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
@@ -27,7 +29,7 @@ class TeamRepository implements TeamRepositoryInterface
     public function index($id = null)
     {
 
-        $teams = $this->model::with(['country', 'competition', 'address', 'venue', 'coachContract' => fn($q) => $q->with('coach'), 'gameSources'])
+        $teams = $this->model::with(['country', 'competition', 'address', 'venue', 'coachContract' => fn ($q) => $q->with('coach'), 'gameSources'])
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
             ->when($id, fn ($q) => $q->where('id', $id));
 
@@ -62,6 +64,113 @@ class TeamRepository implements TeamRepositoryInterface
 
         return response(['results' => $results]);
     }
+
+    function matches($id = null)
+    {
+
+        if ($id) {
+            request()->merge(['team_id' => $id]);
+        }else {
+            Log::info('no tid', [request()->all()]);
+        }
+
+        $seasons = null;
+        if (isset(request()->season)) {
+            $seasons = Season::where("start_date", 'like', request()->season . '-%')
+                ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
+                ->get()->pluck('id');
+        }
+
+        $homeWinVotes = function ($q) {
+            return $q->votes->where('winner', 'home')->count();
+        };
+
+        $drawVotes = function ($q) {
+            return $q->votes->where('winner', 'draw')->count();
+        };
+
+        $awayWinVotes = function ($q) {
+            return $q->votes->where('winner', 'away')->count();
+        };
+
+        $hasCurrentUserWinnerVote = function ($q) {
+            return !!$q->votes->where(function ($q) {
+                return $q->where('user_id', auth()->id())->orWhere('user_ip', request()->ip());
+            })->whereNotNull('winner')->first();
+        };
+
+        $teamsMatch = function ($q) {
+
+            return $q->where(function ($q) {
+                [$home_team_id, $away_team_id] = request()->team_ids;
+                $arr = [['home_team_id', $home_team_id], ['away_team_id', $away_team_id]];
+                $arr2 = [['home_team_id', $away_team_id], ['away_team_id', $home_team_id]];
+
+                if (request()->playing == 'home-away') {
+                    $q->where($arr);
+                } else {
+                    $q->where($arr)->orWhere($arr2);
+                }
+            });
+        };
+
+        $to_date = request()->_to_date ?? request()->to_date;
+        $currentground = request()->_currentground ?? request()->currentground;
+
+        $before = request()->before ?? Carbon::now();
+        $games = Game::with(['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'home_team', 'away_team', 'score', 'votes'])
+            ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
+            ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
+            ->when(request()->team_id, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', request()->team_id)->orWhere('away_team_id', request()->team_id)))
+            ->when(request()->team_ids, $teamsMatch)
+            ->when($currentground, fn ($q) => $currentground == 'home' ? $q->where('home_team_id', request()->team_id) : ($currentground == 'away' ? $q->where('away_team_id', request()->team_id) :  $q))
+            ->when($seasons, fn ($q) => $q->whereIn('season_id', $seasons))
+            ->when(request()->type, fn ($q) => request()->type == 'played' ? $q->where('utc_date', '<', $before) : (request()->type == 'upcoming' ? $q->where('utc_date', '>=', Carbon::now()) :  $q))
+            ->when($to_date, fn ($q) => $q->whereDate('utc_date', '<=', Carbon::parse($to_date)->format('Y-m-d')));
+
+        $uri = '/admin/matches/';
+        $results = SearchRepo::of($games, ['id'])
+            ->addColumn('is_future', fn ($q) => Carbon::parse($q->utc_date)->isFuture())
+            ->addColumn('full_time', fn ($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
+            ->addColumn('half_time', fn ($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
+            ->addColumn('home_win_votes', $homeWinVotes)
+            ->addColumn('draw_votes', $drawVotes)
+            ->addColumn('away_win_votes', $awayWinVotes)
+            ->addColumn('current_user_winner_vote', $hasCurrentUserWinnerVote)
+            ->addColumn('Created_at', 'Created_at')
+            ->addColumn('Status', 'Status')
+            ->addActionColumn('action', $uri, 'native')
+            ->htmls(['Status']);
+
+
+        $results = $results->orderby('utc_date', 'desc');
+
+        $results = $results->paginate(request()->_per_page);
+
+        if (request()->_without_response) {
+            return $results;
+        }
+
+        return response(['results' => $results]);
+    }
+
+    public function head2head($id)
+    {
+        $game = Game::find($id);
+
+        $team_ids = [$game->home_team_id, $game->away_team_id];
+
+        request()->merge(['team_ids' => $team_ids]);
+
+        Log::info('team_ids', $team_ids);
+
+        $matches = $this->matches();
+        
+        request()->merge(['team_ids' => null]);
+        
+        return $matches;
+    }
+
 
     public function store(Request $request, $data)
     {

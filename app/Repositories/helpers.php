@@ -10,11 +10,16 @@ if (!function_exists('defaultColumns')) {
 
     function defaultColumns($model)
     {
+
         if (Schema::hasColumn($model->getTable(), 'user_id') && !$model->user_id)
             $model->user_id = auth()->id() ?? 0;
 
         if (Schema::hasColumn($model->getTable(), 'status_id') && !$model->status_id)
             $model->status_id = activeStatusId();
+
+        if (Schema::hasColumn($model->getTable(), 'uuid') && !$model->uuid)
+            $model->uuid = Str::uuid();
+
 
         return true;
     }

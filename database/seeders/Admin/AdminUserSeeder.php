@@ -24,5 +24,6 @@ class AdminUserSeeder extends Seeder
             'email_verified_at' => Carbon::now(),
             'status_id' => Status::where('name', 'active')->first()->id ?? 0
         ]);
+
     }
 }

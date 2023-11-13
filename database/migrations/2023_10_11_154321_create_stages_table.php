@@ -13,7 +13,8 @@ return new class extends Migration
     {
         // stages migration
         Schema::create('stages', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->uuid('competition_id')->default(0);
             $table->string('name');
             $table->uuid('status_id')->default(0);

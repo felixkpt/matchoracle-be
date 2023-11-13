@@ -12,6 +12,8 @@ use App\Services\Validations\Continent\ContinentValidation;
 use App\Services\Validations\Continent\ContinentValidationInterface;
 use App\Services\Validations\Country\CountryValidation;
 use App\Services\Validations\Country\CountryValidationInterface;
+use App\Services\Validations\Game\GameValidation;
+use App\Services\Validations\Game\GameValidationInterface;
 use App\Services\Validations\GameSource\GameSourceValidation;
 use App\Services\Validations\GameSource\GameSourceValidationInterface;
 use App\Services\Validations\Permission\PermissionValidation;
@@ -61,6 +63,7 @@ class ValidationServiceProvider extends ServiceProvider
         $this->app->bind(CoachValidationInterface::class, CoachValidation::class);
         $this->app->bind(VenueValidationInterface::class, VenueValidation::class);
         $this->app->bind(CoachContractValidationInterface::class, CoachContractValidation::class);
+        $this->app->bind(GameValidationInterface::class, GameValidation::class);
     }
 
     /**

@@ -12,7 +12,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('temporary_tokens', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('token', 32)->unique();
             $table->timestamp('expires_at');
             $table->uuid('user_id')->default(0)->nullable();

@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Standing extends Model
 {
-    use HasFactory, HasUlids, CommonModelRelationShips;
+    use HasFactory, CommonModelRelationShips;
 
     protected $fillable = [
         'stage',

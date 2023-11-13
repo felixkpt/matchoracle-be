@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('recent_competition_detailed_fetches', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->year('year');
             $table->uuid('competition_id');
             // Add the unique constraint to `year` and `competition_id`

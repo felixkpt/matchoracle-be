@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('posts', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('category_id')->references('id')->on('post_categories');
+            $table->id();
+            $table->uuid('uuid')->unique();
+            $table->uuid('category_id');
             $table->uuid('topic_id')->nullable();
             $table->string('title');
             $table->string('slug')->unique();

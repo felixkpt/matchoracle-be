@@ -5,7 +5,6 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Traits\ExcludeSystemFillable;
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -19,7 +18,7 @@ class User extends Authenticatable
         HasFactory,
         Notifiable,
         HasRoles,
-        HasUlids, ExcludeSystemFillable, CommonModelRelationShips;
+        ExcludeSystemFillable, CommonModelRelationShips;
 
     // Use an alias for the permissions relationship
     use HasPermissions {
@@ -117,4 +116,5 @@ class User extends Authenticatable
     {
         return $this->hasMany(Ticket::class);
     }
+    
 }

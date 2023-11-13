@@ -258,4 +258,24 @@ class FootballData
 
         return json_decode($response);
     }
+
+    /**
+     * Function returns Head to Head for meeting teams.
+     * 
+     * @param int $matchId
+     * @param int $limit
+     * @return list of matches objects
+     */
+    public function head2head($matchId, $limit = 10)
+    {
+        $resource = 'matches/' . $matchId . '/head2head?limit=' . $limit;
+
+        $response = file_get_contents(
+            $this->baseUri . $resource,
+            false,
+            stream_context_create($this->reqPrefs)
+        );
+
+        return json_decode($response);
+    }
 }

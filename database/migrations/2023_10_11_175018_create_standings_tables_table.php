@@ -12,7 +12,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('standing_tables', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->uuid('season_id');
             $table->uuid('standing_id');
             $table->uuid('team_id');

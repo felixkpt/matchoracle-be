@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use App\Traits\ExcludeSystemFillable;
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Competition extends Model
 {
-  use HasFactory, HasUlids, CommonModelRelationShips, ExcludeSystemFillable;
+  use HasFactory, CommonModelRelationShips, ExcludeSystemFillable;
 
   protected $fillable = [
     'name',
@@ -65,6 +64,11 @@ class Competition extends Model
   }
 
   public function currentSeason()
+  {
+    return $this->hasOne(Season::class, 'competition_id')->where('is_current', true);
+  }
+
+  public function season()
   {
     return $this->hasOne(Season::class, 'competition_id')->where('is_current', true);
   }

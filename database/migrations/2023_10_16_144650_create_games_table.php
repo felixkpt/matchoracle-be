@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('games', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->uuid('competition_id');
             $table->uuid('home_team_id');
             $table->uuid('away_team_id');

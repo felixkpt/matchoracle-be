@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('teams_logs', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->uuid('team_id');
             $table->unsignedInteger('fetch_counts')->default(0);
             $table->text('fetch_details')->nullable();

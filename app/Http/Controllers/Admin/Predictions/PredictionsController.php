@@ -47,9 +47,9 @@ class PredictionsController extends Controller
         return $this->gameRepositoryInterface->yearMonth($year, $month);
     }
 
-    function yearMonthDate($year, $month, $date)
+    function yearMonthDay($year, $month, $date)
     {
-        return $this->gameRepositoryInterface->yearMonthDate($year, $month, $date);
+        return $this->gameRepositoryInterface->yearMonthDay($year, $month, $date);
     }
 
     function store(Request $request)

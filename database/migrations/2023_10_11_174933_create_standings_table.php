@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('standings', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->uuid('uuid')->unique();
             $table->uuid('competition_id');
             $table->uuid('season_id');
             $table->string('stage');

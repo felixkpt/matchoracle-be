@@ -5,3 +5,5 @@ use Illuminate\Support\Facades\Route;
 
 $controller = MatchController::class;
 Route::get('/{id}', [$controller, 'show']);
+Route::get('/{id}/head2head', [$controller, 'head2head']);
+Route::post('/{id}/vote', [$controller, 'vote']);

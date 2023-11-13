@@ -39,7 +39,7 @@ Route::name('matches.')->group(function () {
     Route::get($path . '/tomorrow', [$controller, 'tomorrow'])->name('tomorrow');
     Route::get($path . '/{year}', [$controller, 'year'])->name('year')->where(['year' => '[0-9]+']);
     Route::get($path . '/{year}/{month}', [$controller, 'yearMonth'])->name('year_month')->where(['year' => '[0-9]+', 'month' => '[0-9]+']);
-    Route::get($path . '/{year}/{month}/{date}', [$controller, 'yearMonthDate'])->name('year_month_date')->where(['year' => '[0-9]+', 'month' => '[0-9]+', 'date' => '[0-9]+']);
+    Route::get($path . '/{year}/{month}/{date}', [$controller, 'yearMonthDay'])->name('year_month_date')->where(['year' => '[0-9]+', 'month' => '[0-9]+', 'date' => '[0-9]+']);
 });
 
 // Competition Prediction routes
@@ -53,5 +53,5 @@ Route::name('predictions.')->group(function () {
     Route::get($path . '/tomorrow', [$controller, 'tomorrow'])->name('tomorrow');
     Route::get($path . '/{year}', [$controller, 'year'])->name('year')->where(['year' => '[0-9]+']);
     Route::get($path . '/{year}/{month}', [$controller, 'yearMonth'])->name('year_month')->where(['year' => '[0-9]+', 'month' => '[0-9]+']);
-    Route::get($path . '/{year}/{month}/{date}', [$controller, 'yearMonthDate'])->name('year_month_date')->where(['year' => '[0-9]+', 'month' => '[0-9]+', 'date' => '[0-9]+']);
+    Route::get($path . '/{year}/{month}/{date}', [$controller, 'yearMonthDay'])->name('year_month_date')->where(['year' => '[0-9]+', 'month' => '[0-9]+', 'date' => '[0-9]+']);
 });

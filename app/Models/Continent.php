@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use App\Traits\ExcludeSystemFillable;
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Continent extends Model
 {
-    use HasFactory, HasUlids, CommonModelRelationShips, ExcludeSystemFillable;
+    use HasFactory, CommonModelRelationShips, ExcludeSystemFillable;
 
     protected $fillable = [
         'name',

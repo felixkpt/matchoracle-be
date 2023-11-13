@@ -15,7 +15,7 @@ class StatusSeeder extends Seeder
         ];
 
         foreach ($statuses as $status) {
-            Status::updateOrCreate([
+            Status::updateOrCreate(['name' => $status['name']], [
                 'name' => $status['name'],
                 'description' => ucfirst(str_replace('_', ' ', $status['name'])) . ' status.',
                 'icon' => $status['icon'],

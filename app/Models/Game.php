@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
 {
-    use HasFactory, HasUlids, CommonModelRelationShips;
+    use HasFactory, CommonModelRelationShips;
 
     protected $fillable = [
         'competition_id',
@@ -66,5 +65,10 @@ class Game extends Model
     public function referees()
     {
         return $this->belongsToMany(Referee::class)->withTimestamps();
+    }
+
+    public function votes()
+    {
+        return $this->hasMany(GameVote::class);
     }
 }

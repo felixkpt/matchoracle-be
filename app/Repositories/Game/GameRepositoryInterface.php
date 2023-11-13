@@ -8,13 +8,15 @@ use Illuminate\Http\Request;
 interface GameRepositoryInterface extends CommonRepoActionsInterface
 {
 
-    public function index();
+    public function index($id = null, $without_response = null);
     public function today();
     public function yesterday();
     public function tomorrow();
     public function year($year);
     public function yearMonth($year, $month);
-    public function yearMonthDate($year, $month, $date);
+    public function yearMonthDay($year, $month, $date);
     public function store(Request $request, $data);
     public function show($id);
+    public function head2head($id);
+    public function vote($id, $data);
 }

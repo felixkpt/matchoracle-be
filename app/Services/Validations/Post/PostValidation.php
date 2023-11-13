@@ -22,7 +22,7 @@ class PostValidation implements PostValidationInterface
             'slug' => 'nullable|unique:posts,slug,' . $request->id . ',id',
             'content_short' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => ['required', 'image'],
+            'image' => ['nullable', 'image'],
             'priority_number' => 'nullable|integer|between:1,99999999',
             'status_id' => 'required|exists:post_statuses,id',
         ];
