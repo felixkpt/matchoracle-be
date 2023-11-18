@@ -24,18 +24,18 @@ class AutoActions {
 
     }
 
-    handleModalAction = (event: Event) => {
+    handleModalAction = (event: PointerEvent) => {
 
         event.preventDefault()
 
-        if (event.target?.classList.contains('autotable-modal-edit')) {
+        const target = event.target as HTMLElement; // Narrow down the type to HTMLElement
+
+        if (target?.classList.contains('autotable-modal-edit')) {
             this.handleEdit(event)
-        } else if (event.target?.classList.contains('autotable-modal-update-status')) {
+        } else if (target?.classList.contains('autotable-modal-update-status')) {
             this.handleStatusUpdate(event)
         } else {
-
-            const target = event.target as HTMLElement; // Narrow down the type to HTMLElement
-
+            
             const id = target.getAttribute('data-id');
             const action = (target.getAttribute('data-action') || target.getAttribute('href'));
 
@@ -49,7 +49,7 @@ class AutoActions {
 
     };
 
-    handleView = (event: Event) => {
+    handleView = (event: PointerEvent) => {
 
         event.preventDefault()
 
@@ -66,7 +66,7 @@ class AutoActions {
 
     };
 
-    handleEdit = (event: Event) => {
+    handleEdit = (event: PointerEvent) => {
 
         event.preventDefault()
 
@@ -83,7 +83,7 @@ class AutoActions {
 
     };
 
-    handleStatusUpdate = (event: Event) => {
+    handleStatusUpdate = (event: PointerEvent) => {
 
         event.preventDefault()
 
@@ -100,7 +100,9 @@ class AutoActions {
 
     }
 
-    handleNavigation = (event: Event) => {
+    handleNavigation = (event: PointerEvent) => {
+
+        if (event.ctrlKey) return
 
         event.preventDefault()
 

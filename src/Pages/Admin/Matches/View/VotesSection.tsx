@@ -63,7 +63,7 @@ const VotesSection = ({ game }: Props) => {
 
             }, 100);
 
-            setVoted(localGame.winner_voted)
+            setVoted(localGame.current_user_votes)
         }
 
     }, [localGame])

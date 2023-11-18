@@ -4,12 +4,18 @@ import AutoTable from '@/components/AutoTable';
 import Str from '@/utils/Str';
 import GeneralModal from '@/components/Modals/GeneralModal';
 import AsyncSeasonsList from '../Inlcudes/AsyncSeasonsList';
+import { useState } from 'react';
+import FormatDate from '@/utils/FormatDate';
 
 const UpcomingMatches: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setSelectedSeason, setKey }) => {
 
   const competition = record
+  const [key, setLocalKey] = useState(0);  
+  const [startDate, setStartDate] = useState(FormatDate.YYYYMMDD(new Date()));
+  const [useDate, setUseDate] = useState(false);
 
   const columns = [
+    { key: 'ID' },
     { key: 'home_team.name' },
     { key: 'away_team.name' },
     { label: 'half_time', key: 'half_time' },
@@ -26,9 +32,9 @@ const UpcomingMatches: React.FC<CompetitionTabInterface> = ({ record, selectedSe
       {
         competition &&
         <div>
-          <CompetitionHeader title="Upcoming Matches" actionTitle="Fetch Fixtures" actionButton="fetchUpcomingMatches" record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
+          <CompetitionHeader title="Upcoming Matches" actionTitle="Fetch Fixtures" actionButton="fetchUpcomingMatches" record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} startDate={startDate} setStartDate={setStartDate} setUseDate={setUseDate} setLocalKey={setLocalKey} />
 
-          <AutoTable key={selectedSeason?.id} columns={columns} baseUri={`admin/competitions/view/${competition.id}/matches?season=${Str.before(selectedSeason?.start_date, '-') || ''}&type=upcoming`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+          <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/matches?season=${selectedSeason ? Str.before(selectedSeason?.start_date, '-') : ''}&type=upcoming&date=${useDate ? startDate : ''}`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
 
           {
             competition &&

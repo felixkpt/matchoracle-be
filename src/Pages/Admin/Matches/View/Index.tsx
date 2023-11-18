@@ -8,6 +8,7 @@ import StandingsTable from '@/components/Teams/StandingsTable'
 import MatchPageHeader from './MatchPageHeader'
 import VotesSection from './VotesSection'
 import Head2HeadCard from '@/components/Teams/Head2HeadCard'
+import PredictionsSection from './PredictionsSection'
 
 const Index = () => {
 
@@ -79,8 +80,8 @@ const Index = () => {
                   <Head2HeadCard key={game.id} game={game} homeTeam={homeTeam} awayTeam={awayTeam} />
                 </div>
               </div>
-              <div className="col-12 col-md-3">
-
+              <div className="col-12">
+                <PredictionsSection game={game} />
               </div>
             </div>
           </div>

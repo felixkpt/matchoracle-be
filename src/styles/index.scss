@@ -23,6 +23,10 @@ a:focus {
   cursor: pointer !important;
 }
 
+.hover-underline:hover {
+  text-decoration: underline;
+}
+
 .z-50 {
   z-index: 50;
 }

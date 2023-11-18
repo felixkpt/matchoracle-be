@@ -1,6 +1,8 @@
+import MatchesPageHeader from '@/Pages/Admin/Predictions/Includes/MatchesPageHeader';
 import useAxios from '@/hooks/useAxios';
 import { CompetitionInterface, CompetitionTabInterface } from '@/interfaces/FootballInterface';
 import Str from '@/utils/Str'
+import { SyntheticEvent, useState } from 'react';
 import AsyncSelect from 'react-select/async';
 
 interface Props extends CompetitionTabInterface {
@@ -8,9 +10,13 @@ interface Props extends CompetitionTabInterface {
     actionTitle?: string
     actionButton?: string
     record: CompetitionInterface | undefined;
+    startDate: any
+    setStartDate: any
+    setUseDate: any
+    setLocalKey: any
 }
 
-const CompetitionHeader = ({ title, actionTitle, actionButton, record, selectedSeason, setSelectedSeason }: Props) => {
+const CompetitionHeader = ({ title, actionTitle, actionButton, record, selectedSeason, setSelectedSeason, startDate, setStartDate, setUseDate, setLocalKey }: Props) => {
 
     const competition = record
 
@@ -40,12 +46,25 @@ const CompetitionHeader = ({ title, actionTitle, actionButton, record, selectedS
 
     }
 
-    return (
-        <div className='header-title shadow-sm p-2 rounded mb-3 row justify-content-betwee'>
+    function handleSetStartDate(e: SyntheticEvent) {
+        setStartDate(e)
+        setUseDate(true)
+        setLocalKey((curr: number) => curr += 1)
+    }
 
-            <div className='d-flex justify-content-between position-relative'>
-                <h3 className='heading'>{title}</h3>
-                <div className='d-flex align-items-center gap-2'>
+    function handleSetSelectedSeason(e: any) {
+        setSelectedSeason(e)
+        setUseDate(false)
+        setLocalKey((curr: number) => curr += 1)
+    }
+
+    return (
+        <div className='header-title shadow-sm p-2 rounded mb-3 row justify-content-between'>
+
+            <div className='row align-items-center justify-content-between position-relative'>
+                <h3 className='col-12 col-xl-4 heading'>{title}</h3>
+                <div className='col-12 col-xl-8 d-flex align-items-center justify-content-end gap-2'>
+                    <MatchesPageHeader title={''} startDate={startDate} setStartDate={handleSetStartDate} />
                     <div>
                         {
                             competition
@@ -56,7 +75,7 @@ const CompetitionHeader = ({ title, actionTitle, actionButton, record, selectedS
                                 placeholder="Select season"
                                 name='season_id'
                                 value={selectedSeason}
-                                onChange={(v) => setSelectedSeason(v)}
+                                onChange={(v) => handleSetSelectedSeason(v)}
                                 defaultOptions
                                 loadOptions={(q: any) => loadOptions(q)}
                                 getOptionValue={(option: any) => `${option['id']}`}

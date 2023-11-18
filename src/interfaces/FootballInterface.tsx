@@ -137,6 +137,23 @@ export interface ScoreInterface {
     updated_at: string;
 }
 
+export interface PredictionInterface {
+    type: string;
+    game_id: string;
+    hda: string;
+    home_win_proba: number;
+    draw_proba: number;
+    away_win_proba: number;
+    gg: string;
+    gg_proba: number;
+    ng_proba: number;
+    over25: string;
+    over25_proba: number;
+    under25_proba: number;
+    cs: string;
+    cs_proba: number;
+}
+
 export interface GameInterface {
     id: string;
     competition_id: string;
@@ -169,7 +186,8 @@ export interface GameInterface {
     home_win_votes: number
     draw_votes: number
     away_win_votes: number
-    winner_voted: boolean
+    current_user_votes: boolean,
+    prediction: PredictionInterface
 
 }
 
