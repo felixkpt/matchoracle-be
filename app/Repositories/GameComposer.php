@@ -69,9 +69,9 @@ class GameComposer
 
 
         if ($scoreData->winner === 'HOME_TEAM') {
-            return $integer ? 1 : 'h';
+            return $integer ? 0 : 'h';
         } elseif ($scoreData->winner === 'DRAW') {
-            return $integer ? 0 : 'D';
+            return $integer ? 1 : 'D';
         } elseif ($scoreData->winner === 'AWAY_TEAM') {
             return $integer ? 2 : 'a';
         }
@@ -124,7 +124,7 @@ class GameComposer
         return $homeTeamScore + $awayTeamScore;
     }
 
-    public static function gg($game)
+    public static function bts($game)
     {
         $score = $game->score;
         if (!$score || !$score->winner) {

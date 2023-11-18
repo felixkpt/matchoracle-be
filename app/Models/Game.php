@@ -52,9 +52,9 @@ class Game extends Model
         return $this->hasOne(GameScore::class);
     }
 
-    public function predictions()
+    public function prediction()
     {
-        return $this->hasMany(Prediction::class);
+        return $this->hasOne(GamePrediction::class)->where('type', 'regular');
     }
 
     public function gameSources()

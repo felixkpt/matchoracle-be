@@ -71,7 +71,7 @@ class TeamRepository implements TeamRepositoryInterface
         if ($id) {
             request()->merge(['team_id' => $id]);
         }else {
-            Log::info('no tid', [request()->all()]);
+            // Log::info('no tid', [request()->all()]);
         }
 
         $seasons = null;
@@ -162,7 +162,7 @@ class TeamRepository implements TeamRepositoryInterface
 
         request()->merge(['team_ids' => $team_ids]);
 
-        Log::info('team_ids', $team_ids);
+        // Log::info('team_ids', $team_ids);
 
         $matches = $this->matches();
         

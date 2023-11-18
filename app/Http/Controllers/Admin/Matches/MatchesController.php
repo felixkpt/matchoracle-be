@@ -11,29 +11,37 @@ class MatchesController extends Controller
 {
 
     use CommonMethods;
-    
+
     function __construct(
         private GameRepositoryInterface $gameRepositoryInterface,
     ) {
     }
 
-    function index()
+    function index($competition_id = null)
     {
+        request()->merge(["competition_id" => $competition_id]);
+
         return $this->gameRepositoryInterface->index();
     }
 
-    function today()
+    function today($competition_id = null)
     {
+        request()->merge(["competition_id" => $competition_id]);
+
         return $this->gameRepositoryInterface->today();
     }
 
-    function yesterday()
+    function yesterday($competition_id = null)
     {
+        request()->merge(["competition_id" => $competition_id]);
+
         return $this->gameRepositoryInterface->yesterday();
     }
 
-    function tomorrow()
+    function tomorrow($competition_id = null)
     {
+        request()->merge(["competition_id" => $competition_id]);
+
         return $this->gameRepositoryInterface->tomorrow();
     }
 

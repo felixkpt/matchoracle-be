@@ -31,7 +31,7 @@ class Standing extends Model
 
     public function standingTable()
     {
-        return $this->hasMany(StandingTable::class, 'standing_id');
+        return $this->hasMany(StandingTable::class, 'standing_id')->orderby('position');
     }
 
     protected static function booted()

@@ -16,6 +16,8 @@ use App\Repositories\Country\CountryRepository;
 use App\Repositories\Country\CountryRepositoryInterface;
 use App\Repositories\Game\GameRepository;
 use App\Repositories\Game\GameRepositoryInterface;
+use App\Repositories\GamePrediction\GamePredictionRepository;
+use App\Repositories\GamePrediction\GamePredictionRepositoryInterface;
 use App\Repositories\GameSource\GameSourceRepository;
 use App\Repositories\GameSource\GameSourceRepositoryInterface;
 use App\Repositories\Permission\PermissionRepository;
@@ -67,6 +69,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(CoachContractRepositoryInterface::class, CoachContractRepository::class);
         $this->app->singleton(SeasonRepositoryInterface::class, SeasonRepository::class);
         $this->app->singleton(GameRepositoryInterface::class, GameRepository::class);
+        $this->app->singleton(GamePredictionRepositoryInterface::class, GamePredictionRepository::class);
     }
 
     /**

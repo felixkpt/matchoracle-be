@@ -31,7 +31,7 @@ Route::delete('/{id}', [$controller, 'destroy'])->name('destroy');
 // Competition Matche routes
 Route::name('matches.')->group(function () {
 
-    $path = '/{id}/matches';
+    $path = '/{competition_id}/matches';
     $controller = MatchesController::class;
     Route::get($path . '/', [$controller, 'index'])->name('list');
     Route::get($path . '/today', [$controller, 'today'])->name('today');
@@ -45,7 +45,7 @@ Route::name('matches.')->group(function () {
 // Competition Prediction routes
 Route::name('predictions.')->group(function () {
 
-    $path = '/{id}/predictions';
+    $path = '/{competition_id}/predictions';
     $controller = PredictionsController::class;
     Route::get($path . '/', [$controller, 'index'])->name('list');
     Route::get($path . '/today', [$controller, 'today'])->name('today');

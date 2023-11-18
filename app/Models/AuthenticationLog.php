@@ -6,7 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class AuthenticationLog extends Model
 {
-    use HasUlids;
-
 }
 

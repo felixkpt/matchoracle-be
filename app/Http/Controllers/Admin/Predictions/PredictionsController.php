@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Predictions;
 use App\Http\Controllers\CommonMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Game\GameRepositoryInterface;
+use App\Repositories\GamePrediction\GamePredictionRepositoryInterface;
 use Illuminate\Http\Request;
 
 class PredictionsController extends Controller
@@ -14,6 +15,7 @@ class PredictionsController extends Controller
     
     function __construct(
         private GameRepositoryInterface $gameRepositoryInterface,
+        private GamePredictionRepositoryInterface $gamePredictionRepositoryInterface,
     ) {
     }
 
@@ -52,9 +54,8 @@ class PredictionsController extends Controller
         return $this->gameRepositoryInterface->yearMonthDay($year, $month, $date);
     }
 
-    function store(Request $request)
+    function storeFromPythonApp()
     {
-        $data = [];
-        return $this->gameRepositoryInterface->store($request, $data);
+        return $this->gamePredictionRepositoryInterface->store();
     }
 }

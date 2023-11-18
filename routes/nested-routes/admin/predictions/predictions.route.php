@@ -11,6 +11,6 @@ Route::get('/tomorrow', [$controller, 'tomorrow'])->name('tomorrow');
 Route::get('/{year}', [$controller, 'year'])->name('year')->where(['year' => '[0-9]+']);
 Route::get('/{year}/{month}', [$controller, 'yearMonth'])->name('year_month')->where(['year' => '[0-9]+', 'month' => '[0-9]+']);
 Route::get('/{year}/{month}/{day}', [$controller, 'yearMonthDay'])->name('year_month_day')->where(['year' => '[0-9]+', 'month' => '[0-9]+', 'day' => '[0-9]+']);
-Route::post('/', [$controller, 'store'])->name('store');
-Route::put('/', [$controller, 'update'])->name('update');
+
+Route::post('/posting-from-python-app', [$controller, 'storeFromPythonApp']);
 Route::delete('/{id}', [$controller, 'destroy'])->name('destroy');

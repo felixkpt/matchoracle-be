@@ -45,6 +45,22 @@ class GameRepository implements GameRepositoryInterface
             return $q->votes->where('winner', 'away')->count();
         };
 
+        $prediction = function ($q) {
+
+            $pred = $q->prediction;
+            if ($pred) {
+                $cs = array_search($pred->cs, scores());
+                $pred->hda = $pred->hda == 1 ? '1' : ($pred->hda == 0 ? 'X' : '2');
+                $pred->cs = $cs;
+                $pred->bts = $pred->gg == 1 ? 'YES' : 'NO';
+                $pred->over25 = $pred->over25 == 1 ? 'OV' : 'UN';
+             
+                return $pred;
+            }
+
+            return null;
+        };
+
         $currentUserVotes = function ($q) {
             return !!$q->votes->where(function ($q) {
                 return $q->where('user_id', auth()->id())->orWhere('user_ip', request()->ip());
@@ -65,6 +81,7 @@ class GameRepository implements GameRepositoryInterface
                 }
             });
         };
+        Log::alert('dd', [request()->date]);
 
         $before = request()->before ?? Carbon::now();
         $competitions = $this->model::with(['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'home_team', 'away_team', 'score', 'votes', 'referees'])
@@ -96,17 +113,19 @@ class GameRepository implements GameRepositoryInterface
 
         $uri = '/admin/matches/';
         $results = SearchRepo::of($competitions, ['id', 'name'])
+            ->addColumn('ID', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-primary" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '#'.$q->id . '</a>')
             ->addColumn('is_future', fn ($q) => Carbon::parse($q->utc_date)->isFuture())
             ->addColumn('full_time', fn ($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
             ->addColumn('half_time', fn ($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
             ->addColumn('home_win_votes', $homeWinVotes)
             ->addColumn('draw_votes', $drawVotes)
             ->addColumn('away_win_votes', $awayWinVotes)
+            ->addColumn('prediction', $prediction)
             ->addColumn('current_user_votes', $currentUserVotes)
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'Status')
             ->addActionColumn('action', $uri, 'native')
-            ->htmls(['Status']);
+            ->htmls(['Status', 'ID']);
 
         if (request()->with_stats == 1)
             $results = $this->addGameStatistics($results);
@@ -227,7 +246,7 @@ class GameRepository implements GameRepositoryInterface
                 $goals = GameComposer::goals($matchData);
 
                 // Calculate if both teams scored (gg)
-                $gg = GameComposer::gg($matchData);
+                $bts = GameComposer::bts($matchData);
 
                 $hda_target = $winningSide;
 
@@ -235,9 +254,9 @@ class GameRepository implements GameRepositoryInterface
                 $o25_target = ($goals > 2) ? 1 : 0;
                 $o35_target = ($goals > 3) ? 1 : 0;
 
-                $gg_target = ($gg) ? 1 : 0;
+                $bts_target = ($bts) ? 1 : 0;
 
-                $cs_target = $this->scores($matchData);
+                $cs_target = game_scores($matchData);
 
                 $referees_ids = array_reduce($matchData->referees()->pluck('id')->toArray(), fn ($p, $c) => $p + $c, 0);
 
@@ -277,7 +296,7 @@ class GameRepository implements GameRepositoryInterface
                         'ov15_target' => $ignore_team_stats ? $o15_target : -1,
                         'ov25_target' => $ignore_team_stats ? $o25_target : -1,
                         'ov35_target' => $ignore_team_stats ? $o35_target : -1,
-                        'gg_target' => $ignore_team_stats ? $gg_target : -1,
+                        'bts_target' => $ignore_team_stats ? $bts_target : -1,
                         'cs_target' => $ignore_team_stats ? $cs_target : -1,
                         'referees_ids' => $ignore_team_stats ? $referees_ids : -1,
 
@@ -303,7 +322,7 @@ class GameRepository implements GameRepositoryInterface
                         'ov15_target' => $o15_target,
                         'ov25_target' => $o25_target,
                         'ov35_target' => $o35_target,
-                        'gg_target' => $gg_target,
+                        'bts_target' => $bts_target,
                         'cs_target' => $cs_target,
                         'referees_ids' => $referees_ids,
                     ]
@@ -519,142 +538,5 @@ class GameRepository implements GameRepositoryInterface
             'ht_goalsForAvg' => $ht_goalsForAvg,
             'ht_goalsAgainstAvg' => $ht_goalsAgainstAvg,
         ];
-    }
-
-    function scores($game)
-    {
-        // Get the score data or provide default values if it's missing
-        $scoreData = $game->score ?? [];
-        $homeTeamScore = $scoreData->home_scores_full_time ?? 0;
-        $awayTeamScore = $scoreData->away_scores_full_time ?? 0;
-
-        $scores = $homeTeamScore . ' - ' . $awayTeamScore;
-
-        $arr = [
-            '0 - 0' => 0,
-            '0 - 1' => 1,
-            '0 - 2' => 2,
-            '0 - 3' => 3,
-            '0 - 4' => 4,
-            '0 - 5' => 5,
-            '0 - 6' => 6,
-            '0 - 7' => 7,
-            '0 - 8' => 8,
-            '0 - 9' => 9,
-            '0 - 10' => 10,
-            '1 - 0' => 11,
-            '1 - 1' => 12,
-            '1 - 2' => 13,
-            '1 - 3' => 14,
-            '1 - 4' => 15,
-            '1 - 5' => 16,
-            '1 - 6' => 17,
-            '1 - 7' => 18,
-            '1 - 8' => 19,
-            '1 - 9' => 20,
-            '1 - 10' => 21,
-            '2 - 0' => 22,
-            '2 - 1' => 23,
-            '2 - 2' => 24,
-            '2 - 3' => 25,
-            '2 - 4' => 26,
-            '2 - 5' => 27,
-            '2 - 6' => 28,
-            '2 - 7' => 29,
-            '2 - 8' => 30,
-            '2 - 9' => 31,
-            '2 - 10' => 32,
-            '3 - 0' => 33,
-            '3 - 1' => 34,
-            '3 - 2' => 35,
-            '3 - 3' => 36,
-            '3 - 4' => 37,
-            '3 - 5' => 37,
-            '3 - 6' => 39,
-            '3 - 7' => 40,
-            '3 - 8' => 41,
-            '3 - 9' => 42,
-            '3 - 10' => 43,
-            '4 - 0' => 44,
-            '4 - 1' => 45,
-            '4 - 2' => 46,
-            '4 - 3' => 47,
-            '4 - 4' => 48,
-            '4 - 5' => 49,
-            '4 - 6' => 50,
-            '4 - 7' => 51,
-            '4 - 8' => 52,
-            '4 - 9' => 53,
-            '4 - 10' => 54,
-            '5 - 0' => 55,
-            '5 - 1' => 56,
-            '5 - 2' => 57,
-            '5 - 3' => 58,
-            '5 - 4' => 59,
-            '5 - 5' => 60,
-            '5 - 6' => 61,
-            '5 - 7' => 62,
-            '5 - 8' => 63,
-            '5 - 9' => 64,
-            '5 - 10' => 65,
-            '6 - 0' => 66,
-            '6 - 1' => 67,
-            '6 - 2' => 68,
-            '6 - 3' => 69,
-            '6 - 4' => 70,
-            '6 - 5' => 71,
-            '6 - 6' => 72,
-            '6 - 7' => 73,
-            '6 - 8' => 74,
-            '6 - 9' => 75,
-            '6 - 10' => 76,
-            '7 - 0' => 77,
-            '7 - 1' => 78,
-            '7 - 2' => 79,
-            '7 - 3' => 80,
-            '7 - 4' => 81,
-            '7 - 5' => 82,
-            '7 - 6' => 83,
-            '7 - 7' => 84,
-            '7 - 8' => 85,
-            '7 - 9' => 86,
-            '7 - 10' => 87,
-            '8 - 0' => 88,
-            '8 - 1' => 89,
-            '8 - 2' => 90,
-            '8 - 3' => 91,
-            '8 - 4' => 92,
-            '8 - 5' => 93,
-            '8 - 6' => 94,
-            '8 - 7' => 95,
-            '8 - 8' => 96,
-            '8 - 9' => 97,
-            '8 - 10' => 98,
-            '9 - 0' => 99,
-            '9 - 1' => 100,
-            '9 - 2' => 101,
-            '9 - 3' => 102,
-            '9 - 4' => 103,
-            '9 - 5' => 104,
-            '9 - 6' => 105,
-            '9 - 7' => 106,
-            '9 - 8' => 107,
-            '9 - 9' => 108,
-            '9 - 10' => 108,
-            '10 - 0' => 110,
-            '10 - 1' => 111,
-            '10 - 2' => 112,
-            '10 - 3' => 113,
-            '10 - 4' => 114,
-            '10 - 5' => 115,
-            '10 - 6' => 116,
-            '10 - 7' => 116,
-            '10 - 8' => 118,
-            '10 - 9' => 119,
-            '10 - 10' => 120,
-
-        ];
-
-        return $arr[$scores] ?? -1;
     }
 }
