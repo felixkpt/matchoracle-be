@@ -245,7 +245,7 @@ class GameRepository implements GameRepositoryInterface
                 // Calculate the total number of goals
                 $goals = GameComposer::goals($matchData);
 
-                // Calculate if both teams scored (gg)
+                // Calculate if both teams scored (bts)
                 $bts = GameComposer::bts($matchData);
 
                 $hda_target = $winningSide;
@@ -293,9 +293,9 @@ class GameRepository implements GameRepositoryInterface
 
                         'target' => false,
                         'hda_target' => $ignore_team_stats ? $hda_target : -1,
-                        'ov15_target' => $ignore_team_stats ? $o15_target : -1,
-                        'ov25_target' => $ignore_team_stats ? $o25_target : -1,
-                        'ov35_target' => $ignore_team_stats ? $o35_target : -1,
+                        'over15_target' => $ignore_team_stats ? $o15_target : -1,
+                        'over25_target' => $ignore_team_stats ? $o25_target : -1,
+                        'over35_target' => $ignore_team_stats ? $o35_target : -1,
                         'bts_target' => $ignore_team_stats ? $bts_target : -1,
                         'cs_target' => $ignore_team_stats ? $cs_target : -1,
                         'referees_ids' => $ignore_team_stats ? $referees_ids : -1,
@@ -319,9 +319,9 @@ class GameRepository implements GameRepositoryInterface
 
                         'target' => true,
                         'hda_target' => $hda_target,
-                        'ov15_target' => $o15_target,
-                        'ov25_target' => $o25_target,
-                        'ov35_target' => $o35_target,
+                        'over15_target' => $o15_target,
+                        'over25_target' => $o25_target,
+                        'over35_target' => $o35_target,
                         'bts_target' => $bts_target,
                         'cs_target' => $cs_target,
                         'referees_ids' => $referees_ids,
