@@ -10,10 +10,10 @@ interface Props extends CompetitionTabInterface {
     actionTitle?: string
     actionButton?: string
     record: CompetitionInterface | undefined;
-    startDate: any
-    setStartDate: any
-    setUseDate: any
-    setLocalKey: any
+    startDate?: any
+    setStartDate?: any
+    setUseDate?: any
+    setLocalKey?: any
 }
 
 const CompetitionHeader = ({ title, actionTitle, actionButton, record, selectedSeason, setSelectedSeason, startDate, setStartDate, setUseDate, setLocalKey }: Props) => {
@@ -49,13 +49,19 @@ const CompetitionHeader = ({ title, actionTitle, actionButton, record, selectedS
     function handleSetStartDate(e: SyntheticEvent) {
         setStartDate(e)
         setUseDate(true)
+        setSelectedSeason(null)
         setLocalKey((curr: number) => curr += 1)
     }
 
     function handleSetSelectedSeason(e: any) {
         setSelectedSeason(e)
-        setUseDate(false)
-        setLocalKey((curr: number) => curr += 1)
+        if (typeof setStartDate === 'function') {
+            setUseDate(false)
+            setStartDate(null)
+        }
+        if (typeof setLocalKey === 'function') {
+            setLocalKey((curr: number) => curr += 1)
+        }
     }
 
     return (
@@ -64,7 +70,11 @@ const CompetitionHeader = ({ title, actionTitle, actionButton, record, selectedS
             <div className='row align-items-center justify-content-between position-relative'>
                 <h3 className='col-12 col-xl-4 heading'>{title}</h3>
                 <div className='col-12 col-xl-8 d-flex align-items-center justify-content-end gap-2'>
-                    <MatchesPageHeader title={''} startDate={startDate} setStartDate={handleSetStartDate} />
+                    {
+                        typeof setStartDate === 'function'
+                        &&
+                        <MatchesPageHeader title={''} startDate={startDate} setStartDate={handleSetStartDate} />
+                    }
                     <div>
                         {
                             competition

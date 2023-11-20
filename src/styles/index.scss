@@ -255,3 +255,7 @@ p {
   -ms-user-select: none;
   user-select: none;
 }
+
+.react-datepicker-popper {
+  z-index: 100!important;
+}

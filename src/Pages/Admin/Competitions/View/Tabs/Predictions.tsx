@@ -4,10 +4,14 @@ import GeneralModal from "@/components/Modals/GeneralModal"
 import AsyncSeasonsList from "../Inlcudes/AsyncSeasonsList"
 import AutoTable from "@/components/AutoTable"
 import Str from "@/utils/Str"
+import { useState } from "react"
 
 const Predictions: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setSelectedSeason, setKey }) => {
 
     const competition = record
+    const [key, setLocalKey] = useState(0);
+    const [startDate, setStartDate] = useState(null);
+    const [useDate, setUseDate] = useState(false);
 
     const columns = [
         { key: 'home_team.name' },
@@ -27,14 +31,14 @@ const Predictions: React.FC<CompetitionTabInterface> = ({ record, selectedSeason
                 competition
                 &&
                 <div>
-                    <CompetitionHeader title="Predictions" record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
+                    <CompetitionHeader title="Predictions" record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} startDate={startDate} setStartDate={setStartDate} setUseDate={setUseDate} setLocalKey={setLocalKey} />
 
-                    <AutoTable key={selectedSeason?.id} columns={columns} baseUri={`admin/competitions/view/${competition.id}/predictions?season=${Str.before(selectedSeason?.start_date, '-') || ''}`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+                    <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/predictions?season=${selectedSeason ? Str.before(selectedSeason?.start_date, '-') : ''}&date=${useDate ? startDate : ''}`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
 
                     <GeneralModal title={`Predictions form`} actionUrl={`admin/competitions/view/${competition.id}/predict`} size={'modal-lg'} id={`doPredictions`} setKey={setKey}>
                         <div className="form-group mb-3">
                             <label htmlFor="season_id">Season</label>
-                            <AsyncSeasonsList record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
+                            <AsyncSeasonsList record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} useDate={useDate} />
                         </div>
                         <div className="form-group mb-3">
                             <label htmlFor="matchday">Match day</label>

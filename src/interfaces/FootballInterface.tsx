@@ -196,4 +196,5 @@ export interface CompetitionTabInterface {
     selectedSeason: SeasonInterface | null
     setSelectedSeason: React.Dispatch<React.SetStateAction<SeasonInterface | null>>;
     setKey?: React.Dispatch<React.SetStateAction<number>>;
+    useDate?: boolean;
 }

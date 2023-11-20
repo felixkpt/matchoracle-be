@@ -23,7 +23,6 @@ const Index = () => {
 
     const [key, setKey] = useState<number>(0)
     const [record, setRecord] = useState<CompetitionInterface>()
-    const [seasons] = useState<OptionsOrGroups<SeasonInterface[], any> | []>([]);
     const [selectedSeason, setSelectedSeason] = useState<SeasonInterface | null>(null);
 
     const [modelDetails, setModelDetails] = useState<CollectionItemsInterface>()

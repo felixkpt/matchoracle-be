@@ -4,7 +4,7 @@ import Str from '@/utils/Str';
 import AsyncSelect from 'react-select/async';
 
 
-const AsyncSeasonsList = ({ record, selectedSeason, setSelectedSeason }: CompetitionTabInterface) => {
+const AsyncSeasonsList = ({ record, selectedSeason, setSelectedSeason, useDate }: CompetitionTabInterface) => {
 
     const competition = record
 
@@ -20,8 +20,9 @@ const AsyncSeasonsList = ({ record, selectedSeason, setSelectedSeason }: Competi
             if (currentValue) {
 
                 const item = fetchedOptions.find((itm: any) => itm.id === currentValue.id)
-
                 setSelectedSeason(item)
+            } else if(!useDate) {
+                setSelectedSeason(fetchedOptions[0])
             }
             // Include the existing record's option in fetchedOptions if not already present
             if (currentValue && !fetchedOptions.some((option: any) => option.id === currentValue.id)) {
@@ -35,6 +36,7 @@ const AsyncSeasonsList = ({ record, selectedSeason, setSelectedSeason }: Competi
     return (
         <div>
             <AsyncSelect
+                key={selectedSeason?.id}
                 id="coachID"
                 className="form-control"
                 placeholder="Select season"

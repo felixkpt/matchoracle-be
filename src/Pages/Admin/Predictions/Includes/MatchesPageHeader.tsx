@@ -15,7 +15,18 @@ const MatchesPageHeader = ({ title, startDate, setStartDate }: Props) => {
             <div>
                 {
                     typeof setStartDate === 'function' &&
-                    <DatePicker className="border form-control" placeholder="sssd" selected={new Date(startDate)} onChange={(date: Date) => setStartDate(FormatDate.YYYYMMDD(date))} />
+                    <div>
+                        <DatePicker className="form-control z-index-50"
+                            placeholderText='Choose a date'
+                            selected={startDate ? new Date(startDate) : null}
+                            onChange={(date: Date) => setStartDate(FormatDate.YYYYMMDD(date))} />
+                        {/* <DatePicker
+                            selected={new Date(startDate)}
+                            onChange={(date: Date) => setStartDate(date)}
+                            includeDates={[new Date()]}
+                            inline
+                        /> */}
+                    </div>
                 }
             </div>
         </div>

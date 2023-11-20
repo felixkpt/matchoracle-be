@@ -5,13 +5,12 @@ import Str from '@/utils/Str';
 import GeneralModal from '@/components/Modals/GeneralModal';
 import AsyncSeasonsList from '../Inlcudes/AsyncSeasonsList';
 import { useState } from 'react';
-import FormatDate from '@/utils/FormatDate';
 
 const UpcomingMatches: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setSelectedSeason, setKey }) => {
 
   const competition = record
   const [key, setLocalKey] = useState(0);  
-  const [startDate, setStartDate] = useState(FormatDate.YYYYMMDD(new Date()));
+  const [startDate, setStartDate] = useState(null);
   const [useDate, setUseDate] = useState(false);
 
   const columns = [
@@ -44,7 +43,7 @@ const UpcomingMatches: React.FC<CompetitionTabInterface> = ({ record, selectedSe
 
                   <div className="form-group mb-3">
                     <label htmlFor="season_id">Season</label>
-                    <AsyncSeasonsList record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
+                    <AsyncSeasonsList record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} useDate={useDate} />
                   </div>
                   <div className="form-group mb-3">
                     <label htmlFor="matchday">Match day</label>
