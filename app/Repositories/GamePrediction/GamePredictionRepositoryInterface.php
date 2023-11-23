@@ -6,5 +6,6 @@ use App\Repositories\CommonRepoActionsInterface;
 
 interface GamePredictionRepositoryInterface extends CommonRepoActionsInterface
 {
-    function store();
+    function storePredictions();
+    function storeCompetitionScoreTargetOutcome();
 }

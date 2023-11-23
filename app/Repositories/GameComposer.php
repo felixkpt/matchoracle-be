@@ -124,6 +124,22 @@ class GameComposer
         return $homeTeamScore + $awayTeamScore;
     }
 
+    public static function goalsHT($game)
+    {
+        $score = $game->score;
+        if (!$score || !$score->winner) {
+            return -1;
+        }
+
+
+        // Get the score data or provide default values if it's missing
+        $scoreData = $game->score ?? [];
+        $homeTeamScore = (int)($scoreData->home_scores_half_time ?? 0);
+        $awayTeamScore = (int)($scoreData->away_scores_half_time ?? 0);
+
+        return $homeTeamScore + $awayTeamScore;
+    }
+
     public static function bts($game)
     {
         $score = $game->score;
@@ -135,6 +151,21 @@ class GameComposer
         $scoreData = $game->score ?? [];
         $homeTeamScore = (int)($scoreData->home_scores_full_time ?? 0);
         $awayTeamScore = (int)($scoreData->away_scores_full_time ?? 0);
+
+        return ($homeTeamScore > 0 && $awayTeamScore > 0);
+    }
+
+    public static function btsHT($game)
+    {
+        $score = $game->score;
+        if (!$score || !$score->winner) {
+            return -1;
+        }
+
+        // Get the score data or provide default values if it's missing
+        $scoreData = $game->score ?? [];
+        $homeTeamScore = (int)($scoreData->home_scores_half_time ?? 0);
+        $awayTeamScore = (int)($scoreData->away_scores_half_time ?? 0);
 
         return ($homeTeamScore > 0 && $awayTeamScore > 0);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Repositories\GamePrediction;
 
+use App\Models\CompetitionScoreTargetOutcome;
 use App\Models\Game;
 use App\Models\GamePrediction;
 use App\Models\GamePredictionLog;
@@ -22,10 +23,9 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
         $this->model = $model;
     }
 
-    function store()
+    function storePredictions()
     {
         $data = request()->all();
-
 
         $version = $data['version'];
         $type = $data['type'];
@@ -34,7 +34,6 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
         $predictions = $data['predictions'];
 
         foreach ($predictions as $game_pred) {
-
 
             $this->model->updateOrCreate(
                 [
@@ -69,5 +68,56 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
         }
 
         return response(['message' => "Games Predictions saved successfully."]);
+    }
+
+    function storeCompetitionScoreTargetOutcome()
+    {
+        $data = request()->all();
+
+        request()->validate([
+            'prediction_type' => 'required',
+            'competition_id' => 'required',
+            'from_date' => 'required',
+            'to_date' => 'required',
+        ]);
+
+        $score_target_outcome_ids = [
+            'hda_target' => 1,
+            'bts_target' => 2,
+            'over25_target' => 3,
+            'cs_target' => 4,
+        ];
+        $score_target_outcome_id = $score_target_outcome_ids[$data['score_target_outcome_id']];
+
+        $data = [
+            'prediction_type' => $data['prediction_type'],
+            'competition_id' => $data['competition_id'],
+            'train_counts' => $data['train_counts'],
+            'test_counts' => $data['test_counts'],
+            'score_target_outcome_id' => $score_target_outcome_id,
+            'occurrences' => json_encode($data['occurrences']),
+            'last_predicted' => json_encode($data['last_predicted']),
+            'accuracy_score' => $data['accuracy_score'],
+            'precision_score' => $data['precision_score'],
+            'f1_score' => $data['f1_score'],
+            'average_score' => $data['average_score'],
+            'from_date' => Carbon::parse($data['from_date'])->format('Y-m-d'),
+            'to_date' => Carbon::parse($data['to_date'])->format('Y-m-d'),
+            'user_id' => auth()->id(),
+            'status_id' => activeStatusId(),
+
+        ];
+
+        CompetitionScoreTargetOutcome::updateOrCreate(
+            [
+                'prediction_type' => $data['prediction_type'],
+                'competition_id' => $data['competition_id'],
+                'score_target_outcome_id' => $data['score_target_outcome_id'],
+            ],
+            $data
+        );
+
+        Log::info('DATA', $data);
+        return response(['message' => "Competition Score Target Outcomes saved successfully."]);
     }
 }

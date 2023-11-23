@@ -54,8 +54,13 @@ class PredictionsController extends Controller
         return $this->gameRepositoryInterface->yearMonthDay($year, $month, $date);
     }
 
-    function storeFromPythonApp()
+    function storePredictions()
     {
-        return $this->gamePredictionRepositoryInterface->store();
+        return $this->gamePredictionRepositoryInterface->storePredictions();
+    }
+
+    function storeCompetitionScoreTargetOutcome()
+    {
+        return $this->gamePredictionRepositoryInterface->storeCompetitionScoreTargetOutcome();
     }
 }

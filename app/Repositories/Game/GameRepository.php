@@ -54,7 +54,7 @@ class GameRepository implements GameRepositoryInterface
                 $pred->cs = $cs;
                 $pred->bts = $pred->gg == 1 ? 'YES' : 'NO';
                 $pred->over25 = $pred->over25 == 1 ? 'OV' : 'UN';
-             
+
                 return $pred;
             }
 
@@ -113,7 +113,7 @@ class GameRepository implements GameRepositoryInterface
 
         $uri = '/admin/matches/';
         $results = SearchRepo::of($competitions, ['id', 'name'])
-            ->addColumn('ID', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-primary" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '#'.$q->id . '</a>')
+            ->addColumn('ID', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-primary" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '#' . $q->id . '</a>')
             ->addColumn('is_future', fn ($q) => Carbon::parse($q->utc_date)->isFuture())
             ->addColumn('full_time', fn ($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
             ->addColumn('half_time', fn ($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
@@ -130,7 +130,8 @@ class GameRepository implements GameRepositoryInterface
         if (request()->with_stats == 1)
             $results = $this->addGameStatistics($results);
 
-        $results = $results->orderby('utc_date', request()->type == 'upcoming' ? 'asc' : 'desc');
+        if (!request()->order_by)
+            $results = $results->orderby('utc_date', request()->type == 'upcoming' ? 'asc' : 'desc');
 
         $results = $id ? $results->first() : $results->paginate();
 
@@ -242,19 +243,20 @@ class GameRepository implements GameRepositoryInterface
                 // Calculate the winner
                 $winningSide = GameComposer::winningSide($matchData, true);
 
-                // Calculate the total number of goals
-                $goals = GameComposer::goals($matchData);
+                $hda_target = $winningSide;
 
                 // Calculate if both teams scored (bts)
                 $bts = GameComposer::bts($matchData);
 
-                $hda_target = $winningSide;
+                $bts_target = $bts ? 1 : 0;
 
-                $o15_target = ($goals > 1) ? 1 : 0;
-                $o25_target = ($goals > 2) ? 1 : 0;
-                $o35_target = ($goals > 3) ? 1 : 0;
+                // Calculate the total number of goals
+                $goals = GameComposer::goals($matchData);
 
-                $bts_target = ($bts) ? 1 : 0;
+                $over15_target = ($goals > 1) ? 1 : 0;
+                $over25_target = ($goals > 2) ? 1 : 0;
+                $over35_target = ($goals > 3) ? 1 : 0;
+
 
                 $cs_target = game_scores($matchData);
 
@@ -269,33 +271,59 @@ class GameRepository implements GameRepositoryInterface
                         'home_team_wins' => 0,
                         'home_team_draws' => 0,
                         'home_team_loses' => 0,
+                        'home_team_goals_for' => 0,
                         'home_team_goals_for_avg' => 0,
+                        'home_team_goals_against' => 0,
                         'home_team_goals_against_avg' => 0,
+                        'home_team_bts_games' => 0,
+                        'home_team_over15_games' => 0,
+                        'home_team_over25_games' => 0,
+                        'home_team_over35_games' => 0,
+
                         'away_team_totals' => 0,
                         'away_team_wins' => 0,
                         'away_team_draws' => 0,
                         'away_team_loses' => 0,
+                        'away_team_goals_for' => 0,
                         'away_team_goals_for_avg' => 0,
+                        'away_team_goals_against' => 0,
                         'away_team_goals_against_avg' => 0,
+                        'home_team_bts_games' => 0,
+                        'away_team_over15_games' => 0,
+                        'away_team_over25_games' => 0,
+                        'away_team_over35_games' => 0,
 
                         'ht_home_team_totals' => 0,
                         'ht_home_team_wins' => 0,
                         'ht_home_team_draws' => 0,
                         'ht_home_team_loses' => 0,
+                        'ht_home_team_goals_for' => 0,
                         'ht_home_team_goals_for_avg' => 0,
+                        'ht_home_team_goals_against' => 0,
                         'ht_home_team_goals_against_avg' => 0,
+                        'ht_home_team_bts_games' => 0,
+                        'ht_home_team_over15_games' => 0,
+                        'ht_home_team_over25_games' => 0,
+                        'ht_home_team_over35_games' => 0,
+
                         'ht_away_team_totals' => 0,
                         'ht_away_team_wins' => 0,
                         'ht_away_team_draws' => 0,
                         'ht_away_team_loses' => 0,
+                        'ht_away_team_goals_for' => 0,
                         'ht_away_team_goals_for_avg' => 0,
+                        'ht_away_team_goals_against' => 0,
                         'ht_away_team_goals_against_avg' => 0,
+                        'ht_home_team_bts_games' => 0,
+                        'ht_away_team_over15_games' => 0,
+                        'ht_away_team_over25_games' => 0,
+                        'ht_away_team_over35_games' => 0,
 
                         'target' => false,
                         'hda_target' => $ignore_team_stats ? $hda_target : -1,
-                        'over15_target' => $ignore_team_stats ? $o15_target : -1,
-                        'over25_target' => $ignore_team_stats ? $o25_target : -1,
-                        'over35_target' => $ignore_team_stats ? $o35_target : -1,
+                        'over15_target' => $ignore_team_stats ? $over15_target : -1,
+                        'over25_target' => $ignore_team_stats ? $over25_target : -1,
+                        'over35_target' => $ignore_team_stats ? $over35_target : -1,
                         'bts_target' => $ignore_team_stats ? $bts_target : -1,
                         'cs_target' => $ignore_team_stats ? $cs_target : -1,
                         'referees_ids' => $ignore_team_stats ? $referees_ids : -1,
@@ -319,9 +347,9 @@ class GameRepository implements GameRepositoryInterface
 
                         'target' => true,
                         'hda_target' => $hda_target,
-                        'over15_target' => $o15_target,
-                        'over25_target' => $o25_target,
-                        'over35_target' => $o35_target,
+                        'over15_target' => $over15_target,
+                        'over25_target' => $over25_target,
+                        'over35_target' => $over35_target,
                         'bts_target' => $bts_target,
                         'cs_target' => $cs_target,
                         'referees_ids' => $referees_ids,
@@ -332,7 +360,7 @@ class GameRepository implements GameRepositoryInterface
 
     private function teamStats($to_date, $home_team_id, $away_team_id)
     {
-        request()->merge(['_to_date' => $to_date, '_per_page' => 20, '_without_response' => true]);
+        request()->merge(['_to_date' => $to_date, '_per_page' => 10, '_without_response' => true]);
 
         $home_team_matches = array_reverse(json_decode(app(TeamController::class)->matches($home_team_id))->data);
         $away_team_matches = array_reverse(json_decode(app(TeamController::class)->matches($away_team_id))->data);
@@ -345,26 +373,53 @@ class GameRepository implements GameRepositoryInterface
             'home_team_wins' => $home_team_matches_with_stats['teamWins'],
             'home_team_draws' => $home_team_matches_with_stats['draws'],
             'home_team_loses' => $home_team_matches_with_stats['teamLoses'],
+            'home_team_goals_for' => $home_team_matches_with_stats['goalsFor'],
             'home_team_goals_for_avg' => $home_team_matches_with_stats['goalsForAvg'],
+            'home_team_goals_against' => $home_team_matches_with_stats['goalsAgainst'],
             'home_team_goals_against_avg' => $home_team_matches_with_stats['goalsAgainstAvg'],
+            'home_team_bts_games' => $home_team_matches_with_stats['bts_games'],
+            'home_team_over15_games' => $home_team_matches_with_stats['over15_games'],
+            'home_team_over25_games' => $home_team_matches_with_stats['over25_games'],
+            'home_team_over35_games' => $home_team_matches_with_stats['over35_games'],
+
             'away_team_totals' => $away_team_matches_with_stats['totals'],
             'away_team_wins' => $away_team_matches_with_stats['teamWins'],
             'away_team_draws' => $away_team_matches_with_stats['draws'],
             'away_team_loses' => $away_team_matches_with_stats['teamLoses'],
+            'away_team_goals_for' => $away_team_matches_with_stats['goalsFor'],
             'away_team_goals_for_avg' => $away_team_matches_with_stats['goalsForAvg'],
+            'away_team_goals_against' => $away_team_matches_with_stats['goalsAgainst'],
             'away_team_goals_against_avg' => $away_team_matches_with_stats['goalsAgainstAvg'],
+            'away_team_bts_games' => $away_team_matches_with_stats['bts_games'],
+            'away_team_over15_games' => $away_team_matches_with_stats['over15_games'],
+            'away_team_over25_games' => $away_team_matches_with_stats['over25_games'],
+            'away_team_over35_games' => $away_team_matches_with_stats['over35_games'],
+
             'ht_home_team_totals' => $home_team_matches_with_stats['ht_totals'],
             'ht_home_team_wins' => $home_team_matches_with_stats['ht_teamWins'],
             'ht_home_team_draws' => $home_team_matches_with_stats['ht_draws'],
             'ht_home_team_loses' => $home_team_matches_with_stats['ht_teamLoses'],
+            'ht_home_team_goals_for' => $home_team_matches_with_stats['ht_goalsFor'],
             'ht_home_team_goals_for_avg' => $home_team_matches_with_stats['ht_goalsForAvg'],
+            'ht_home_team_goals_against' => $home_team_matches_with_stats['ht_goalsAgainst'],
             'ht_home_team_goals_against_avg' => $home_team_matches_with_stats['ht_goalsAgainstAvg'],
+            'ht_home_team_bts_games' => $home_team_matches_with_stats['ht_bts_games'],
+            'ht_home_team_over15_games' => $home_team_matches_with_stats['ht_over15_games'],
+            'ht_home_team_over25_games' => $home_team_matches_with_stats['ht_over25_games'],
+            'ht_home_team_over35_games' => $home_team_matches_with_stats['ht_over35_games'],
+
             'ht_away_team_totals' => $away_team_matches_with_stats['ht_totals'],
             'ht_away_team_wins' => $away_team_matches_with_stats['ht_teamWins'],
             'ht_away_team_draws' => $away_team_matches_with_stats['ht_draws'],
             'ht_away_team_loses' => $away_team_matches_with_stats['ht_teamLoses'],
+            'ht_away_team_goals_for' => $away_team_matches_with_stats['ht_goalsFor'],
             'ht_away_team_goals_for_avg' => $away_team_matches_with_stats['ht_goalsForAvg'],
+            'ht_away_team_goals_against' => $away_team_matches_with_stats['ht_goalsAgainst'],
             'ht_away_team_goals_against_avg' => $away_team_matches_with_stats['ht_goalsAgainstAvg'],
+            'ht_away_team_bts_games' => $away_team_matches_with_stats['ht_bts_games'],
+            'ht_away_team_over15_games' => $away_team_matches_with_stats['ht_over15_games'],
+            'ht_away_team_over25_games' => $away_team_matches_with_stats['ht_over25_games'],
+            'ht_away_team_over35_games' => $away_team_matches_with_stats['ht_over35_games'],
 
         ];
     }
@@ -385,26 +440,53 @@ class GameRepository implements GameRepositoryInterface
             'current_ground_home_team_wins' => $home_team_matches_with_stats['teamWins'],
             'current_ground_home_team_draws' => $home_team_matches_with_stats['draws'],
             'current_ground_home_team_loses' => $home_team_matches_with_stats['teamLoses'],
+            'current_ground_home_team_goals_for' => $home_team_matches_with_stats['goalsFor'],
             'current_ground_home_team_goals_for_avg' => $home_team_matches_with_stats['goalsForAvg'],
+            'current_ground_home_team_goals_against' => $home_team_matches_with_stats['goalsAgainst'],
             'current_ground_home_team_goals_against_avg' => $home_team_matches_with_stats['goalsAgainstAvg'],
+            'current_ground_home_team_bts_games' => $home_team_matches_with_stats['bts_games'],
+            'current_ground_home_team_over15_games' => $home_team_matches_with_stats['over15_games'],
+            'current_ground_home_team_over25_games' => $home_team_matches_with_stats['over25_games'],
+            'current_ground_home_team_over35_games' => $home_team_matches_with_stats['over35_games'],
+
             'current_ground_away_team_totals' => $away_team_matches_with_stats['totals'],
             'current_ground_away_team_wins' => $away_team_matches_with_stats['teamWins'],
             'current_ground_away_team_draws' => $away_team_matches_with_stats['draws'],
             'current_ground_away_team_loses' => $away_team_matches_with_stats['teamLoses'],
+            'current_ground_away_team_goals_for' => $away_team_matches_with_stats['goalsFor'],
             'current_ground_away_team_goals_for_avg' => $away_team_matches_with_stats['goalsForAvg'],
+            'current_ground_away_team_goals_against' => $away_team_matches_with_stats['goalsAgainst'],
             'current_ground_away_team_goals_against_avg' => $away_team_matches_with_stats['goalsAgainstAvg'],
+            'current_ground_away_team_bts_games' => $away_team_matches_with_stats['bts_games'],
+            'current_ground_away_team_over15_games' => $away_team_matches_with_stats['over15_games'],
+            'current_ground_away_team_over25_games' => $away_team_matches_with_stats['over25_games'],
+            'current_ground_away_team_over35_games' => $away_team_matches_with_stats['over35_games'],
+
             'current_ground_ht_home_team_totals' => $home_team_matches_with_stats['ht_totals'],
             'current_ground_ht_home_team_wins' => $home_team_matches_with_stats['ht_teamWins'],
             'current_ground_ht_home_team_draws' => $home_team_matches_with_stats['ht_draws'],
             'current_ground_ht_home_team_loses' => $home_team_matches_with_stats['ht_teamLoses'],
+            'current_ground_ht_home_team_goals_for' => $home_team_matches_with_stats['ht_goalsFor'],
             'current_ground_ht_home_team_goals_for_avg' => $home_team_matches_with_stats['ht_goalsForAvg'],
+            'current_ground_ht_home_team_goals_against' => $home_team_matches_with_stats['ht_goalsAgainst'],
             'current_ground_ht_home_team_goals_against_avg' => $home_team_matches_with_stats['ht_goalsAgainstAvg'],
+            'current_ground_ht_home_team_bts_games' => $home_team_matches_with_stats['ht_bts_games'],
+            'current_ground_ht_home_team_over15_games' => $home_team_matches_with_stats['ht_over15_games'],
+            'current_ground_ht_home_team_over25_games' => $home_team_matches_with_stats['ht_over25_games'],
+            'current_ground_ht_home_team_over35_games' => $home_team_matches_with_stats['ht_over35_games'],
+
             'current_ground_ht_away_team_totals' => $away_team_matches_with_stats['ht_totals'],
             'current_ground_ht_away_team_wins' => $away_team_matches_with_stats['ht_teamWins'],
             'current_ground_ht_away_team_draws' => $away_team_matches_with_stats['ht_draws'],
             'current_ground_ht_away_team_loses' => $away_team_matches_with_stats['ht_teamLoses'],
+            'current_ground_ht_away_team_goals_for' => $away_team_matches_with_stats['ht_goalsFor'],
             'current_ground_ht_away_team_goals_for_avg' => $away_team_matches_with_stats['ht_goalsForAvg'],
+            'current_ground_ht_away_team_goals_against' => $away_team_matches_with_stats['ht_goalsAgainst'],
             'current_ground_ht_away_team_goals_against_avg' => $away_team_matches_with_stats['ht_goalsAgainstAvg'],
+            'current_ground_ht_away_team_bts_games' => $away_team_matches_with_stats['ht_bts_games'],
+            'current_ground_ht_away_team_over15_games' => $away_team_matches_with_stats['ht_over15_games'],
+            'current_ground_ht_away_team_over25_games' => $away_team_matches_with_stats['ht_over25_games'],
+            'current_ground_ht_away_team_over35_games' => $away_team_matches_with_stats['ht_over35_games'],
 
         ];
     }
@@ -424,26 +506,53 @@ class GameRepository implements GameRepositoryInterface
             'h2h_home_team_wins' => $home_team_matches_with_stats['teamWins'],
             'h2h_home_team_draws' => $home_team_matches_with_stats['draws'],
             'h2h_home_team_loses' => $home_team_matches_with_stats['teamLoses'],
+            'h2h_home_team_goals_for' => $home_team_matches_with_stats['goalsFor'],
             'h2h_home_team_goals_for_avg' => $home_team_matches_with_stats['goalsForAvg'],
+            'h2h_home_team_goals_against' => $home_team_matches_with_stats['goalsAgainst'],
             'h2h_home_team_goals_against_avg' => $home_team_matches_with_stats['goalsAgainstAvg'],
+            'h2h_home_team_bts_games' => $home_team_matches_with_stats['bts_games'],
+            'h2h_home_team_over15_games' => $home_team_matches_with_stats['over15_games'],
+            'h2h_home_team_over25_games' => $home_team_matches_with_stats['over25_games'],
+            'h2h_home_team_over35_games' => $home_team_matches_with_stats['over35_games'],
+
             'h2h_away_team_totals' => $away_team_matches_with_stats['totals'],
             'h2h_away_team_wins' => $away_team_matches_with_stats['teamWins'],
             'h2h_away_team_draws' => $away_team_matches_with_stats['draws'],
             'h2h_away_team_loses' => $away_team_matches_with_stats['teamLoses'],
+            'h2h_away_team_goals_for' => $away_team_matches_with_stats['goalsFor'],
             'h2h_away_team_goals_for_avg' => $away_team_matches_with_stats['goalsForAvg'],
+            'h2h_away_team_goals_against' => $away_team_matches_with_stats['goalsAgainst'],
             'h2h_away_team_goals_against_avg' => $away_team_matches_with_stats['goalsAgainstAvg'],
+            'h2h_away_team_bts_games' => $away_team_matches_with_stats['bts_games'],
+            'h2h_away_team_over15_games' => $away_team_matches_with_stats['over15_games'],
+            'h2h_away_team_over25_games' => $away_team_matches_with_stats['over25_games'],
+            'h2h_away_team_over35_games' => $away_team_matches_with_stats['over35_games'],
+
             'h2h_ht_home_team_totals' => $home_team_matches_with_stats['ht_totals'],
             'h2h_ht_home_team_wins' => $home_team_matches_with_stats['ht_teamWins'],
             'h2h_ht_home_team_draws' => $home_team_matches_with_stats['ht_draws'],
             'h2h_ht_home_team_loses' => $home_team_matches_with_stats['ht_teamLoses'],
+            'h2h_ht_home_team_goals_for' => $home_team_matches_with_stats['ht_goalsFor'],
             'h2h_ht_home_team_goals_for_avg' => $home_team_matches_with_stats['ht_goalsForAvg'],
+            'h2h_ht_home_team_goals_against' => $home_team_matches_with_stats['ht_goalsAgainst'],
             'h2h_ht_home_team_goals_against_avg' => $home_team_matches_with_stats['ht_goalsAgainstAvg'],
+            'h2h_ht_home_team_bts_games' => $home_team_matches_with_stats['ht_bts_games'],
+            'h2h_ht_home_team_over15_games' => $home_team_matches_with_stats['ht_over15_games'],
+            'h2h_ht_home_team_over25_games' => $home_team_matches_with_stats['ht_over25_games'],
+            'h2h_ht_home_team_over35_games' => $home_team_matches_with_stats['ht_over35_games'],
+
             'h2h_ht_away_team_totals' => $away_team_matches_with_stats['ht_totals'],
             'h2h_ht_away_team_wins' => $away_team_matches_with_stats['ht_teamWins'],
             'h2h_ht_away_team_draws' => $away_team_matches_with_stats['ht_draws'],
             'h2h_ht_away_team_loses' => $away_team_matches_with_stats['ht_teamLoses'],
+            'h2h_ht_away_team_goals_for' => $away_team_matches_with_stats['ht_goalsFor'],
             'h2h_ht_away_team_goals_for_avg' => $away_team_matches_with_stats['ht_goalsForAvg'],
+            'h2h_ht_away_team_goals_against' => $away_team_matches_with_stats['ht_goalsAgainst'],
             'h2h_ht_away_team_goals_against_avg' => $away_team_matches_with_stats['ht_goalsAgainstAvg'],
+            'h2h_ht_away_team_bts_games' => $away_team_matches_with_stats['ht_bts_games'],
+            'h2h_ht_away_team_over15_games' => $away_team_matches_with_stats['ht_over15_games'],
+            'h2h_ht_away_team_over25_games' => $away_team_matches_with_stats['ht_over25_games'],
+            'h2h_ht_away_team_over35_games' => $away_team_matches_with_stats['ht_over35_games'],
 
         ];
     }
@@ -454,20 +563,29 @@ class GameRepository implements GameRepositoryInterface
         $teamWins = 0;
         $draws = 0;
         $teamLoses = 0;
-        $goalFor = 0;
+        $goalsFor = 0;
         $goalsAgainst = 0;
         $goalsForAvg = 0;
         $goalsAgainstAvg = 0;
+        $bts_games = 0;
+        $over15_games = 0;
+        $over25_games = 0;
+        $over35_games = 0;
 
         // Half time
         $ht_totals = 0;
         $ht_teamWins = 0;
         $ht_draws = 0;
         $ht_teamLoses = 0;
-        $ht_goalFor = 0;
+        $ht_goalsFor = 0;
         $ht_goalsAgainst = 0;
         $ht_goalsForAvg = 0;
         $ht_goalsAgainstAvg = 0;
+        $ht_bts_games = 0;
+        $ht_over15_games = 0;
+        $ht_over25_games = 0;
+        $ht_over35_games = 0;
+
 
         if (!empty($teamGames)) {
             foreach ($teamGames as $game) {
@@ -490,6 +608,24 @@ class GameRepository implements GameRepositoryInterface
                         }
                     }
 
+                    // Calculate if both teams scored (bts)
+                    $bts = GameComposer::bts($game);
+
+                    $bts_target = $bts ? 1 : 0;
+
+                    // Calculate the total number of goals
+                    $goals = GameComposer::goals($game);
+
+                    $over15_target = ($goals > 1) ? 1 : 0;
+                    $over25_target = ($goals > 2) ? 1 : 0;
+                    $over35_target = ($goals > 3) ? 1 : 0;
+
+
+                    $bts_games += $bts_target;
+                    $over15_games += $over15_target;
+                    $over25_games += $over25_target;
+                    $over35_games += $over35_target;
+
                     // for ht
                     $winningSide = GameComposer::winningSideHT($game, true);
                     if ($winningSide === 1) {
@@ -503,19 +639,37 @@ class GameRepository implements GameRepositoryInterface
                         }
                     }
 
+                    // Calculate if both teams scored (bts)
+                    $bts = GameComposer::btsHT($game);
+
+                    $bts_target = $bts ? 1 : 0;
+
+                    // Calculate the total number of goals
+                    $goals = GameComposer::goalsHT($game);
+
+                    $over15_target = ($goals > 1) ? 1 : 0;
+                    $over25_target = ($goals > 2) ? 1 : 0;
+                    $over35_target = ($goals > 3) ? 1 : 0;
+
+
+                    $ht_bts_games += $bts_target;
+                    $ht_over15_games += $over15_target;
+                    $ht_over25_games += $over25_target;
+                    $ht_over35_games += $over35_target;
+
                     // Get goals for and goals against
-                    $goalFor += (GameComposer::getScores($game, $teamId) * $increment);
+                    $goalsFor += (GameComposer::getScores($game, $teamId) * $increment);
                     $goalsAgainst += (GameComposer::getScores($game, $teamId, true) * $increment);
-                    $ht_goalFor += (GameComposer::getScoresHT($game, $teamId) * $increment);
+                    $ht_goalsFor += (GameComposer::getScoresHT($game, $teamId) * $increment);
                     $ht_goalsAgainst += (GameComposer::getScoresHT($game, $teamId, true) * $increment);
                 }
             }
 
             // Calculate averages
-            $goalsForAvg = $totals > 0 ? round($goalFor / $totals, 2) : 0;
+            $goalsForAvg = $totals > 0 ? round($goalsFor / $totals, 2) : 0;
             $goalsAgainstAvg = $totals > 0 ? round($goalsAgainst / $totals, 2) : 0;
             // averages for ht
-            $ht_goalsForAvg = $totals > 0 ? round($ht_goalFor / $ht_totals, 2) : 0;
+            $ht_goalsForAvg = $totals > 0 ? round($ht_goalsFor / $ht_totals, 2) : 0;
             $ht_goalsAgainstAvg = $totals > 0 ? round($ht_goalsAgainst / $ht_totals, 2) : 0;
         }
 
@@ -524,19 +678,27 @@ class GameRepository implements GameRepositoryInterface
             'teamWins' => $teamWins,
             'draws' => $draws,
             'teamLoses' => $teamLoses,
-            'goalFor' => $goalFor,
+            'goalsFor' => $goalsFor,
             'goalsAgainst' => $goalsAgainst,
             'goalsForAvg' => $goalsForAvg,
             'goalsAgainstAvg' => $goalsAgainstAvg,
+            'bts_games' => $bts_games,
+            'over15_games' => $over15_games,
+            'over25_games' => $over25_games,
+            'over35_games' => $over35_games,
 
             'ht_totals' => $ht_totals,
             'ht_teamWins' => $ht_teamWins,
             'ht_draws' => $ht_draws,
             'ht_teamLoses' => $ht_teamLoses,
-            'ht_goalFor' => $ht_goalFor,
+            'ht_goalsFor' => $ht_goalsFor,
             'ht_goalsAgainst' => $ht_goalsAgainst,
             'ht_goalsForAvg' => $ht_goalsForAvg,
             'ht_goalsAgainstAvg' => $ht_goalsAgainstAvg,
+            'ht_bts_games' => $ht_bts_games,
+            'ht_over15_games' => $ht_over15_games,
+            'ht_over25_games' => $ht_over25_games,
+            'ht_over35_games' => $ht_over35_games,
         ];
     }
 }
