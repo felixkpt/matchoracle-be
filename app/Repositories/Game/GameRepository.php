@@ -360,7 +360,8 @@ class GameRepository implements GameRepositoryInterface
 
     private function teamStats($to_date, $home_team_id, $away_team_id)
     {
-        request()->merge(['_to_date' => $to_date, '_per_page' => 10, '_without_response' => true]);
+
+        request()->merge(['_to_date' => $to_date, '_per_page' => request()->history_limit_per_match ?? 15, '_without_response' => true]);
 
         $home_team_matches = array_reverse(json_decode(app(TeamController::class)->matches($home_team_id))->data);
         $away_team_matches = array_reverse(json_decode(app(TeamController::class)->matches($away_team_id))->data);
@@ -426,7 +427,12 @@ class GameRepository implements GameRepositoryInterface
 
     private function teamStatsCurrentground($to_date, $home_team_id, $away_team_id)
     {
-        request()->merge(['_to_date' => $to_date, '_per_page' => 6, '_without_response' => true]);
+
+        $per_page = 6;
+        if (request()->history_limit_per_match)
+            $per_page = (int) request()->history_limit_per_match / 2;
+
+        request()->merge(['_to_date' => $to_date, '_per_page' => $per_page, '_without_response' => true]);
         request()->merge(['_currentground' => 'home']);
         $home_team_matches = array_reverse(json_decode(app(TeamController::class)->matches($home_team_id))->data);
         request()->merge(['_currentground' => 'away']);
