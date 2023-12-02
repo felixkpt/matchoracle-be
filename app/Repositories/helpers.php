@@ -126,12 +126,16 @@ if (!function_exists('activeStatusId')) {
 
 if (!function_exists('game_scores')) {
 
-    function game_scores($game)
+    function game_scores($scoreData = null, $half_time = false)
     {
         // Get the score data or provide default values if it's missing
-        $scoreData = $game->score ?? [];
-        $homeTeamScore = $scoreData->home_scores_full_time ?? 0;
-        $awayTeamScore = $scoreData->away_scores_full_time ?? 0;
+        if (!$half_time) {
+            $homeTeamScore = $scoreData->home_scores_full_time ?? 0;
+            $awayTeamScore = $scoreData->away_scores_full_time ?? 0;
+        } else {
+            $homeTeamScore = $scoreData->home_scores_half_time ?? 0;
+            $awayTeamScore = $scoreData->away_scores_half_time ?? 0;
+        }
 
         $scores = $homeTeamScore . ' - ' . $awayTeamScore;
 

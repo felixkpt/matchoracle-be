@@ -220,6 +220,23 @@ class SearchRepo
     }
 
     /**
+     * Add a custom column to the search results if the given "value" is (or resolves to) truthy.
+     *
+     * @param string $condition The condition to be checked if true.
+     * @param string $column The column name.
+     * @param \Closure $callback The callback function to generate the column value.
+     * @return $this The SearchRepo instance.
+     */
+    public function addColumnWhen($condition, $column, $callback)
+    {
+        if ($condition) {
+            $this->addColumn($column, $callback);
+        }
+
+        return $this;
+    }
+
+    /**
      * Add a custom column to the search results.
      *
      * @param string $column The column name.

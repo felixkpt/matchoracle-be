@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('coach_contracts', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->uuid('team_id');
-            $table->uuid('coach_id');
+            $table->unsignedBigInteger('team_id');
+            $table->unsignedBigInteger('coach_id');
             $table->date('start');
             $table->date('until')->nullable();
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

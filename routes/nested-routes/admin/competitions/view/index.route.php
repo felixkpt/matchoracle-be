@@ -28,6 +28,8 @@ Route::put('/{id}', [$controller, 'update'])->name('update');
 Route::patch('/{id}/update-status', [$controller, 'updateStatus'])->hidden();
 Route::delete('/{id}', [$controller, 'destroy'])->name('destroy');
 
+Route::get('/{id}/statistics', [$controller, 'statistics']);
+
 // Competition Matche routes
 Route::name('matches.')->group(function () {
 
@@ -55,3 +57,4 @@ Route::name('predictions.')->group(function () {
     Route::get($path . '/{year}/{month}', [$controller, 'yearMonth'])->name('year_month')->where(['year' => '[0-9]+', 'month' => '[0-9]+']);
     Route::get($path . '/{year}/{month}/{date}', [$controller, 'yearMonthDay'])->name('year_month_date')->where(['year' => '[0-9]+', 'month' => '[0-9]+', 'date' => '[0-9]+']);
 });
+

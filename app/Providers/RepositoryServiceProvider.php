@@ -32,6 +32,8 @@ use App\Repositories\Role\RoleRepository;
 use App\Repositories\Role\RoleRepositoryInterface;
 use App\Repositories\Season\SeasonRepository;
 use App\Repositories\Season\SeasonRepositoryInterface;
+use App\Repositories\Statistics\CompetitionStatisticsRepository;
+use App\Repositories\Statistics\CompetitionStatisticsRepositoryInterface;
 use App\Repositories\Status\StatusRepository;
 use App\Repositories\Status\StatusRepositoryInterface;
 use App\Repositories\Team\TeamRepository;
@@ -70,6 +72,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(SeasonRepositoryInterface::class, SeasonRepository::class);
         $this->app->singleton(GameRepositoryInterface::class, GameRepository::class);
         $this->app->singleton(GamePredictionRepositoryInterface::class, GamePredictionRepository::class);
+        $this->app->singleton(CompetitionStatisticsRepositoryInterface::class, CompetitionStatisticsRepository::class);
     }
 
     /**

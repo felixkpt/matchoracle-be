@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->year('year');
-            $table->uuid('team_id');
+            $table->unsignedBigInteger('team_id');
             // Add the unique constraint to `year` and `team_id`
             $table->unique(['year', 'team_id']);
             $table->dateTime('fetched_at')->nullable();
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

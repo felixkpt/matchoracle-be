@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('game_scores', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->uuid('game_id');
+            $table->unsignedBigInteger('game_id');
             $table->string('winner')->nullable();
             $table->string('duration')->nullable();
             $table->string('home_scores_full_time')->nullable();

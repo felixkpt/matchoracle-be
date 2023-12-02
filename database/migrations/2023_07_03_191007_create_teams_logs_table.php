@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('teams_logs', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->uuid('team_id');
+            $table->unsignedBigInteger('team_id');
             $table->unsignedInteger('fetch_counts')->default(0);
             $table->text('fetch_details')->nullable();
             $table->unsignedInteger('detailed_fetch_counts')->default(0);
             $table->text('detailed_fetch_details')->nullable();
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

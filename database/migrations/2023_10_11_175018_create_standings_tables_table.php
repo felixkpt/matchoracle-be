@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('standing_tables', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->uuid('season_id');
-            $table->uuid('standing_id');
-            $table->uuid('team_id');
+            $table->unsignedBigInteger('season_id');
+            $table->unsignedBigInteger('standing_id');
+            $table->unsignedBigInteger('team_id');
             $table->unsignedInteger('position');
             $table->unsignedInteger('played_games');
             $table->string('form')->nullable();
@@ -27,8 +27,8 @@ return new class extends Migration
             $table->unsignedInteger('goals_for');
             $table->unsignedInteger('goals_against');
             $table->integer('goal_difference');
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

@@ -19,15 +19,15 @@ return new class extends Migration
             $table->string('slug');
             $table->string('short_name')->nullable();
             $table->string('tla')->nullable();
-            $table->uuid('address_id')->nullable();
+            $table->unsignedBigInteger('address_id')->nullable();
             $table->string('website')->nullable();
             $table->string('founded')->nullable();
             $table->string('club_colors')->nullable();
-            $table->uuid('venue_id')->nullable();
-            $table->uuid('coach_id')->nullable();
+            $table->unsignedBigInteger('venue_id')->nullable();
+            $table->unsignedBigInteger('coach_id')->nullable();
 
             $table->string('competition_id')->nullable();
-            $table->uuid('continent_id')->default(0);
+            $table->unsignedBigInteger('continent_id')->default(0);
             $table->string('country_id')->nullable();
             $table->string('crest')->nullable();
 
@@ -35,8 +35,8 @@ return new class extends Migration
             $table->dateTime('last_fetch')->nullable();
             $table->dateTime('last_detailed_fetch')->nullable();
             $table->integer('priority_number')->default(9999);
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

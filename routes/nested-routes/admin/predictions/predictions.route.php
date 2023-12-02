@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 $controller = PredictionsController::class;
 Route::get('/', [$controller, 'index'])->name('today');
+Route::get('/raw', [$controller, 'raw'])->name('raw');
 Route::get('/today', [$controller, 'index'])->name('today');
 Route::get('/yesterday', [$controller, 'index'])->name('yesterday');
 Route::get('/tomorrow', [$controller, 'tomorrow'])->name('tomorrow');

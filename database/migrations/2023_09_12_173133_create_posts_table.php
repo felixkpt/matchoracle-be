@@ -14,16 +14,16 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->uuid('category_id');
-            $table->uuid('topic_id')->nullable();
+            $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('topic_id')->nullable();
             $table->string('title');
             $table->string('slug')->unique();
             $table->string('content_short')->nullable();
             $table->longText('content');
             $table->string('image')->nullable();
             $table->unsignedInteger('priority_number')->default(9999);
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

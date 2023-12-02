@@ -22,12 +22,21 @@ class GamePrediction extends Model
         'bts',
         'gg_proba',
         'ng_proba',
+        'over15',
+        'over15_proba',
+        'under15_proba',
         'over25',
         'over25_proba',
         'under25_proba',
-        'cs_unsensored',
-        'cs_proba_unsensored',
+        'over35',
+        'over35_proba',
+        'under35_proba',
         'cs',
         'cs_proba',
     ];
+
+    public function score()
+    {
+        return $this->hasOne(GameScore::class, 'game_id');
+    }
 }

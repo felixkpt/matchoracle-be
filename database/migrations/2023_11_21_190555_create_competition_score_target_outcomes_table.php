@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('score_target_outcome_id');
             $table->json('occurrences');
             $table->json('last_predicted');
+
             $table->integer('accuracy_score')->nullable();
             $table->integer('precision_score')->nullable();
             $table->integer('f1_score')->nullable();
@@ -27,8 +28,8 @@ return new class extends Migration
             $table->date('from_date');
             $table->date('to_date');
 
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

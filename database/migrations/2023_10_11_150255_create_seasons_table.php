@@ -14,17 +14,17 @@ return new class extends Migration
         Schema::create('seasons', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->uuid('competition_id');
+            $table->unsignedBigInteger('competition_id');
             $table->date('start_date');
             $table->date('end_date');
             $table->boolean('is_current')->default(false);
             $table->unsignedInteger('current_matchday')->nullable();
             $table->unsignedInteger('total_matchdays')->nullable();
             $table->unsignedInteger('played')->nullable();
-            $table->uuid('winner_id')->nullable();
+            $table->unsignedBigInteger('winner_id')->nullable();
             $table->json('stages')->nullable();
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

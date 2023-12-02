@@ -22,7 +22,7 @@ return new class extends Migration
          
             $table->string('abbreviation')->nullable();
             $table->boolean('has_teams')->nullable();
-            $table->uuid('continent_id')->default(0);
+            $table->unsignedBigInteger('continent_id')->default(0);
             $table->string('country_id')->nullable();
             $table->string('emblem')->nullable();
             $table->string('plan')->nullable();
@@ -33,9 +33,9 @@ return new class extends Migration
             $table->dateTime('last_fetch')->nullable();
             $table->dateTime('last_detailed_fetch')->nullable();
             $table->integer('priority_number')->default(9999);
-            $table->uuid('stage_id')->default(0);
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('stage_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

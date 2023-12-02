@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->string('name');
             $table->string('type');
-            $table->uuid('country_id');
+            $table->unsignedBigInteger('country_id');
             $table->timestamps();
         });
     }

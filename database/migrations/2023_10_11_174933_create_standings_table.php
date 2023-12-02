@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('standings', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->uuid('competition_id');
-            $table->uuid('season_id');
+            $table->unsignedBigInteger('competition_id');
+            $table->unsignedBigInteger('season_id');
             $table->string('stage');
             $table->string('type');
             $table->string('group')->nullable();
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

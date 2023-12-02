@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('roles', function (Blueprint $table) {
-            $table->uuid('user_id')->default(0)->nullable();
-            $table->uuid('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
         });
     }
 

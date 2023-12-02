@@ -19,6 +19,10 @@ class GameComposer
 
     public static function results($score, $type = 'ft', $show = null)
     {
+        if (gettype($score) !== 'array') {
+            $score = collect($score);
+        }
+
         if ($type === 'ft') {
             $h = $score['home_scores_full_time'];
             $a = $score['away_scores_full_time'];
@@ -42,19 +46,23 @@ class GameComposer
 
     public static function winner($game, $teamId)
     {
-        $score = $game->score;
-        if (!$score || !$score->winner) {
+        if (gettype($game) !== 'array') {
+            $game = collect($game);
+        }
+
+        $score = $game['score'];
+        if (!$score || !$score['winner']) {
             return 'U';
         }
 
-        if ($score->winner === 'DRAW') {
+        if ($score['winner'] === 'DRAW') {
             return 'D';
         }
 
-        if ($score->winner === 'HOME_TEAM') {
-            return ($game->home_team_id === $teamId) ? 'W' : 'L';
-        } elseif ($score->winner === 'AWAY_TEAM') {
-            return ($game->away_team_id === $teamId) ? 'W' : 'L';
+        if ($score['winner'] === 'HOME_TEAM') {
+            return ($game['home_team_id'] === $teamId) ? 'W' : 'L';
+        } elseif ($score['winner'] === 'AWAY_TEAM') {
+            return ($game['away_team_id'] === $teamId) ? 'W' : 'L';
         }
 
         return 'U';
@@ -62,17 +70,21 @@ class GameComposer
 
     public static function winningSide($game, $integer = false)
     {
-        $scoreData = $game->score;
-        if (!$scoreData || !$scoreData->winner) {
+        if (gettype($game) !== 'array') {
+            $game = collect($game);
+        }
+
+        $scoreData = $game['score'];
+
+        if (!$scoreData || !$scoreData['winner']) {
             return $integer ? -1 : 'U';
         }
 
-
-        if ($scoreData->winner === 'HOME_TEAM') {
+        if ($scoreData['winner'] === 'HOME_TEAM') {
             return $integer ? 0 : 'h';
-        } elseif ($scoreData->winner === 'DRAW') {
+        } elseif ($scoreData['winner'] === 'DRAW') {
             return $integer ? 1 : 'D';
-        } elseif ($scoreData->winner === 'AWAY_TEAM') {
+        } elseif ($scoreData['winner'] === 'AWAY_TEAM') {
             return $integer ? 2 : 'a';
         }
 
@@ -81,13 +93,17 @@ class GameComposer
 
     public static function winningSideHT($game, $integer = false)
     {
-        $scoreData = $game->score;
-        if (!$scoreData || !$scoreData->winner) {
+        if (gettype($game) !== 'array') {
+            $game = collect($game);
+        }
+
+        $scoreData = $game['score'];
+        if (!$scoreData || !$scoreData['winner']) {
             return $integer ? -1 : 'U';
         }
 
-        $homeTeamScore = (int)($scoreData->home_scores_half_time ?? 0);
-        $awayTeamScore = (int)($scoreData->away_scores_half_time ?? 0);
+        $homeTeamScore = (int)($scoreData['home_scores_half_time'] ?? 0);
+        $awayTeamScore = (int)($scoreData['away_scores_half_time'] ?? 0);
 
         if ($homeTeamScore > $awayTeamScore) {
             $winner = 'HOME_TEAM';
@@ -110,82 +126,107 @@ class GameComposer
 
     public static function goals($game)
     {
-        $score = $game->score;
-        if (!$score || !$score->winner) {
+        if (gettype($game) !== 'array') {
+            $game = collect($game);
+        }
+
+        $score = $game['score'];
+        if (!$score || !$score['winner']) {
             return -1;
         }
 
 
         // Get the score data or provide default values if it's missing
-        $scoreData = $game->score ?? [];
-        $homeTeamScore = (int)($scoreData->home_scores_full_time ?? 0);
-        $awayTeamScore = (int)($scoreData->away_scores_full_time ?? 0);
+        $scoreData = $game['score'] ?? [];
+        $homeTeamScore = (int)($scoreData['home_scores_full_time'] ?? 0);
+        $awayTeamScore = (int)($scoreData['away_scores_full_time'] ?? 0);
 
         return $homeTeamScore + $awayTeamScore;
     }
 
     public static function goalsHT($game)
     {
-        $score = $game->score;
-        if (!$score || !$score->winner) {
+        if (gettype($game) !== 'array') {
+            $game = collect($game);
+        }
+
+        $score = $game['score'];
+        if (!$score || !$score['winner']) {
             return -1;
         }
 
 
         // Get the score data or provide default values if it's missing
-        $scoreData = $game->score ?? [];
-        $homeTeamScore = (int)($scoreData->home_scores_half_time ?? 0);
-        $awayTeamScore = (int)($scoreData->away_scores_half_time ?? 0);
+        $scoreData = $game['score'] ?? [];
+        $homeTeamScore = (int)($scoreData['home_scores_half_time'] ?? 0);
+        $awayTeamScore = (int)($scoreData['away_scores_half_time'] ?? 0);
 
         return $homeTeamScore + $awayTeamScore;
     }
 
     public static function bts($game)
     {
-        $score = $game->score;
-        if (!$score || !$score->winner) {
+        if (gettype($game) !== 'array') {
+            $game = collect($game);
+        }
+
+        $score = $game['score'];
+        if (!$score || !$score['winner']) {
             return -1;
         }
 
         // Get the score data or provide default values if it's missing
-        $scoreData = $game->score ?? [];
-        $homeTeamScore = (int)($scoreData->home_scores_full_time ?? 0);
-        $awayTeamScore = (int)($scoreData->away_scores_full_time ?? 0);
+        $scoreData = $game['score'] ?? [];
+        $homeTeamScore = (int)($scoreData['home_scores_full_time'] ?? 0);
+        $awayTeamScore = (int)($scoreData['away_scores_full_time'] ?? 0);
 
         return ($homeTeamScore > 0 && $awayTeamScore > 0);
     }
 
+    public static function cs($game)
+    {
+        return $game['prediction']['cs'] == game_scores($game['score']) ?? null;
+    }
+
     public static function btsHT($game)
     {
-        $score = $game->score;
-        if (!$score || !$score->winner) {
+        if (gettype($game) !== 'array') {
+            $game = collect($game);
+        }
+
+        $score = $game['score'];
+        if (!$score || !$score['winner']) {
             return -1;
         }
 
         // Get the score data or provide default values if it's missing
-        $scoreData = $game->score ?? [];
-        $homeTeamScore = (int)($scoreData->home_scores_half_time ?? 0);
-        $awayTeamScore = (int)($scoreData->away_scores_half_time ?? 0);
+        $scoreData = $game['score'] ?? [];
+        $homeTeamScore = (int)($scoreData['home_scores_half_time'] ?? 0);
+        $awayTeamScore = (int)($scoreData['away_scores_half_time'] ?? 0);
 
         return ($homeTeamScore > 0 && $awayTeamScore > 0);
     }
 
     public static function winnerId($game)
     {
-        $score = $game->score;
+        if (gettype($game) !== 'array') {
+            $game = collect($game);
+        }
 
-        if (!$score || !$score->winner) {
+        $score = $game['score'];
+
+        if (!$score || !$score['winner']) {
             return null;
         }
 
-        if ($score->winner === 'DRAW') {
+        if ($score['winner'] === 'DRAW') {
             return null;
         }
 
-        if ($score->winner === 'HOME_TEAM') {
-            return $game->home_team_id;
-        } elseif ($score->winner === 'AWAY_TEAM') {
-            return $game->away_team_id;
+        if ($score['winner'] === 'HOME_TEAM') {
+            return $game['home_team_id'];
+        } elseif ($score['winner'] === 'AWAY_TEAM') {
+            return $game['away_team_id'];
         }
 
         return null;
@@ -193,18 +234,22 @@ class GameComposer
 
     public static function hasResults($game)
     {
-        $score = $game->score;
-        if (!$score || !$score->winner) {
+        if (gettype($game) !== 'array') {
+            $game = collect($game);
+        }
+
+        $score = $game['score'];
+        if (!$score || !$score['winner']) {
             return null;
         }
 
-        if ($score->winner === 'DRAW') {
+        if ($score['winner'] === 'DRAW') {
             return true;
         }
 
-        if ($score->winner === 'HOME_TEAM') {
+        if ($score['winner'] === 'HOME_TEAM') {
             return true;
-        } elseif ($score->winner === 'AWAY_TEAM') {
+        } elseif ($score['winner'] === 'AWAY_TEAM') {
             return true;
         }
 
@@ -213,13 +258,17 @@ class GameComposer
 
     public static function getScores($game, $teamId, $negate = false)
     {
-        $homeTeamId = $game->home_team_id;
-        $awayTeamId = $game->away_team_id;
+        if (gettype($game) !== 'array') {
+            $game = collect($game);
+        }
+
+        $homeTeamId = $game['home_team_id'];
+        $awayTeamId = $game['away_team_id'];
 
         // Get the score data or provide default values if it's missing
-        $scoreData = $game->score ?? [];
-        $homeTeamScore = $scoreData->home_scores_full_time ?? 0;
-        $awayTeamScore = $scoreData->away_scores_full_time ?? 0;
+        $scoreData = $game['score'] ?? [];
+        $homeTeamScore = $scoreData['home_scores_full_time'] ?? 0;
+        $awayTeamScore = $scoreData['away_scores_full_time'] ?? 0;
 
         // Calculate the scores for the specified team
         if ($homeTeamScore === $awayTeamScore) {
@@ -252,13 +301,17 @@ class GameComposer
 
     public static function getScoresHT($game, $teamId, $negate = false)
     {
-        $homeTeamId = $game->home_team_id;
-        $awayTeamId = $game->away_team_id;
+        if (gettype($game) !== 'array') {
+            $game = collect($game);
+        }
+
+        $homeTeamId = $game['home_team_id'];
+        $awayTeamId = $game['away_team_id'];
 
         // Get the score data or provide default values if it's missing
-        $scoreData = $game->score ?? [];
-        $homeTeamScore = $scoreData->home_scores_half_time ?? 0;
-        $awayTeamScore = $scoreData->away_scores_half_time ?? 0;
+        $scoreData = $game['score'] ?? [];
+        $homeTeamScore = $scoreData['home_scores_half_time'] ?? 0;
+        $awayTeamScore = $scoreData['away_scores_half_time'] ?? 0;
 
         // Calculate the scores for the specified team
         if ($homeTeamScore === $awayTeamScore) {

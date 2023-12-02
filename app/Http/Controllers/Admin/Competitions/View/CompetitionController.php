@@ -222,6 +222,11 @@ class CompetitionController extends Controller
         return $this->competitionRepositoryInterface->teams($id);
     }
 
+    function statistics($id)
+    {
+        return $this->competitionRepositoryInterface->statistics($id);
+    }
+
     function updateStatus($id)
     {
         return $this->competitionRepositoryInterface->updateStatus($id);

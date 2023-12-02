@@ -24,10 +24,10 @@ return new class extends Migration
             $table->unsignedInteger('allowed_session_no')->default(1);
             $table->unsignedTinyInteger('is_online')->default(0);
             $table->unsignedTinyInteger('two_factor_enabled')->default(1);
-            $table->uuid('default_role_id')->default(0);
+            $table->unsignedBigInteger('default_role_id')->default(0);
             $table->string('theme')->default('light');
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             
         });
     }

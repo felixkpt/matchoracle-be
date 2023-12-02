@@ -23,6 +23,11 @@ class PredictionsController extends Controller
     {
         return $this->gameRepositoryInterface->index();
     }
+    
+    function raw()
+    {
+        return $this->gamePredictionRepositoryInterface->raw();
+    }
 
     function today()
     {

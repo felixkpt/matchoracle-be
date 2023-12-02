@@ -63,6 +63,11 @@ class Competition extends Model
     return $this->hasMany(Game::class);
   }
 
+  public function games()
+  {
+    return $this->hasMany(Game::class);
+  }
+
   public function currentSeason()
   {
     return $this->hasOne(Season::class, 'competition_id')->where('is_current', true);

@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('game_game_source', function (Blueprint $table) {
-            $table->uuid('game_id')->default(0);
-            $table->uuid('game_source_id')->default(0);
+            $table->unsignedBigInteger('game_id')->default(0);
+            $table->unsignedBigInteger('game_source_id')->default(0);
             $table->string('uri')->nullable();
-            $table->uuid('source_id')->nullable();
+            $table->unsignedBigInteger('source_id')->nullable();
             $table->unsignedInteger('priority_number')->default(9999);
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

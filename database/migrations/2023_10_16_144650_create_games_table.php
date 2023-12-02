@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('games', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->uuid('competition_id');
-            $table->uuid('home_team_id');
-            $table->uuid('away_team_id');
-            $table->uuid('season_id');
-            $table->uuid('country_id');
+            $table->unsignedBigInteger('competition_id');
+            $table->unsignedBigInteger('home_team_id');
+            $table->unsignedBigInteger('away_team_id');
+            $table->unsignedBigInteger('season_id');
+            $table->unsignedBigInteger('country_id');
             $table->datetime('utc_date');
             $table->string('status');
             $table->integer('matchday')->nullable();
@@ -27,8 +27,8 @@ return new class extends Migration
             $table->dateTime('last_updated')->nullable();
             $table->dateTime('last_fetch')->nullable();
             $table->unsignedInteger('priority_number')->default(9999);
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

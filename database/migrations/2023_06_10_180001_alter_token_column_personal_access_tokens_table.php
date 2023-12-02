@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('personal_access_tokens', function (Blueprint $table) {
-            $table->uuid('tokenable_id')->change();
+            $table->unsignedBigInteger('tokenable_id')->change();
         });
     }
 

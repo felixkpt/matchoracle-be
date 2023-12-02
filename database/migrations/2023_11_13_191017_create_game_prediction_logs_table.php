@@ -18,8 +18,8 @@ return new class extends Migration
             $table->unsignedInteger('predicted_games')->default(0);
             $table->unsignedInteger('unpredicted_games')->default(0);
             
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

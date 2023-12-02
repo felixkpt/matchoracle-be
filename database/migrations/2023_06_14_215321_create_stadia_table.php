@@ -19,9 +19,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('website')->nullable();
             $table->string('image')->nullable();
-            $table->uuid('team_id')->nullable();
-            $table->uuid('status_id')->default(0);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('team_id')->nullable();
+            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }

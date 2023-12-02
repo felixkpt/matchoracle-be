@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('game_votes', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->uuid('game_id');
+            $table->unsignedBigInteger('game_id');
             $table->string('winner')->nullable();
             $table->string('over_under')->nullable();
             $table->string('gg_ng')->nullable();
-            $table->uuid('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(0);
             $table->string('user_ip')->nullable();
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
     }
