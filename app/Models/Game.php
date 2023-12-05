@@ -67,6 +67,11 @@ class Game extends Model
         return $this->belongsToMany(Referee::class)->withTimestamps();
     }
 
+    public function season()
+    {
+        return $this->belongsTo(Season::class);
+    }
+
     public function votes()
     {
         return $this->hasMany(GameVote::class);

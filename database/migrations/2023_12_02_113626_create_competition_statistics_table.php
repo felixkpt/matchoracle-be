@@ -16,6 +16,10 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('competition_id');
             $table->unsignedBigInteger('season_id')->nullable();
+
+            $table->date('date')->nullable();
+            $table->integer('matchday')->nullable();
+
             $table->unsignedBigInteger('counts');
             
             $table->unsignedBigInteger('half_time_home_wins');

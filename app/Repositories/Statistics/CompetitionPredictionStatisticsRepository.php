@@ -2,9 +2,9 @@
 
 namespace App\Repositories\Statistics;
 
+use App\Console\Commands\Statistics\CompetitionPredictionStatistics;
 use App\Models\CompetitionStatistic;
-use App\Models\CompetitionStatistics;
-use App\Models\Game;
+use App\Models\MatchdayCompetitionStatistic;
 use App\Models\Season;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\Game\GameRepositoryInterface;
@@ -12,20 +12,19 @@ use App\Repositories\GameComposer;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
-class CompetitionStatisticsRepository implements CompetitionStatisticsRepositoryInterface
+class CompetitionPredictionStatisticsRepository implements CompetitionPredictionStatisticsRepositoryInterface
 {
 
     use CommonRepoActions;
 
     function __construct(
-        protected CompetitionStatistics $model,
+        protected CompetitionPredictionStatistics $model,
         protected GameRepositoryInterface $gameRepositoryInterface
     ) {
     }
 
     function index()
     {
-        // request()->merge(['competition_id' => $competition->id, 'date' => '2023-11-25']);
 
         $results = $this->model->where('competition_id', request()->competition_id)
             ->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))
@@ -39,12 +38,12 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
 
         $competition_id = request()->competition_id;
         $season = Season::find(request()->season_id);
-        $season_id = $season->id ?? 0;
-        
+        $season_id = $season->id;
+
         request()->merge(['per_page' => 700, 'order_by' => 'utc_date', 'order_direction' => 'asc']);
 
         $games = $this->gameRepositoryInterface->index(null, true);
-        
+
         $counts = 0;
 
         $full_time_home_wins_counts = 0;
@@ -65,13 +64,12 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
         $under35_counts = 0;
 
         $games = $games['data'];
+        $unique_dates = array_unique(array_column($games['data'], 'utc_date'));
+        Log::info("DATES", $unique_dates);
+
         $ct = count($games);
-        
         echo "Total games for competition #{$competition_id}: $ct\n\n";
-        
-        $unique_dates_counts = count(array_unique(array_map(fn ($c) => Carbon::parse($c)->format('Y-m-d'), array_column($games, 'utc_date'))));
-        Log::info("Unique date counts: {$unique_dates_counts}");
-        
+
         $matchday = 0;
         foreach ($games as $game) {
             $id = $game['id'];
@@ -155,7 +153,7 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
             $over35_counts = round($over35_counts / $counts * 100);
             $under35_counts = round($under35_counts / $counts * 100);
 
-            if ($season_id && (!request()->date || $unique_dates_counts > 1)) {
+            if (!request()->date) {
                 CompetitionStatistic::updateOrCreate(
                     [
                         'competition_id' => $competition_id,
@@ -185,22 +183,14 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
 
                 $date = Carbon::parse(request()->date)->format('Y-m-d');
 
-                if (!$season_id) {
-                    
-                    $game = Game::find($game['id']);
-                    $season_id = $game->season_id ?? 0;
-                }
-
-                CompetitionStatistic::updateOrCreate(
+                MatchdayCompetitionStatistic::updateOrCreate(
                     [
                         'competition_id' => $competition_id,
-                        'season_id' => $season_id,
                         'date' => $date,
                         'matchday' => $matchday,
                     ],
                     [
                         'competition_id' => $competition_id,
-                        'season_id' => $season_id,
                         'date' => $date,
                         'matchday' => $matchday,
                         'counts' => $counts,

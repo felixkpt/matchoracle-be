@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Matches\View;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\Game\GameRepositoryInterface;
+use App\Repositories\Team\TeamRepositoryInterface;
 use App\Services\Validations\Game\GameValidationInterface;
 
 class MatchController extends Controller
@@ -11,6 +12,7 @@ class MatchController extends Controller
 
     public function __construct(
         private GameRepositoryInterface $gameRepositoryInterface,
+        private TeamRepositoryInterface $teamRepositoryInterface,
         private GameValidationInterface $gameValidationInterface
     ) {
     }
@@ -22,7 +24,7 @@ class MatchController extends Controller
 
     function head2head($id)
     {
-        return $this->gameRepositoryInterface->head2head($id);
+        return $this->teamRepositoryInterface->head2head($id);
     }
 
     function vote($id)

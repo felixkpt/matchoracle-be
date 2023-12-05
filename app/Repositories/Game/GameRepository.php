@@ -9,7 +9,9 @@ use App\Models\Season;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\GameComposer;
 use App\Repositories\SearchRepo;
+use App\Repositories\Team\TeamRepositoryInterface;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -20,19 +22,12 @@ class GameRepository implements GameRepositoryInterface
 
     protected $sourceContext;
 
-    function __construct(protected Game $model)
+    function __construct(protected Game $model, protected TeamRepositoryInterface $teamRepositoryInterface)
     {
     }
 
     public function index($id = null, $without_response = null)
     {
-        $seasons = null;
-        if (isset(request()->season)) {
-            $seasons = Season::where("start_date", 'like', request()->season . '-%')
-                ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
-                ->get()->pluck('id');
-        }
-
         $homeWinVotes = function ($q) {
             return $q->votes->where('winner', 'home')->count();
         };
@@ -77,19 +72,18 @@ class GameRepository implements GameRepositoryInterface
         };
 
         $type_cb = function ($q) {
-            $before = request()->before ?? Carbon::now();
-            request()->type == 'played' ? $q->where('utc_date', '<', $before) : (request()->type == 'upcoming' ? $q->where('utc_date', '>=', Carbon::now()) :  $q);
+            $to_date = request()->to_date ?? Carbon::now();
+            request()->type == 'played' ? $q->where('utc_date', '<', $to_date) : (request()->type == 'upcoming' ? $q->where('utc_date', '>=', Carbon::now()) :  $q);
         };
 
         $competitions = $this->model::with(['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'home_team', 'away_team', 'score', 'votes', 'referees'])
             ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
-            ->when((request()->season_id), fn ($q) => $q->where('season_id', request()->season_id))
-            ->when($seasons, fn ($q) => $q->whereIn('season_id', $seasons))
-            
+            ->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))
+
             ->when(request()->team_id, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', request()->team_id)->orWhere('away_team_id', request()->team_id)))
             ->when(request()->team_ids, $teamsMatch)
-            
+
             ->when(request()->currentground, fn ($q) => request()->currentground == 'home' ? $q->where('home_team_id', request()->team_id) : (request()->currentground == 'away' ? $q->where('away_team_id', request()->team_id) :  $q))
             ->when(request()->yesterday, fn ($q) => $q->whereDate('utc_date', Carbon::yesterday()))
             ->when(request()->today, fn ($q) => $q->whereDate('utc_date', Carbon::today()))
@@ -335,17 +329,6 @@ class GameRepository implements GameRepositoryInterface
         return $this->index($id);
     }
 
-    public function head2head($id)
-    {
-        $game = $this->model->find($id);
-
-        $team_ids = [$game->home_team_id, $game->away_team_id];
-
-        request()->merge(['team_ids' => $team_ids]);
-
-        return $this->index();
-    }
-
     public function vote($id, $data)
     {
         $user_id = auth()->id() ?? 0;
@@ -374,6 +357,8 @@ class GameRepository implements GameRepositoryInterface
     private function addGameStatistics($results)
     {
         ini_set('max_execution_time', 60 * 10);
+
+        Log::info('history_limits: ', [request()->history_limit_per_match, request()->current_ground_limit_per_match, request()->h2h_limit_per_match]);
 
         return $results
             ->addColumn('stats', function ($matchData) {
@@ -409,8 +394,37 @@ class GameRepository implements GameRepositoryInterface
                 $to_date = Carbon::parse($matchData->utc_date)->subDay()->format('Y-m-d');
 
                 $teamsStats = $this->teamStats($to_date, $home_team_id, $away_team_id);
+                if ($teamsStats === null) return null;
+
                 $teamsStatsRecent = $this->teamStatsCurrentground($to_date, $home_team_id, $away_team_id);
+                if ($teamsStatsRecent === null) return null;
+
                 $teamsHead2HeadStats = $this->teamsHead2HeadStats($to_date, $home_team_id, $away_team_id, $matchData->id);
+
+
+                $lp_details = $this->teamRepositoryInterface->teamLeagueDetails($matchData->home_team_id, $matchData->id);
+                $team_lp_home_team_details = [
+                    'team_lp_home_team_position' => $lp_details['position'],
+                    'team_lp_home_team_played_games' => $lp_details['played_games'],
+                    'team_lp_home_team_won' => $lp_details['won'],
+                    'team_lp_home_team_lost' => $lp_details['lost'],
+                    'team_lp_home_team_points' => $lp_details['points'],
+                    'team_lp_home_team_goals_for' => $lp_details['goals_for'],
+                    'team_lp_home_team_goals_against' => $lp_details['goals_against'],
+                    'team_lp_home_team_goal_difference' => $lp_details['goal_difference'],
+                ];
+
+                $lp_details = $this->teamRepositoryInterface->teamLeagueDetails($matchData->away_team_id, $matchData->id);
+                $team_lp_away_team_details = [
+                    'team_lp_away_team_position' => $lp_details['position'],
+                    'team_lp_away_team_played_games' => $lp_details['played_games'],
+                    'team_lp_away_team_won' => $lp_details['won'],
+                    'team_lp_away_team_lost' => $lp_details['lost'],
+                    'team_lp_away_team_points' => $lp_details['points'],
+                    'team_lp_away_team_goals_for' => $lp_details['goals_for'],
+                    'team_lp_away_team_goals_against' => $lp_details['goals_against'],
+                    'team_lp_away_team_goal_difference' => $lp_details['goal_difference'],
+                ];
 
                 return array_merge(
                     $teamsStats,
@@ -426,7 +440,9 @@ class GameRepository implements GameRepositoryInterface
                         'bts_target' => $bts_target,
                         'cs_target' => $cs_target,
                         'referees_ids' => $referees_ids,
-                    ]
+                    ],
+                    $team_lp_home_team_details,
+                    $team_lp_away_team_details,
                 );
             });
     }
@@ -434,10 +450,29 @@ class GameRepository implements GameRepositoryInterface
     private function teamStats($to_date, $home_team_id, $away_team_id)
     {
 
-        request()->merge(['_to_date' => $to_date, '_per_page' => request()->history_limit_per_match ?? 15, '_without_response' => true]);
+        $per_page = request()->history_limit_per_match ?? 10;
 
-        $home_team_matches = array_reverse(json_decode(app(TeamController::class)->matches($home_team_id))->data);
-        $away_team_matches = array_reverse(json_decode(app(TeamController::class)->matches($away_team_id))->data);
+        $all_params = [
+            'team_id' => null,
+            'team_ids' => null,
+            'playing' => 'all',
+            'to_date' => $to_date,
+            'currentground' => null,
+            'season_id' => null,
+            'type' => null,
+            'order_by' => 'utc_date',
+            'order_direction' => 'desc',
+            'per_page' => $per_page,
+            'without_response' => true,
+        ];
+
+        request()->merge(['all_params' => $all_params]);
+
+        $home_team_matches = app(TeamController::class)->matches($home_team_id)['data'];
+        if (count($home_team_matches) < $per_page) return null;
+
+        $away_team_matches = app(TeamController::class)->matches($away_team_id)['data'];
+        if (count($away_team_matches) < $per_page) return null;
 
         $home_team_matches_with_stats = $this->calculateTeamStats($home_team_matches, $home_team_id);
         $away_team_matches_with_stats = $this->calculateTeamStats($away_team_matches, $away_team_id);
@@ -501,16 +536,35 @@ class GameRepository implements GameRepositoryInterface
     private function teamStatsCurrentground($to_date, $home_team_id, $away_team_id)
     {
 
-        $per_page = 6;
-        if (request()->history_limit_per_match)
-            $per_page = (int) request()->history_limit_per_match / .30;
+        $per_page = 4;
+        if (request()->current_ground_limit_per_match)
+            $per_page = request()->current_ground_limit_per_match;
         $per_page = $per_page < 4 ? 4 : $per_page;
 
-        request()->merge(['_to_date' => $to_date, '_per_page' => $per_page, '_without_response' => true]);
-        request()->merge(['_currentground' => 'home']);
-        $home_team_matches = array_reverse(json_decode(app(TeamController::class)->matches($home_team_id))->data);
-        request()->merge(['_currentground' => 'away']);
-        $away_team_matches = array_reverse(json_decode(app(TeamController::class)->matches($away_team_id))->data);
+        $all_params = [
+            'team_id' => null,
+            'team_ids' => null,
+            'playing' => 'all',
+            'to_date' => $to_date,
+            'currentground' => 'home',
+            'season_id' => null,
+            'type' => null,
+            'order_by' => 'utc_date',
+            'order_direction' => 'desc',
+            'per_page' => $per_page,
+            'without_response' => true,
+        ];
+
+        request()->merge(['all_params' => $all_params]);
+
+        $home_team_matches = app(TeamController::class)->matches($home_team_id)['data'];
+        if (count($home_team_matches) < $per_page) return null;
+
+        $all_params['currentground'] = 'away';
+        request()->merge(['all_params' => $all_params]);
+
+        $away_team_matches = app(TeamController::class)->matches($away_team_id)['data'];
+        if (count($away_team_matches) < $per_page) return null;
 
         $home_team_matches_with_stats = $this->calculateTeamStats($home_team_matches, $home_team_id);
         $away_team_matches_with_stats = $this->calculateTeamStats($away_team_matches, $away_team_id);
@@ -573,13 +627,31 @@ class GameRepository implements GameRepositoryInterface
 
     private function teamsHead2HeadStats($to_date, $home_team_id, $away_team_id, $match_id)
     {
+        $per_page = 4;
+        if (request()->h2h_limit_per_match)
+            $per_page = request()->h2h_limit_per_match;
+        $per_page = $per_page < 4 ? 4 : $per_page;
 
-        request()->merge(['_to_date' => $to_date, '_per_page' => 6, '_without_response' => true]);
-        request()->merge(['_currentground' => null, 'team_id' => null]);
-        $matches = array_reverse(json_decode(app(TeamController::class)->head2head($match_id))->data);
+        $all_params = [
+            'team_id' => null,
+            'team_ids' => null,
+            'playing' => 'all',
+            'to_date' => $to_date,
+            'currentground' => null,
+            'season_id' => null,
+            'type' => null,
+            'order_by' => 'utc_date',
+            'order_direction' => 'desc',
+            'per_page' => $per_page,
+            'without_response' => true,
+        ];
 
-        $home_team_matches_with_stats = $this->calculateTeamStats($matches, $home_team_id, 3);
-        $away_team_matches_with_stats = $this->calculateTeamStats($matches, $away_team_id, 3);
+        request()->merge(['all_params' => $all_params]);
+
+        $matches = app(TeamController::class)->head2head($match_id)['data'];
+
+        $home_team_matches_with_stats = $this->calculateTeamStats($matches, $home_team_id);
+        $away_team_matches_with_stats = $this->calculateTeamStats($matches, $away_team_id);
 
         return [
             'h2h_home_team_totals' => $home_team_matches_with_stats['totals'],

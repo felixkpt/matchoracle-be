@@ -12,7 +12,10 @@ class CompetitionStatistic extends Model
     protected $fillable = [
         'competition_id',
         'season_id',
+        'date',
+        'matchday',
         'counts',
+
         'half_time_home_wins',
         'half_time_draws',
         'half_time_away_wins',

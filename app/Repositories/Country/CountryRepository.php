@@ -25,16 +25,16 @@ class CountryRepository implements CountryRepositoryInterface
         $countries = $this->model::with(['continent', 'competitions'])
             ->when($filter, fn ($q) => $q->whereIn('id', $ids));
 
-            Log::critical("message", [Storage::disk('local')->get('')]);
+        Log::critical("country message", [Storage::disk('local')->get('')]);
 
         $uri = '/admin/countries/';
         $res = SearchRepo::of($countries, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'Status')
-            ->addColumn('flag', fn($q) => $q->flag ?? asset('storage/football/defaultflag.png'))
+            ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->flag ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addColumn('has_competitions', fn ($q) =>  $q->has_competitions ? 'Yes' : 'No')
             ->addActionColumn('action', $uri)
-            ->htmls(['Status'])
+            ->htmls(['Status', 'Flag'])
             ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
             ->addFillable('has_competitions', 'has_competitions', ['input' => 'select'])
             ->orderBy('name')
@@ -74,8 +74,9 @@ class CountryRepository implements CountryRepositoryInterface
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'Status')
             ->addColumn('has_competitions', fn ($q) =>  $q->has_competitions ? 'Yes' : 'No')
+            ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->emblem ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addActionColumn('action', $uri)
-            ->htmls(['Status'])
+            ->htmls(['Status', 'Flag'])
             ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
             ->addFillable('has_competitions', 'has_competitions', ['input' => 'select'])
             ->orderby('priority_number')
@@ -95,7 +96,11 @@ class CountryRepository implements CountryRepositoryInterface
         $queryBuilder = $this->model::with('user')->where('country_id', $id);
 
         // Apply search and sorting using SearchRepo
-        $searchRepo = SearchRepo::of($queryBuilder, $searchableColumns, $sortableColumns);
+        $searchRepo = SearchRepo::of($queryBuilder, $searchableColumns, $sortableColumns)
+            ->addColumn('Created_at', 'Created_at')
+            ->addColumn('Status', 'Status')
+            ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->emblem ?? asset('storage/football/defaultflag.png')) . '" />')
+            ->htmls(['Flag']);
 
         // Add a custom column "image_url" to the search results
         $searchRepo->addColumn('image_url', function ($country) {

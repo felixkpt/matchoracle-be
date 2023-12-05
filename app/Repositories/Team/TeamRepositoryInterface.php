@@ -10,9 +10,11 @@ interface TeamRepositoryInterface extends CommonRepoActionsInterface
 
     public function index();
 
-    function matches($id);
+    function matches($id,);
 
     function head2head($id);
+
+    function teamLeagueDetails($id, $game_id = null);
 
     public function store(Request $request, $data);
 

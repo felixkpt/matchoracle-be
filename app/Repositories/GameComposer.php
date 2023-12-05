@@ -46,8 +46,8 @@ class GameComposer
 
     public static function winner($game, $teamId)
     {
-        if (gettype($game) !== 'array') {
-            $game = collect($game);
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
         }
 
         $score = $game['score'];
@@ -70,8 +70,8 @@ class GameComposer
 
     public static function winningSide($game, $integer = false)
     {
-        if (gettype($game) !== 'array') {
-            $game = collect($game);
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
         }
 
         $scoreData = $game['score'];
@@ -93,8 +93,8 @@ class GameComposer
 
     public static function winningSideHT($game, $integer = false)
     {
-        if (gettype($game) !== 'array') {
-            $game = collect($game);
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
         }
 
         $scoreData = $game['score'];
@@ -126,8 +126,8 @@ class GameComposer
 
     public static function goals($game)
     {
-        if (gettype($game) !== 'array') {
-            $game = collect($game);
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
         }
 
         $score = $game['score'];
@@ -146,8 +146,8 @@ class GameComposer
 
     public static function goalsHT($game)
     {
-        if (gettype($game) !== 'array') {
-            $game = collect($game);
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
         }
 
         $score = $game['score'];
@@ -166,8 +166,8 @@ class GameComposer
 
     public static function bts($game)
     {
-        if (gettype($game) !== 'array') {
-            $game = collect($game);
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
         }
 
         $score = $game['score'];
@@ -190,8 +190,8 @@ class GameComposer
 
     public static function btsHT($game)
     {
-        if (gettype($game) !== 'array') {
-            $game = collect($game);
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
         }
 
         $score = $game['score'];
@@ -209,8 +209,8 @@ class GameComposer
 
     public static function winnerId($game)
     {
-        if (gettype($game) !== 'array') {
-            $game = collect($game);
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
         }
 
         $score = $game['score'];
@@ -234,8 +234,8 @@ class GameComposer
 
     public static function hasResults($game)
     {
-        if (gettype($game) !== 'array') {
-            $game = collect($game);
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
         }
 
         $score = $game['score'];
@@ -258,8 +258,8 @@ class GameComposer
 
     public static function getScores($game, $teamId, $negate = false)
     {
-        if (gettype($game) !== 'array') {
-            $game = collect($game);
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
         }
 
         $homeTeamId = $game['home_team_id'];
@@ -301,8 +301,8 @@ class GameComposer
 
     public static function getScoresHT($game, $teamId, $negate = false)
     {
-        if (gettype($game) !== 'array') {
-            $game = collect($game);
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
         }
 
         $homeTeamId = $game['home_team_id'];

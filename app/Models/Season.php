@@ -29,8 +29,13 @@ class Season extends Model
         return $this->belongsTo(Competition::class);
     }
 
+    public function standings()
+    {
+        return $this->hasMany(Standing::class);
+    }
+
     public function winner()
     {
-        return $this->belongsTo(Team::class, 'winner_id');
+        return $this->belongsTo(Team::class);
     }
 }
