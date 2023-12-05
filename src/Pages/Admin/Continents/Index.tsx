@@ -3,14 +3,6 @@ import AutoTable from "@/components/AutoTable";
 import PageHeader from "@/components/PageHeader";
 import { useState } from "react";
 
-interface CountryInterface {
-    id: string,
-    name: string,
-    slug: string,
-    continents: []
-
-}
-
 const Index = () => {
 
     const [modelDetails, setModelDetails] = useState({})

@@ -12,7 +12,7 @@ const Show = () => {
   const columns = [
     {
       label: 'Flag',
-      key: 'flag',
+      key: 'Flag',
     },
     { label: 'Name', key: 'name' },
     {

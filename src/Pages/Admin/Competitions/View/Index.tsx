@@ -9,13 +9,15 @@ import AutoTabs from "@/components/AutoTabs";
 import { CompetitionInterface, SeasonInterface } from "@/interfaces/FootballInterface";
 import Standings from "./Tabs/Standings";
 import Teams from "./Tabs/Teams";
+import Statistics from "./Tabs/Statistics";
 import Sources from "./Tabs/Sources";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces";
-import { OptionsOrGroups } from "react-select";
 import UpcomingMatches from "./Tabs/UpcomingMatches";
 import PlayedMatches from "./Tabs/PlayedMatches";
 import Seasons from "./Tabs/Seasons";
+import Loader from "@/components/Loader";
+import Error404 from "@/Pages/ErrorPages/Error404";
 
 const Index = () => {
     const { id } = useParams<any>();
@@ -26,7 +28,6 @@ const Index = () => {
     const [selectedSeason, setSelectedSeason] = useState<SeasonInterface | null>(null);
 
     const [modelDetails, setModelDetails] = useState<CollectionItemsInterface>()
-
 
     useEffect(() => {
 
@@ -69,14 +70,7 @@ const Index = () => {
 
 
     const tabs = [
-        {
-            name: "Details",
-            content: <Details record={record} modelDetails={modelDetails} />,
-        },
-        {
-            name: "Seasons",
-            content: <Seasons record={record} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
-        },
+
         {
             name: "Standings",
             content: <Standings record={record} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
@@ -98,6 +92,18 @@ const Index = () => {
             content: <Predictions record={record} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
         },
         {
+            name: "Statistics",
+            content: <Statistics record={record} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+        },
+        {
+            name: "Seasons",
+            content: <Seasons record={record} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+        },
+        {
+            name: "Details",
+            content: <Details record={record} modelDetails={modelDetails} />,
+        },
+        {
             name: "Sources",
             content: <Sources record={record} />,
         },
@@ -107,10 +113,19 @@ const Index = () => {
     return (
         <div className="mb-3">
             {
-                !loading && record && <PageHeader title={record.country.name + ' - ' + record.name} listUrl="/admin/competitions" />
+                !loading ?
+
+                    record ?
+                        <div>
+                            <PageHeader title={record.country.name + ' - ' + record.name} listUrl="/admin/competitions" />
+                            <AutoTabs tabs={tabs} />
+                        </div>
+                        :
+                        <Error404 />
+                    :
+                    <Loader />
             }
 
-            <AutoTabs tabs={tabs} />
         </div>
     );
 

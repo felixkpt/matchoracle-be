@@ -33,7 +33,7 @@ const UpcomingMatches: React.FC<CompetitionTabInterface> = ({ record, selectedSe
         <div>
           <CompetitionHeader title="Upcoming Matches" actionTitle="Fetch Fixtures" actionButton="fetchUpcomingMatches" record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} startDate={startDate} setStartDate={setStartDate} setUseDate={setUseDate} setLocalKey={setLocalKey} />
 
-          <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/matches?season=${selectedSeason ? Str.before(selectedSeason?.start_date, '-') : ''}&type=upcoming&date=${useDate ? startDate : ''}`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+          <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/matches?season_id=${selectedSeason ? selectedSeason?.id : ''}&type=upcoming&date=${useDate ? startDate : ''}`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
 
           {
             competition &&

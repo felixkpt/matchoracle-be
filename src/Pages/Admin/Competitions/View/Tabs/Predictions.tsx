@@ -14,12 +14,15 @@ const Predictions: React.FC<CompetitionTabInterface> = ({ record, selectedSeason
     const [useDate, setUseDate] = useState(false);
 
     const columns = [
-        { key: 'home_team.name' },
-        { key: 'away_team.name' },
-        { label: 'half_time', key: 'half_time' },
-        { label: 'full_time', key: 'full_time' },
+        { key: 'Game' },
+        { key: '1X2' },
+        { key: 'Pick' },
+        { key: 'BTS' },
+        { key: 'Over25' },
+        { key: 'CS' },
+        { label: 'half_time', key: 'Halftime' },
+        { label: 'full_time', key: 'Fulltime' },
         { label: 'Status', key: 'Status' },
-        { label: 'User', key: 'user_id' },
         { key: 'utc_date' },
         { label: 'Created At', key: 'Created_at' },
         { label: 'Action', key: 'action' },
@@ -33,7 +36,7 @@ const Predictions: React.FC<CompetitionTabInterface> = ({ record, selectedSeason
                 <div>
                     <CompetitionHeader title="Predictions" record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} startDate={startDate} setStartDate={setStartDate} setUseDate={setUseDate} setLocalKey={setLocalKey} />
 
-                    <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/predictions?season=${selectedSeason ? Str.before(selectedSeason?.start_date, '-') : ''}&date=${useDate ? startDate : ''}`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+                    <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/predictions?season_id=${selectedSeason ? selectedSeason?.id : ''}&date=${useDate ? startDate : ''}&break_preds=1`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
 
                     <GeneralModal title={`Predictions form`} actionUrl={`admin/competitions/view/${competition.id}/predict`} size={'modal-lg'} id={`doPredictions`} setKey={setKey}>
                         <div className="form-group mb-3">

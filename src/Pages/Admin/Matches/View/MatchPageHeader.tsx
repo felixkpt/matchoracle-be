@@ -28,14 +28,18 @@ const MatchPageHeader = ({ game, homeTeam, awayTeam, homeTeamRecentResults, away
       </div>
       <div className='col-12 col-md-6 col-lg-7 order-1 order-md-1 header-title shadow-sm border p-2 rounded mb-3 row text-center bg-light z-50'>
         <div className="competition-head d-flex flex-column align-items-center">
-          <div className="d-flex align-items-center gap-4">
+          <div className="p-1 border rounded-circle">
             {
               game.competition.emblem &&
-              <img className='symbol-image-md' src={game.competition.emblem} alt="" />
+              <NavLink to={`/admin/competitions/view/${game.competition.id}`} className={`btn-link`}>
+                <img className='symbol-image-md' src={game.competition.emblem} alt="" />
+              </NavLink>
             }
           </div>
           <div className="d-flex align-items-center gap-4">
-            <h5 className="text-muted">{game.competition.country.name} - {game.competition.name}</h5>
+            <NavLink to={`/admin/competitions/view/${game.competition.id}`} className={`btn-link`}>
+              <h5 className="text-muted">{game.competition.country.name} - {game.competition.name}</h5>
+            </NavLink>
           </div>
         </div>
         <div>

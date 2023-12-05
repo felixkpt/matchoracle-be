@@ -1,9 +1,15 @@
-import { TeamInterface } from "@/interfaces/FootballInterface";
+import { SeasonInterface, TeamInterface } from "@/interfaces/FootballInterface";
+import Str from "./Str";
 
 class Composer {
 
     static team(team: TeamInterface, prefers: 'name' | 'short' | 'TLA' | null = null) {
         return prefers === 'short' ? team.short_name : (prefers === 'TLA' ? team.tla : team.name)
+    }
+
+    static season(season: SeasonInterface) {
+        if (!season) return 'all'
+        return `${Str.before(season.start_date, '-')} / ${Str.before(season.end_date, '-')}`
     }
 
     static results(score: any, type: 'ft' | 'ht' | 'winner' = 'ft', show: 'h' | 'a' | null = null) {

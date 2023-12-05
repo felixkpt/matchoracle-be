@@ -10,21 +10,21 @@ const CreateOrUpdateFromSource = ({ record, hideClose }: Props) => {
 
     const [localKey, setLocalKey] = useState(0);
 
-    const [gameSouces, setGameSouces] = useState([])
-    const [currentGameSouces, setCurentGameSouces] = useState([])
+    const [gameSources, setGameSources] = useState([])
+    const [currentGameSources, setCurentGameSources] = useState([])
 
     const { get } = useAxios()
 
     useEffect(() => {
 
-        get('/admin/settings/picklists/game-sources?all=1').then((res: any) => res?.data && setGameSouces(res.data))
+        get('/admin/settings/picklists/game-sources?all=1').then((res: any) => res?.data && setGameSources(res.data))
 
     }, [])
 
     useEffect(() => {
 
         if (record) {
-            setCurentGameSouces(record.game_sources)
+            setCurentGameSources(record.game_sources)
         }
 
     }, [record])
@@ -32,13 +32,13 @@ const CreateOrUpdateFromSource = ({ record, hideClose }: Props) => {
     return (
         <div>
             {
-                gameSouces.length > 0 ?
+                gameSources.length > 0 ?
 
                     <table className="table" key={localKey}>
                         <tbody>
                             {
-                                gameSouces.map((item: any) => {
-                                    let curr = currentGameSouces.find((itm: any) => itm.id === item.id)
+                                gameSources.map((item: any) => {
+                                    let curr = currentGameSources.find((itm: any) => itm.id === item.id)
 
                                     if (curr) {
                                         curr = curr.pivot

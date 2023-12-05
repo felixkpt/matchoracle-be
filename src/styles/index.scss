@@ -257,5 +257,15 @@ p {
 }
 
 .react-datepicker-popper {
-  z-index: 100!important;
+  z-index: 100 !important;
+}
+
+.bg-light-blue {
+  background: #c4d7eb !important;
+}
+
+.border-bottom-light-blue {
+  border-bottom-width: 3px;
+  border-bottom-style: solid;
+  border-bottom-color: #c4d7eb !important;
 }

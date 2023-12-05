@@ -3,12 +3,12 @@ import { TeamInterface } from "@/interfaces/FootballInterface"
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useEffect, useState } from "react"
 import AsyncSelect from 'react-select/async';
-import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces";
+import { DataInterface } from "@/interfaces/UncategorizedInterfaces";
 import { PropsValue } from "react-select";
 import Loader from "../Loader";
 
 type Props = {
-    record: CollectionItemsInterface
+    record: DataInterface | undefined
 }
 
 const UpdateCoach = ({ record }: Props) => {

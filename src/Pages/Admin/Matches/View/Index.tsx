@@ -65,7 +65,7 @@ const Index = () => {
                 <VotesSection game={game} />
                 <div className="row">
                   <div className="col-12">
-                    <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} />
+                    <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} perPage={8} />
                   </div>
                   <div className="col-12 col-xl-8">
                     <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} currentground={true} perPage={5} setHomeTeamRecentResults={setHomeTeamRecentResults} setAwayTeamRecentResults={setAwayTeamRecentResults} />
@@ -77,7 +77,7 @@ const Index = () => {
                   <StandingsTable standings={standings} minimal={true} homeTeamId={homeTeam.id} awayTeamId={awayTeam.id} />
                 </div>
                 <div className='mb-5'>
-                  <Head2HeadCard key={game.id} game={game} homeTeam={homeTeam} awayTeam={awayTeam} />
+                  <Head2HeadCard key={game.id} game={game} homeTeam={homeTeam} perPage={5} awayTeam={awayTeam} />
                 </div>
               </div>
               <div className="col-12">

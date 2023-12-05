@@ -1,12 +1,11 @@
-import AutoModal from "@/components/AutoModal";
 import AutoTable from "@/components/AutoTable";
 import GeneralModal from "@/components/Modals/GeneralModal";
 import PageHeader from "@/components/PageHeader";
 import useListSources from "@/hooks/apis/useListSources";
-import { CollectionItemsInterface, DataInterface } from "@/interfaces/UncategorizedInterfaces";
+import { DataInterface } from "@/interfaces/UncategorizedInterfaces";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { useEffect, useState } from "react";
-import AddSource from "../../../components/AddSource";
+import AddSource from "@/components/AddSource";
 import AutoModalBody from "@/components/AutoModalBody";
 import CreateOrUpdateFromSource from "@/components/CreateOrUpdateFromSource";
 
@@ -15,7 +14,7 @@ const Index = () => {
     const [modelDetails, setModelDetails] = useState({})
     const [key, setKey] = useState(0)
     const [record, setRecord] = useState<DataInterface>()
-    const [record2, setRecord2] = useState<CollectionItemsInterface>()
+    const [record2, setRecord2] = useState<DataInterface>()
 
     const { competitions: list_sources } = useListSources()
     const [actionUrl, setActionUrl] = useState<string>('/admin/competitions')
@@ -42,7 +41,6 @@ const Index = () => {
             label: 'Action',
             key: 'action',
         },
-
     ];
     
     const addSources = (e: CustomEvent) => {
@@ -104,7 +102,7 @@ const Index = () => {
         };
     }, []);
 
-    function toggleEvent(e: Event) {
+    function toggleEvent(e: any) {
         const id = e.target?.id
 
         const form = document.querySelector('#competitionModal form')

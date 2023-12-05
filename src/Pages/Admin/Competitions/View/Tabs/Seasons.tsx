@@ -1,4 +1,4 @@
-import { CompetitionInterface, CompetitionTabInterface } from '@/interfaces/FootballInterface'
+import { CompetitionTabInterface } from '@/interfaces/FootballInterface'
 import CompetitionHeader from '../Inlcudes/CompetitionHeader';
 import AutoTable from '@/components/AutoTable';
 import GeneralModal from '@/components/Modals/GeneralModal';
@@ -37,7 +37,7 @@ const Seasons: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, se
                 <div>
                   <div className="form-group mb-3">
                     <label htmlFor="season_id">Season</label>
-                    <AsyncSeasonsList record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason}  />
+                    <AsyncSeasonsList record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
                   </div>
                   <div className="modal-footer gap-1">
                     <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>

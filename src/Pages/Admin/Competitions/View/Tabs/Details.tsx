@@ -6,6 +6,8 @@ import { subscribe, unsubscribe } from '@/utils/events'
 import { useEffect } from 'react'
 import { CompetitionInterface } from '@/interfaces/FootballInterface'
 import AddSource from '@/components/AddSource'
+import DefaultMessage from '@/components/DefaultMessage'
+import PageHeader from '@/components/PageHeader'
 
 type Props = {
     record: CompetitionInterface | undefined
@@ -36,25 +38,25 @@ const Details = ({ record, modelDetails }: Props) => {
 
     return (
         <div>
-            {
-                record
-                &&
-                <>
-                    <SimpleTable exclude={['emblem']} modelDetails={modelDetails} record={record} list_sources={list_sources} />
-                    <button type="button" className="btn btn-primary d-none" id="addSourcesButton" data-bs-toggle="modal" data-bs-target="#addSources"></button>
-                </>
-            }
-            {
-                record
-                &&
-                <>
-                    <button type="button" className="btn btn-primary d-none" id="addSourcesButton" data-bs-toggle="modal" data-bs-target="#addSources"></button>
-                    <GeneralModal title={`Add source for ${record.name || '#'}`} actionUrl={`admin/competitions/view/${record.id}/add-sources`} size={'modal-lg'} id={`addSources`}>
-                        <AddSource record={record} />
-                    </GeneralModal>
+            <PageHeader title='Details' />
+            <div className='card'>
+                <div className="card-body">
+                    {
+                        record ?
+                            <>
+                                <SimpleTable exclude={['emblem']} modelDetails={modelDetails} record={record} list_sources={list_sources} />
+                                <button type="button" className="btn btn-primary d-none" id="addSourcesButton" data-bs-toggle="modal" data-bs-target="#addSources"></button>
+                                <button type="button" className="btn btn-primary d-none" id="addSourcesButton" data-bs-toggle="modal" data-bs-target="#addSources"></button>
+                                <GeneralModal title={`Add source for ${record.name || '#'}`} actionUrl={`admin/competitions/view/${record.id}/add-sources`} size={'modal-lg'} id={`addSources`}>
+                                    <AddSource record={record} />
+                                </GeneralModal>
 
-                </>
-            }
+                            </>
+                            :
+                            <DefaultMessage />
+                    }
+                </div>
+            </div>
 
         </div>
     )

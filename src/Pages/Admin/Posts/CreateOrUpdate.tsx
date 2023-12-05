@@ -17,16 +17,16 @@ const CreateOrUpdate = () => {
   const navigate = useNavigate()
 
   const [key, setKey] = useState(0)
-  const [post, setPost] = useState<PostInterface | null>()
+  const [post, setPost] = useState<PostInterface | undefined>()
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [initialContent, setInitialContent] = useState('')
   const [statuses, setStatuses] = useState([])
 
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<string[]>([]);
 
-  const editorRef = useRef(null);
+  const editorRef = useRef<any>(null);
 
   const { get: getPost } = useAxios()
   const { post: doPost, errors } = useAxios()
@@ -67,7 +67,7 @@ const CreateOrUpdate = () => {
           setStatuses(res)
 
           setKey((curr) => curr + 1)
-          setPost(null);
+          setPost(undefined);
           setTitle('');
           setContent('');
           setFiles([]);
@@ -83,7 +83,7 @@ const CreateOrUpdate = () => {
     const sidebarWasClosedInitially = document.body.classList.contains('sb-sidenav-toggled')
     toggleSidebar(undefined, 'hide', true)
 
-    const handleAjaxPostDone = (event: Event) => {
+    const handleAjaxPostDone = (event: any) => {
       if (event?.detail) {
         const { elementId, results } = event.detail;
 

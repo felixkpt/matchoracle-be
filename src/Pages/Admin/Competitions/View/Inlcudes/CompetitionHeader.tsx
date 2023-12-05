@@ -2,7 +2,7 @@ import MatchesPageHeader from '@/Pages/Admin/Predictions/Includes/MatchesPageHea
 import useAxios from '@/hooks/useAxios';
 import { CompetitionInterface, CompetitionTabInterface } from '@/interfaces/FootballInterface';
 import Str from '@/utils/Str'
-import { SyntheticEvent, useState } from 'react';
+import { SyntheticEvent } from 'react';
 import AsyncSelect from 'react-select/async';
 
 interface Props extends CompetitionTabInterface {

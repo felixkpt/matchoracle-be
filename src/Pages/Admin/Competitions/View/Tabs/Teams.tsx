@@ -2,7 +2,7 @@ import AutoTable from "@/components/AutoTable";
 import GeneralModal from "@/components/Modals/GeneralModal";
 import PageHeader from "@/components/PageHeader";
 import useListSources from "@/hooks/apis/useListSources";
-import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces";
+import { CollectionItemsInterface, DataInterface } from "@/interfaces/UncategorizedInterfaces";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { useEffect, useState } from "react";
 import AutoModalBody from "@/components/AutoModalBody";
@@ -16,9 +16,9 @@ const Index: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setS
     const competition = record
 
     const [modelDetails, setModelDetails] = useState({})
-    const [team, setTeam] = useState<CollectionItemsInterface>()
-    const [record2, setRecord2] = useState<CollectionItemsInterface>()
-    const [record3, setRecord3] = useState<CollectionItemsInterface>()
+    const [team, setTeam] = useState<DataInterface>()
+    const [record2, setRecord2] = useState<DataInterface>()
+    const [record3, setRecord3] = useState<DataInterface>()
 
     const { competitions: list_sources } = useListSources()
     const [actionUrl, setActionUrl] = useState<string>('/admin/teams')
@@ -118,7 +118,7 @@ const Index: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setS
         };
     }, []);
 
-    function toggleEvent(e: Event) {
+    function toggleEvent(e: any) {
         const id = e.target?.id
 
         const form = document.querySelector('#teamModal form')
@@ -203,7 +203,7 @@ const Index: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setS
                 record3 &&
                 <>
                     <button type="button" className="btn btn-primary d-none" id="updateTeamCoachButton" data-bs-toggle="modal" data-bs-target="#updateTeamCoach"></button>
-                    <GeneralModal title={`Update coach for ${record3.record.name || '#'}`} actionUrl={`${record3.action || '#'}`} size={'modal-md'} id={`updateTeamCoach`} setKey={setKey}>
+                    <GeneralModal title={`Update coach for ${record3.record.name || '#'}`} actionUrl={`${record3.action || '#'}`} id={`updateTeamCoach`} setKey={setKey}>
                         <div>
                             <UpdateCoach record={record3} />
                         </div>

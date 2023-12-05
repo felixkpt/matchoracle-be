@@ -7,7 +7,7 @@ type Props = {
 }
 
 const PredictionsSection = ({ game }: Props) => {
-    const { prediction } = game
+    const { formatted_prediction } = game
 
     return (
         <div>
@@ -17,25 +17,25 @@ const PredictionsSection = ({ game }: Props) => {
                 <div className="card-body">
                     <div className="row">
                         <div className="col-12 col-md-12 col-lg-4">
-                            Win-Draw-Win: {prediction?.cs ? `(${prediction.cs})` : ''}
+                            Win-Draw-Win: {formatted_prediction?.cs ? `(${formatted_prediction.cs})` : ''}
                             {
-                                prediction ?
-                                    <FormSummary teamWins={prediction.home_win_proba} draws={prediction.draw_proba} teamLoses={prediction.away_win_proba} totals={100} winColorClass="bg-primary" labelA=" (1)" labelB=" (X)" labelC=" (2)" />
+                                formatted_prediction ?
+                                    <FormSummary teamWins={formatted_prediction.home_win_proba} draws={formatted_prediction.draw_proba} teamLoses={formatted_prediction.away_win_proba} totals={100} winColorClass="bg-primary" labelA=" (1)" labelB=" (X)" labelC=" (2)" />
                                     : ' N/A'
                             }
                         </div>
                         <div className="col-12 col-md-12 col-lg-4">
                             BTS:
                             {
-                                prediction ?
-                                    <FormSummary teamWins={prediction.gg_proba} draws={prediction.ng_proba} totals={100} winColorClass="bg-primary" labelA=" (YES)" labelB=" (NO)" />
+                                formatted_prediction ?
+                                    <FormSummary teamWins={formatted_prediction.gg_proba} draws={formatted_prediction.ng_proba} totals={100} winColorClass="bg-primary" labelA=" (YES)" labelB=" (NO)" />
                                     : ' N/A'
                             }
                         </div>
                         <div className="col-12 col-md-12 col-lg-4">
                             OVER/UNDER 25:
                             {
-                                prediction ? <FormSummary teamWins={prediction.over25_proba} draws={prediction.under25_proba} totals={100} winColorClass="bg-primary" labelA=" (OVER)" labelB=" (UNDER)" /> : ' N/A'
+                                formatted_prediction ? <FormSummary teamWins={formatted_prediction.over25_proba} draws={formatted_prediction.under25_proba} totals={100} winColorClass="bg-primary" labelA=" (OVER)" labelB=" (UNDER)" /> : ' N/A'
                             }
                         </div>
                     </div>

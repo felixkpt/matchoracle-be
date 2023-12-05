@@ -12,6 +12,7 @@ type Props = {
     game: GameInterface
     homeTeam: TeamInterface
     awayTeam: TeamInterface
+    perPage?: number
 }
 
 type Head2HeadOptionsType = {
@@ -20,7 +21,7 @@ type Head2HeadOptionsType = {
 
 }
 
-const Head2HeadCard = ({ game, homeTeam, awayTeam }: Props) => {
+const Head2HeadCard = ({ game, homeTeam, awayTeam, perPage }: Props) => {
 
     const { get: geGames } = useAxios()
 
@@ -37,7 +38,7 @@ const Head2HeadCard = ({ game, homeTeam, awayTeam }: Props) => {
     useEffect(() => {
 
         if (game) {
-            geGames(`admin/matches/view/${game.id}/head2head?type=played&per_page=${15}&before=${game?.utc_date}&playing=${selectedHead2HeadOption?.id || 'all'}`).then((res) => {
+            geGames(`admin/matches/view/${game.id}/head2head?type=played&per_page=${perPage || 5}&to_date=${game?.utc_date}&playing=${selectedHead2HeadOption?.id || 'all'}&break_preds2=1`).then((res) => {
 
                 const { data } = res
                 if (data) {

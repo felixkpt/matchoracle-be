@@ -25,7 +25,7 @@ const LastMatches = ({ game, homeTeam, awayTeam, currentground, perPage, setHome
     useEffect(() => {
 
         if (homeTeam) {
-            getHomeTeamGames(`admin/teams/view/${homeTeam.id}/matches?type=played&per_page=${perPage || 15}&before=${game?.utc_date}${currentground ? '&currentground=home' : ''}`).then((res) => {
+            getHomeTeamGames(`admin/teams/view/${homeTeam.id}/matches?type=played&per_page=${perPage || 15}&to_date=${game?.utc_date}${currentground ? '&currentground=home' : ''}`).then((res) => {
 
                 const { data } = res
                 if (data) {
@@ -39,7 +39,7 @@ const LastMatches = ({ game, homeTeam, awayTeam, currentground, perPage, setHome
     useEffect(() => {
 
         if (awayTeam) {
-            getAwayTeamGames(`admin/teams/view/${awayTeam.id}/matches?type=played&per_page=${perPage || 15}&before=${game?.utc_date}${currentground ? '&currentground=away' : ''}`).then((res) => {
+            getAwayTeamGames(`admin/teams/view/${awayTeam.id}/matches?type=played&per_page=${perPage || 15}&to_date=${game?.utc_date}${currentground ? '&currentground=away' : ''}`).then((res) => {
 
                 const { data } = res
                 if (data) {

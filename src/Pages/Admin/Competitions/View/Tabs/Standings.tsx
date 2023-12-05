@@ -5,6 +5,8 @@ import CompetitionHeader from '../Inlcudes/CompetitionHeader';
 import GeneralModal from '@/components/Modals/GeneralModal';
 import AsyncSeasonsList from '../Inlcudes/AsyncSeasonsList';
 import StandingsTable from '@/components/Teams/StandingsTable';
+import Loader from '@/components/Loader';
+import DefaultMessage from '@/components/DefaultMessage';
 
 
 const Standings: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setSelectedSeason, setKey }) => {
@@ -31,8 +33,21 @@ const Standings: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, 
                 &&
                 <div>
                     <CompetitionHeader title="Standings" actionTitle="Fetch Standings" actionButton="fetchStandings" record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
-                    {detailedCompetition &&
-                        <StandingsTable standings={detailedCompetition.standings} />
+
+
+
+                    {
+                        !loading ?
+                            <div>
+                                {
+                                    detailedCompetition && detailedCompetition.standings.length > 0 ?
+                                        <StandingsTable standings={detailedCompetition.standings} />
+                                        :
+                                        <DefaultMessage />
+                                }
+                            </div>
+                            :
+                            <Loader />
                     }
 
                     <GeneralModal title={`Fetch Standings form`} actionUrl={`admin/competitions/view/${competition.id}/fetch-standings`} size={'modal-lg'} id={`fetchStandings`} setKey={setKey}>

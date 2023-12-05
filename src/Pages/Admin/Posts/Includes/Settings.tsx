@@ -8,7 +8,7 @@ import { PostInterface } from "@/interfaces/PostInterfaces";
 import useListDependsOn from "@/hooks/useListDependsOn";
 
 interface Props {
-    post: PostInterface
+    post: PostInterface | undefined
     files: any
     setFiles: any
     statuses: any

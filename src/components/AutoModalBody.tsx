@@ -5,7 +5,7 @@ import { DataInterface, ListSourceInterface, ModalSizeType } from '@/interfaces/
 import Str from '@/utils/Str';
 interface ModalProps {
     modelDetails?: any;
-    record?: DataInterface | null
+    record?: DataInterface | undefined
     modelName?: string;
     fillable?: { [key: string]: { input: string; type: string } };
     id?: string
@@ -112,7 +112,6 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
 
         subscribe('ajaxPostDone', handleAjaxPostDone as EventListener);
 
-
         return () => unsubscribe('ajaxPostDone', handleAjaxPostDone as EventListener);
 
     }, [])
@@ -134,7 +133,7 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
                 // close_modal
                 const modal = document.querySelector(`#${modalId}`)
                 if (modal && !modal.classList.contains('modal-static')) {
-                    modal.querySelector('button[data-bs-dismiss="modal"]')?.click()
+                    (modal.querySelector('button[data-bs-dismiss="modal"]') as HTMLElement)?.click()
                 }
             }
         }

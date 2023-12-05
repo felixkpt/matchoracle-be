@@ -187,8 +187,28 @@ export interface GameInterface {
     draw_votes: number
     away_win_votes: number
     current_user_votes: boolean,
-    prediction: PredictionInterface
+    prediction: PredictionInterface,
+    formatted_prediction: PredictionInterface,
 
+}
+
+export interface GameSourceInterface {
+    id: string
+    name: string
+    url: string
+    description: string
+    priority_number: number
+}
+export interface CompetitionGameSourceInterface {
+    id: string
+    competition_id: string
+    game_source_id: string
+    uri: string
+    source_id: string
+    subscription_expires: string
+    is_subscribed: string
+    priority_number: number
+    pivot: any
 }
 
 export interface CompetitionTabInterface {
