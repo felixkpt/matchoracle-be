@@ -25,10 +25,11 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
 
     function index()
     {
-        // request()->merge(['competition_id' => $competition->id, 'date' => '2023-11-25']);
 
         $results = $this->model->where('competition_id', request()->competition_id)
             ->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))
+            ->when(request()->from_date, fn ($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
+            ->when(request()->to_date, fn ($q) => $q->whereDate('date', '<=', Carbon::parse(request()->to_date)->format('Y-m-d')))
             ->first();
 
         return response(['results' => $results]);
@@ -40,11 +41,11 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
         $competition_id = request()->competition_id;
         $season = Season::find(request()->season_id);
         $season_id = $season->id ?? 0;
-        
+
         request()->merge(['per_page' => 700, 'order_by' => 'utc_date', 'order_direction' => 'asc']);
 
         $games = $this->gameRepositoryInterface->index(null, true);
-        
+
         $counts = 0;
 
         $full_time_home_wins_counts = 0;
@@ -66,12 +67,12 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
 
         $games = $games['data'];
         $ct = count($games);
-        
+
         echo "Total games for competition #{$competition_id}: $ct\n\n";
-        
+
         $unique_dates_counts = count(array_unique(array_map(fn ($c) => Carbon::parse($c)->format('Y-m-d'), array_column($games, 'utc_date'))));
         Log::info("Unique date counts: {$unique_dates_counts}");
-        
+
         $matchday = 0;
         foreach ($games as $game) {
             $id = $game['id'];
@@ -186,7 +187,7 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
                 $date = Carbon::parse(request()->date)->format('Y-m-d');
 
                 if (!$season_id) {
-                    
+
                     $game = Game::find($game['id']);
                     $season_id = $game->season_id ?? 0;
                 }

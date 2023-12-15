@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Http\Controllers\Admin\Statistics\CompetitionsStatisticsController;
 use App\Models\Competition;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;

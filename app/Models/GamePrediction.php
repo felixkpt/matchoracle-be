@@ -11,7 +11,7 @@ class GamePrediction extends Model
 
     protected $fillable = [
         'version',
-        'type',
+        'prediction_type_id',
         'competition_id',
         'date',
         'game_id',
@@ -33,6 +33,8 @@ class GamePrediction extends Model
         'under35_proba',
         'cs',
         'cs_proba',
+        'user_id',
+        'status_id',
     ];
 
     public function score()

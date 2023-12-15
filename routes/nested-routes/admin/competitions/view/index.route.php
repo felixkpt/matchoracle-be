@@ -29,6 +29,7 @@ Route::patch('/{id}/update-status', [$controller, 'updateStatus'])->hidden();
 Route::delete('/{id}', [$controller, 'destroy'])->name('destroy');
 
 Route::get('/{id}/statistics', [$controller, 'statistics']);
+Route::get('/{id}/prediction-statistics', [$controller, 'predictionStatistics']);
 
 // Competition Matche routes
 Route::name('matches.')->group(function () {

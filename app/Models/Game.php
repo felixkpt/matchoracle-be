@@ -54,7 +54,7 @@ class Game extends Model
 
     public function prediction()
     {
-        return $this->hasOne(GamePrediction::class)->where('type', 'regular_prediction');
+        return $this->hasOne(GamePrediction::class)->where('prediction_type_id', request()->prediction_type_id ?? 2);
     }
 
     public function gameSources()

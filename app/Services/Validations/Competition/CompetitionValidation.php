@@ -4,6 +4,7 @@ namespace App\Services\Validations\Competition;
 
 use App\Models\Competition;
 use App\Models\GameSource;
+use App\Models\Season;
 use App\Rules\ValidGameSourceUri;
 use App\Services\Validations\CommonValidations;
 use App\Services\Validations\ValidationFormatter;
@@ -125,8 +126,15 @@ class CompetitionValidation implements CompetitionValidationInterface
         return $validateData;
     }
 
-    function fetchMatches()
+    function fetchMatches($id)
     {
+
+        if (!request()->season_id && $id) {
+            $season = Season::where('competition_id', $id)->where('is_current', true)->first();
+            if (!$season)
+                $season = Season::where('competition_id', $id)->orderby('start_date', 'desc')->first();
+            request()->merge(['season_id' => $season->id]);
+        }
 
         $validateData = request()->validate(
             [

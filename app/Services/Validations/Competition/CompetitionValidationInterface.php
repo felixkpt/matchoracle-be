@@ -14,7 +14,7 @@ interface CompetitionValidationInterface
 
     function fetchStandings();
 
-    function fetchMatches();
+    function fetchMatches($id);
 
     function addSources();
 }

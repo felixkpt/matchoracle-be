@@ -164,7 +164,7 @@ class GameComposer
         return $homeTeamScore + $awayTeamScore;
     }
 
-    public static function bts($game)
+    public static function bts($game, $integer = false)
     {
         if (is_object($game) && method_exists($game, 'toArray')) {
             $game = $game->toArray();
@@ -180,7 +180,8 @@ class GameComposer
         $homeTeamScore = (int)($scoreData['home_scores_full_time'] ?? 0);
         $awayTeamScore = (int)($scoreData['away_scores_full_time'] ?? 0);
 
-        return ($homeTeamScore > 0 && $awayTeamScore > 0);
+        $res = $homeTeamScore > 0 && $awayTeamScore > 0;
+        return $integer ? ($res ? 1 : 0) : $res;
     }
 
     public static function cs($game)

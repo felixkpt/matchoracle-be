@@ -4,14 +4,13 @@ namespace App\Repositories\Game;
 
 use App\Http\Controllers\Admin\Teams\View\TeamController;
 use App\Models\Game;
+use App\Models\GamePredictionType;
 use App\Models\GameVote;
-use App\Models\Season;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\GameComposer;
 use App\Repositories\SearchRepo;
 use App\Repositories\Team\TeamRepositoryInterface;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -28,6 +27,9 @@ class GameRepository implements GameRepositoryInterface
 
     public function index($id = null, $without_response = null)
     {
+        $games = $this->applyGameFilters($id);
+
+
         $homeWinVotes = function ($q) {
             return $q->votes->where('winner', 'home')->count();
         };
@@ -40,49 +42,74 @@ class GameRepository implements GameRepositoryInterface
             return $q->votes->where('winner', 'away')->count();
         };
 
-        $formatted_prediction = function ($q) {
-            $q = clone $q;
-            if ($q->prediction) {
-                $pred = $this->format_pred($q->prediction);
-                return $pred;
+        $uri = '/admin/matches/';
+        $results = SearchRepo::of($games, ['id', 'name'])
+            ->addColumn('ID', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '#' . $q->id . '</a>')
+            ->addColumn('is_future', fn ($q) => Carbon::parse($q->utc_date)->isFuture())
+            ->addColumn('full_time', fn ($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
+            ->addColumn('half_time', fn ($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
+            ->addColumn('home_win_votes', $homeWinVotes)
+            ->addColumn('draw_votes', $drawVotes)
+            ->addColumn('away_win_votes', $awayWinVotes)
+            ->addColumn('formatted_prediction', fn ($q) => $this->format_pred(clone $q))
+            ->addColumnWhen(request()->break_preds, 'Game', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . $q->home_team->name . ' vs ' . $q->away_team->name . '</a>', 'cs')
+            ->addColumnWhen(request()->break_preds, '1X2', fn ($q) => $this->format1X2(clone $q))
+            ->addColumnWhen(request()->break_preds, 'Pick', fn ($q) => $this->formatHda(clone $q))
+            ->addColumnWhen(request()->break_preds, 'BTS', fn ($q) => $this->formatBTS(clone $q))
+            ->addColumnWhen(request()->break_preds, 'Over25', fn ($q) => $this->formatGoals(clone $q))
+            ->addColumnWhen(request()->break_preds, 'CS', fn ($q) => $this->formatCS(clone $q))
+            ->addColumnWhen(request()->break_preds, 'Halftime', fn ($q) => $this->formatHTScores(clone $q))
+            ->addColumnWhen(request()->break_preds, 'Fulltime', fn ($q) => $this->formatFTScores(clone $q))
+            ->addColumn('current_user_votes', fn ($q) => $this->currentUserVotes($q))
+            ->addColumn('Created_at', 'Created_at')
+            ->addColumn('Status', 'Status')
+            ->addActionColumn('action', $uri, 'native')
+            ->htmls(['Status', 'ID', 'Game', '1X2', 'Pick', 'BTS', 'Over25', 'CS', 'Halftime', 'Fulltime']);
+
+        if (request()->with_stats == 1)
+            $results = $this->addGameStatistics($results);
+
+        if (!request()->order_by)
+            $results = $results->orderby('utc_date', request()->type == 'upcoming' ? 'asc' : 'desc');
+
+        $results = $id ? $results->first() : $results->paginate(request()->per_page ?? 50);
+
+        if ($without_response || request()->without_response) {
+            return $results;
+        }
+
+        return response(['results' => $results]);
+    }
+
+    private function applyGameFilters($id)
+    {
+
+        if (request()->prediction_type) {
+            $prediction_type = GamePredictionType::where('name', request()->prediction_type)->first();
+            if ($prediction_type) {
+                preg_match_all('/\d+/', $prediction_type->name, $matches);
+                $result = $matches[0];
+
+                request()->merge([
+                    'history_limit_per_match' => $result[0],
+                    'current_ground_limit_per_match' => $result[1],
+                    'h2h_limit_per_match' => $result[2],
+                ]);
             }
-
-            return null;
-        };
-
-        $currentUserVotes = function ($q) {
-            return !!$q->votes->where(function ($q) {
-                return $q->where('user_id', auth()->id())->orWhere('user_ip', request()->ip());
-            })->whereNotNull('winner')->first();
-        };
-
-        $teamsMatch = function ($q) {
-
-            return $q->where(function ($q) {
-                [$home_team_id, $away_team_id] = request()->team_ids;
-                $arr = [['home_team_id', $home_team_id], ['away_team_id', $away_team_id]];
-                $arr2 = [['home_team_id', $away_team_id], ['away_team_id', $home_team_id]];
-
-                if (request()->playing == 'home-away') {
-                    $q->where($arr);
-                } else {
-                    $q->where($arr)->orWhere($arr2);
-                }
-            });
-        };
+        }
 
         $type_cb = function ($q) {
             $to_date = request()->to_date ?? Carbon::now();
-            request()->type == 'played' ? $q->where('utc_date', '<', $to_date) : (request()->type == 'upcoming' ? $q->where('utc_date', '>=', Carbon::now()) :  $q);
+            request()->type == 'past' ? $q->where('utc_date', '<', $to_date) : (request()->type == 'upcoming' ? $q->where('utc_date', '>=', Carbon::now()) :  $q);
         };
 
-        $competitions = $this->model::with(['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'home_team', 'away_team', 'score', 'votes', 'referees'])
+        $games = $this->model::with(['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'home_team', 'away_team', 'score', 'votes', 'referees', 'prediction'])
             ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
             ->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))
 
             ->when(request()->team_id, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', request()->team_id)->orWhere('away_team_id', request()->team_id)))
-            ->when(request()->team_ids, $teamsMatch)
+            ->when(request()->team_ids, fn ($q) => $this->teamsMatch($q))
 
             ->when(request()->currentground, fn ($q) => request()->currentground == 'home' ? $q->where('home_team_id', request()->team_id) : (request()->currentground == 'away' ? $q->where('away_team_id', request()->team_id) :  $q))
             ->when(request()->yesterday, fn ($q) => $q->whereDate('utc_date', Carbon::yesterday()))
@@ -105,43 +132,30 @@ class GameRepository implements GameRepositoryInterface
             })
             ->when($id, fn ($q) => $q->where('id', $id));
 
-        $uri = '/admin/matches/';
-        $results = SearchRepo::of($competitions, ['id', 'name'])
-            ->addColumn('ID', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '#' . $q->id . '</a>')
-            ->addColumn('is_future', fn ($q) => Carbon::parse($q->utc_date)->isFuture())
-            ->addColumn('full_time', fn ($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
-            ->addColumn('half_time', fn ($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
-            ->addColumn('home_win_votes', $homeWinVotes)
-            ->addColumn('draw_votes', $drawVotes)
-            ->addColumn('away_win_votes', $awayWinVotes)
-            ->addColumn('formatted_prediction', $formatted_prediction)
-            ->addColumnWhen(request()->break_preds, 'Game', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . $q->home_team->name . ' vs ' . $q->away_team->name . '</a>', 'cs')
-            ->addColumnWhen(request()->break_preds, '1X2', fn ($q) => $this->format1X2(clone $q))
-            ->addColumnWhen(request()->break_preds, 'Pick', fn ($q) => $this->formatHda(clone $q))
-            ->addColumnWhen(request()->break_preds, 'BTS', fn ($q) => $this->formatBTS(clone $q))
-            ->addColumnWhen(request()->break_preds, 'Over25', fn ($q) => $this->formatGoals(clone $q))
-            ->addColumnWhen(request()->break_preds, 'CS', fn ($q) => $this->formatCS(clone $q))
-            ->addColumnWhen(request()->break_preds, 'Halftime', fn ($q) => $this->formatHTScores(clone $q))
-            ->addColumnWhen(request()->break_preds, 'Fulltime', fn ($q) => $this->formatFTScores(clone $q))
-            ->addColumn('current_user_votes', $currentUserVotes)
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
-            ->addActionColumn('action', $uri, 'native')
-            ->htmls(['Status', 'ID', 'Game', '1X2', 'Pick', 'BTS', 'Over25', 'CS', 'Halftime', 'Fulltime']);
+        return $games;
+    }
 
-        if (request()->with_stats == 1)
-            $results = $this->addGameStatistics($results);
+    private function currentUserVotes($q)
+    {
+        return !!$q->votes->where(function ($q) {
+            return $q->where('user_id', auth()->id())->orWhere('user_ip', request()->ip());
+        })->whereNotNull('winner')->first();
+    }
 
-        if (!request()->order_by)
-            $results = $results->orderby('utc_date', request()->type == 'upcoming' ? 'asc' : 'desc');
+    private function teamsMatch($q)
+    {
 
-        $results = $id ? $results->first() : $results->paginate();
+        return $q->where(function ($q) {
+            [$home_team_id, $away_team_id] = request()->team_ids;
+            $arr = [['home_team_id', $home_team_id], ['away_team_id', $away_team_id]];
+            $arr2 = [['home_team_id', $away_team_id], ['away_team_id', $home_team_id]];
 
-        if ($without_response || request()->without_response) {
-            return $results;
-        }
-
-        return response(['results' => $results]);
+            if (request()->playing == 'home-away') {
+                $q->where($arr);
+            } else {
+                $q->where($arr)->orWhere($arr2);
+            }
+        });
     }
 
     private function single_pred($q, $col = null)
@@ -153,13 +167,13 @@ class GameRepository implements GameRepositoryInterface
             if ($col == 'hda_proba')
                 return $pred->home_win_proba . '%, ' . $pred->draw_proba . '%, ' . $pred->away_win_proba . '%';
             if ($col == 'hda')
-                return $pred->hda;
+                return $pred->Hda;
             if ($col == 'bts')
-                return $pred->bts;
+                return $pred->Bts;
             if ($col == 'over25')
-                return $pred->over25;
+                return $pred->Over25;
             if ($col == 'cs')
-                return $pred->cs;
+                return $pred->Cs;
 
             return $pred;
         }
@@ -170,10 +184,10 @@ class GameRepository implements GameRepositoryInterface
     private function format_pred($pred)
     {
         $cs = array_search($pred->cs, scores());
-        $pred->hda = $pred->hda == 0 ? '1' : ($pred->hda == 1 ? 'X' : '2');
-        $pred->bts = $pred->bts == 1 ? 'YES' : 'NO';
-        $pred->over25 = $pred->over25 == 1 ? 'OV' : 'UN';
-        $pred->cs = $cs;
+        $pred->Hda = $pred->hda == 0 ? '1' : ($pred->hda == 1 ? 'X' : '2');
+        $pred->Bts = $pred->bts == 1 ? 'YES' : 'NO';
+        $pred->Over25 = $pred->over25 == 1 ? 'OV' : 'UN';
+        $pred->Cs = $cs;
         return $pred;
     }
 
@@ -196,7 +210,7 @@ class GameRepository implements GameRepositoryInterface
             if ($pred->hda == $res) {
                 $class = 'border-bottom bg-success text-white';
             } elseif ($pred) {
-                $class = 'border-bottom bg-danger text-white';
+                $class = 'border-bottom border-danger text-danger';
             }
         }
 
@@ -219,7 +233,7 @@ class GameRepository implements GameRepositoryInterface
             }
         }
 
-        return '<div class="border-4 py-1 ' . $class . ' d-inline-block text-center results-icon-md">' . $this->single_pred(clone $q, 'bts') . '</div>';
+        return '<div class="border-2 py-1 ' . $class . ' d-inline-block text-center results-icon-md">' . $this->single_pred(clone $q, 'bts') . '</div>';
     }
 
     private function formatGoals($q)
@@ -240,7 +254,7 @@ class GameRepository implements GameRepositoryInterface
             }
         }
 
-        return '<div class="border-4 py-1 ' . $class . ' d-inline-block text-center results-icon-md">' . $this->single_pred(clone $q, 'over25') . '</div>';
+        return '<div class="border-2 py-1 ' . $class . ' d-inline-block text-center results-icon-md">' . $this->single_pred(clone $q, 'over25') . '</div>';
     }
 
     private function formatCS($q)
@@ -259,7 +273,7 @@ class GameRepository implements GameRepositoryInterface
             }
         }
 
-        return '<div class="border-4 py-1 text-nowrap ' . $class . ' d-inline-block text-center results-icon-md">' . $this->single_pred(clone $q, 'cs') . '</div>';
+        return '<div class="border-2 py-1 text-nowrap ' . $class . ' d-inline-block text-center results-icon-md">' . $this->single_pred(clone $q, 'cs') . '</div>';
     }
 
     private function formatHTScores($q)

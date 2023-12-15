@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->string('version')->default('1.0');
-            $table->string('type')->default('regular');
-            $table->string('competition_id')->default(0);
+            $table->unsignedInteger('prediction_type_id')->default(1);
+            $table->unsignedBigInteger('competition_id')->default(0);
             $table->dateTime('date');
             $table->unsignedBigInteger('game_id');
             $table->tinyInteger('hda')->default(-1);

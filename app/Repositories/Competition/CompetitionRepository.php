@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Competition;
 
+use App\Http\Controllers\Admin\Statistics\CompetitionsPredictionsStatisticsController;
 use App\Http\Controllers\Admin\Statistics\CompetitionsStatisticsController;
 use App\Http\Controllers\Admin\Teams\TeamsController;
 use App\Models\Competition;
@@ -252,5 +253,10 @@ class CompetitionRepository implements CompetitionRepositoryInterface
     function statistics($id)
     {
         return app(CompetitionsStatisticsController::class)->index($id);
+    }
+
+    function predictionStatistics($id)
+    {
+        return app(CompetitionsPredictionsStatisticsController::class)->index($id);
     }
 }

@@ -6,6 +6,7 @@ use App\Models\CompetitionScoreTargetOutcome;
 use App\Models\Game;
 use App\Models\GamePrediction;
 use App\Models\GamePredictionLog;
+use App\Models\GamePredictionType;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
 use Illuminate\Support\Carbon;
@@ -39,13 +40,12 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
             ->when(request()->from_date, fn ($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
             ->when(request()->to_date, fn ($q) => $q->whereDate('date', '<=', Carbon::parse(request()->to_date)->format('Y-m-d')))
             ->when(request()->date, fn ($q) => $q->whereDate('date', '=', Carbon::parse(request()->date)->format('Y-m-d')))
-            ->when(!request()->date && request()->type, $type_cb)
-            ;
+            ->when(!request()->date && request()->type, $type_cb);
 
         $results = SearchRepo::of($preds, ['id'])
-        ->addColumn('utc_date', fn ($q) => $q->date)
-        ->addColumn('cs_target', fn ($q) => $q->score ? game_scores($q->score) : '-')
-        ->addColumn('half_time', fn ($q) => $q->score ? game_scores($q->score, true) : '-')
+            ->addColumn('utc_date', fn ($q) => $q->date)
+            ->addColumn('cs_target', fn ($q) => $q->score ? game_scores($q->score) : '-')
+            ->addColumn('half_time', fn ($q) => $q->score ? game_scores($q->score, true) : '-')
             ->paginate();
 
         return response(['results' => $results]);
@@ -57,6 +57,11 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
 
         $version = $data['version'];
         $type = $data['type'];
+
+        $prediction_type = GamePredictionType::updateOrCreate([
+            'name' => $type,
+        ]);
+
         $competition_id = $data['competition_id'];
         $carbon_date = Carbon::parse($data['date']);
         $date = $carbon_date->format('Y-m-d');
@@ -71,7 +76,7 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
             $this->model->updateOrCreate(
                 [
                     'version' => $version,
-                    'type' => $type,
+                    'prediction_type_id' => $prediction_type->id,
                     'competition_id' => $competition_id,
                     'game_id' => $game_pred['id'],
                 ],
@@ -88,6 +93,7 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
             $games = Game::whereDate('utc_date', $date);
             $total_games = $games->count();
             $unpredicted_games = $total_games - $predicted_games;
+            $unpredicted_games = $unpredicted_games < 0 ? 0 : $unpredicted_games;
 
             GamePredictionLog::updateOrCreate(
                 ['date' => $date],
@@ -122,7 +128,7 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
             'over35_target' => 5,
             'cs_target' => 6,
         ];
-        
+
         $score_target_outcome_id = $score_target_outcome_ids[$data['score_target_outcome_id']];
 
         $data = [

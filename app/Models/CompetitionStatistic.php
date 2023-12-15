@@ -30,6 +30,7 @@ class CompetitionStatistic extends Model
         'under25',
         'over35',
         'under35',
+
         'status_id',
         'user_id',
     ];

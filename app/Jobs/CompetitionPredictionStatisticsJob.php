@@ -2,8 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Http\Controllers\Admin\Statistics\CompetitionsPredictionsStatisticsController;
+use App\Models\Competition;
+use App\Models\GamePredictionType;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -14,11 +16,20 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * Create a new job instance.
+     * The competition ID for which statistics should be generated.
+     *
+     * @var int|null
      */
-    public function __construct()
+    private $competitionId;
+
+    /**
+     * Create a new job instance.
+     *
+     * @param int|null $competitionId
+     */
+    public function __construct($competitionId = null)
     {
-        //
+        $this->competitionId = $competitionId;
     }
 
     /**
@@ -26,39 +37,32 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
      */
     public function handle(): void
     {
-        dd('Yep');
-        // $table->uuid('uuid')->unique();
-        // $table->unsignedBigInteger('prediction_type_id')->default(0);
-        // $table->unsignedBigInteger('prediction_counts');
+        $competitions = Competition::whereHas('games')
+            ->when($this->competitionId, function ($query) {
+                $query->where('id', $this->competitionId);
+            })
+            ->get();
+        echo "Total competitions with games: {$competitions->count()}\n";
 
-        // $table->integer('full_time_home_wins_score')->nullable();
-        // $table->integer('full_time_draw_score')->nullable();
-        // $table->integer('full_time_away_wins_score')->nullable();
-        // $table->integer('hda_score')->nullable();
+        $prediction_types = GamePredictionType::all();
 
-        // $table->integer('gg_score')->nullable();
-        // $table->integer('ng_score')->nullable();
+        foreach ($prediction_types as $prediction_type) {
+            request()->merge(['prediction_type_id' => $prediction_type->id]);
 
-        // $table->integer('over15_score')->nullable();
-        // $table->integer('under15_score')->nullable();
+            foreach ($competitions as $competition) {
 
-        // $table->integer('over25_score')->nullable();
-        // $table->integer('under25_score')->nullable();
+                request()->merge(['competition_id' => $competition->id]);
 
-        // $table->integer('over35_score')->nullable();
-        // $table->integer('under35_score')->nullable();
+                foreach ($competition->seasons as $season) {
+                    echo "Pred type: {$prediction_type->id}, Competition: {$competition->id}, Season: {$season->id}\n";
 
-        // $table->integer('cs_score')->nullable();
+                    request()->merge(['season_id' => $season->id]);
+                    app(CompetitionsPredictionsStatisticsController::class)->store();
+                    // die;
+                }
 
-        // $table->integer('accuracy_score')->nullable();
-        // $table->integer('precision_score')->nullable();
-        // $table->integer('f1_score')->nullable();
-        // $table->integer('average_score');
-
-        // $table->date('from_date');
-        // $table->date('to_date');
-
-        // $table->unsignedBigInteger('status_id')->default(0);
-        // $table->unsignedBigInteger('user_id')->default(0)->nullable();
+                echo "\n";
+            }
+        }
     }
 }

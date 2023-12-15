@@ -12,7 +12,7 @@ class CompetitionPredictionStatistics extends Command
      *
      * @var string
      */
-    protected $signature = 'app:competition-prediction-statistics';
+    protected $signature = 'app:competition-prediction-statistics {--competition=}';
 
     /**
      * The console command description.
@@ -26,7 +26,8 @@ class CompetitionPredictionStatistics extends Command
      */
     public function handle()
     {
-        $this->info('CompetitionPredictionStatisticsJob Started Successfully.');
-        dispatch(new CompetitionPredictionStatisticsJob());
+        $competitionId = $this->option('competition');
+
+        dispatch(new CompetitionPredictionStatisticsJob($competitionId));
     }
 }

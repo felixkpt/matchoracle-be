@@ -17,26 +17,55 @@ return new class extends Migration
             $table->unsignedBigInteger('competition_id');
             $table->unsignedBigInteger('season_id')->nullable();
             $table->unsignedBigInteger('prediction_type_id')->default(0);
+
+            $table->date('date')->nullable();
+            $table->integer('matchday')->nullable();
+
             $table->unsignedBigInteger('counts');
 
-            $table->integer('full_time_home_wins_score')->nullable();
-            $table->integer('full_time_draw_score')->nullable();
-            $table->integer('full_time_away_wins_score')->nullable();
-            $table->integer('hda_score')->nullable();
+            $table->integer('full_time_home_wins_preds');
+            $table->integer('full_time_home_wins_preds_true');
+            $table->integer('full_time_home_wins_preds_true_percentage');
 
-            $table->integer('gg_score')->nullable();
-            $table->integer('ng_score')->nullable();
+            $table->integer('full_time_draws_preds');
+            $table->integer('full_time_draws_preds_true');
+            $table->integer('full_time_draws_preds_true_percentage');
 
-            $table->integer('over15_score')->nullable();
-            $table->integer('under15_score')->nullable();
+            $table->integer('full_time_away_wins_preds');
+            $table->integer('full_time_away_wins_preds_true');
+            $table->integer('full_time_away_wins_preds_true_percentage');
 
-            $table->integer('over25_score')->nullable();
-            $table->integer('under25_score')->nullable();
+            $table->integer('full_time_gg_preds');
+            $table->integer('full_time_gg_preds_true');
+            $table->integer('full_time_gg_preds_true_percentage');
 
-            $table->integer('over35_score')->nullable();
-            $table->integer('under35_score')->nullable();
+            $table->integer('full_time_ng_preds');
+            $table->integer('full_time_ng_preds_true');
+            $table->integer('full_time_ng_preds_true_percentage');
 
-            $table->integer('cs_score')->nullable();
+            $table->integer('full_time_over15_preds');
+            $table->integer('full_time_over15_preds_true');
+            $table->integer('full_time_over15_preds_true_percentage');
+
+            $table->integer('full_time_under15_preds');
+            $table->integer('full_time_under15_preds_true');
+            $table->integer('full_time_under15_preds_true_percentage');
+
+            $table->integer('full_time_over25_preds');
+            $table->integer('full_time_over25_preds_true');
+            $table->integer('full_time_over25_preds_true_percentage');
+
+            $table->integer('full_time_under25_preds');
+            $table->integer('full_time_under25_preds_true');
+            $table->integer('full_time_under25_preds_true_percentage');
+
+            $table->integer('full_time_over35_preds');
+            $table->integer('full_time_over35_preds_true');
+            $table->integer('full_time_over35_preds_true_percentage');
+
+            $table->integer('full_time_under35_preds');
+            $table->integer('full_time_under35_preds_true');
+            $table->integer('full_time_under35_preds_true_percentage');
 
             $table->integer('accuracy_score')->nullable();
             $table->integer('precision_score')->nullable();
