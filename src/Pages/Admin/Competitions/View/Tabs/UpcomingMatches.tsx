@@ -1,17 +1,35 @@
-import { CompetitionTabInterface } from '@/interfaces/FootballInterface'
+import { CompetitionTabInterface, SeasonInterface, SeasonsListInterface } from '@/interfaces/FootballInterface'
 import CompetitionHeader from '../Inlcudes/CompetitionHeader';
 import AutoTable from '@/components/AutoTable';
-import Str from '@/utils/Str';
 import GeneralModal from '@/components/Modals/GeneralModal';
 import AsyncSeasonsList from '../Inlcudes/AsyncSeasonsList';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { appendFromToDates } from '@/utils/helpers';
+import FormatDate from '@/utils/FormatDate';
+import Loader from '@/components/Loader';
 
-const UpcomingMatches: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setSelectedSeason, setKey }) => {
+interface Props extends CompetitionTabInterface, SeasonsListInterface { }
+
+const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSeason, setKey }) => {
 
   const competition = record
-  const [key, setLocalKey] = useState(0);  
-  const [startDate, setStartDate] = useState(null);
-  const [useDate, setUseDate] = useState(false);
+  const [key, setLocalKey] = useState(0);
+  const initialDates: Array<Date | string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
+  const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>(initialDates);
+  const [useDate, setUseDates] = useState(false);
+
+  const [currentSeason, setCurrentSeason] = useState<SeasonInterface | null>(null);
+
+  useEffect(() => {
+
+    if (seasons && seasons.length > 0) {
+      let current = seasons.find((itm) => itm.is_current == 1) || seasons[0]
+      if (current) {
+        setCurrentSeason(current)
+      }
+    }
+
+  }, [seasons])
 
   const columns = [
     { key: 'ID' },
@@ -31,9 +49,13 @@ const UpcomingMatches: React.FC<CompetitionTabInterface> = ({ record, selectedSe
       {
         competition &&
         <div>
-          <CompetitionHeader title="Upcoming Matches" actionTitle="Fetch Fixtures" actionButton="fetchUpcomingMatches" record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} startDate={startDate} setStartDate={setStartDate} setUseDate={setUseDate} setLocalKey={setLocalKey} />
+          <CompetitionHeader title="Upcoming Matches" actionTitle="Fetch Fixtures" actionButton="fetchUpcomingMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} setLocalKey={setLocalKey} hideSeasons={true} />
 
-          <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/matches?season_id=${selectedSeason ? selectedSeason?.id : ''}&type=upcoming&date=${useDate ? startDate : ''}`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+          {
+            currentSeason
+              ? <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/matches?season_id=${currentSeason ? currentSeason?.id : ''}${appendFromToDates(useDate, fromToDates)}&type=upcoming`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+              : <Loader />
+          }
 
           {
             competition &&
@@ -43,7 +65,7 @@ const UpcomingMatches: React.FC<CompetitionTabInterface> = ({ record, selectedSe
 
                   <div className="form-group mb-3">
                     <label htmlFor="season_id">Season</label>
-                    <AsyncSeasonsList record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} useDate={useDate} />
+                    <AsyncSeasonsList seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
                   </div>
                   <div className="form-group mb-3">
                     <label htmlFor="matchday">Match day</label>

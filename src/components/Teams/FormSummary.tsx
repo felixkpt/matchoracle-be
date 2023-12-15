@@ -2,40 +2,40 @@ import ProgressLine from '../ProgressLine/Index'
 
 type Props = {
     totals: number
-    teamWins: number
-    draws: number
-    teamLoses?: number,
-    winColorClass?: string
-    drawColorClass?: string
-    loseColorClass?: string
-    labelA?: string
-    labelB?: string
-    labelC?: string
+    data1: number
+    data2: number
+    data3?: number,
+    data1ColorClass?: string
+    data2ColorClass?: string
+    data3ColorClass?: string
+    label1?: string
+    label2?: string
+    label3?: string
 }
 
-const FormSummary = ({ totals, teamWins, draws, teamLoses, winColorClass, drawColorClass, loseColorClass, labelA, labelB, labelC }: Props) => {
+const FormSummary = ({ totals, data1, data2, data3, data1ColorClass, data2ColorClass, data3ColorClass, label1, label2, label3 }: Props) => {
 
-    const teamWinsPercentage = ((teamWins / totals) * 100).toFixed(0)
-    const drawsPercentage = ((draws / totals) * 100).toFixed(0)
+    const data1Percentage = ((data1 / totals) * 100).toFixed(0)
+    const data2Percentage = ((data2 / totals) * 100).toFixed(0)
 
     let arr = [
         {
-            percentage: `${teamWinsPercentage}%${labelA || ''}`,
-            colorClass: `${winColorClass || 'bg-success'}`
+            percentage: `${data1Percentage}%${label1 || ''}`,
+            colorClass: `${data1ColorClass || 'bg-success'}`
         },
         {
-            percentage: `${drawsPercentage}%${labelB || ''}`,
-            colorClass: `${drawColorClass || 'bg-warning'}`
+            percentage: `${data2Percentage}%${label2 || ''}`,
+            colorClass: `${data2ColorClass || 'bg-warning'}`
         },
     ]
 
-    let teamLosesPercentage
-    if (teamLoses) {
-        teamLosesPercentage = ((teamLoses / totals) * 100).toFixed(0)
+    let data3Percentage
+    if (data3) {
+        data3Percentage = ((data3 / totals) * 100).toFixed(0)
 
         arr.push({
-            percentage: `${teamLosesPercentage}%${labelC || ''}`,
-            colorClass: `${loseColorClass || 'bg-danger'}`
+            percentage: `${data3Percentage}%${label3 || ''}`,
+            colorClass: `${data3ColorClass || 'bg-danger'}`
         }
         )
     }

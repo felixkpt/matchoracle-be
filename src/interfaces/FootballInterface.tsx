@@ -189,6 +189,7 @@ export interface GameInterface {
     current_user_votes: boolean,
     prediction: PredictionInterface,
     formatted_prediction: PredictionInterface,
+    CS: string;
 
 }
 
@@ -213,8 +214,18 @@ export interface CompetitionGameSourceInterface {
 
 export interface CompetitionTabInterface {
     record: CompetitionInterface | undefined;
+    seasons: SeasonInterface[] | null
     selectedSeason: SeasonInterface | null
     setSelectedSeason: React.Dispatch<React.SetStateAction<SeasonInterface | null>>;
     setKey?: React.Dispatch<React.SetStateAction<number>>;
     useDate?: boolean;
+    isDisabled?: boolean
+}
+
+
+export interface SeasonsListInterface {
+    seasons: SeasonInterface[] | null
+    selectedSeason: SeasonInterface | null
+    setSelectedSeason: React.Dispatch<React.SetStateAction<SeasonInterface | null>>;
+ 
 }

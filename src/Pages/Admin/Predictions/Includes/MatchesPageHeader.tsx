@@ -1,31 +1,36 @@
 import FormatDate from "@/utils/FormatDate";
-import DatePicker from "react-datepicker";
+import Flatpickr from "react-flatpickr";
 
 type Props = {
     title: string;
-    startDate: any
-    setStartDate: any
+    fromToDates: any
+    setFromToDates: any
 };
 
-const MatchesPageHeader = ({ title, startDate, setStartDate }: Props) => {
+const MatchesPageHeader = ({ title, fromToDates, setFromToDates }: Props) => {
+
+    function handleSetDate(selectedDates: Date[]) {
+        let from_date = FormatDate.YYYYMMDD(selectedDates[0])
+        let to_date = ''
+        if (selectedDates[1]) {
+            to_date = FormatDate.YYYYMMDD(selectedDates[1])
+        }
+        setFromToDates([from_date, to_date])
+    }
 
     return (
         <div className='header-title shadow-sm p-2 rounded d-flex justify-content-between'>
             <h3 className='heading'>{title}</h3>
             <div>
                 {
-                    typeof setStartDate === 'function' &&
+                    typeof setFromToDates === 'function' &&
                     <div>
-                        <DatePicker className="form-control z-index-50"
-                            placeholderText='Choose a date'
-                            selected={startDate ? new Date(startDate) : null}
-                            onChange={(date: Date) => setStartDate(FormatDate.YYYYMMDD(date))} />
-                        {/* <DatePicker
-                            selected={new Date(startDate)}
-                            onChange={(date: Date) => setStartDate(date)}
-                            includeDates={[new Date()]}
-                            inline
-                        /> */}
+                        <Flatpickr
+                            defaultValue={fromToDates[0]}
+                            data-mode="range"
+                            data-date-format="Y-m-d"
+                            onChange={(selectedDates: Date[]) => handleSetDate(selectedDates)}
+                        />
                     </div>
                 }
             </div>

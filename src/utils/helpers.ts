@@ -44,9 +44,17 @@ export const baseURL = (uri: string) => import.meta.env.VITE_APP_BASE_API + ('/'
 export const environment: 'local' | 'production' = import.meta.env.VITE_APP_ENV || 'local'
 export const tnymce_key: string = import.meta.env.VITE_APP_CRYPO_TINYMCE_KEY || ''
 
-export const convertToLaravelPattern = (uri:string) => {
+export const convertToLaravelPattern = (uri: string) => {
     // Replace :id with {id}
     const laravelPattern = uri.replace(/:\w+/g, (match) => `{${match.substring(1)}}`);
     return laravelPattern;
-  };
-  
+};
+
+export const appendFromToDates = (useDate: boolean, fromToDates: Array<Date | string | undefined>) => {
+
+    if (useDate && fromToDates && fromToDates.length == 2 && fromToDates[1]) {
+        return `&from_date=${fromToDates[0]}&to_date=${fromToDates[1]}`
+    }
+    return ''
+
+}

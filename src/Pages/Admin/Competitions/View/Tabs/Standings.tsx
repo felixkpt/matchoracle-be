@@ -1,6 +1,6 @@
 import useAxios from '@/hooks/useAxios';
 import React, { useEffect, useState } from 'react';
-import { CompetitionInterface, CompetitionTabInterface } from '@/interfaces/FootballInterface';
+import { CompetitionInterface, CompetitionTabInterface, SeasonsListInterface } from '@/interfaces/FootballInterface';
 import CompetitionHeader from '../Inlcudes/CompetitionHeader';
 import GeneralModal from '@/components/Modals/GeneralModal';
 import AsyncSeasonsList from '../Inlcudes/AsyncSeasonsList';
@@ -8,8 +8,10 @@ import StandingsTable from '@/components/Teams/StandingsTable';
 import Loader from '@/components/Loader';
 import DefaultMessage from '@/components/DefaultMessage';
 
+interface Props extends CompetitionTabInterface, SeasonsListInterface {}
 
-const Standings: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setSelectedSeason, setKey }) => {
+const Standings: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSeason, setKey }) => {
+
     const competition = record
 
     const [detailedCompetition, setDetailedCompetition] = useState<CompetitionInterface | null>(null);
@@ -32,8 +34,7 @@ const Standings: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, 
                 competition
                 &&
                 <div>
-                    <CompetitionHeader title="Standings" actionTitle="Fetch Standings" actionButton="fetchStandings" record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
-
+                    <CompetitionHeader title="Standings" actionTitle="Fetch Standings" actionButton="fetchStandings" record={competition} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
 
 
                     {
@@ -55,7 +56,7 @@ const Standings: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, 
 
                             <div className="form-group mb-3">
                                 <label htmlFor="season_id">Season</label>
-                                <AsyncSeasonsList record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
+                                <AsyncSeasonsList seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason}  />
                             </div>
                             <div className="form-group mb-3">
                                 <label htmlFor="matchday">Match day</label>

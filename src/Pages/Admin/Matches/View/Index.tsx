@@ -28,7 +28,7 @@ const Index = () => {
   useEffect(() => {
 
     if (id) {
-      getGameDetails(`admin/matches/view/${id}`).then((res) => {
+      getGameDetails(`admin/matches/view/${id}?break_preds=1`).then((res) => {
         const { data } = res
         if (data) {
           setGame(data)
@@ -65,10 +65,10 @@ const Index = () => {
                 <VotesSection game={game} />
                 <div className="row">
                   <div className="col-12">
-                    <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} perPage={8} />
+                    <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} perPage={7} />
                   </div>
                   <div className="col-12 col-xl-8">
-                    <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} currentground={true} perPage={5} setHomeTeamRecentResults={setHomeTeamRecentResults} setAwayTeamRecentResults={setAwayTeamRecentResults} />
+                    <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} currentground={true} perPage={4} setHomeTeamRecentResults={setHomeTeamRecentResults} setAwayTeamRecentResults={setAwayTeamRecentResults} />
                   </div>
                 </div>
               </div>
@@ -77,7 +77,7 @@ const Index = () => {
                   <StandingsTable standings={standings} minimal={true} homeTeamId={homeTeam.id} awayTeamId={awayTeam.id} />
                 </div>
                 <div className='mb-5'>
-                  <Head2HeadCard key={game.id} game={game} homeTeam={homeTeam} perPage={5} awayTeam={awayTeam} />
+                  <Head2HeadCard key={game.id} game={game} homeTeam={homeTeam} perPage={4} awayTeam={awayTeam} />
                 </div>
               </div>
               <div className="col-12">

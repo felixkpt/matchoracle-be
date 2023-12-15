@@ -35,17 +35,17 @@ const Index = () => {
 
     }, [location.pathname]);
 
-    const [startDate, setStartDate] = useState(FormatDate.YYYYMMDD(new Date()));
+    const [fromToDates, setFromToDates] = useState(FormatDate.YYYYMMDD(new Date()));
 
     return (
         <div>
             {
                 errorsState === 0 ?
                     <div>
-                        <MatchesPageHeader title={'Predictions List'} startDate={startDate} setStartDate={setStartDate} />
+                        <MatchesPageHeader title={'Predictions List'} fromToDates={fromToDates} setFromToDates={setFromToDates} />
                         <AutoTable
-                            key={startDate}
-                            baseUri={`/admin/predictions/${startDate}`}
+                            key={fromToDates}
+                            baseUri={`/admin/predictions/${fromToDates}`}
                             columns={columns}
                             search={true}
                             list_sources={list_sources}

@@ -1,17 +1,22 @@
-import { CompetitionTabInterface } from "@/interfaces/FootballInterface"
+import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
 import CompetitionHeader from "../Inlcudes/CompetitionHeader"
 import GeneralModal from "@/components/Modals/GeneralModal"
 import AsyncSeasonsList from "../Inlcudes/AsyncSeasonsList"
 import AutoTable from "@/components/AutoTable"
-import Str from "@/utils/Str"
 import { useState } from "react"
+import FormatDate from "@/utils/FormatDate"
+import { appendFromToDates } from "@/utils/helpers"
 
-const Predictions: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setSelectedSeason, setKey }) => {
+interface Props extends CompetitionTabInterface, SeasonsListInterface { }
+
+const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSeason, setKey }) => {
 
     const competition = record
     const [key, setLocalKey] = useState(0);
-    const [startDate, setStartDate] = useState(null);
-    const [useDate, setUseDate] = useState(false);
+    const [useDate, setUseDates] = useState(false);
+
+    const initialDates: Array<Date | string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
+    const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>(initialDates);
 
     const columns = [
         { key: 'Game' },
@@ -34,14 +39,14 @@ const Predictions: React.FC<CompetitionTabInterface> = ({ record, selectedSeason
                 competition
                 &&
                 <div>
-                    <CompetitionHeader title="Predictions" record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} startDate={startDate} setStartDate={setStartDate} setUseDate={setUseDate} setLocalKey={setLocalKey} />
+                    <CompetitionHeader title="Predictions" record={competition} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} setLocalKey={setLocalKey} />
 
-                    <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/predictions?season_id=${selectedSeason ? selectedSeason?.id : ''}&date=${useDate ? startDate : ''}&break_preds=1`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+                    <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/predictions?show_predictions=1&break_preds=1&season_id=${selectedSeason ? selectedSeason?.id : ''}${appendFromToDates(useDate, fromToDates)}&type=upcoming`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
 
                     <GeneralModal title={`Predictions form`} actionUrl={`admin/competitions/view/${competition.id}/predict`} size={'modal-lg'} id={`doPredictions`} setKey={setKey}>
                         <div className="form-group mb-3">
                             <label htmlFor="season_id">Season</label>
-                            <AsyncSeasonsList record={competition} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} useDate={useDate} />
+                            <AsyncSeasonsList seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
                         </div>
                         <div className="form-group mb-3">
                             <label htmlFor="matchday">Match day</label>
@@ -58,4 +63,4 @@ const Predictions: React.FC<CompetitionTabInterface> = ({ record, selectedSeason
     )
 }
 
-export default Predictions
+export default UpcomingPredictions

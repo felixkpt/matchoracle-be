@@ -1,22 +1,22 @@
 import MatchesPageHeader from '@/Pages/Admin/Predictions/Includes/MatchesPageHeader';
 import useAxios from '@/hooks/useAxios';
-import { CompetitionInterface, CompetitionTabInterface } from '@/interfaces/FootballInterface';
+import { CompetitionInterface, SeasonsListInterface } from '@/interfaces/FootballInterface';
 import Str from '@/utils/Str'
-import { SyntheticEvent } from 'react';
-import AsyncSelect from 'react-select/async';
+import Select from 'react-select';
 
-interface Props extends CompetitionTabInterface {
+interface Props extends SeasonsListInterface {
     title: string
     actionTitle?: string
     actionButton?: string
     record: CompetitionInterface | undefined;
-    startDate?: any
-    setStartDate?: any
-    setUseDate?: any
+    fromToDates?: any
+    setFromToDates?: any
+    setUseDates?: any
     setLocalKey?: any
+    hideSeasons?: boolean
 }
 
-const CompetitionHeader = ({ title, actionTitle, actionButton, record, selectedSeason, setSelectedSeason, startDate, setStartDate, setUseDate, setLocalKey }: Props) => {
+const CompetitionHeader = ({ title, actionTitle, actionButton, record, seasons, selectedSeason, setSelectedSeason, fromToDates, setFromToDates, setUseDates, setLocalKey, hideSeasons }: Props) => {
 
     const competition = record
 
@@ -46,18 +46,21 @@ const CompetitionHeader = ({ title, actionTitle, actionButton, record, selectedS
 
     }
 
-    function handleSetStartDate(e: SyntheticEvent) {
-        setStartDate(e)
-        setUseDate(true)
-        setSelectedSeason(null)
-        setLocalKey((curr: number) => curr += 1)
+    function handleSetStartDate(fromToDates: any) {
+
+        if (fromToDates && fromToDates.length == 2 && fromToDates[1]) {
+            setFromToDates(fromToDates)
+            setUseDates(true)
+            setSelectedSeason(null)
+            setLocalKey((curr: number) => curr += 1)
+        }
     }
 
     function handleSetSelectedSeason(e: any) {
         setSelectedSeason(e)
-        if (typeof setStartDate === 'function') {
-            setUseDate(false)
-            setStartDate(null)
+        if (typeof setFromToDates === 'function') {
+            setUseDates(false)
+            setFromToDates([])
         }
         if (typeof setLocalKey === 'function') {
             setLocalKey((curr: number) => curr += 1)
@@ -71,23 +74,26 @@ const CompetitionHeader = ({ title, actionTitle, actionButton, record, selectedS
                 <h3 className='col-12 col-xl-4 heading'>{title}</h3>
                 <div className='col-12 col-xl-8 d-flex align-items-center justify-content-end gap-2'>
                     {
-                        typeof setStartDate === 'function'
+                        typeof setFromToDates === 'function'
                         &&
-                        <MatchesPageHeader title={''} startDate={startDate} setStartDate={handleSetStartDate} />
+                        <MatchesPageHeader title={''} fromToDates={fromToDates} setFromToDates={handleSetStartDate} />
                     }
                     <div>
                         {
-                            competition
+                            competition && !hideSeasons
                             &&
-                            <AsyncSelect
-                                id="coachID"
+                            <Select
                                 className="form-control"
+                                classNamePrefix="select"
+                                defaultValue={selectedSeason}
+                                isDisabled={false}
+                                isLoading={false}
+                                isClearable={false}
+                                isSearchable={true}
                                 placeholder="Select season"
                                 name='season_id'
-                                value={selectedSeason}
+                                options={seasons}
                                 onChange={(v) => handleSetSelectedSeason(v)}
-                                defaultOptions
-                                loadOptions={(q: any) => loadOptions(q)}
                                 getOptionValue={(option: any) => `${option['id']}`}
                                 getOptionLabel={(option: any) => `${Str.before(option['start_date'], '-')} / ${Str.before(option['end_date'], '-')}`}
                             />

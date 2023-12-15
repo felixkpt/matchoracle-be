@@ -2,16 +2,18 @@ import AutoTable from "@/components/AutoTable";
 import GeneralModal from "@/components/Modals/GeneralModal";
 import PageHeader from "@/components/PageHeader";
 import useListSources from "@/hooks/apis/useListSources";
-import { CollectionItemsInterface, DataInterface } from "@/interfaces/UncategorizedInterfaces";
+import { DataInterface } from "@/interfaces/UncategorizedInterfaces";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { useEffect, useState } from "react";
 import AutoModalBody from "@/components/AutoModalBody";
 import CreateOrUpdateFromSource from "@/components/CreateOrUpdateFromSource";
 import AddSource from "@/components/AddSource";
-import { CompetitionTabInterface } from "@/interfaces/FootballInterface";
+import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface";
 import UpdateCoach from "@/components/Teams/UpdateCoach";
 
-const Index: React.FC<CompetitionTabInterface> = ({ record, selectedSeason, setSelectedSeason, setKey }) => {
+interface Props extends CompetitionTabInterface, SeasonsListInterface {}
+
+const Index: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSeason, setKey }) => {
 
     const competition = record
 

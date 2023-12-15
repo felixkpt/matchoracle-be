@@ -113,7 +113,7 @@ const TeamMatchesCard = ({ team, teamGames, setTeamRecentResults }: Props) => {
                             }
 
                         </div>
-                        <FormSummary teamWins={teamWins} draws={draws} teamLoses={teamLoses} totals={totals} />
+                        <FormSummary data1={teamWins} data2={draws} data3={teamLoses} totals={totals} />
                     </div>
                     :
                     <div className='position-relative'><Loader message='Loading' /></div>}
