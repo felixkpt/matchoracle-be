@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('game_game_source', function (Blueprint $table) {
             $table->unsignedBigInteger('game_id')->default(0);
             $table->unsignedBigInteger('game_source_id')->default(0);
-            $table->string('uri')->nullable();
+            $table->string('source_uri')->nullable();
             $table->unsignedBigInteger('source_id')->nullable();
             $table->unsignedInteger('priority_number')->default(9999);
             $table->unsignedBigInteger('status_id')->default(0);

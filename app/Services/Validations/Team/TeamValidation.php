@@ -27,7 +27,7 @@ class TeamValidation implements TeamValidationInterface
                 'slug' => 'nullable|string|unique:teams,slug,' . $request->id . ',id',
                 'short_name' => 'nullable|string',
                 'tla' => 'nullable|string',
-                'crest' => $this->imageRules(),
+                'logo' => $this->imageRules(),
                 'address_id' => 'nullable|exists:addresses,id',
                 'website' => 'nullable|url',
                 'founded' => 'nullable|integer',

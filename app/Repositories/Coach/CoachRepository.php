@@ -26,7 +26,7 @@ class CoachRepository implements CoachRepositoryInterface
         $statuses = SearchRepo::of($teams, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'Status')
-            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->crest ?? asset('storage/football/defaultflag.png')) . '" />')
+            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status', 'Crest'])
             ->addFillable('date_of_birth', 'date_of_birth', ['input' => 'input', 'type' => 'date'])
@@ -63,7 +63,7 @@ class CoachRepository implements CoachRepositoryInterface
                 ],
                 'Status update'
             )
-            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->crest ?? asset('storage/football/defaultflag.png')) . '" />')
+            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status', 'Crest'])
             ->addFillable('continent_id', 'continent_id', ['input' => 'select'])

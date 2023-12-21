@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('competition_id')->nullable();
             $table->unsignedBigInteger('continent_id')->default(0);
             $table->string('country_id')->nullable();
-            $table->string('crest')->nullable();
+            $table->string('logo')->nullable();
 
             $table->dateTime('last_updated')->nullable();
             $table->dateTime('last_fetch')->nullable();

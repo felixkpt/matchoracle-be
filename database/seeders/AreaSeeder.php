@@ -13,7 +13,7 @@ class AreaSeeder extends Seeder
             'name' => 'England',
             'slug' => 'england',
             'code' => 'ENG',
-            'flag' => 'https://crests.football-data.org/770.svg',
+            'flag' => 'https://logos.football-data.org/770.svg',
         ]);
     }
 }

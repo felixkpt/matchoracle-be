@@ -1,29 +1,25 @@
 <?php
 
-namespace App\Services\GameSources\FootballData;
+namespace App\Services\GameSources\Forebet;
 
 use App\Models\Address;
 use App\Models\Country;
 use App\Models\Coach;
 use App\Models\CoachContract;
 use App\Models\Competition;
+use App\Models\Season;
 use App\Models\Standing;
 use App\Models\Team;
 use App\Models\Venue;
-use App\Repositories\FootballData;
-use App\Services\GameSources\Interfaces\CompetitionsInterface;
+use App\Services\Client;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use stdClass;
+use Symfony\Component\DomCrawler\Crawler;
 
-class Competitions implements CompetitionsInterface
+class CompetitionsHandler extends BaseHandlerController
 {
-    public $api;
-
-    public function __construct()
-    {
-        $this->api = new FootballData();
-    }
 
     function updateOrCreate($data)
     {
@@ -58,7 +54,7 @@ class Competitions implements CompetitionsInterface
             return response(['type' => 'warning', 'message' => 'Could not save competition.'], 500);
         }
 
-        $competitionData = $this->api->findCompetitionById($data['source_id']);
+        $competitionData = $this->findCompetitionById($data['source_id']);
 
         // $jsonResult = json_encode($standing, JSON_PRETTY_PRINT);
         // dd($jsonResult);
@@ -85,7 +81,7 @@ class Competitions implements CompetitionsInterface
         ];
 
         if ($competitionData->emblem) {
-            $arr['emblem'] = $competitionData->emblem;
+            $arr['logo'] = $competitionData->emblem;
         }
 
         $competition = Competition::updateOrCreate(
@@ -101,139 +97,35 @@ class Competitions implements CompetitionsInterface
         // Check if $item (URI && source_id) is not null before proceeding
         if ($data['uri'] || $data['source_id']) {
             // Check if the game source with the given ID doesn't exist
-            if (!$competition->gameSources()->where('game_source_id', $this->api->sourceId)->exists()) {
+            if (!$competition->gameSources()->where('game_source_id', $this->sourceId)->exists()) {
                 // Attach the relationship with the URI & or source_id
-                $competition->gameSources()->attach($this->api->sourceId, $data);
+                $competition->gameSources()->attach($this->sourceId, $data);
             } else {
-                $competition->gameSources()->where('game_source_id', $this->api->sourceId)->update($data);
+                $competition->gameSources()->where('game_source_id', $this->sourceId)->update($data);
             }
         } else {
             // Detach the relationship if URI & source_id are null
-            $competition->gameSources()->detach($this->api->sourceId);
+            $competition->gameSources()->detach($this->sourceId);
         }
 
         // Save all seasons
         $seasons = $competitionData->seasons;
         foreach ($seasons as $seasonData) {
-            app(Seasons::class)->updateOrCreate($seasonData, $country, $competition, false);
+            SeasonsHandler::updateOrCreate($seasonData, $country, $competition, false);
         }
 
         // Save/update current season
         $seasonData = $competitionData->currentSeason;
         if ($seasonData) {
-            app(Seasons::class)->updateOrCreate($seasonData, $country, $competition, true);
+            SeasonsHandler::updateOrCreate($seasonData, $country, $competition, true);
         }
 
         return response(['message' => 'Successfully saved competition.']);
     }
 
-    function fetchSeasons($id, $season = null)
-    {
+    
 
-        $competition = Competition::whereHas('gameSources', function ($q) use ($id) {
-            $q->where('competition_id', $id);
-        })->first();
-
-        if (!$competition) {
-            return response(['message' => 'Competition #' . $id . ' not found.'], 404);
-        }
-
-        // Access the source_id value for the pivot
-        $source = $competition->gameSources->first()->pivot;
-        if (!$source) {
-            return response(['message' => 'Source for competition #' . $id . ' not found.'], 404);
-        }
-
-        if (!$source->is_subscribed) {
-            return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
-        }
-
-        $country = $competition->country;
-
-        $res = $this->api->findCompetitionById($source->source_id);
-
-        $currentSeason = $res->currentSeason;
-        $seasonsData = $res->seasons;
-
-        foreach ($seasonsData as $seasonData) {
-            $is_current = $currentSeason->id == $seasonData->id;
-
-            $season = app(Seasons::class)->updateOrCreate($seasonData, $country, $competition, $is_current);
-        }
-
-        return response(['message' => 'Seasons for ' . $competition->name . ' updated.']);
-    }
-
-    function fetchStandings($id, $season = null)
-    {
-
-        $competition = Competition::whereHas('gameSources', function ($q) use ($id) {
-            $q->where('competition_id', $id);
-        })->first();
-
-        if (!$competition) {
-            return response(['message' => 'Competition #' . $id . ' not found.'], 404);
-        }
-
-        // Access the source_id value for the pivot
-        $source = $competition->gameSources->first()->pivot;
-        if (!$source) {
-            return response(['message' => 'Source for competition #' . $id . ' not found.'], 404);
-        }
-
-        if (!$source->is_subscribed) {
-            return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
-        }
-
-        $standing = $this->api->findStandingsByCompetition($source->source_id, $season);
-
-        $jsonResult = json_encode($standing, JSON_PRETTY_PRINT);
-        // dd($jsonResult);
-        // die;
-
-        $standingsData = $standing->standings[0];
-
-        $country = $competition->country;
-
-        // Add stages for the competition
-        $competition->stages()->updateOrCreate(
-            ['name' => 'REGULAR_SEASON'],
-        );
-
-        // Save/update current season
-        $seasonData = $standing->season;
-        if ($seasonData) {
-            $endDate = Carbon::parse($seasonData->endDate);
-            $isCurrent = $endDate->isFuture(); // Check if the end date is in the future
-            $season = app(Seasons::class)->updateOrCreate($seasonData, $country, $competition, $isCurrent);
-
-            if ($season && $standingsData) {
-
-                Log::alert(
-                    'ee',
-                    ['season_id' => $season->id, 'stage' => $standingsData->stage, 'type' => $standingsData->type, 'competition_id' => $competition->id],
-                );
-
-                // Create or update the standings record
-                $standing = Standing::updateOrCreate(
-                    [
-                        'season_id' => $season->id, 'stage' => $standingsData->stage, 'type' => $standingsData->type,
-                        'competition_id' => $competition->id
-                    ],
-                    [
-                        'season_id' => $season->id, 'stage' => $standingsData->stage, 'type' => $standingsData->type,
-                        'competition_id' => $competition->id,
-                        'group' => $standingsData->group,
-                    ]
-                );
-
-                // Insert standings table records
-                app(Standings::class)->updateOrCreate($standing, $standingsData, $country, $competition, $season);
-            }
-        }
-
-        return response(['message' => 'Standings for ' . $competition->name . ' updated.']);
-    }
+    
 
     /**
      * @param int $id
@@ -262,7 +154,7 @@ class Competitions implements CompetitionsInterface
             return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
         }
 
-        $matches = $this->api->findMatchesByCompetition($source->source_id, $season, $matchday);
+        $matches = $this->findMatchesByCompetition($source->source_id, $season, $matchday);
 
         Log::critical('MATCHES', [$matches]);
 
@@ -280,7 +172,7 @@ class Competitions implements CompetitionsInterface
             'name' => $competition->name,
             'code' => $competition->code,
             'type' => $competition->type,
-            'emblem' => $competition->emblem,
+            'logo' => $competition->emblem,
             'season' => $competition->currentSeason,
             'lastUpdated' => $competition->lastUpdated,
         ];
@@ -294,7 +186,7 @@ class Competitions implements CompetitionsInterface
 
     function findTeamById($id)
     {
-        $team = $this->api->findTeamById($id);
+        $team = $this->findTeamById($id);
         $sourceTeam = $team;
 
         $country = $team->country;
@@ -365,7 +257,7 @@ class Competitions implements CompetitionsInterface
                 'short_name' => $teamData->shortName,
                 'tla' => $teamData->tla,
                 'country_id' => $country->id,
-                'crest' => $teamData->crest,
+                'logo' => $teamData->logo,
                 'address_id' => $address->id,
                 'website' => $team->website,
                 'founded' => $team->founded,
@@ -398,9 +290,9 @@ class Competitions implements CompetitionsInterface
         }
 
         // Check if the game source with the given ID doesn't exist
-        if (!$team->gameSources()->where('game_source_id', $this->api->sourceId)->exists()) {
+        if (!$team->gameSources()->where('game_source_id', $this->sourceId)->exists()) {
             // Attach the relationship with the URI
-            $team->gameSources()->attach($this->api->sourceId, ['source_id' => $teamData->id]);
+            $team->gameSources()->attach($this->sourceId, ['source_id' => $teamData->id]);
         }
 
         dd($team);
@@ -449,7 +341,7 @@ class Competitions implements CompetitionsInterface
                 'short_name' => $teamData->shortName,
                 'tla' => $teamData->tla,
                 'country_id' => $country->id,
-                'crest' => $teamData->crest,
+                'logo' => $teamData->logo,
                 'address_id' => $address->id,
                 'website' => $teamData->website,
                 'founded' => $teamData->founded,
@@ -462,9 +354,9 @@ class Competitions implements CompetitionsInterface
         $this->saveTeamCoach($teamData, $team);
 
         // Check if the game source with the given ID doesn't exist
-        if (!$team->gameSources()->where('game_source_id', $this->api->sourceId)->exists()) {
+        if (!$team->gameSources()->where('game_source_id', $this->sourceId)->exists()) {
             // Attach the relationship with the URI
-            $team->gameSources()->attach($this->api->sourceId, ['source_id' => $teamData->id]);
+            $team->gameSources()->attach($this->sourceId, ['source_id' => $teamData->id]);
         }
 
         return $team;

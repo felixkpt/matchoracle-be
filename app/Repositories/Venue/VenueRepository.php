@@ -28,7 +28,7 @@ class VenueRepository implements VenueRepositoryInterface
         $statuses = SearchRepo::of($teams, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'Status')
-            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->crest ?? asset('storage/football/defaultflag.png')) . '" />')
+            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addActionColumn('action', $uri, 'native')
             ->addFillable('website', 'website', ['input' => 'input', 'type' => 'url'])
             ->addFillable('founded', 'founded', ['input' => 'input', 'type' => 'number'])
@@ -66,7 +66,7 @@ class VenueRepository implements VenueRepositoryInterface
                 ],
                 'Status update'
             )
-            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->crest ?? asset('storage/football/defaultflag.png')) . '" />')
+            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status', 'Crest'])
             ->addFillable('continent_id', 'continent_id', ['input' => 'select'])

@@ -534,7 +534,7 @@ class SearchRepo
             'img' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
             'image' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
             'emblem' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
-            'crest' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
+            'logo' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
             'flag' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
             'avatar' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
 

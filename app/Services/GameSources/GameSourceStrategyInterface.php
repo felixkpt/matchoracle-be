@@ -6,6 +6,8 @@ interface GameSourceStrategyInterface
 {
     public function getId();
 
+    public function initialCompetitions();
+
     public function competitions();
 
     public function seasons();

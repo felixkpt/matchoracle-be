@@ -39,7 +39,7 @@ class Client
      * @param mixed $request
      * @return string|null
      */
-    public static function requestContent($request)
+    public static function get($request)
     {
         $response = self::sendRequest($request);
         return $response ? $response->getContent() : null;

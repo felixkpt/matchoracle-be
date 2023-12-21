@@ -1,28 +1,22 @@
 <?php
 
-namespace App\Services\GameSources\FootballData;
+namespace App\Services\GameSources\Forebet;
 
 use App\Models\Address;
 use App\Models\Country;
 use App\Models\Coach;
 use App\Models\Team;
 use App\Models\Venue;
-use App\Repositories\FootballData;
+use App\Repositories\Forebet;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
-class Teams
+class TeamsHandler extends BaseHandlerController
 {
-    public $api;
-
-    public function __construct()
-    {
-        $this->api = new FootballData();
-    }
 
     function findTeamById($id)
     {
-        $teamData = $this->api->findTeamById($id);
+        $teamData = $this->findTeamById($id);
 
         $country = $teamData->area;
         $country = Country::updateOrCreate(
@@ -41,10 +35,10 @@ class Teams
         $this->updateOrCreate($teamData, $country);
     }
 
-    function updateOrCreate($teamData, $country, $competition = null)
+    function updateOrCreate($teamData, $country, $competition = null, $season = null)
     {
 
-        $name = $teamData->name;
+        $name = $teamData['name'];
         // Create or update the team record
 
         $address = null;
@@ -70,16 +64,15 @@ class Teams
                 ]
             );
 
-        $name = $teamData->name;
-
         $arr = [
             'name' => $name,
             'slug' => Str::slug($name),
-            'short_name' => $teamData->shortName,
-            'tla' => $teamData->tla,
             'country_id' => $country->id,
-            'logo' => $teamData->crest,
         ];
+
+        if (isset($teamData['logo'])) {
+            $arr['logo'] = $teamData['logo'];
+        }
 
         if (isset($address)) {
             $arr['address_id'] = $address->id;
@@ -89,7 +82,7 @@ class Teams
             $arr['venue_id'] = $venue->id;
         }
 
-        if (isset($competition) && $competition->type == 'LEAGUE') {
+        if (isset($competition) && $competition->type == 'LEAGUE' && isset($season) && $season->is_current) {
             $arr['competition_id'] = $competition->id;
         }
 
@@ -112,19 +105,17 @@ class Teams
         $team = Team::updateOrCreate(
             [
                 'name' => $name,
-                'short_name' => $teamData->shortName,
-                'tla' => $teamData->tla,
                 'country_id' => $country->id,
             ],
             $arr
         );
 
-        $this->saveCoach($teamData, $team);
+        static::saveCoach($teamData, $team);
 
         // Check if the game source with the given ID doesn't exist
-        if (!$team->gameSources()->where('game_source_id', $this->api->sourceId)->exists()) {
+        if (!$team->gameSources()->where('game_source_id', $this->sourceId)->exists()) {
             // Attach the relationship with the URI
-            $team->gameSources()->attach($this->api->sourceId, ['source_id' => $teamData->id]);
+            $team->gameSources()->attach($this->sourceId, ['source_uri' => $teamData['uri']]);
         }
 
         return $team;
@@ -136,7 +127,7 @@ class Teams
         dd($teams->count());
     }
 
-    function saveCoach($teamData, $team)
+    static function saveCoach($teamData, $team)
     {
 
         if (isset($teamData->coach)) {

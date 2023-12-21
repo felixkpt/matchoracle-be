@@ -23,7 +23,7 @@ return new class extends Migration
             $table->unsignedInteger('won');
             $table->unsignedInteger('draw');
             $table->unsignedInteger('lost');
-            $table->unsignedInteger('points');
+            $table->integer('points');
             $table->unsignedInteger('goals_for');
             $table->unsignedInteger('goals_against');
             $table->integer('goal_difference');

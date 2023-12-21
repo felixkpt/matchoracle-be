@@ -278,3 +278,17 @@ if (!function_exists('scores')) {
         return $arr;
     }
 }
+
+
+if (!function_exists('getUriFromUrl')) {
+    function getUriFromUrl($url)
+    {
+        // Parse the URL to get its components
+        $parsedUrl = parse_url($url);
+
+        // Extract the path from the parsed URL
+        $path = isset($parsedUrl['path']) ? $parsedUrl['path'] : '';
+
+        return $path;
+    }
+}

@@ -15,7 +15,7 @@ class Competition extends Model
     'slug',
     'code',
     'type',
-    'emblem',
+    'logo',
     'plan',
 
     'abbreviation',
@@ -55,7 +55,7 @@ class Competition extends Model
 
   function gameSources()
   {
-    return $this->belongsToMany(GameSource::class)->withPivot(['uri', 'source_id', 'subscription_expires', 'is_subscribed'])->withTimestamps();
+    return $this->belongsToMany(GameSource::class)->withPivot(['source_uri', 'source_id', 'subscription_expires', 'is_subscribed'])->withTimestamps();
   }
 
   public function matches()

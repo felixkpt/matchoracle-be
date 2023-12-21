@@ -18,6 +18,12 @@ class FootballDataStrategy implements GameSourceStrategyInterface
         return $this->footballData->api->sourceId;
     }
 
+    public function initialCompetitions()
+    {
+        return $this->footballData->initialCompetitions();
+        
+    }
+
     public function competitions()
     {
         return $this->footballData->competitions();

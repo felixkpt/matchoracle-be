@@ -158,7 +158,7 @@ class AddressRepository implements AddressRepositoryInterface
         $res = SearchRepo::of($teams, ['name', 'founded'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'Status')
-            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->crest ?? asset('storage/football/defaultflag.png')) . '" />')
+            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status', 'Crest'])
             ->orderby('priority_number')

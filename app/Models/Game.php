@@ -16,6 +16,7 @@ class Game extends Model
         'season_id',
         'country_id',
         'utc_date',
+        'has_time',
         'status',
         'matchday',
         'stage',
@@ -59,7 +60,7 @@ class Game extends Model
 
     public function gameSources()
     {
-        return $this->belongsToMany(GameSource::class)->withPivot(['uri', 'source_id'])->withTimestamps();
+        return $this->belongsToMany(GameSource::class)->withPivot(['source_uri', 'source_id'])->withTimestamps();
     }
 
     public function referees()

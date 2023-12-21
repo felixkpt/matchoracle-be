@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('game_source_team', function (Blueprint $table) {
             $table->unsignedBigInteger('team_id')->default(0);
             $table->unsignedBigInteger('game_source_id')->default(0);
-            $table->string('uri')->nullable();
+            $table->string('source_uri')->nullable();
             $table->unsignedBigInteger('source_id')->nullable();
             $table->string('subscription_expires')->nullable();
             $table->boolean('is_subscribed')->default(0);

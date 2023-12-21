@@ -20,7 +20,7 @@ return new class extends Migration
             $table->boolean('is_current')->default(false);
             $table->unsignedInteger('current_matchday')->nullable();
             $table->unsignedInteger('total_matchdays')->nullable();
-            $table->unsignedInteger('played')->nullable();
+            $table->unsignedInteger('played_matches')->nullable();
             $table->unsignedBigInteger('winner_id')->nullable();
             $table->json('stages')->nullable();
             $table->unsignedBigInteger('status_id')->default(0);

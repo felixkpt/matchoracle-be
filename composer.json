@@ -13,10 +13,10 @@
         "laravel/tinker": "^2.8",
         "spatie/laravel-medialibrary": "^10.11",
         "spatie/laravel-permission": "^5.10",
-        "symfony/browser-kit": "^6.3",
-        "symfony/css-selector": "^6.3",
-        "symfony/dom-crawler": "^6.3",
-        "symfony/http-client": "^6.3"
+        "symfony/browser-kit": "*",
+        "symfony/css-selector": "*",
+        "symfony/dom-crawler": "*",
+        "symfony/http-client": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

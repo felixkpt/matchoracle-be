@@ -18,13 +18,14 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug');
             $table->string('code')->nullable();
-            $table->string('type');
-         
+            $table->enum('category', ['domestic', 'international'])->nullable();
+            $table->string('type')->nullable();
+
             $table->string('abbreviation')->nullable();
             $table->boolean('has_teams')->nullable();
             $table->unsignedBigInteger('continent_id')->default(0);
             $table->string('country_id')->nullable();
-            $table->string('emblem')->nullable();
+            $table->string('logo')->nullable();
             $table->string('plan')->nullable();
 
             $table->dateTime('last_updated')->nullable();

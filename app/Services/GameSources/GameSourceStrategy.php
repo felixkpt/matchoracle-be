@@ -16,6 +16,11 @@ class GameSourceStrategy
         return $this->gameSourceStrategyInterface->getId();
     }
 
+    public function initialCompetitions()
+    {
+        return $this->gameSourceStrategyInterface->initialCompetitions();
+    }
+
     public function competitions()
     {
         return $this->gameSourceStrategyInterface->competitions();

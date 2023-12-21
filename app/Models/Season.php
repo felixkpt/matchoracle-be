@@ -14,7 +14,7 @@ class Season extends Model
         'end_date',
         'current_matchday',
         'total_matchdays',
-        'played',
+        'played_matches',
         'competition_id',
         'is_current',
         'winner_id',

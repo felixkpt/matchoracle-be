@@ -98,7 +98,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                 $is_subscribed = Carbon::parse($subscription_expires)->isFuture();
             }
 
-            $arr = ['uri' => $item['uri'], 'source_id' => $item['source_id'], 'competition_game_source.subscription_expires' => $subscription_expires, 'competition_game_source.is_subscribed' => $is_subscribed];
+            $arr = ['source_uri' => $item['source_uri'], 'source_id' => $item['source_id'], 'competition_game_source.subscription_expires' => $subscription_expires, 'competition_game_source.is_subscribed' => $is_subscribed];
 
             // Get competitions from the selected game source
             $competitions = $this->sourceContext->competitions();

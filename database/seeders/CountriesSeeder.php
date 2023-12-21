@@ -102,7 +102,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "argentina",
                 "code" => "ARG",
                 "dial_code" => "+54",
-                "flag" => "https://crests.football-data.org/762.png",
+                "flag" => "https://logos.football-data.org/762.png",
                 "continent" => "South America",
             ],
             [
@@ -110,7 +110,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "armenia",
                 "code" => "ARM",
                 "dial_code" => "+374",
-                "flag" => "https://crests.football-data.org/1970.svg",
+                "flag" => "https://logos.football-data.org/1970.svg",
                 "continent" => "Europe",
             ],
             [
@@ -142,7 +142,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "austria",
                 "code" => "AUT",
                 "dial_code" => "+43",
-                "flag" => "https://crests.football-data.org/816.svg",
+                "flag" => "https://logos.football-data.org/816.svg",
                 "continent" => "Europe",
             ],
             [
@@ -198,7 +198,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "belgium",
                 "code" => "BEL",
                 "dial_code" => "+32",
-                "flag" => "https://crests.football-data.org/805.svg",
+                "flag" => "https://logos.football-data.org/805.svg",
                 "continent" => "Europe",
             ],
             [
@@ -254,7 +254,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "bosnia-and-herzegovina",
                 "code" => "BIH",
                 "dial_code" => "+387",
-                "flag" => "https://crests.football-data.org/bosnia.svg",
+                "flag" => "https://logos.football-data.org/bosnia.svg",
                 "continent" => "Europe",
             ],
             [
@@ -270,7 +270,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "brazil",
                 "code" => "BRA",
                 "dial_code" => "+55",
-                "flag" => "https://crests.football-data.org/764.svg",
+                "flag" => "https://logos.football-data.org/764.svg",
                 "continent" => "South America",
             ],
             [
@@ -294,7 +294,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "bulgaria",
                 "code" => "BGR",
                 "dial_code" => "+359",
-                "flag" => "https://crests.football-data.org/817.svg",
+                "flag" => "https://logos.football-data.org/817.svg",
                 "continent" => "Europe",
             ],
             [
@@ -478,7 +478,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "croatia",
                 "code" => "HRV",
                 "dial_code" => "+385",
-                "flag" => "https://crests.football-data.org/799.svg",
+                "flag" => "https://logos.football-data.org/799.svg",
                 "continent" => "Europe",
             ],
             [
@@ -510,7 +510,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "czech-republic",
                 "code" => "CZE",
                 "dial_code" => "+420",
-                "flag" => "https://crests.football-data.org/798.svg",
+                "flag" => "https://logos.football-data.org/798.svg",
                 "continent" => "Europe",
             ],
             [
@@ -518,7 +518,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "czechoslovakia",
                 "code" => "CZS",
                 "dial_code" => null,
-                "flag" => "https://crests.football-data.org/798.svg",
+                "flag" => "https://logos.football-data.org/798.svg",
                 "continent" => "Europe",
             ],
             [
@@ -534,7 +534,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "denmark",
                 "code" => "DNK",
                 "dial_code" => "+45",
-                "flag" => "https://crests.football-data.org/782.svg",
+                "flag" => "https://logos.football-data.org/782.svg",
                 "continent" => "Europe",
             ],
             [
@@ -590,7 +590,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "england",
                 "code" => "ENG",
                 "dial_code" => "+44",
-                "flag" => "https://crests.football-data.org/770.svg",
+                "flag" => "https://logos.football-data.org/770.svg",
                 "continent" => "Europe",
             ],
             [
@@ -614,7 +614,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "estonia",
                 "code" => "EST",
                 "dial_code" => "+372",
-                "flag" => "https://crests.football-data.org/estonia.svg",
+                "flag" => "https://logos.football-data.org/estonia.svg",
                 "continent" => "Europe",
             ],
             [
@@ -630,7 +630,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "europe",
                 "code" => "EUR",
                 "dial_code" => "+44",
-                "flag" => "https://crests.football-data.org/EUR.svg",
+                "flag" => "https://logos.football-data.org/EUR.svg",
                 "continent" => "World",
             ],
             [
@@ -654,7 +654,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "finland",
                 "code" => "FIN",
                 "dial_code" => "+358",
-                "flag" => "https://crests.football-data.org/1976.svg",
+                "flag" => "https://logos.football-data.org/1976.svg",
                 "continent" => "Europe",
             ],
             [
@@ -662,7 +662,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "france",
                 "code" => "FRA",
                 "dial_code" => "+33",
-                "flag" => "https://crests.football-data.org/773.svg",
+                "flag" => "https://logos.football-data.org/773.svg",
                 "continent" => "Europe",
             ],
             [
@@ -718,7 +718,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "germany",
                 "code" => "DEU",
                 "dial_code" => "+49",
-                "flag" => "https://crests.football-data.org/759.svg",
+                "flag" => "https://logos.football-data.org/759.svg",
                 "continent" => "Europe",
             ],
             [
@@ -758,7 +758,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "greece",
                 "code" => "GRC",
                 "dial_code" => "+30",
-                "flag" => "https://crests.football-data.org/775.svg",
+                "flag" => "https://logos.football-data.org/775.svg",
                 "continent" => "Europe",
             ],
             [
@@ -862,7 +862,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "hungary",
                 "code" => "HUN",
                 "dial_code" => "+36",
-                "flag" => "https://crests.football-data.org/827.svg",
+                "flag" => "https://logos.football-data.org/827.svg",
                 "continent" => "Europe",
             ],
             [
@@ -870,7 +870,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "iceland",
                 "code" => "ISL",
                 "dial_code" => "+354",
-                "flag" => "https://crests.football-data.org/iceland.svg",
+                "flag" => "https://logos.football-data.org/iceland.svg",
                 "continent" => "Europe",
             ],
             [
@@ -918,7 +918,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "israel",
                 "code" => "ISR",
                 "dial_code" => "+972",
-                "flag" => "https://crests.football-data.org/israel.svg",
+                "flag" => "https://logos.football-data.org/israel.svg",
                 "continent" => "Europe",
             ],
             [
@@ -926,7 +926,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "italy",
                 "code" => "ITA",
                 "dial_code" => "+39",
-                "flag" => "https://crests.football-data.org/784.svg",
+                "flag" => "https://logos.football-data.org/784.svg",
                 "continent" => "Europe",
             ],
             [
@@ -942,7 +942,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "japan",
                 "code" => "JPN",
                 "dial_code" => "+81",
-                "flag" => "https://crests.football-data.org/JAP.svg",
+                "flag" => "https://logos.football-data.org/JAP.svg",
                 "continent" => "Asia",
             ],
             [
@@ -1046,7 +1046,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "latvia",
                 "code" => "LVA",
                 "dial_code" => "+371",
-                "flag" => "https://crests.football-data.org/latvia.svg",
+                "flag" => "https://logos.football-data.org/latvia.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1086,7 +1086,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "liechtenstein",
                 "code" => "LIE",
                 "dial_code" => "+423",
-                "flag" => "https://crests.football-data.org/1982.svg",
+                "flag" => "https://logos.football-data.org/1982.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1094,7 +1094,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "lithuania",
                 "code" => "LTU",
                 "dial_code" => "+370",
-                "flag" => "https://crests.football-data.org/1983.svg",
+                "flag" => "https://logos.football-data.org/1983.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1158,7 +1158,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "malta",
                 "code" => "MLT",
                 "dial_code" => "+356",
-                "flag" => "https://crests.football-data.org/malta.svg",
+                "flag" => "https://logos.football-data.org/malta.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1206,7 +1206,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "mexico",
                 "code" => "MEX",
                 "dial_code" => "+52",
-                "flag" => "https://crests.football-data.org/mexico.svg",
+                "flag" => "https://logos.football-data.org/mexico.svg",
                 "continent" => "N/C America",
             ],
             [
@@ -1318,7 +1318,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "netherlands",
                 "code" => "NLD",
                 "dial_code" => "+31",
-                "flag" => "https://crests.football-data.org/8601.svg",
+                "flag" => "https://logos.football-data.org/8601.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1382,7 +1382,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "northern-ireland",
                 "code" => "NIR",
                 "dial_code" => "+44",
-                "flag" => "https://crests.football-data.org/829.svg",
+                "flag" => "https://logos.football-data.org/829.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1398,7 +1398,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "norway",
                 "code" => "NOR",
                 "dial_code" => "+47",
-                "flag" => "https://crests.football-data.org/813.svg",
+                "flag" => "https://logos.football-data.org/813.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1502,7 +1502,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "poland",
                 "code" => "POL",
                 "dial_code" => "+48",
-                "flag" => "https://crests.football-data.org/794.svg",
+                "flag" => "https://logos.football-data.org/794.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1510,7 +1510,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "portugal",
                 "code" => "POR",
                 "dial_code" => "+351",
-                "flag" => "https://crests.football-data.org/765.svg",
+                "flag" => "https://logos.football-data.org/765.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1550,7 +1550,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "republic-of-ireland",
                 "code" => "IRL",
                 "dial_code" => null,
-                "flag" => "https://crests.football-data.org/806.svg",
+                "flag" => "https://logos.football-data.org/806.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1566,7 +1566,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "romania",
                 "code" => "ROU",
                 "dial_code" => "+40",
-                "flag" => "https://crests.football-data.org/811.svg",
+                "flag" => "https://logos.football-data.org/811.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1574,7 +1574,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "russia",
                 "code" => "RUS",
                 "dial_code" => "+7",
-                "flag" => "https://crests.football-data.org/808.svg",
+                "flag" => "https://logos.football-data.org/808.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1646,7 +1646,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "scotland",
                 "code" => "SCO",
                 "dial_code" => "+44",
-                "flag" => "https://crests.football-data.org/814.svg",
+                "flag" => "https://logos.football-data.org/814.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1775,7 +1775,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "south-america",
                 "code" => "SAM",
                 "dial_code" => null,
-                "flag" => "https://crests.football-data.org/CLI.svg",
+                "flag" => "https://logos.football-data.org/CLI.svg",
                 "continent" => "World",
             ],
             [
@@ -1807,7 +1807,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "spain",
                 "code" => "ESP",
                 "dial_code" => "+34",
-                "flag" => "https://crests.football-data.org/760.svg",
+                "flag" => "https://logos.football-data.org/760.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1879,7 +1879,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "sweden",
                 "code" => "SWE",
                 "dial_code" => "+46",
-                "flag" => "https://crests.football-data.org/792.svg",
+                "flag" => "https://logos.football-data.org/792.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1887,7 +1887,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "switzerland",
                 "code" => "CHE",
                 "dial_code" => "+41",
-                "flag" => "https://crests.football-data.org/788.svg",
+                "flag" => "https://logos.football-data.org/788.svg",
                 "continent" => "Europe",
             ],
             [
@@ -1991,7 +1991,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "turkey",
                 "code" => "TUR",
                 "dial_code" => "+90",
-                "flag" => "https://crests.football-data.org/803.svg",
+                "flag" => "https://logos.football-data.org/803.svg",
                 "continent" => "Europe",
             ],
             [
@@ -2039,7 +2039,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "ukraine",
                 "code" => "UKR",
                 "dial_code" => "+380",
-                "flag" => "https://crests.football-data.org/790.svg",
+                "flag" => "https://logos.football-data.org/790.svg",
                 "continent" => "Europe",
             ],
             [
@@ -2063,7 +2063,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "united-states",
                 "code" => "USA",
                 "dial_code" => "+1",
-                "flag" => "https://crests.football-data.org/usa.svg",
+                "flag" => "https://logos.football-data.org/usa.svg",
                 "continent" => "N/C America",
             ],
             [
@@ -2127,7 +2127,7 @@ class CountriesSeeder extends Seeder
                 "slug" => "wales",
                 "code" => "WAL",
                 "dial_code" => "+44",
-                "flag" => "https://crests.football-data.org/833.svg",
+                "flag" => "https://logos.football-data.org/833.svg",
                 "continent" => "Europe",
             ],
             [

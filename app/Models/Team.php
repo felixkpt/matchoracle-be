@@ -15,7 +15,7 @@ class Team extends Model
         'slug',
         'short_name',
         'tla',
-        'crest',
+        'logo',
         'address_id',
         'website',
         'founded',
@@ -37,7 +37,7 @@ class Team extends Model
 
     function gameSources()
     {
-        return $this->belongsToMany(GameSource::class)->withPivot(['uri', 'source_id', 'subscription_expires', 'is_subscribed'])->withTimestamps();
+        return $this->belongsToMany(GameSource::class)->withPivot(['source_uri', 'source_id', 'subscription_expires', 'is_subscribed'])->withTimestamps();
     }
 
     public function country()

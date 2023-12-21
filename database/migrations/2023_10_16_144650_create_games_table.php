@@ -20,9 +20,10 @@ return new class extends Migration
             $table->unsignedBigInteger('season_id');
             $table->unsignedBigInteger('country_id');
             $table->datetime('utc_date');
+            $table->boolean('has_time')->default(false);
             $table->string('status');
             $table->integer('matchday')->nullable();
-            $table->string('stage');
+            $table->string('stage')->nullable();
             $table->string('group')->nullable();
             $table->dateTime('last_updated')->nullable();
             $table->dateTime('last_fetch')->nullable();

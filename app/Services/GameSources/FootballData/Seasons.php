@@ -16,19 +16,26 @@ class Seasons
 
     function updateOrCreate($seasonData, $country, $competition, $is_current = false, $played = null)
     {
-        $winner = null;
-        if (isset($seasonData->winner)) {
-            $winner = app(Teams::class)->updateOrCreate($seasonData->winner, $country, $competition);
-        }
 
         $arr = [
             'competition_id' => $competition->id,
             'start_date' => $seasonData->startDate,
             'end_date' => $seasonData->endDate,
-            'current_matchday' => $seasonData->currentMatchday,
-            'winner_id' => $winner->id ?? null,
             'is_current' => $is_current
         ];
+
+        if (isset($seasonData->currentMatchday) && $seasonData->currentMatchday) {
+            $arr['current_matchday'] = $seasonData->currentMatchday;
+        }
+
+        $winner = null;
+        if (isset($seasonData->winner)) {
+            $winner = app(Teams::class)->updateOrCreate($seasonData->winner, $country, $competition);
+        }
+
+        if ($winner) {
+            $arr['winner_id'] = $seasonData->winner_id;
+        }
 
         if ($played) {
             $arr['played'] = $played;
