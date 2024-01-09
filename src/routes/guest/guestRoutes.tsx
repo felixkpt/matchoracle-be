@@ -1,4 +1,4 @@
-import Admin from '@/Pages/Admin/Index';
+import Admin from '@/Pages/Admin/Dashboard/Index';
 import Login from '@/Pages/Auth/Login';
 import Register from '@/Pages/Auth/Register';
 import Password from '@/Pages/Auth/Password';

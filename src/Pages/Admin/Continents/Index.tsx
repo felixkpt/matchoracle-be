@@ -9,6 +9,10 @@ const Index = () => {
 
     const columns = [
         {
+            label: 'Flag',
+            key: 'Flag',
+        },
+        {
             label: 'Name',
             key: 'name',
         },
@@ -19,10 +23,6 @@ const Index = () => {
         {
             label: 'Code',
             key: 'code',
-        },
-        {
-            label: 'image',
-            key: 'image',
         },
         {
             label: 'Priority NO',

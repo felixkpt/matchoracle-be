@@ -1,11 +1,11 @@
 
 type Props = {
-    permissions: PermissionData[]
+    role: RoleInterface | undefined
+    permissions: PermissionInterface[] | undefined
     loadingPermission: boolean
-    role: RoleData
 }
 
-const Header = ({ permissions, loadingPermission, role }: Props) => {
+const RoleHeader = ({ role, permissions, loadingPermission }: Props) => {
 
     return (
         <div>
@@ -45,4 +45,4 @@ const Header = ({ permissions, loadingPermission, role }: Props) => {
     )
 }
 
-export default Header
+export default RoleHeader

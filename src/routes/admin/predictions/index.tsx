@@ -34,8 +34,12 @@ const routes = [
         element: <AuthenticatedLayout uri={`${relativeUri}:year/:month`} permission="" Component={Predictions} />,
     },
     {
-        path: `:year/:month/:date`,
-        element: <AuthenticatedLayout uri={`${relativeUri}:year/:month/:date`} permission="" Component={Predictions} />,
+        path: `:year/:month/:day`,
+        element: <AuthenticatedLayout uri={`${relativeUri}:year/:month/:day`} permission="" Component={Predictions} />,
+    },
+    {
+        path: `:start_year/:start_month/:start_day/to/:end_year/:end_month/:end_day`,
+        element: <AuthenticatedLayout uri={`${relativeUri}:start_year/:start_month/:start_day/to/:end_year/:end_month/:end_day`} permission="" Component={Predictions} />,
     },
 ];
 

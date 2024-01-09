@@ -1,112 +1,74 @@
-import MatchesPageHeader from '@/Pages/Admin/Predictions/Includes/MatchesPageHeader';
-import useAxios from '@/hooks/useAxios';
-import { CompetitionInterface, SeasonsListInterface } from '@/interfaces/FootballInterface';
-import Str from '@/utils/Str'
+import useAxios from "@/hooks/useAxios"
+import { CompetitionInterface, SeasonInterface } from "@/interfaces/FootballInterface"
+import Str from "@/utils/Str"
+import { competitionLogo, countryLogo } from "@/utils/helpers"
+import { useState } from "react"
+import { NavLink } from "react-router-dom"
 import Select from 'react-select';
 
-interface Props extends SeasonsListInterface {
-    title: string
-    actionTitle?: string
-    actionButton?: string
-    record: CompetitionInterface | undefined;
-    fromToDates?: any
+type CompetitionHeaderProps = {
+    competition: CompetitionInterface
+    currentTab: string | undefined
+    seasons: SeasonInterface[] | null
+    selectedSeason: SeasonInterface | null
+    setSelectedSeason: any
     setFromToDates?: any
     setUseDates?: any
-    setLocalKey?: any
-    hideSeasons?: boolean
+    setKey?: any
 }
+const CompetitionHeader = ({ competition, currentTab, seasons, selectedSeason, setSelectedSeason, setFromToDates, setUseDates, setKey }: CompetitionHeaderProps) => {
 
-const CompetitionHeader = ({ title, actionTitle, actionButton, record, seasons, selectedSeason, setSelectedSeason, fromToDates, setFromToDates, setUseDates, setLocalKey, hideSeasons }: Props) => {
-
-    const competition = record
-
-    const { get, loading } = useAxios()
-
-    const loadOptions = async (q: string) => {
-
-        if (competition) {
-
-            const currentValue = selectedSeason;
-
-            const { data: fetchedOptions } = await get(`/admin/seasons?all=1&competition_id=${competition.id}&q=${q}`);
-
-            if (currentValue) {
-
-                const item = fetchedOptions.find((itm: any) => itm.id === currentValue.id)
-
-                setSelectedSeason(item)
-            }
-            // Include the existing record's option in fetchedOptions if not already present
-            if (currentValue && !fetchedOptions.some((option: any) => option.id === currentValue.id)) {
-                fetchedOptions.push(currentValue);
-            }
-
-            return fetchedOptions
-        }
-
-    }
-
-    function handleSetStartDate(fromToDates: any) {
-
-        if (fromToDates && fromToDates.length == 2 && fromToDates[1]) {
-            setFromToDates(fromToDates)
-            setUseDates(true)
-            setSelectedSeason(null)
-            setLocalKey((curr: number) => curr += 1)
-        }
-    }
-
-    function handleSetSelectedSeason(e: any) {
-        setSelectedSeason(e)
+    function handleSetSelectedSeason(season: SeasonInterface) {
+        setSelectedSeason(season)
         if (typeof setFromToDates === 'function') {
             setUseDates(false)
             setFromToDates([])
         }
-        if (typeof setLocalKey === 'function') {
-            setLocalKey((curr: number) => curr += 1)
+        if (typeof setKey === 'function') {
+            setKey((curr: number) => curr += 1)
         }
     }
-
     return (
-        <div className='header-title shadow-sm p-2 rounded mb-3 row justify-content-between'>
-
-            <div className='row align-items-center justify-content-between position-relative'>
-                <h3 className='col-12 col-xl-4 heading'>{title}</h3>
-                <div className='col-12 col-xl-8 d-flex align-items-center justify-content-end gap-2'>
-                    {
-                        typeof setFromToDates === 'function'
-                        &&
-                        <MatchesPageHeader title={''} fromToDates={fromToDates} setFromToDates={handleSetStartDate} />
-                    }
-                    <div>
-                        {
-                            competition && !hideSeasons
-                            &&
-                            <Select
-                                className="form-control"
-                                classNamePrefix="select"
-                                defaultValue={selectedSeason}
-                                isDisabled={false}
-                                isLoading={false}
-                                isClearable={false}
-                                isSearchable={true}
-                                placeholder="Select season"
-                                name='season_id'
-                                options={seasons}
-                                onChange={(v) => handleSetSelectedSeason(v)}
-                                getOptionValue={(option: any) => `${option['id']}`}
-                                getOptionLabel={(option: any) => `${Str.before(option['start_date'], '-')} / ${Str.before(option['end_date'], '-')}`}
-                            />
-                        }
+        <div className='header-title shadow-sm p-2 rounded mb-4 row'>
+            <div className="col-12">
+                <div className="d-flex gap-3">
+                    <img className="compe-logo" src={competitionLogo(competition.logo)} alt="" />
+                    <div className="d-flex align-items-center gap-4">
+                        <h5 className="row align-items-center gap-2">
+                            <span><span>{competition.name}</span><span>{currentTab ? ' - ' + currentTab : ''}</span></span>
+                            <div className="d-flex gap-1">
+                                <small className="d-flex align-items-center gap-2">
+                                    <NavLink to={`/admin/countries/view/${competition.country.id}`} className="d-flex align-items-center btn-link">
+                                        <img className="symbol-image-sm me-1" src={countryLogo(competition?.country.flag)} alt="" />{competition.country.name}
+                                    </NavLink>
+                                </small>
+                                <div>
+                                    {
+                                        competition
+                                        &&
+                                        <Select
+                                            key={selectedSeason ? selectedSeason.id : 0}
+                                            className="form-control border-0"
+                                            classNamePrefix="select"
+                                            defaultValue={selectedSeason}
+                                            isDisabled={false}
+                                            isLoading={false}
+                                            isClearable={false}
+                                            isSearchable={false}
+                                            placeholder="Select season"
+                                            name='season_id'
+                                            options={seasons || []}
+                                            onChange={(v: any) => handleSetSelectedSeason(v)}
+                                            getOptionValue={(option: any) => `${option['id']}`}
+                                            getOptionLabel={(option: any) => `${Str.before(option['start_date'], '-')} / ${Str.before(option['end_date'], '-')}`}
+                                        />
+                                    }
+                                </div>
+                            </div>
+                        </h5>
                     </div>
-                    {
-                        actionButton
-                        &&
-                        <button type="button" className="btn btn-primary" id="fetchStandingsButton" data-bs-toggle="modal" data-bs-target={`#${actionButton}`}>{actionTitle || 'Action'}</button>
-                    }
                 </div>
             </div>
-
         </div>
     )
 }

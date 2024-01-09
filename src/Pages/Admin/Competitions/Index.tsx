@@ -1,4 +1,3 @@
-import AutoTable from "@/components/AutoTable";
 import GeneralModal from "@/components/Modals/GeneralModal";
 import PageHeader from "@/components/PageHeader";
 import useListSources from "@/hooks/apis/useListSources";
@@ -8,6 +7,9 @@ import { useEffect, useState } from "react";
 import AddSource from "@/components/AddSource";
 import AutoModalBody from "@/components/AutoModalBody";
 import CreateOrUpdateFromSource from "@/components/CreateOrUpdateFromSource";
+import AutoTabs from "@/components/AutoTabs";
+import All from "./Tabs/All";
+import OddsEnabled from "./Tabs/OddsEnabled";
 
 const Index = () => {
 
@@ -16,18 +18,32 @@ const Index = () => {
     const [record, setRecord] = useState<DataInterface>()
     const [record2, setRecord2] = useState<DataInterface>()
 
+
+    const [active_only, setActiveOnly] = useState<boolean>(() => {
+        let stored_state = localStorage.getItem('competitions:active_only')
+        let show = false
+        if (stored_state)
+            show = JSON.parse(stored_state)
+
+        return show
+    })
+
     const { competitions: list_sources } = useListSources()
     const [actionUrl, setActionUrl] = useState<string>('/admin/competitions')
 
     const columns = [
-        { key: 'Emblem' },
+        { key: 'Logo' },
         { label: 'Name', key: 'name' },
         { key: 'country.name' },
         { key: 'code' },
         { key: 'type' },
         { key: 'season' },
-        { key: 'last_updated' },
-        { label: 'has_teams', key: 'has_teams' },
+        { key: 'seasons_fetched' },
+        { key: 'standings_fetched' },
+        { key: 'p_matches_fetched' },
+        { key: 'u_matches_fetched' },
+        { key: 'odds' },
+        { label: 'has_teams', key: 'Has_teams' },
         { label: 'priority_no', key: 'priority_number' },
         {
             label: 'Created At',
@@ -42,7 +58,7 @@ const Index = () => {
             key: 'action',
         },
     ];
-    
+
     const addSources = (e: CustomEvent) => {
 
         if (e.detail) {
@@ -135,12 +151,48 @@ const Index = () => {
 
 
     }, [])
+
+    function handleActiveOnly(e: any) {
+        const val = e.target.checked
+        setActiveOnly(val)
+        localStorage.setItem('competitions:active_only', JSON.stringify(val))
+        setKey(key + 1)
+    }
+
+    const tabs = [
+        {
+            name: "All",
+            content: <All columns={columns} active_only={active_only} setModelDetails={setModelDetails} />,
+        },
+        {
+            name: "OddsEnabled",
+            content: <OddsEnabled columns={columns} active_only={active_only} setModelDetails={setModelDetails} />,
+        },
+    ]
+
     return (
 
         <div>
             <PageHeader title={'Competitions list'} action="button" actionText="Create Competition" actionTargetId="competitionModal" permission='admin/competitions' setRecord={setRecord} />
+            <div className="d-flex justify-content-end">
+                <div className={`col-6 col-md-3 form-group d-flex justify-content-end`}>
+                    <div className="form-check">
+                        <input
+                            className="form-check-input"
+                            id='active_only'
+                            type='checkbox'
+                            name={`active_only`}
+                            defaultChecked={active_only}
+                            onChange={handleActiveOnly}
+                        />
+                        <label className="form-check-label" htmlFor={`active_only`}>
+                            Show active only
+                        </label>
+                    </div>
+                </div>
+            </div>
             <div>
-                <AutoTable columns={columns} baseUri={'admin/competitions'} search={true} getModelDetails={setModelDetails} tableId={'competitionsTable'} customModalId="competitionModal" />
+                <AutoTabs key={key} tabs={tabs} />
             </div>
             {
                 modelDetails &&

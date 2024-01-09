@@ -9,8 +9,8 @@ import { subscribe, unsubscribe } from "@/utils/events";
 import { useAuth } from "@/contexts/AuthContext";
 
 type Props = {
-    role: RoleInterface;
-    permissions: PermissionInterface[];
+    role: RoleInterface | undefined;
+    permissions: PermissionInterface[] | undefined;
     loadingPermission: boolean;
 }
 

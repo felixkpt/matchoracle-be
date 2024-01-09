@@ -2,6 +2,7 @@
 import picklists from '@/routes/admin/settings/picklists'
 import rolePermissions from '@/routes/admin/settings/role-permissions'
 import users from '@/routes/admin/settings/users';
+import system from '@/routes/admin/settings/system/index';
 
 const index = [
   {
@@ -16,6 +17,9 @@ const index = [
   {
     path: 'role-permissions',
     children: rolePermissions,
+  },{
+    path: 'system',
+    children: system,
   },
 ]
 

@@ -1,61 +1,70 @@
 import Str from "@/utils/Str";
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-
-// Define the type for each tab item
-type Tab = {
-  name: string;
-  content: JSX.Element;
-};
+import PageHeader from "./PageHeader";
+import { PageHeaderInterface, TabInterface } from "@/interfaces/UncategorizedInterfaces";
+import useAxios from "@/hooks/useAxios";
 
 // Define the props for the AutoTabs component
-type Props = {
-  tabs: Tab[]; // Array of tab items
-  currentTab?: (value: string) => void; // Optional callback to handle current active tab
-  active?: string; // Optional prop to specify the currently active tab
+interface Props extends Omit<PageHeaderInterface, 'title'> {
+  tabs: TabInterface[];
+  setCurrentTabName?: (value: string) => void;
+  active?: string;
+  title?: string;
+  countsUrl?: string
 };
 
 // AutoTabs component definition
-const AutoTabs: React.FC<Props> = ({ tabs, currentTab, active }) => {
+const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, action, actionText, actionLink, permission, method = 'post', actionTargetId, listUrl, countsUrl, setRecord }) => {
   // State to manage the currently open tab
-  const [openTab, setOpenTab] = useState<string>(() => {
+  const [localOpenTab, setLocalOpenTab] = useState<TabInterface | undefined>(() => {
     // Get the 'tab' URL parameter from the query string
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get("tab");
-    const defaultTab = active || Str.slug(tabs[0].name); // Use the 'active' prop if provided, or use the first tab
-    return tabParam || defaultTab; // Use the 'tab' URL parameter if available, otherwise use the default tab
+    const defaultTab = tabParam || active || Str.slug(tabs[0].name);
+
+    return tabs.find((tab) => Str.slug(tab.name) === defaultTab)
+
   });
 
-  // Effect to handle changes in the openTab state and call the currentTab callback if provided
+  const { get } = useAxios()
+
+  // Effect to handle changes in the localOpenTab state and call the currentTab callback if provided
   useEffect(() => {
-    if (currentTab) {
-      currentTab(openTab);
+    if (localOpenTab && setCurrentTabName) {
+      setCurrentTabName(localOpenTab.name);
     }
-  }, [openTab, currentTab]);
+  }, [localOpenTab, setCurrentTabName]);
 
   // Function to handle tab click event
-  function handleTab(e: React.MouseEvent, link: string): void {
+  function handleTab(e: React.MouseEvent, tabName: string): void {
+
     e.preventDefault();
-    const newUrl = `${window.location.pathname}?tab=${link}`;
+    const newUrl = `${window.location.pathname}?tab=${tabName}`;
     window.history.pushState({ path: newUrl }, "", newUrl);
 
-    setOpenTab(link);
+    var found = tabs.find((tab) => Str.slug(tab.name) === tabName)
 
-    // Call the currentTab callback if provided
-    if (currentTab) {
-      currentTab(link);
+    if (found) {
+      setLocalOpenTab(found);
+      // Call the currentTab callback if provided
+      if (setCurrentTabName) {
+        setCurrentTabName(tabName);
+      }
     }
-  }
 
-  // Get the content of the currently active tab
-  const currentTabContent = tabs.find((tab) => Str.slug(tab.name) === openTab)?.content;
+  }
 
   // Effect to handle popstate event (back/forward navigation)
   useEffect(() => {
     const handlePopstate = () => {
+
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get("tab");
-      setOpenTab(tabParam || Str.slug(tabs[0].name)); // Use the 'tab' URL parameter if available, otherwise use the first tab
+      let defaultTab = tabParam || Str.slug(tabs[0].name)
+
+      let found = tabs.find((tab) => Str.slug(tab.name) === defaultTab)
+      setLocalOpenTab(found);
     };
 
     window.addEventListener("popstate", handlePopstate);
@@ -63,28 +72,55 @@ const AutoTabs: React.FC<Props> = ({ tabs, currentTab, active }) => {
     return () => {
       window.removeEventListener("popstate", handlePopstate);
     };
-  }, [tabs]);
+
+  }, []);
+
+  useEffect(() => {
+
+    if (countsUrl) {
+      var tabNames = tabs.map(d => Str.slug(d['name']));
+
+      get(countsUrl + 'tabs', { params: { tabs: tabNames } }).then((res) => {
+        if (res)
+          for (let key in res) {
+            var val = res[key]
+            var elm = document.querySelector(`.auto-tabs .${key} .tab-items`)
+            if (elm)
+              elm.textContent = val
+          }
+
+      })
+    }
+  }, [countsUrl])
 
   // Render the AutoTabs component
   return (
-    <div className="tabs-section">
-      <ul className="nav nav-tabs" role="tablist">
+    <div className="auto-tabs">
+      {
+        title &&
+        <PageHeader title={`${title} - ${localOpenTab?.name}`} action={action} actionText={actionText} actionLink={actionLink} permission={permission} method={method} actionTargetId={actionTargetId} listUrl={listUrl} setRecord={setRecord} />
+      }
+      <div className="tabs-section">
 
-        {tabs.map((tab) => (
-          <li key={tab.name} className="nav-item" role="presentation">
-            <NavLink
-              to={`?tab=${Str.slug(tab.name)}`} // Set the URL parameter for the tab link
-              onClick={(e) => handleTab(e, Str.slug(tab.name))}
-              className={`nav-link ${openTab === Str.slug(tab.name) ? "active bg-body-secondary" : "border-bottom"}`}
-              data-toggle="tab"
-            >
-              {tab.name}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
-      <div className="tab-content mt-2">
-        <div className="transition-opacity duration-500">{currentTabContent}</div>
+        <ul className="nav nav-tabs" role="tablist">
+
+          {tabs.map((tab) => (
+            <li key={tab.name} className="nav-item" role="presentation">
+              <NavLink
+                to={`?tab=${Str.slug(tab.name)}`} // Set the URL parameter for the tab link
+                onClick={(e) => handleTab(e, Str.slug(tab.name))}
+                className={`nav-link ${Str.slug(tab.name)} ${Str.slug(localOpenTab?.name) === Str.slug(tab.name) ? "active-autotab" : "border-bottom"}`}
+                data-toggle="tab"
+              >
+                <small className="tab-items">1</small>
+                <span className="tab-name">{tab.name}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+        <div className="tab-content mt-2">
+          <div className="transition-opacity duration-500">{localOpenTab?.content}</div>
+        </div>
       </div>
     </div>
   );

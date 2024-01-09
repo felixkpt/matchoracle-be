@@ -24,7 +24,7 @@ class AutoActions {
 
     }
 
-    handleModalAction = (event: PointerEvent) => {
+    handleModalAction = (event: Event) => {
 
         event.preventDefault()
 
@@ -49,7 +49,7 @@ class AutoActions {
 
     };
 
-    handleView = (event: PointerEvent) => {
+    handleView = (event: Event) => {
 
         event.preventDefault()
 
@@ -66,7 +66,7 @@ class AutoActions {
 
     };
 
-    handleEdit = (event: PointerEvent) => {
+    handleEdit = (event: Event) => {
 
         event.preventDefault()
 
@@ -83,7 +83,7 @@ class AutoActions {
 
     };
 
-    handleStatusUpdate = (event: PointerEvent) => {
+    handleStatusUpdate = (event: Event) => {
 
         event.preventDefault()
 
@@ -100,13 +100,13 @@ class AutoActions {
 
     }
 
-    handleNavigation = (event: PointerEvent) => {
+    handleNavigation = (event: Event) => {
 
         if (event.ctrlKey) return
 
         event.preventDefault()
 
-        const target = event.target as HTMLElement; // Narrow down the type to HTMLElement
+        const target = event.currentTarget as HTMLElement; // Narrow down the type to HTMLElement
 
         const href = target.getAttribute('href')
         if (href) {

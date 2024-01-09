@@ -5,6 +5,7 @@ export interface CountryInterface {
     code?: string | null;
     dial_code?: string | null;
     flag?: string | null;
+    logo?: string | null;
     continent_id: string;
     has_competitions: boolean;
     competitions: CompetitionInterface[];
@@ -21,7 +22,7 @@ export interface TeamInterface {
     slug: string;
     short_name: string;
     tla: string;
-    crest: string;
+    logo: string;
     address_id: string | null;
     website: string | null;
     founded: string | null;
@@ -30,9 +31,11 @@ export interface TeamInterface {
     coach_id: string | null;
     coach_contract: any;
     competition_id: string;
+    competition: CompetitionInterface;
     competitions: CompetitionInterface[];
     continent_id: string;
     country_id: string | null;
+    country: CountryInterface;
     priority_number: number;
     last_updated: string | null;
     last_fetch: string | null;
@@ -102,7 +105,7 @@ export interface CompetitionInterface {
     slug: string;
     code: string;
     type: string;
-    emblem: string | null;
+    logo: string | null;
     plan: string | null;
     abbreviation: string | null;
     has_teams: boolean | null;
@@ -154,6 +157,22 @@ export interface PredictionInterface {
     cs_proba: number;
 }
 
+export interface CurrentUserVotes {
+    winner: string
+    over_under: string
+    bts: string
+}
+
+export interface OddInterface {
+    id: string
+    home_win_odds: string
+    draw_odds: string
+    away_win_odds: string
+    over_25_odds: string
+    under_25_odds: string
+    gg_odds: string
+    ng_odds: string
+}
 export interface GameInterface {
     id: string;
     competition_id: string;
@@ -186,10 +205,19 @@ export interface GameInterface {
     home_win_votes: number
     draw_votes: number
     away_win_votes: number
-    current_user_votes: boolean,
+    over_votes: number
+    under_votes: number
+    gg_votes: number
+    ng_votes: number
+    current_user_votes: CurrentUserVotes,
+    user_winner_vote: string | boolean
+    user_over_under_vote: string | boolean
+    user_bts_vote: string | boolean
+
     prediction: PredictionInterface,
     formatted_prediction: PredictionInterface,
     CS: string;
+    odds: OddInterface[]
 
 }
 
@@ -204,7 +232,7 @@ export interface CompetitionGameSourceInterface {
     id: string
     competition_id: string
     game_source_id: string
-    uri: string
+    source_uri: string
     source_id: string
     subscription_expires: string
     is_subscribed: string
@@ -217,15 +245,151 @@ export interface CompetitionTabInterface {
     seasons: SeasonInterface[] | null
     selectedSeason: SeasonInterface | null
     setSelectedSeason: React.Dispatch<React.SetStateAction<SeasonInterface | null>>;
-    setKey?: React.Dispatch<React.SetStateAction<number>>;
+    mainKey: any
+    setMainKey?: React.Dispatch<React.SetStateAction<number>>;
     useDate?: boolean;
     isDisabled?: boolean
+    setUseDates: any
 }
-
 
 export interface SeasonsListInterface {
     seasons: SeasonInterface[] | null
     selectedSeason: SeasonInterface | null
-    setSelectedSeason: React.Dispatch<React.SetStateAction<SeasonInterface | null>>;
- 
+    handleSeasonChange: (season: SeasonInterface | null) => void;
+
 }
+export interface DashJobLogsInterface {
+    total_job_run_counts: number;
+    total_competition_run_counts: number;
+    total_fetch_run_counts: number;
+    total_fetch_success_counts: number;
+    total_fetch_failed_counts: number;
+    total_updated_items_counts: number;
+}
+export interface DashboardStatsInterface {
+    countries: {
+        totals: number;
+        with_competitions: number;
+        without_competitions: number;
+    };
+    competitions: {
+        totals: number;
+        active: number;
+        inactive: number;
+    };
+    odds_enabled_competitions: {
+        totals: number;
+        active: number;
+        inactive: number;
+    };
+    seasons: {
+        totals: number;
+        active: number;
+        inactive: number;
+    };
+    standings: {
+        totals: number;
+        active: number;
+        inactive: number;
+    };
+    teams: {
+        totals: number;
+        past: number;
+        upcoming: number;
+    };
+    matches: {
+        totals: number;
+        past: number;
+        upcoming: number;
+    };
+    predictions: {
+        totals: number;
+        past: number;
+        upcoming: number;
+    };
+    odds: {
+        totals: number;
+        past: number;
+        upcoming: number;
+    };
+    users: {
+        totals: number;
+        active: number;
+        inactive: number;
+    };
+    subscribed_users: {
+        totals: number;
+        active: number;
+        inactive: number;
+    };
+    tipsters: {
+        totals: number;
+        active: number;
+        inactive: number;
+    };
+
+    advanced_matches: {
+        'today': MatchesInterface;
+        'all': TodayMatchesInterface;
+    };
+    seasons_job_logs: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    standings_job_logs: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    matches_job_logs: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    results_match_job_logs: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    historical_results_match_job_logs: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    fixtures_match_job_logs: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    predictions_job_logs: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    competition_statistics_logs: {
+        'today': CompetitionPredictionStatsInterface;
+        'all': CompetitionPredictionStatsInterface;
+    }
+    competition_prediction_statistics_logs: {
+        'today': CompetitionPredictionStatsInterface;
+        'all': CompetitionPredictionStatsInterface;
+    }
+}
+
+export interface MatchesInterface {
+    totals: number;
+    past: number;
+    upcoming: number;
+    with_full_time_results_only: number;
+    with_half_and_time_results: number;
+    without_results: number;
+}
+
+export interface TodayMatchesInterface extends MatchesInterface { }
+
+export interface CompetitionStatsInterface {
+    total_job_run_count: number;
+    total_competition_run_counts: number;
+    total_seasons_run_counts: number;
+    total_games_run_counts: number;
+}
+
+export interface TodayCompetitionStatsInterface extends CompetitionStatsInterface { }
+
+export interface CompetitionPredictionStatsInterface extends CompetitionStatsInterface { }
+
+export interface TodayCompetitionPredictionStatsInterface extends CompetitionStatsInterface { }

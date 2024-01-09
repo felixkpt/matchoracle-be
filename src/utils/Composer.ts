@@ -1,10 +1,11 @@
 import { SeasonInterface, TeamInterface } from "@/interfaces/FootballInterface";
 import Str from "./Str";
 
-class Composer {
+class GameComposer {
 
     static team(team: TeamInterface, prefers: 'name' | 'short' | 'TLA' | null = null) {
-        return prefers === 'short' ? team.short_name : (prefers === 'TLA' ? team.tla : team.name)
+        var fallback_name = team.name || team.short_name || team.tla
+        return prefers === 'short' ? team.short_name || fallback_name : (prefers === 'TLA' ? team.tla || fallback_name : team.name || fallback_name)
     }
 
     static season(season: SeasonInterface) {
@@ -104,4 +105,4 @@ class Composer {
 
 }
 
-export default Composer
+export default GameComposer

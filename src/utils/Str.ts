@@ -1,5 +1,7 @@
 class Str {
-    static slug(input: string) {
+    static slug(input: string | null | undefined) {
+        if (!input) return ''
+
         const str = input
             .trim()
             .toLowerCase()
@@ -50,7 +52,7 @@ class Str {
         }
         return strVal
     }
-    
+
     static upper(subject: string): string {
         if (!subject) return subject
 
@@ -76,6 +78,18 @@ class Str {
         return firstWord + camelCaseWords.join('');
     }
 
+    static replace(subject: string, search: string, replacement: string): string {
+        if (!subject) return subject;
+
+        // Use the replace method to replace occurrences of search with the replacement string
+        const result = subject.replace(new RegExp(search, 'g'), replacement);
+
+        return result;
+    }
+
+    static contains(haystack: string, needle: string): boolean {
+        return haystack.includes(needle);
+    }
 
 }
 

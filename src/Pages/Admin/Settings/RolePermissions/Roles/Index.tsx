@@ -28,6 +28,7 @@ const Index = () => {
             label: 'Guard Name',
             key: 'guard_name',
           },
+          { key: 'Created_by' },
           {
             label: 'Created At',
             key: 'Created_at',

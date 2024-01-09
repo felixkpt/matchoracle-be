@@ -15,7 +15,7 @@ function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
-const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getModelDetails, list_sources, tableId, modalSize, customModalId }: AutoTableInterface) => {
+const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getModelDetails, list_sources, tableId, modalSize, customModalId, perPage }: AutoTableInterface) => {
     const {
         tableData,
         loading,
@@ -24,7 +24,8 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
         setPage,
         setPerPage,
         setReload,
-    } = useAutoTableEffect(baseUri, listUri);
+        hidePerPage,
+    } = useAutoTableEffect(baseUri, listUri, { perPage });
 
     const id = tableId ? tableId : 'AutoTable'
 
@@ -40,6 +41,8 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
 
             if (tableData?.data?.length >= 0) {
                 setModelDataLength(tableData.data.length);
+            } else {
+                setModelDataLength(-1);
             }
 
             const { data, ...others } = tableData
@@ -58,7 +61,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
 
     const debouncedSearch = debounce(handleSearch, 400);
 
-    const handleChecked = (checked: boolean, itemId: string | null) => {
+    const handleChecked = (checked: boolean, itemId: string | number | null) => {
         if (modelDataLength <= 0) return;
 
         if (itemId !== null) {
@@ -74,7 +77,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
         } else {
             if (checked) {
                 // Check all items
-                const allIds = tableData.data.map((row) => row.id);
+                const allIds = tableData ? tableData.data.map((row) => row.id) : [];
                 setCheckedItems(allIds);
             } else {
                 // Uncheck all items
@@ -86,7 +89,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
     useEffect(() => {
         if (modelDataLength <= 0) return;
 
-        if (checkedItems?.length === tableData.data.length) setCheckedAllItems(true);
+        if (tableData && checkedItems?.length === tableData.data.length) setCheckedAllItems(true);
         else setCheckedAllItems(false);
     }, [checkedItems]);
 
@@ -143,31 +146,31 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
 
             const autotableNavigateElements = document.querySelectorAll('.autotable .autotable-navigate');
             autotableNavigateElements.forEach((element) => {
-                element.addEventListener('click', autoActions.handleNavigation);
+                (element as HTMLElement).addEventListener('click', autoActions.handleNavigation);
             });
 
             const autotableViewElements = document.querySelectorAll('.autotable .autotable-modal-view');
             autotableViewElements.forEach((element) => {
-                element.addEventListener('click', autoActions.handleView);
+                (element as HTMLElement).addEventListener('click', autoActions.handleView);
             });
 
             const autotableModalActionElements = document.querySelectorAll('.autotable [class*="autotable-modal-"]');
             autotableModalActionElements.forEach((element) => {
-                element.addEventListener('click', autoActions.handleModalAction);
+                (element as HTMLElement).addEventListener('click', autoActions.handleModalAction);
             });
 
             return () => {
                 // Clean up event listeners when the component unmounts
                 autotableViewElements.forEach((element) => {
-                    element.removeEventListener('click', autoActions.handleView);
+                    (element as HTMLElement).removeEventListener('click', autoActions.handleView);
                 });
 
                 autotableNavigateElements.forEach((element) => {
-                    element.removeEventListener('click', autoActions.handleNavigation);
+                    (element as HTMLElement).removeEventListener('click', autoActions.handleNavigation);
                 });
 
                 autotableModalActionElements.forEach((element) => {
-                    element.removeEventListener('click', autoActions.handleModalAction);
+                    (element as HTMLElement).removeEventListener('click', autoActions.handleModalAction);
                 });
             };
         }
@@ -175,7 +178,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
     }, [navigate, modelDataLength, handleOrderBy]);
 
 
-    function getDynamicValue(row, path) {
+    function getDynamicValue(row: any, path: string) {
 
         if (!path.match(/\./)) {
             const val = row[path]
@@ -185,10 +188,29 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
         }
     }
 
+    const [countOpacity, setCountOpacity] = useState(0);
+
+    useEffect(() => {
+        // Set opacity to 0 when the count changes
+        setCountOpacity(0);
+
+        // After a delay, reset opacity to 1
+        const opacityTimeout = setTimeout(() => {
+            if (tableData?.total)
+                setCountOpacity(1);
+            if (modelDataLength == 0)
+                setCountOpacity(1);
+        }, 300);
+
+        // Clean up the timeout to avoid memory leaks
+        return () => clearTimeout(opacityTimeout);
+    }, [tableData?.total]);
+
     return (
-        <div id={id} className={`autotable shadow p-1 rounded my-3 relative overflow-x-auto shadow-md sm:rounded-lg ${modelDataLength >= 0 ? 'overflow-hidden' : 'overflow-auto'}`}>
-            <div className="card overflow-auto">
+        <div id={id} className={`autotable shadow p-1 rounded my-3 relative shadow-md sm:rounded-lg`}>
+            <div className={`card overflow-auto overflow-x-auto ${modelDataLength >= 0 ? 'overflow-hidden' : 'overflow-auto'}`}>
                 <div className="card-header">
+                    <div className="d-flex align-items-center justify-content-end"><span className="text-muted autotable-record-counts" style={{ opacity: countOpacity }}>{tableData?.total || 0} {`${tableData?.total == 1 ? 'record' : 'records'}`}</span></div>
                     <div className={`mt-2 h-6 px-3 pb-1 text-sm font-medium leading-none text-center text-blue-800 dark:text-white${modelDataLength >= 0 && loading ? ' animate-pulse' : ''}`}>{modelDataLength >= 0 && loading ? 'Loading...' : ''}</div>
                     <div className="flex items-center justify-between pb-2 px-1.5 float-right gap-2">
                         <label htmlFor="table-search" className="sr-only d-none">Search</label>
@@ -242,7 +264,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
                             </tr>
                         </thead>
                         <tbody>
-                            {modelDataLength > 0 ? tableData.data.map(row => (
+                            {(modelDataLength > 0 && tableData) ? tableData.data.map(row => (
                                 <tr key={row.id} className={`"bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600" ${loading === false ? 'opacity-100 transition-opacity duration-1000' : 'opacity-[0.9]'}`}>
                                     <td className="w-4 p-4">
                                         <div className="form-check">
@@ -291,13 +313,13 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
 
                         </tbody>
                     </table>
-                    <div>
-                        {
-                            modelDataLength >= 0 && tableData.per_page &&
-                            <Pagination items={tableData} setPage={setPage} setPerPage={setPerPage} />
-                        }
-                    </div>
                 </div>
+            </div>
+            <div>
+                {
+                    (modelDataLength >= 0 && tableData) && tableData.per_page &&
+                    <Pagination items={tableData} setPage={setPage} setPerPage={setPerPage} hidePerPage={hidePerPage} />
+                }
             </div>
 
         </div>

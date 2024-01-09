@@ -5,12 +5,12 @@ import { CompetitionInterface, CompetitionTabInterface, SeasonsListInterface } f
 import { publish } from '@/utils/events';
 
 interface Props {
-  record: CompetitionInterface | undefined;
+  record: Omit<CompetitionInterface, 'seasons', 'selectedSeason', 'setSelectedSeasonts'>;
 }
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface {}
 
-const Sources: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSeason, setKey }) => {
+const Sources: React.FC<Props> = ({ record }) => {
 
   const competition = record
 

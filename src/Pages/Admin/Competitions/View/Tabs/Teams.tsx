@@ -13,7 +13,7 @@ import UpdateCoach from "@/components/Teams/UpdateCoach";
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface {}
 
-const Index: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSeason, setKey }) => {
+const Index: React.FC<Props> = ({ record, selectedSeason }) => {
 
     const competition = record
 
@@ -26,7 +26,7 @@ const Index: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSe
     const [actionUrl, setActionUrl] = useState<string>('/admin/teams')
 
     const columns = [
-        { key: 'Crest' },
+        { key: 'Logo' },
         { label: 'Name', key: 'name' },
         { label: 'Short Name', key: 'short_name' },
         { label: 'TLA', key: 'tla' },
@@ -34,7 +34,7 @@ const Index: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSe
         { label: 'Priority Number', key: 'priority_number' },
         { label: 'Last Updated', key: 'last_updated' },
         { label: 'Status', key: 'Status' },
-        { label: 'User', key: 'user_id' },
+        { key: 'Created_by' },
         { label: 'Created At', key: 'Created_at' },
         { label: 'Action', key: 'action' },
     ];
@@ -167,7 +167,7 @@ const Index: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSe
             </div>
             {
                 modelDetails &&
-                <GeneralModal title={team ? 'Update Team' : `Create Team`} actionUrl={actionUrl} size={'modal-lg'} id={`teamModal`} setKey={setKey}>
+                <GeneralModal title={team ? 'Update Team' : `Create Team`} actionUrl={actionUrl} size={'modal-lg'} id={`teamModal`}>
                     <input type="hidden" name="team_origin" defaultValue={'manual'} />
 
                     <ul className="nav nav-tabs" id="teamTabs" role="tablist">
@@ -181,7 +181,7 @@ const Index: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSe
                     <div className="tab-content" id="teamTabsContent" key={team?.id}>
                         <div className="tab-pane fade show active" id="manual" role="tabpanel" aria-labelledby="manual-tab">
                             <div className="mt-4 pt-1 border-top">
-                                <AutoModalBody modelDetails={modelDetails} list_sources={list_sources} record={team} setKey={setKey} />
+                                <AutoModalBody modelDetails={modelDetails} list_sources={list_sources} record={team} />
                             </div>
                         </div>
                         <div className="tab-pane fade" id="from-source" role="tabpanel" aria-labelledby="from-source-tab">
@@ -196,7 +196,7 @@ const Index: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSe
                 record2 &&
                 <>
                     <button type="button" className="btn btn-primary d-none" id="addTeamSourceButton" data-bs-toggle="modal" data-bs-target="#addTeamSource"></button>
-                    <GeneralModal title={`Add source for ${record2.record.name || '#'}`} actionUrl={`${record2.action || '#'}`} size={'modal-lg'} id={`addTeamSource`} setKey={setKey}>
+                    <GeneralModal title={`Add source for ${record2.record.name || '#'}`} actionUrl={`${record2.action || '#'}`} size={'modal-lg'} id={`addTeamSource`}>
                         <AddSource key={record2.record.id} record={record2.record} />
                     </GeneralModal>
                 </>
@@ -205,7 +205,7 @@ const Index: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSe
                 record3 &&
                 <>
                     <button type="button" className="btn btn-primary d-none" id="updateTeamCoachButton" data-bs-toggle="modal" data-bs-target="#updateTeamCoach"></button>
-                    <GeneralModal title={`Update coach for ${record3.record.name || '#'}`} actionUrl={`${record3.action || '#'}`} id={`updateTeamCoach`} setKey={setKey}>
+                    <GeneralModal title={`Update coach for ${record3.record.name || '#'}`} actionUrl={`${record3.action || '#'}`} id={`updateTeamCoach`}>
                         <div>
                             <UpdateCoach record={record3} />
                         </div>

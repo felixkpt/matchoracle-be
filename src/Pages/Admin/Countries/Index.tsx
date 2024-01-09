@@ -19,7 +19,7 @@ const Show = () => {
       label: 'Slug',
       key: 'slug',
     },
-    { label: 'Continent', key: 'continent' },
+    { label: 'Continent', key: 'continent.name' },
     { label: 'Has Competitions', key: 'has_competitions' },
     { label: 'priority_no', key: 'priority_number' },
     {

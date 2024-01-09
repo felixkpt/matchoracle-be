@@ -33,6 +33,7 @@ const Index = ({ category, params, list_selects }: Props) => {
             label: 'Category Slug',
             key: 'slug',
           },
+          { key: 'Created_by' },
           {
             label: 'Created At',
             key: 'Created_at',

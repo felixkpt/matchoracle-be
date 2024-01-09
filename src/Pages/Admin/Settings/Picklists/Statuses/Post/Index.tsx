@@ -32,6 +32,7 @@ const Index = () => {
               label: 'Class',
               key: 'class',
             },
+            { key: 'Created_by' },
             {
               label: 'Created At',
               key: 'Created_at',

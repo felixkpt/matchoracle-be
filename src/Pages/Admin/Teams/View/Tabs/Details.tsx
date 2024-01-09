@@ -4,11 +4,11 @@ import useListSources from '@/hooks/apis/useListSources'
 import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces'
 import { subscribe, unsubscribe } from '@/utils/events'
 import { useEffect } from 'react'
-import { CompetitionInterface } from '@/interfaces/FootballInterface'
+import { TeamInterface } from '@/interfaces/FootballInterface'
 import AddSource from '@/components/AddSource'
 
 type Props = {
-    record: CompetitionInterface
+    record: TeamInterface | undefined
     modelDetails: CollectionItemsInterface | undefined
 }
 

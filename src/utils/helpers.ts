@@ -39,7 +39,7 @@ export const emitAjaxPostDone = (response: any) => {
     window.dispatchEvent(event);
 };
 
-export const baseURL = (uri: string) => import.meta.env.VITE_APP_BASE_API + ('/' + uri).replace(/\/+/, '/')
+export const baseURL = (uri: string) => import.meta.env.VITE_APP_BASE_API + (uri ? uri.replace(/\/+/, '/') : '')
 
 export const environment: 'local' | 'production' = import.meta.env.VITE_APP_ENV || 'local'
 export const tnymce_key: string = import.meta.env.VITE_APP_CRYPO_TINYMCE_KEY || ''
@@ -57,4 +57,16 @@ export const appendFromToDates = (useDate: boolean, fromToDates: Array<Date | st
     }
     return ''
 
+}
+
+export const teamLogo = (logo: string | null | undefined) => {
+    return logo ? baseURL(logo) : '/images/default_team_logo.png'
+}
+
+export const competitionLogo = (logo: string | null | undefined) => {
+    return logo ? baseURL(logo) : '/images/default_team_logo.png'
+}
+
+export const countryLogo = (logo: string | null | undefined) => {
+    return logo ? baseURL(logo) : '/images/default_team_logo.png'
 }

@@ -63,6 +63,27 @@ a:focus {
   width: 90% !important;
 }
 
+.main-content {
+
+  padding: 0 0.5rem;
+}
+
+.main-content-inner {
+  padding: 0.5rem;
+  box-shadow: 0 0.1rem 0.6rem rgba(0, 0.15, 0, 0.15) !important;
+  border-radius: 0.5rem;
+}
+
+.page-title {
+  margin-top: .2rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  ;
+  border: 1px solid var(--bs-gray-300);
+  box-shadow: 0 0.1rem 1.1rem rgba(0, 0.15, 0, 0.15) !important;
+}
+
 .view-list {
   transform: scale(1);
   transition: transform 500ms ease-in-out;
@@ -102,8 +123,48 @@ p {
   box-shadow: none !important;
 }
 
-.tabs-section h3.heading {
-  font-size: 22px !important;
+.auto-tabs {
+  .tabs-section {
+
+    h3.heading {
+      font-size: 22px !important;
+    }
+
+    .nav-tabs {
+      gap: 0.3rem;
+    }
+
+    .nav-link {
+      position: relative;
+      border-top-right-radius: 0 !important;
+
+      &.active-autotab {
+        color: var(--bs-gray-800) !important;
+        background: #bed0e9 !important;
+        border-bottom: #97b3db solid 3px !important;
+      }
+
+      .tab-items {
+        position: absolute;
+        bottom: 1.8rem;
+        right: -0.05rem;
+        border: var(--bs-gray-300) solid 1px;
+        border-radius: 0.2rem;
+        padding-inline: 0.35rem;
+        z-index: 0;
+        color: var(--bs-blue);
+        background: var(--bs-gray-100);
+        font-size: 75%;
+        font-weight: 400;
+      }
+
+      .tab-name {
+        vertical-align: bottom;
+        display: table-cell;
+
+      }
+    }
+  }
 }
 
 .symbol-image-lg {
@@ -114,8 +175,8 @@ p {
 
 .symbol-image-md {
   vertical-align: middle;
-  width: 55px;
-  height: 55px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
 }
 
@@ -140,6 +201,17 @@ p {
   height: 18px;
   border-radius: 50%;
 
+}
+
+.compe-logo {
+  min-width: 66px;
+  max-width: 220px;
+  min-height: 66px;
+  max-height: 50px;
+  padding: 2px 0;
+  vertical-align: middle;
+  overflow-clip-margin: content-box;
+  overflow: clip;
 }
 
 .fs-small {
@@ -268,4 +340,97 @@ p {
   border-bottom-width: 3px;
   border-bottom-style: solid;
   border-bottom-color: #c4d7eb !important;
+}
+
+.standings-sortable {
+  border: solid 1px #c4d7eb !important;
+  border-radius: 50%;
+  padding: 0.4rem;
+  display: inline-block;
+  text-align: center;
+  min-height: 2rem;
+  min-width: 2.5rem;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--bs-gray-300);
+  }
+}
+
+.odds-section {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+
+  .odd-title {
+    color: var(--bs-gray-600);
+  }
+
+  .odds-btn {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    flex-grow: 1;
+    border: 1px solid var(--bs-gray-300);
+    min-width: 70px;
+    border-radius: 5px;
+
+    &:hover {
+      background: var(--bs-gray-400);
+    }
+
+    span {
+      display: flex;
+      justify-content: center;
+    }
+  }
+}
+
+// Start pagination
+.pagination {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  list-style-type: none;
+  padding: 0 5rem;
+
+  li a {
+    border-radius: 7px;
+    padding: 0.4rem 1rem;
+    border: gray 1px solid;
+    cursor: pointer;
+  }
+  li.previous a,
+  li.next a,
+  li.break a {
+    text-decoration: none;
+  }
+
+  li.active a {
+    background-color: #0366d6;
+    border-color: transparent;
+    color: white;
+    min-width: 32px;
+    &:hover {
+      color: white!important;
+    }
+  }
+  li.disabled a {
+    color: grey;
+  }
+  li.disable,
+  li.disabled a {
+    cursor: default;
+  }
+}
+// End pagination
+
+.autotable-record-counts {
+  transition: opacity 0.4s ease-in-out;
+}
+
+// footer styles
+.footer {
+  min-height: 180px;
 }

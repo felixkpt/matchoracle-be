@@ -2,9 +2,9 @@ import { usePage } from "@inertiajs/react";
 import DefaultLayout from "@/Layouts/DefaultLayout";
 import request from "@/utils/request";
 import { useEffect, useState } from "react";
-import Nav from "./components/Nav";
+import Nav from "./Includes/Nav";
 import FixturesDetails from "@/Pages/Competitions/Competition/components/FixturesDetails.tsx";
-import GamesComponent from "./components/GamesComponent";
+import GamesComponent from "./Includes/GamesComponent";
 import FetchControls from "@/components/FetchControls";
 
 interface GameInterface {

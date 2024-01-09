@@ -27,6 +27,7 @@ const Index = () => {
                 label: 'Priority NO',
                 key: 'priority_number',
               },
+              { key: 'Created_by' },
               {
                 label: 'Created At',
                 key: 'Created_at',

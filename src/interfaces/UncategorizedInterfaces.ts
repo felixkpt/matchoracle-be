@@ -90,6 +90,7 @@ export interface AutoTableInterface {
     tableId?: string
     modalSize?: ModalSizeType
     customModalId?: string
+    perPage?: number
 }
 
 export interface ListSourceInterface {
@@ -108,3 +109,20 @@ export interface DocsInterface {
 export type ModalSizeType = 'modal-sm' | 'modal-lg' | 'modal-xl';
 
 export type HttpVerbsType = 'POST' | 'post' | 'PUT' | 'put' | 'PATCH' | 'patch' | 'DELETE' | 'delete'
+
+export interface PageHeaderInterface {
+    title: string;
+    action?: 'button' | 'link';
+    actionText?: string;
+    actionLink?: string;
+    permission?: string; // Permission name
+    method?: string; // Method name
+    actionTargetId?: string
+    listUrl?: string
+    setRecord?: React.Dispatch<React.SetStateAction<any>>
+};
+
+export interface TabInterface {
+    name: string;
+    content: JSX.Element;
+};

@@ -1,14 +1,14 @@
+import ResultsOddsSection from '@/components/Odds/ResultsOddsSection'
 import useAxios from '@/hooks/useAxios'
 import { GameInterface } from '@/interfaces/FootballInterface'
 import { useEffect, useState } from 'react'
 
 type Props = {
     game: GameInterface
+    setGame: any
 }
 
-const VotesSection = ({ game }: Props) => {
-
-    const [localGame, setLocalGame] = useState<GameInterface>()
+const ResultsVotesSection = ({ game, setGame }: Props) => {
 
     const { post } = useAxios()
 
@@ -17,27 +17,27 @@ const VotesSection = ({ game }: Props) => {
     const [voted, setVoted] = useState(false)
     const [showVotes, setShowVotes] = useState(false)
 
-    const [homeButtonWidth, setHomeButtonWidth] = useState<string>('0');
-    const [drawButtonWidth, setDrawButtonWidth] = useState<string>('0');
-    const [awayButtonWidth, setAwayButtonWidth] = useState<string>('0');
+    const [button1Width, setbutton1Width] = useState<string>('0');
+    const [button2Width, setbutton2Width] = useState<string>('0');
+    const [button3Width, setbutton3Width] = useState<string>('0');
     const [showText, setShowText] = useState(false);
     const [votingInProgress, setVotingInProgress] = useState(false); // State to track voting in progress
 
     useEffect(() => {
         if (game) {
-            setLocalGame(game)
+            setGame(game)
         }
     }, [game])
 
     function handleVote(e: any) {
 
-        if (localGame && !voted && !votingInProgress) {
+        if (game && !voted && !votingInProgress) {
             setVotingInProgress(true);
 
             const vote = e.target.getAttribute('data-target')
-            post(`admin/matches/view/${localGame.id}/vote`, { type: 'winner', vote }).then((res) => {
+            post(`admin/matches/view/${game.id}/vote`, { type: 'winner', vote }).then((res) => {
                 if (res) {
-                    setLocalGame(res.data)
+                    setGame(res.data)
                 }
 
             }).finally(() => setVotingInProgress(false))
@@ -48,27 +48,27 @@ const VotesSection = ({ game }: Props) => {
 
     useEffect(() => {
 
-        if (localGame) {
-            setIsFuture(localGame.is_future)
+        if (game) {
+            setIsFuture(game.is_future)
             setTimeout(() => {
-                const totals = localGame.home_win_votes + localGame.draw_votes + localGame.away_win_votes
+                const totals = game.home_win_votes + game.draw_votes + game.away_win_votes
 
-                let home = (localGame.home_win_votes / totals) * 100 || 33
-                let draw = (localGame.draw_votes / totals) * 100 || 33
-                let away = (localGame.away_win_votes / totals) * 100 || 33
+                let home = (game.home_win_votes / totals) * 100 || 33
+                let draw = (game.draw_votes / totals) * 100 || 33
+                let away = (game.away_win_votes / totals) * 100 || 33
 
-                setHomeButtonWidth(home + '%')
-                setDrawButtonWidth(draw + '%')
-                setAwayButtonWidth(away + '%')
+                setbutton1Width(home + '%')
+                setbutton2Width(draw + '%')
+                setbutton3Width(away + '%')
 
             }, 100);
 
-            setVoted(localGame.current_user_votes)
+            setVoted(!!game.current_user_votes?.winner)
         }
 
-    }, [localGame])
+    }, [game])
 
-useEffect(() => {
+    useEffect(() => {
 
         if (!isFuture || voted) {
             setTimeout(() => {
@@ -76,12 +76,12 @@ useEffect(() => {
             }, 200);
         }
 
-    }, [isFuture, voted, localGame])
+    }, [isFuture, voted, game])
 
     useEffect(() => {
 
         if (isFuture || voted) {
-            const transitionedElement = document.querySelector('.transistion');
+            const transitionedElement = document.querySelector('.winner-transistion');
             transitionedElement && transitionedElement.addEventListener('transitionend', handleTransitionEnd);
 
             return () => {
@@ -99,24 +99,27 @@ useEffect(() => {
     };
 
     return (
-        <div className='vote-section shadow-sm p-2 rounded mb-4 row justify-content-between border noselect'>
-            <h6>Final results votes</h6>
+        <div className='vote-section shadow-sm p-2 rounded mb-5 row justify-content-between border noselect'>
+            <div className="col-12">
+                Fulltime odds & votes
+                <ResultsOddsSection game={game} />
+            </div>
             {
-                localGame &&
+                game &&
 
                 <>
                     {(!isFuture || voted) ? (
                         <div className='col-12 d-flex align-items-end overflow-hidden'>
-                            <div className='transistion d-flex flex-column' style={{ width: homeButtonWidth }}>
-                                <span className={`vote-counts ${showText ? 'shown' : ''}`}>{localGame.home_win_votes} votes</span>
+                            <div className='transistion winner-transistion d-flex flex-column' style={{ width: button1Width }}>
+                                <span className={`vote-counts ${showText ? 'shown' : ''}`}>{game.home_win_votes} votes{game.current_user_votes ? (game.current_user_votes.winner == 'home' ? ' (You)' : '') : ''}</span>
                                 <div title='Home win votes' className={`vote-btn home fw-bold text-start ${showVotes ? 'shown' : ''}`}>1</div>
                             </div>
-                            <div className='transistion d-flex flex-column' style={{ width: drawButtonWidth }}>
-                                <span className={`vote-counts text-center ${showText ? 'shown' : ''}`}>{localGame.draw_votes} votes</span>
+                            <div className='transistion winner-transistion d-flex flex-column' style={{ width: button2Width }}>
+                                <span className={`vote-counts text-center ${showText ? 'shown' : ''}`}>{game.draw_votes} votes{game.current_user_votes ? (game.current_user_votes.winner == 'draw' ? ' (You)' : '') : ''}</span>
                                 <div title='Draw votes' className={`vote-btn draw fw-bold text-start ${showVotes ? 'shown' : ''}`}>X</div>
                             </div>
-                            <div className='transistion d-flex flex-column' style={{ width: awayButtonWidth }}>
-                                <span className={`vote-counts text-end ${showText ? 'shown' : ''}`}>{localGame.away_win_votes} votes</span>
+                            <div className='transistion winner-transistion d-flex flex-column' style={{ width: button3Width }}>
+                                <span className={`vote-counts text-end ${showText ? 'shown' : ''}`}>{game.away_win_votes} votes{game.current_user_votes ? (game.current_user_votes.winner == 'away' ? ' (You)' : '') : ''}</span>
                                 <div title='Away win votes' className={`vote-btn away fw-bold text-start bg-secondary ${showVotes ? 'shown' : ''}`}>2</div>
                             </div>
                         </div>
@@ -138,4 +141,4 @@ useEffect(() => {
 
 }
 
-export default VotesSection
+export default ResultsVotesSection

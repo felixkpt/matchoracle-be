@@ -37,6 +37,11 @@ const routes = [
         path: `:year/:month/:date`,
         element: <AuthenticatedLayout uri={`${relativeUri}:year/:month/:date`} permission="" Component={Matches} />,
     },
+    {
+        path: `:start_year/:start_month/:start_day/to/:end_year/:end_month/:end_day`,
+        element: <AuthenticatedLayout uri={`${relativeUri}:start_year/:start_month/:start_day/to/:end_year/:end_month/:end_day`} permission="" Component={Matches} />,
+    },
+
 ];
 
 export default routes;

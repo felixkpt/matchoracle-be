@@ -1,35 +1,20 @@
 import { CompetitionTabInterface, SeasonInterface, SeasonsListInterface } from '@/interfaces/FootballInterface'
-import CompetitionHeader from '../Inlcudes/CompetitionHeader';
+import CompetitionHeader from '../Inlcudes/CompetitionSubHeader';
 import AutoTable from '@/components/AutoTable';
 import GeneralModal from '@/components/Modals/GeneralModal';
-import AsyncSeasonsList from '../Inlcudes/AsyncSeasonsList';
 import { useEffect, useState } from 'react';
 import { appendFromToDates } from '@/utils/helpers';
 import FormatDate from '@/utils/FormatDate';
-import Loader from '@/components/Loader';
+import Str from '@/utils/Str';
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
-const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSeason, setKey }) => {
+const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
 
   const competition = record
-  const [key, setLocalKey] = useState(0);
   const initialDates: Array<Date | string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
   const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>(initialDates);
   const [useDate, setUseDates] = useState(false);
-
-  const [currentSeason, setCurrentSeason] = useState<SeasonInterface | null>(null);
-
-  useEffect(() => {
-
-    if (seasons && seasons.length > 0) {
-      let current = seasons.find((itm) => itm.is_current == 1) || seasons[0]
-      if (current) {
-        setCurrentSeason(current)
-      }
-    }
-
-  }, [seasons])
 
   const columns = [
     { key: 'ID' },
@@ -38,36 +23,61 @@ const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason, set
     { label: 'half_time', key: 'half_time' },
     { label: 'full_time', key: 'full_time' },
     { label: 'Status', key: 'Status' },
-    { label: 'User', key: 'user_id' },
+    { key: 'Created_by' },
     { key: 'utc_date' },
-    { label: 'Created At', key: 'Created_at' },
+    { label: 'Last Fetch', key: 'Last_fetch' },
     { label: 'Action', key: 'action' },
   ]
+
+  const [baseUri, setBaseUri] = useState('')
+
+  useEffect(() => {
+
+    if (competition) {
+      let uri = `admin/competitions/view/${competition.id}/matches?type=upcoming&order_direction=asc`
+      if (useDate) {
+        uri = uri + `${appendFromToDates(useDate, fromToDates)}`
+      }
+      setBaseUri(uri)
+    }
+  }, [competition, fromToDates])
 
   return (
     <div>
       {
         competition &&
         <div>
-          <CompetitionHeader title="Upcoming Matches" actionTitle="Fetch Fixtures" actionButton="fetchUpcomingMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} setLocalKey={setLocalKey} hideSeasons={true} />
+          <CompetitionHeader title="Upcoming Matches" actionTitle="Fetch Upcoming Matches" actionButton="fetchUpcomingMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
 
-          {
-            currentSeason
-              ? <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/matches?season_id=${currentSeason ? currentSeason?.id : ''}${appendFromToDates(useDate, fromToDates)}&type=upcoming`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
-              : <Loader />
+          {baseUri &&
+            <AutoTable key={baseUri} columns={columns} baseUri={baseUri} search={true} tableId={'matchesTable'} customModalId="teamModal" />
           }
 
           {
             competition &&
             <>
-              <GeneralModal title={`Fetch Fixtures form`} actionUrl={`admin/competitions/view/${competition.id}/fetch-matches`} size={'modal-lg'} id={`fetchUpcomingMatches`} setKey={setKey}>
-                <div>
+              <GeneralModal title={`Fetch Fixtures form`} actionUrl={`admin/competitions/view/${competition.id}/fetch-matches?is_fixtures=1`} size={'modal-lg'} id={`fetchUpcomingMatches`}>
+                <div className='row align-items-center'>
 
                   <div className="form-group mb-3">
-                    <label htmlFor="season_id">Season</label>
-                    <AsyncSeasonsList seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
+                    <label htmlFor="season_id">Season:&nbsp;</label>
+                    <label>{seasons?.length && Str.before(seasons[0].start_date, '-')}</label>
                   </div>
-                  <div className="form-group mb-3">
+                  <div className={`col-6 form-group mb-3`}>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        id='shallow_fetch'
+                        type='checkbox'
+                        name={`shallow_fetch`}
+                        defaultChecked={true}
+                      />
+                      <label className="form-check-label" htmlFor={`shallow_fetch`}>
+                        Shallow fetch
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col form-group mb-3">
                     <label htmlFor="matchday">Match day</label>
                     <input type="number" min={0} max={200} name='matchday' id='matchday' className='form-control' />
                   </div>

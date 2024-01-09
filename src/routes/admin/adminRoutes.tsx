@@ -1,4 +1,4 @@
-import Admin from '@/Pages/Admin/Index';
+import Admin from '@/Pages/Admin/Dashboard/Index';
 import settings from './settings';
 import posts from './posts';
 import continents from './continents';
@@ -8,6 +8,7 @@ import seasons from './seasons';
 import predictions from './predictions';
 import matches from './matches';
 import teams from './teams';
+import odds from './odds';
 import AuthenticatedLayout from '@/Layouts/Authenicated/AuthenticatedLayout';
 import Error404 from '@/Pages/ErrorPages/Error404';
 
@@ -49,6 +50,9 @@ const adminRoutes = [
     children: seasons,
   },
   {
+    path: 'odds',
+    children: odds,
+  }, {
     path: 'settings',
     children: settings,
   },

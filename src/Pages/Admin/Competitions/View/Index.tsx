@@ -5,7 +5,6 @@ import useAxios from "@/hooks/useAxios";
 import Details from "./Tabs/Details";
 import PastPredictions from "./Tabs/PastPredictions";
 import UpcomingPredictions from "./Tabs/UpcomingPredictions";
-import PageHeader from "@/components/PageHeader";
 import AutoTabs from "@/components/AutoTabs";
 import { CompetitionInterface, SeasonInterface } from "@/interfaces/FootballInterface";
 import Standings from "./Tabs/Standings";
@@ -19,25 +18,31 @@ import PastMatches from "./Tabs/PastMatches";
 import Seasons from "./Tabs/Seasons";
 import Loader from "@/components/Loader";
 import Error404 from "@/Pages/ErrorPages/Error404";
+import CompetitionHeader from "./Inlcudes/CompetitionHeader";
+import FormatDate from "@/utils/FormatDate";
+import Odds from "./Tabs/Odds";
 
 const Index = () => {
     const { id } = useParams<any>();
-    const { get, loading, data } = useAxios();
+    const { get, loading } = useAxios();
 
-    const [key, setKey] = useState<number>(0)
+    const [key, setMainKey] = useState<number>(0)
     const [record, setRecord] = useState<CompetitionInterface>()
-    const [seasons, setSeasons] = useState<SeasonInterface | null>(null);
+    const [seasons, setSeasons] = useState<SeasonInterface[] | null>(null);
     const [selectedSeason, setSelectedSeason] = useState<SeasonInterface | null>(null);
+    const [currentTab, setCurrentTabName] = useState<string | undefined>()
 
+    const initialDates: Array<Date | string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
+    const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>(initialDates);
+    const [useDate, setUseDates] = useState(false);
+  
     const [modelDetails, setModelDetails] = useState<CollectionItemsInterface>()
 
     useEffect(() => {
-
         if (id) {
             getRecord()
         }
-
-    }, [id, key])
+    }, [id])
 
     function getRecord() {
         get(`admin/competitions/view/${id}`).then((res) => {
@@ -46,22 +51,18 @@ const Index = () => {
                 const { data, ...others } = res
                 if (data) {
                     setRecord(data)
+
+                    const compe_seasons = data.seasons
+                    if (compe_seasons.length > 0) {
+                        setSeasons(compe_seasons)
+                        setSelectedSeason(compe_seasons[0])
+                    }
                 }
                 setModelDetails(others)
             }
         })
     }
 
-    useEffect(() => {
-        getSeasons()
-    }, [record])
-
-    async function getSeasons() {
-        if (record && !seasons) {
-            const { data: fetchedOptions } = await get(`/admin/seasons?all=1&competition_id=${record.id}`);
-            setSeasons(fetchedOptions)
-        }
-    }
     const recordUpdated = (event: CustomEvent<{ [key: string]: any }>) => {
 
         if (event.detail) {
@@ -80,40 +81,49 @@ const Index = () => {
         return () => unsubscribe('recordUpdated', recordUpdated as EventListener)
     }, [])
 
+    useEffect(() => {
+
+        if (selectedSeason && key) setMainKey(key + 1)
+
+    }, [selectedSeason])
 
     const tabs = [
 
         {
             name: "Standings",
-            content: <Standings record={record} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+            content: <Standings record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Teams",
-            content: <Teams record={record} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+            content: <Teams record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Past Matches",
-            content: <PastMatches record={record} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+            content: <PastMatches record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Upcoming Matches",
-            content: <UpcomingMatches record={record} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+            content: <UpcomingMatches record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Past Predictions",
-            content: <PastPredictions record={record} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+            content: <PastPredictions record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Upcoming Predictions",
-            content: <UpcomingPredictions record={record} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+            content: <UpcomingPredictions record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
+        },
+        {
+            name: "Odds",
+            content: <Odds record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Statistics",
-            content: <Statistics record={record} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+            content: <Statistics record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Seasons",
-            content: <Seasons record={record} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setKey={setKey} />,
+            content: <Seasons record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Details",
@@ -133,8 +143,8 @@ const Index = () => {
 
                     record ?
                         <div>
-                            <PageHeader title={record.country.name + ' - ' + record.name} listUrl="/admin/competitions" />
-                            <AutoTabs tabs={tabs} />
+                            <CompetitionHeader competition={record} currentTab={currentTab} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+                            <AutoTabs key={selectedSeason && selectedSeason.id} tabs={tabs} setCurrentTabName={setCurrentTabName} listUrl="/admin/competitions" countsUrl={`/admin/competitions/view/${record.id}/`} />
                         </div>
                         :
                         <Error404 />

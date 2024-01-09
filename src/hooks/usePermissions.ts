@@ -16,7 +16,7 @@ const usePermissions = () => {
 
     }, [routePermissions])
 
-    const checkPermission = (permission: string, method: string) => {
+    const userCan = (permission: string, method: string) => {
 
         if (method) {
             permission = permission.replace(/\./g, '/')
@@ -34,7 +34,7 @@ const usePermissions = () => {
 
     };
 
-    return { loading, checkPermission };
+    return { loading, userCan };
 };
 
 export default usePermissions;

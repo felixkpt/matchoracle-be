@@ -41,6 +41,14 @@ class FormatDate {
         return `${hour}:${minute}`;
     }
 
+    static toLocaleDateString(dateString: string) {
+        const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+
+        const formattedDate = new Date(dateString).toLocaleDateString('en-US', options);
+
+        return formattedDate;
+    }
+
 }
 
 export default FormatDate

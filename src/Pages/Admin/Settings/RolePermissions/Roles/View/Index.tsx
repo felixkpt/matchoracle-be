@@ -1,57 +1,66 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AutoTabs from "@/components/AutoTabs";
 import Permissions from "./Tabs/Permissions";
 import Users from "./Tabs/Users";
 import useAxios from "@/hooks/useAxios";
 import { useParams } from "react-router-dom";
-import PageHeader from "@/components/PageHeader";
+import Error404 from "@/Pages/ErrorPages/Error404";
+import Loader from "@/components/Loader";
 
 export default function Index(): JSX.Element {
 
     const { id } = useParams<{ id: string }>();
 
-    const roleUri = `admin/settings/role-permissions/roles/view/${id}`;
+    const { loading, get } = useAxios();
 
-    const { data: role, loading, get } = useAxios();
+    const [role, setRole] = useState<RoleInterface>()
 
-    useEffect(() => {
-
-        get(roleUri)
-
-    }, [])
-
-    const permissionsUri = `admin/settings/role-permissions/permissions/get-role-permissions/${id}`;
-
-    const { data: permissions, get: getPermissions, loading: loadingPermission } = useAxios<PermissionInterface[]>();
 
     useEffect(() => {
-        doGetPermissions()
-    }, [])
 
-    function doGetPermissions() {
-        getPermissions(permissionsUri, { uri: 1 });
+        if (id) {
+            getRecord()
+        }
+    }, [id])
+
+    const getRecord = () => {
+
+        get(`admin/settings/role-permissions/roles/view/${id}`).then((res) => {
+            if (res) {
+                setRole(res)
+            }
+        })
     }
 
     const tabs = [
         {
             name: "Permissions",
             link: "permissions",
-            content: <Permissions role={role} permissions={permissions} loadingPermission={loadingPermission} doGetPermissions={doGetPermissions} />,
+            content: <Permissions role={role} />,
         },
         {
             name: "Users",
             link: "users",
-            content: <Users role={role} permissions={permissions} loadingPermission={loadingPermission} />,
+            content: <Users role={role} />,
         },
     ];
 
     return (
         <div className="mb-3">
+
             {
-                !loading && role && <PageHeader title={role.name} listUrl="/admin/settings/role-permissions/roles" />
+                !loading ?
+
+                    role ?
+                        <div>
+                            <AutoTabs title={role.name} tabs={tabs} active="permissions" listUrl="/admin/settings/role-permissions/roles" />
+                        </div>
+                        :
+                        <Error404 />
+                    :
+                    <Loader />
             }
-             
-            <AutoTabs tabs={tabs} active="permissions" />
+
         </div>
     );
 }

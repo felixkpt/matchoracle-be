@@ -5,13 +5,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { publish } from '@/utils/events';
 import { baseURL } from '@/utils/helpers';
 
-axios.defaults.baseURL = baseURL('');
-
 interface AxiosResponseWithData<T> extends AxiosResponse {
     data: T;
 }
 
 const useAxios = <T = any>() => {
+    axios.defaults.baseURL = baseURL('api');
+
     const [data, setData] = useState<T | null>(null);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState(null);
@@ -76,11 +76,11 @@ const useAxios = <T = any>() => {
                     const status = axiosError.response.status;
 
                     const msg = axiosError.response?.data?.message || 'An error occurred.'
+                    const errors = axiosError.response?.data?.errors
                     setErrors(msg, elementId);
-
-                    if (status && status !== 200 && status !== 201 && status !== 401 && status !== 422) {
+                    
+                    if (status && status !== 200 && status !== 201 && status !== 401 && (!errors || status !== 422)) {
                         publish('notification', { message: msg, type: 'error', status })
-
                     }
 
                     if (status === 401 && msg === 'Unauthenticated.') {
@@ -111,12 +111,14 @@ const useAxios = <T = any>() => {
         }
     };
 
-    const get = (url, config = {}) => fetchData({ method: 'GET', url, ...config });
-    const post = (url, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config });
-    const put = (url, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config, _method: 'patch' });
-    const patch = (url, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config, _method: 'patch' });
-    const destroy = (url, data = {}, config = {}) => fetchData({ method: 'DELETE', url, ...config });
-    const getFile = async (url, config = {}) => {
+    const get = (url: string, config = {}) => fetchData({ method: 'GET', url, ...config });
+    const post = (url: string, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config });
+    const put = (url: string, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config, _method: 'patch' });
+    const patch = (url: string, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config, _method: 'patch' });
+    const destroy = (url: string, data = {}, config = {}) => fetchData({ method: 'DELETE', url, ...config });
+    const getFile = async (url: string, config = {}, placeholder: string | null = null) => {
+
+        if (!url && placeholder) return placeholder
 
         try {
             setLoading(true);
@@ -134,6 +136,9 @@ const useAxios = <T = any>() => {
         } finally {
             setLoading(false);
         }
+
+        return ''
+
     };
 
 

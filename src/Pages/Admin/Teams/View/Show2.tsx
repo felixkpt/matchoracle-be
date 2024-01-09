@@ -2,7 +2,7 @@
 
 import { usePage } from "@inertiajs/react";
 import DefaultLayout from "@/Layouts/DefaultLayout";
-import Nav from "./components/Nav";
+import Nav from "./Includes/Nav";
 import { useEffect, useState } from "react";
 import { ResponseData, TeamInterface } from '@/interfaces';
 import AutoTable from '@/components/AutoTable';

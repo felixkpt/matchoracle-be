@@ -50,8 +50,8 @@ const AddSource = ({ record, hideClose }: Props) => {
                                         <tr className="mb-3" key={item.id}>
                                             <th className="d-flex flex-column"><span>{item.name}</span><span className="fw-lighter">{item.url}</span></th>
                                             <td className="form-group">
-                                                <label htmlFor={`${item.id}_uri_input`}>URI:</label>
-                                                <input type="text" id={`${item.id}_uri_input`} name={`${item.id}_uri`} defaultValue={curr?.uri} className="form-control" />
+                                                <label htmlFor={`${item.id}_source_uri_input`}>URI:</label>
+                                                <input type="text" id={`${item.id}_source_uri_input`} name={`${item.id}_source_uri`} defaultValue={curr?.source_uri} className="form-control" />
                                             </td>
                                             <td className="form-group">
                                                 <label htmlFor={`${item.id}_source_id_input`}>Source ID:</label>

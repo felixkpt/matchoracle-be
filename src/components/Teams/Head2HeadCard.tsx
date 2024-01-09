@@ -7,6 +7,7 @@ import FormSummary from './FormSummary'
 import { useEffect, useState } from 'react'
 import useAxios from '@/hooks/useAxios'
 import Select from 'react-select'
+import { teamLogo } from '@/utils/helpers'
 
 type Props = {
     game: GameInterface
@@ -18,7 +19,6 @@ type Props = {
 type Head2HeadOptionsType = {
     id: string;
     name: string;
-
 }
 
 const Head2HeadCard = ({ game, homeTeam, awayTeam, perPage }: Props) => {
@@ -38,7 +38,7 @@ const Head2HeadCard = ({ game, homeTeam, awayTeam, perPage }: Props) => {
     useEffect(() => {
 
         if (game) {
-            geGames(`admin/matches/view/${game.id}/head2head?type=played&per_page=${perPage || 5}&to_date=${game?.utc_date}&playing=${selectedHead2HeadOption?.id || 'all'}&break_preds2=1`).then((res) => {
+            geGames(`admin/matches/view/${game.id}/head2head?type=past&per_page=${perPage || 5}&to_date=${game?.utc_date}&before_to_date=1&playing=${selectedHead2HeadOption?.id || 'all'}&break_preds2=1`).then((res) => {
 
                 const { data } = res
                 if (data) {
@@ -104,8 +104,8 @@ const Head2HeadCard = ({ game, homeTeam, awayTeam, perPage }: Props) => {
                                                     <div className='row py-1'>
                                                         <div className="col-3 d-flex flex-column align-items-center border-end border-2 my-1 fs-small"><span>{FormatDate.DDMMYY(game.utc_date)}</span><span>{FormatDate.HHMM(game.utc_date)}</span></div>
                                                         <div className="col-6 d-flex flex-column">
-                                                            <div className='col text-nowrap d-flex align-items-center gap-1'><span><img className='symbol-image-xm' src={home_team.crest} alt="" /></span><span className={`text-nowrap text-truncate ${winningSide === 'h' ? 'fw-medium' : ''}`}>{Composer.team(home_team, 'short')}</span></div>
-                                                            <div className='col text-nowrap d-flex align-items-center gap-1'><span><img className='symbol-image-xm' src={away_team.crest} alt="" /></span><span className={`text-nowrap text-truncate ${winningSide === 'a' ? 'fw-medium' : ''}`}>{Composer.team(away_team, 'short')}</span></div>
+                                                            <div className='col text-nowrap d-flex align-items-center gap-1'><span><img className='symbol-image-xm' src={teamLogo(home_team.logo)} alt="" /></span><span className={`text-nowrap text-truncate ${winningSide === 'h' ? 'fw-medium' : ''}`}>{Composer.team(home_team, 'short')}</span></div>
+                                                            <div className='col text-nowrap d-flex align-items-center gap-1'><span><img className='symbol-image-xm' src={teamLogo(away_team.logo)} alt="" /></span><span className={`text-nowrap text-truncate ${winningSide === 'a' ? 'fw-medium' : ''}`}>{Composer.team(away_team, 'short')}</span></div>
                                                         </div>
                                                         <div className='col-2 d-flex flex-column align-items-center border-end border-2 my-1'>
                                                             <div className={`col-5 text-nowrap ${winningSide === 'h' ? 'fw-medium' : ''}`}>{Composer.results(game.score, 'ft', 'h')}</div>

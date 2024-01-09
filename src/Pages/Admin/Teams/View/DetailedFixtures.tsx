@@ -2,8 +2,8 @@ import { usePage } from "@inertiajs/react";
 import DefaultLayout from "@/Layouts/DefaultLayout";
 import request from "@/utils/request";
 import { useEffect, useState } from "react";
-import Nav from "./components/Nav";
-import DetailedFixturesDetails from "./components/DetailedFixturesDetails";
+import Nav from "./Includes/Nav";
+import DetailedFixturesDetails from "./Includes/DetailedFixturesDetails";
 import TimeAgo from 'timeago-react';
 import DetailedFetchControls from "@/components/DetailedFetchControls";
 

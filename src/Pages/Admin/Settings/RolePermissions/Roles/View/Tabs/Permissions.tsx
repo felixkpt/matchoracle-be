@@ -2,18 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useAxios from '@/hooks/useAxios';
 import PrepareRoutesTreeDraggable from '../Includes/PrepareRoutesTreeDraggable';
-import Header from '../Includes/Header';
+import RoleHeader from '../Includes/RoleHeader';
 import { useRolePermissionsContext } from '@/contexts/RolePermissionsContext';
 import { publish } from '@/utils/events';
 
 type Props = {
-    role: RoleInterface
-    permissions: PermissionInterface[]
-    loadingPermission: boolean
-    doGetPermissions: () => void
+    role: RoleInterface | undefined;
 }
 
-const Permissions: React.FC = ({ role, permissions, loadingPermission, doGetPermissions }: Props) => {
+const Permissions: React.FC<Props> = ({ role }) => {
 
     const { id } = useParams<{ id: string }>();
 
@@ -22,7 +19,7 @@ const Permissions: React.FC = ({ role, permissions, loadingPermission, doGetPerm
     const { fetchRoutePermissions } = useRolePermissionsContext();
 
     const { post: saveData } = useAxios();
-    const { data: routes, get: getRoutes } = useAxios<RoleInterface>();
+    const { data: routes, get: getRoutes } = useAxios<RouteCollectionInterface[]>();
     const { data: allPermissions, get: getAllPermissions } = useAxios<PermissionInterface[]>();
 
     const roleUri = `admin/settings/role-permissions/roles/view/${id}`;
@@ -42,13 +39,31 @@ const Permissions: React.FC = ({ role, permissions, loadingPermission, doGetPerm
 
     }, [saving, id]);
 
+
+    const { get: getPermissions, loading: loadingPermission } = useAxios<PermissionInterface[]>();
+    const [permissions, setPermissions] = useState<PermissionInterface[]>()
+
+    useEffect(() => {
+        if (role) {
+            doGetPermissions()
+        }
+    }, [role])
+
+    function doGetPermissions() {
+        getPermissions(`admin/settings/role-permissions/permissions/get-role-permissions/${id}`, { uri: 1 }).then((res) => {
+            setPermissions(res)
+        });
+    }
+
     async function handleSubmit(checked: any) {
         setSavedFolders([]);
         setSaving(true);
 
+        if (!role) return
+
         const { folderPermissions, menu, allFolders } = checked;
 
-      var  k = folderPermissions
+        var k = folderPermissions
 
         const savePromises = k.map(async (current_folder: any) => {
             const { folder } = current_folder;
@@ -59,13 +74,13 @@ const Permissions: React.FC = ({ role, permissions, loadingPermission, doGetPerm
             });
         });
 
-        let updatedSavedFolders = []; // Declare the variable here
+        let updatedSavedFolders = [];
 
         try {
             const responses = await Promise.all(savePromises);
 
             updatedSavedFolders = folderPermissions
-                .filter((_, index) => responses[index]) // Keep only successful responses
+                .filter((_: any, index: any) => responses[index]) // Keep only successful responses
                 .map((current_folder: any) => current_folder.folder); // Extract folders from successful responses
 
             if (updatedSavedFolders.length === folderPermissions.length) {
@@ -95,7 +110,7 @@ const Permissions: React.FC = ({ role, permissions, loadingPermission, doGetPerm
                 <div className='d-flex justify-content-between mt-2'>
                     <h4>Role Description</h4>
                 </div>
-                <Header permissions={permissions} loadingPermission={loadingPermission} role={role} />
+                <RoleHeader role={role} permissions={permissions} loadingPermission={loadingPermission} />
                 <div className="row">
                     <div className='col-sm-12'>
                         <div className='card mt-2'>

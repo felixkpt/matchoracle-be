@@ -38,7 +38,7 @@ const AjaxPost = () => {
 
         // Specify the URL where the post request will be sent
         let url = rawForm?.getAttribute('action-url') || ''; // Get the baseUri from the event detail
-        url = baseURL(url);
+        url = baseURL('api/' + url.trim('/'));
 
         const method: HttpVerbsType = (rawForm?.querySelector('input[name="_method"]')?.value || 'post').toLowerCase(); // Get the form's HTTP method
         const button = rawForm?.querySelector('button[type="submit"]')

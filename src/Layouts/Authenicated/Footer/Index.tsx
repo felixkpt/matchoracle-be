@@ -9,7 +9,7 @@ export default function Footer() {
 
     return (
         <>
-            <footer className="py-4 bg-body-secondary mt-auto">
+            <footer className="py-4 bg-body-secondary mt-auto footer">
                 <div className="container-fluid px-4">
                     <div className="d-flex align-items-center justify-content-between small">
                         <div className="text-muted">Copyright &copy; {App.name()} 2023</div>

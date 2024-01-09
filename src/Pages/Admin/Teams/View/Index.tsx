@@ -1,5 +1,3 @@
-import PageHeader from "@/components/PageHeader"
-import useAxios from "@/hooks/useAxios"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import Details from "./Tabs/Details"
@@ -8,6 +6,8 @@ import AutoTabs from "@/components/AutoTabs"
 import { TeamInterface } from "@/interfaces/FootballInterface"
 import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces"
 import { subscribe, unsubscribe } from "@/utils/events"
+import useAxios from "@/hooks/useAxios"
+import TeamHeader from "./Includes/TeamHeader"
 
 type Props = {}
 
@@ -18,6 +18,7 @@ const Index = (props: Props) => {
 
   const [record, setRecord] = useState<TeamInterface>()
   const [modelDetails, setModelDetails] = useState<CollectionItemsInterface>()
+  const [currentTab, setCurrentTabName] = useState<string | undefined>()
 
   useEffect(() => {
 
@@ -59,22 +60,30 @@ const Index = (props: Props) => {
 
   const tabs = [
     {
-      name: "Details",
-      content: <Details record={record} modelDetails={modelDetails} />,
-    },
-    {
       name: "Matches",
       content: <Matches record={record} />,
     },
+    {
+      name: "Details",
+      content: <Details record={record} modelDetails={modelDetails} />,
+    },
+
   ];
 
   return (
     <div className="mb-3">
       {
-        !loading && record && <PageHeader title={record.name} />
+        !loading && record &&
+        <div>
+          <div>
+            <div>
+              <TeamHeader team={record} currentTab={currentTab} />
+            </div>
+          </div>
+          <AutoTabs tabs={tabs} setCurrentTabName={setCurrentTabName} />
+        </div>
       }
 
-      <AutoTabs tabs={tabs} />
     </div>
   )
 }

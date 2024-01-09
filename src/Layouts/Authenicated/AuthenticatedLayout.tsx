@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import Navbar from './Navbar/Index';
 import Footer from './Footer/Index';
@@ -34,7 +34,7 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
 
     const { loadingRoutePermissions, currentRole, refreshCurrentRole, setCurrentRole, fetchRoutePermissions, routePermissions } = useRolePermissionsContext();
 
-    const { checkPermission } = usePermissions()
+    const { userCan } = usePermissions()
 
     const allowedRoutes = ['error-404']
 
@@ -48,7 +48,7 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
         if (verified === true && testPermission && loadingRoutePermissions === false) {
 
             if (!allowedRoutes.includes(testPermission)) {
-                const isAllowed = checkPermission(testPermission, method || 'get');
+                const isAllowed = userCan(testPermission, method || 'get');
                 setIsAllowed(isAllowed);
             }
 
@@ -147,7 +147,7 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                             }
                         >
                             <div className='main-content mb-4'>
-                                <main className='container-fluid mt-4 px-4 min-h-100vh'>
+                                <main className='main-content-inner container-fluid mt-4 px-4 min-h-100vh'>
                                     {
                                         isAllowed === true && checked === true ?
                                             <Component />

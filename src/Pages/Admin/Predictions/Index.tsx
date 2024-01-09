@@ -6,28 +6,25 @@ import { useEffect, useState } from 'react';
 import "react-datepicker/dist/react-datepicker.css";
 import FormatDate from '@/utils/FormatDate';
 import MatchesPageHeader from './Includes/MatchesPageHeader';
+import { predictionsColumns } from '@/utils/constants';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Index = () => {
 
     const { competitions: list_sources } = useListSources()
 
+    const location = useLocation();
+    const navigate = useNavigate();
+
     const errorsState = useRouteParamValidation();
 
-    const columns = [
-        { key: 'home_team.name' },
-        { key: 'away_team.name' },
-        { label: 'half_time', key: 'half_time' },
-        { label: 'full_time', key: 'full_time' },
-        { label: 'Status', key: 'Status' },
-        { label: 'User', key: 'user_id' },
-        { key: 'utc_date' },
-        { label: 'Created At', key: 'Created_at' },
-        { label: 'Action', key: 'action' },
-    ]
-
+    const [baseUri, setBaseUri] = useState(`/admin/predictions/`)
     const [previousUrl, setPreviousUrl] = useState<string | null>(null)
 
     useEffect(() => {
+
+        let url = location.pathname
+        setBaseUri(url ? `${url}` : `/admin/predictions/`)
 
         if (previousUrl !== location.pathname) {
             setPreviousUrl(location.pathname)
@@ -35,7 +32,22 @@ const Index = () => {
 
     }, [location.pathname]);
 
-    const [fromToDates, setFromToDates] = useState(FormatDate.YYYYMMDD(new Date()));
+    const initialDates: Array<string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
+    const [fromToDates, setFromToDates] = useState<Array<string | undefined>>(initialDates);
+
+    useEffect(() => {
+        let combinedDates = '';
+        if (fromToDates[0]) {
+            combinedDates = fromToDates[0];
+            if (fromToDates[1]) {
+                if (combinedDates != fromToDates[1])
+                    combinedDates = `${combinedDates}/to/${fromToDates[1]}`;
+
+                const newUrl = `/admin/predictions/${combinedDates}`;
+                navigate(newUrl);
+            }
+        }
+    }, [fromToDates, history])
 
     return (
         <div>
@@ -44,11 +56,12 @@ const Index = () => {
                     <div>
                         <MatchesPageHeader title={'Predictions List'} fromToDates={fromToDates} setFromToDates={setFromToDates} />
                         <AutoTable
-                            key={fromToDates}
-                            baseUri={`/admin/predictions/${fromToDates}`}
-                            columns={columns}
+                            key={baseUri}
+                            baseUri={baseUri}
+                            columns={predictionsColumns}
                             search={true}
                             list_sources={list_sources}
+                            perPage={200}
                         />
                     </div>
                     :

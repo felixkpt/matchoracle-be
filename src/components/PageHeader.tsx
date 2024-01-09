@@ -1,29 +1,19 @@
 import usePermissions from '@/hooks/usePermissions';
+import { PageHeaderInterface } from '@/interfaces/UncategorizedInterfaces';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
-type Props = {
-  title: string;
-  action?: 'button' | 'link'; // Specify the type of action (button or link)
-  actionText?: string;
-  actionLink?: string;
-  permission?: string; // Permission name
-  method?: string; // Method name
-  actionTargetId?: string
-  listUrl?: string
-  setRecord?: React.Dispatch<React.SetStateAction<any>>
-};
 
-const PageHeader = ({ title, action, actionText, actionLink, permission, method = 'post', actionTargetId, listUrl, setRecord }: Props) => {
+const PageHeader = ({ title, action, actionText, actionLink, permission, method = 'post', actionTargetId, listUrl, setRecord }: PageHeaderInterface) => {
   const [textPermission, setTextPermission] = useState(permission)
-  const { checkPermission } = usePermissions()
+  const { userCan } = usePermissions()
   const isButton = action === 'button';
 
   const renderAction = () => {
     if (isButton) {
       return (
-          <button type="button" className="btn btn-primary text-white" data-bs-toggle="modal" id={`${actionTargetId || 'ActionButton'}Trigger`} data-bs-target={`#${actionTargetId || 'ActionButton'}`} onClick={(e) => setRecord && e.isTrusted && setRecord(undefined)}>{actionText}</button>
+        <button type="button" className="btn btn-primary text-white" data-bs-toggle="modal" id={`${actionTargetId || 'ActionButton'}Trigger`} data-bs-target={`#${actionTargetId || 'ActionButton'}`} onClick={(e) => setRecord && e.isTrusted && setRecord(undefined)}>{actionText}</button>
       );
     } else if (actionLink) {
       return (
@@ -40,12 +30,12 @@ const PageHeader = ({ title, action, actionText, actionLink, permission, method 
 
   const isAllowed = () => {
     if (!textPermission) return false
-    const hasPermission = checkPermission(textPermission, method)
+    const hasPermission = userCan(textPermission, method)
     return hasPermission;
   };
 
   return (
-    <div className='header-title shadow-sm p-2 rounded mb-3 row justify-content-between'>
+    <div className='page-title shadow-sm p-2 rounded mb-3 row justify-content-between'>
       {
         listUrl && isAllowed() &&
         <div className={`col-6 col-md-1 col-lg-2 d-flex justify-content-start mb-2 mb-md-2`}>
@@ -63,7 +53,7 @@ const PageHeader = ({ title, action, actionText, actionLink, permission, method 
         {isAllowed() && (
           <div className='ms-1 text-end text-nowrap'>
             <div>
-            {renderAction()}
+              {renderAction()}
             </div>
           </div>
         )}

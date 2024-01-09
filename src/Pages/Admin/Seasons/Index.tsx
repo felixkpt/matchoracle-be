@@ -6,16 +6,15 @@ const Seasons = () => {
 
     const { competitions: list_sources } = useListSources()
 
-
     const columns = [
         { key: 'competition.name' },
         { key: 'start_date' },
         { key: 'end_date' },
         { label: 'Matchday', key: 'current_matchday' },
-        { key: 'played' },
-        { key: 'winner.name' },
+        { key: 'Played' },
+        { key: 'Winner' },
+        { key: 'Created_by' },
         { label: 'Status', key: 'Status' },
-        { label: 'User', key: 'user_id' },
         { label: 'Created At', key: 'Created_at' },
         { label: 'Action', key: 'action' },
     ]

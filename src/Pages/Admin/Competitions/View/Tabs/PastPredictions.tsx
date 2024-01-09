@@ -1,56 +1,66 @@
-import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
-import CompetitionHeader from "../Inlcudes/CompetitionHeader"
+import { CompetitionTabInterface, SeasonInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
+import CompetitionHeader from "../Inlcudes/CompetitionSubHeader"
 import GeneralModal from "@/components/Modals/GeneralModal"
 import AsyncSeasonsList from "../Inlcudes/AsyncSeasonsList"
 import AutoTable from "@/components/AutoTable"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import FormatDate from "@/utils/FormatDate"
 import { appendFromToDates } from "@/utils/helpers"
+import { predictionsColumns } from '@/utils/constants';
+import Str from "@/utils/Str"
 
-interface Props extends CompetitionTabInterface, SeasonsListInterface {}
 
-const PastPredictions: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSeason, setKey }) => {
+interface Props extends CompetitionTabInterface, SeasonsListInterface { }
+
+const PastPredictions: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSeason }) => {
 
     const competition = record
-    const [key, setLocalKey] = useState(0);
+    const [localSelectedSeason, setLocalSelectedSeason] = useState<SeasonInterface | null>(selectedSeason);
     const [useDate, setUseDates] = useState(false);
 
     const initialDates: Array<Date | string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
     const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>(initialDates);
 
-    const columns = [
-        { key: 'Game' },
-        { key: '1X2' },
-        { key: 'Pick' },
-        { key: 'BTS' },
-        { key: 'Over25' },
-        { key: 'CS' },
-        { label: 'half_time', key: 'Halftime' },
-        { label: 'full_time', key: 'Fulltime' },
-        { label: 'Status', key: 'Status' },
-        { key: 'utc_date' },
-        { label: 'Created At', key: 'Created_at' },
-        { label: 'Action', key: 'action' },
-    ]
+    function handleSeasonChange(season: SeasonInterface) {
+        setSelectedSeason(season)
+        setLocalSelectedSeason(season)
+    }
+
+    const [baseUri, setBaseUri] = useState('')
+
+    useEffect(() => {
+
+        if (competition) {
+            let uri = `admin/competitions/view/${competition.id}/predictions?show_predictions=1&break_preds=1&type=past`
+            if (useDate) {
+                uri = uri + `${appendFromToDates(useDate, fromToDates)}`
+            } else {
+                uri = uri + `&season_id=${selectedSeason ? selectedSeason?.id : ''}`
+            }
+            setBaseUri(uri)
+        }
+    }, [competition, fromToDates])
 
     return (
         <div>
             {
-                competition
-                &&
+                competition &&
                 <div>
-                    <CompetitionHeader title="Predictions" record={competition} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} setLocalKey={setLocalKey} />
+                    <CompetitionHeader title="Past Predictions" actionTitle="Do Predictions" actionButton="doPredictions" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
 
-                    <AutoTable key={key} columns={columns} baseUri={`admin/competitions/view/${competition.id}/predictions?show_predictions=1&break_preds=1&season_id=${selectedSeason ? selectedSeason?.id : ''}${appendFromToDates(useDate, fromToDates)}&type=past`} search={true} tableId={'matchesTable'} customModalId="teamModal" />
-
-                    <GeneralModal title={`Predictions form`} actionUrl={`admin/competitions/view/${competition.id}/predict`} size={'modal-lg'} id={`doPredictions`} setKey={setKey}>
+                    {baseUri &&
+                        <AutoTable key={baseUri} columns={predictionsColumns} baseUri={baseUri} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+                    }
+                    <GeneralModal title={`Predictions form`} actionUrl={`admin/competitions/view/${competition.id}/predict`} size={'modal-lg'} id={`doPredictions`}>
                         <div className="form-group mb-3">
-                            <label htmlFor="season_id">Season</label>
-                            <AsyncSeasonsList seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} />
-                        </div>
-                        <div className="form-group mb-3">
-                            <label htmlFor="matchday">Match day</label>
-                            <input type="number" min={0} max={200} name='matchday' id='matchday' className='form-control' />
+                            <label htmlFor="season_id">Selected season {
+                                selectedSeason
+                                &&
+                                <span>
+                                    {`${Str.before(selectedSeason.start_date, '-')} / ${Str.before(selectedSeason.end_date, '-')}`}
+                                </span>
+                            } </label>
+                            <input type="hidden" name="season_id" key={selectedSeason?.id} value={selectedSeason?.id} />
                         </div>
                         <div className="modal-footer gap-1">
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
