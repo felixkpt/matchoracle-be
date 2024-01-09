@@ -2,8 +2,6 @@
 
 namespace App\Services\GameSources\Forebet;
 
-use App\Models\Competition;
-use App\Models\Season;
 use App\Models\Standing;
 use App\Models\StandingTable;
 use App\Services\Client;
@@ -11,50 +9,107 @@ use Carbon\Carbon;
 use Symfony\Component\DomCrawler\Crawler;
 use Illuminate\Support\Str;
 
-class StandingsHandler extends BaseHandlerController
+class StandingsHandler
 {
+    use ForebetInitializationTrait;
+
+    protected $has_errors = false;
+    /**
+     * Constructor for the CompetitionsHandler class.
+     * 
+     * Initializes the strategy and calls the trait's initialization method.
+     */
+    public function __construct()
+    {
+        $this->initialize();
+    }
 
     function fetchStandings($competition_id, $season_id = null)
     {
 
-        if ($season_id) {
-            $season = Season::find($season_id);
-        } else {
-            $season = Season::where('competition_id', $competition_id)->where('is_current', true)->first();
-        }
+        $results = $this->prepareFetch($competition_id, $season_id);
 
-        $season_str = Str::before($season->start_date, '-') . '-' . Str::before($season->end_date, '-');
-
-        $competition = Competition::whereHas('gameSources', function ($q) use ($competition_id) {
-            $q->where('competition_id', $competition_id);
-        })->first();
-
-        if (!$competition) {
-            return response(['message' => 'Competition #' . $competition_id . ' not found.'], 404);
-        }
-
-        // Access the source_id value for the pivot
-        $source = $competition->gameSources->first()->pivot;
-        if (!$source) {
-            return response(['message' => 'Source for competition #' . $competition_id . ' not found.'], 404);
-        }
-
-        if (!$source->is_subscribed) {
-            return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
-        }
+        if (is_array($results) && $results['message'] === true) {
+            [$competition, $season, $source, $season_str] = $results['data'];
+        } else return $results;
 
         $url = $this->sourceUrl . ltrim($source->source_uri . '/standing/' . $season_str, '/');
-        echo ($url) . "\n";
 
         $content = Client::get($url);
+        if (!$content) return $this->matchMessage('Source not accessible or not found.');
+
         $crawler = new Crawler($content);
 
         // Extracted data from the HTML will be stored in this array
-        $table_rows = $crawler->filter('.contentmiddle table.standings#standings tr');
-        if ($table_rows->count() === 0)
-            $table_rows = $crawler->filter('.contentmiddle table.standings#standings-regular-season tr');
+        $tables = $crawler->filter('.contentmiddle table.standings#standings');
 
-        $standings = $table_rows->each(function ($crawler) use (&$seasons) {
+        if ($tables->count() === 0)
+            $tables = $crawler->filter('.contentmiddle table.standings#standings-regular-season');
+
+        // Let us check if the counts = 0 then we try with group strategy
+        if ($tables->count() === 0) {
+            $tables = $crawler->filter('.contentmiddle table.standings[id^=standings-group-]');
+        }
+
+        $winner = null;
+        $saved = $updated = 0;
+        // If there is only one table, directly handle it
+        if ($tables->count() === 1) {
+            $adjacentDiv = $tables->previousAll()->first();
+            $k = $adjacentDiv->filter('h4');
+            $title = null;
+            if ($k->count() > 0)
+                $title = $k->text();
+
+            $type = $title;
+
+            [$saved, $updated, $winner] = $this->handleFetchStandings($competition, $season, $tables, null, null, $type);
+        } else {
+            // If there are multiple tables, iterate over each one
+            $tables->each(function ($table) use ($competition, $season, &$saved, &$updated, &$winner) {
+                // Get the adjacent div before the table
+                $adjacentDiv = $table->previousAll()->first();
+                $k = $adjacentDiv->filter('h4');
+                $title = null;
+                if ($k->count() > 0)
+                    $title = $k->text();
+
+                $stage = null;
+                $group = null;
+                if (Str::contains($title, 'Group')) {
+                    $group = $title;
+                } else {
+                    $stage = $title;
+                }
+
+                [$saved_new, $updated_new, $winner] = $this->handleFetchStandings($competition, $season, $table, $stage, $group);
+                $saved = $saved + $saved_new;
+                $updated = $updated + $updated_new;
+            });
+        }
+
+        if (!$this->has_errors) {
+            $arr = ['standings_last_fetch' => Carbon::now(), 'has_standings' => !!$competition->standings->count()];
+            $competition->update($arr);
+        }
+
+        if ($saved + $updated > 0 && $season && !$season->is_current && Carbon::parse($season->end_date)->isPast()) {
+            $season->update(['fetched_standings' => true]);
+        }
+
+        $message = 'Standings for ' . $competition->name . ', season ' . Carbon::parse($season->start_date)->format('Y') . '/' . Carbon::parse($season->end_date)->format('Y') . ' updated. ';
+        $message .= $saved . ' new standings added, and ' . $updated . ' existing standings updated. (winner ' . ($winner ? $winner->name : 'N/A') . ')';
+
+        $response = ['message' => $message, 'results' => ['saved_updated' => $saved + $updated]];
+
+        if (request()->without_response) return $response;
+
+        return response($response);
+    }
+
+    private function handleFetchStandings($competition, $season, $table, $stage = null, $group = null, $type = null)
+    {
+        $standings = $table->filter('tr')->each(function ($crawler) {
 
             if ($crawler->count() > 0) {
                 $heading = $crawler->filter('.heading');
@@ -81,17 +136,17 @@ class StandingsHandler extends BaseHandlerController
 
         $standings = array_values(array_filter($standings));
 
-        if (count($standings) > 0) {
+        if (count($standings) > 0 && !$group) {
             $competition->type = 'LEAGUE';
             $competition->save();
         }
-
-        // dd($standings);
 
         $standingsData = $standings;
 
         $country = $competition->country;
 
+        $saved = $updated = 0;
+        $winner = null;
         // Save/update current season
         if ($season) {
 
@@ -100,22 +155,28 @@ class StandingsHandler extends BaseHandlerController
                 // Create or update the standings record
                 $standing = Standing::updateOrCreate(
                     [
+                        'competition_id' => $competition->id,
                         'season_id' => $season->id,
-                        'competition_id' => $competition->id
+                        'stage' => $stage,
+                        'group' => $group,
+                        'type' => $type,
                     ],
                     [
-                        'season_id' => $season->id, 'stage' => null, 'type' => null,
                         'competition_id' => $competition->id,
-                        'group' => null,
+                        'season_id' => $season->id,
+                        'stage' => $stage,
+                        'group' => $group,
+                        'type' => $type,
+                        'updated_at' => now(),
                     ]
                 );
 
                 // Insert standings table records
-                $this->updateOrCreate($standing, $standingsData, $country, $competition, $season);
+                [$saved, $updated, $winner] = $this->updateOrCreate($standing, $standingsData, $country, $competition, $season);
             }
         }
 
-        return response(['message' => 'Standings for ' . $competition->name . ' updated.']);
+        return [$saved, $updated, $winner];
     }
 
     function updateOrCreate($standing, $standingData, $country, $competition, $season)
@@ -126,20 +187,16 @@ class StandingsHandler extends BaseHandlerController
             $competition->save();
         }
 
+        $saved = $updated = 0;
+        $winner = null;
         foreach ($standingData as $tableData) {
 
             $teamData = $tableData[1];
 
             $team = (new TeamsHandler())->updateOrCreate($teamData, $country, $competition, $season);
 
-            // Check if the game source with the given ID doesn't exist
-            if (!$team->gameSources()->where('game_source_id', $this->sourceId)->exists()) {
-                // Attach the relationship with the URI
-                $team->gameSources()->attach($this->sourceId, ['source_uri' => $teamData['uri']]);
-            }
-
             // Create or update the standings table record
-            StandingTable::updateOrCreate(
+            $res = StandingTable::updateOrCreate(
                 [
                     'standing_id' => $standing->id,
                     'team_id' => $team->id,
@@ -159,6 +216,40 @@ class StandingsHandler extends BaseHandlerController
                     'goal_difference' => $tableData[9],
                 ]
             );
+
+            if ($res->wasRecentlyCreated) $saved++;
+            else $updated++;
+
+            // Season winner determination and saving
+            if (!$winner) {
+                $new_winner = $this->updateSeasonWinner($competition, $season, $team);
+                if ($new_winner) {
+                    $winner = $new_winner;
+                }
+            }
         }
+
+        return [$saved, $updated, $winner];
+    }
+
+    private function updateSeasonWinner($competition, $season, $team)
+    {
+        $winner = $season->winner ?? null;
+        if (!$season->winner_id && $competition->type == 'LEAGUE') {
+
+            $season_games_counts = $season->games()->count();
+            // Check if it's not the current season or the number of games played matches the expected games per season
+            if (!$season->is_current || ($season_games_counts > 0 && $season_games_counts == $competition->games_per_season)) {
+
+                // If a team is successfully updated or created
+                if ($team) {
+                    $winner = $team;
+                    $season->winner_id = $team->id;
+                    $season->save(); // Save the winner information in the season
+                }
+            }
+        }
+
+        return $winner;
     }
 }

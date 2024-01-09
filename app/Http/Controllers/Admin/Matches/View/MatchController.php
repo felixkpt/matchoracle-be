@@ -33,4 +33,9 @@ class MatchController extends Controller
 
         return $this->gameRepositoryInterface->vote($id, $data);
     }
+
+    function updateGame($id)
+    {
+        return $this->gameRepositoryInterface->updateGame($id);
+    }
 }

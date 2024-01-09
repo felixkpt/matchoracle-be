@@ -7,12 +7,23 @@ use App\Models\Country;
 use App\Models\Coach;
 use App\Models\Team;
 use App\Models\Venue;
-use App\Repositories\Forebet;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
-class TeamsHandler extends BaseHandlerController
+class TeamsHandler
 {
+    use ForebetInitializationTrait;
+
+    protected $has_errors = false;
+    /**
+     * Constructor for the CompetitionsHandler class.
+     * 
+     * Initializes the strategy and calls the trait's initialization method.
+     */
+    public function __construct()
+    {
+        $this->initialize();
+    }
 
     function findTeamById($id)
     {
@@ -35,8 +46,10 @@ class TeamsHandler extends BaseHandlerController
         $this->updateOrCreate($teamData, $country);
     }
 
-    function updateOrCreate($teamData, $country, $competition = null, $season = null)
+    function updateOrCreate($teamData, $country, $competition = null, $season = null, $ignore_competition = false)
     {
+
+        if (!isset($teamData['name'])) return false;
 
         $name = $teamData['name'];
         // Create or update the team record
@@ -64,10 +77,14 @@ class TeamsHandler extends BaseHandlerController
                 ]
             );
 
+        $country_id = (isset($country->id) && $country->continent->id != 'World') ? $country->id : null;
+        if (!$country_id) return null;
+
         $arr = [
             'name' => $name,
             'slug' => Str::slug($name),
-            'country_id' => $country->id,
+            'country_id' => $country_id,
+            'gender' => $competition->gender,
         ];
 
         if (isset($teamData['logo'])) {
@@ -82,7 +99,7 @@ class TeamsHandler extends BaseHandlerController
             $arr['venue_id'] = $venue->id;
         }
 
-        if (isset($competition) && $competition->type == 'LEAGUE' && isset($season) && $season->is_current) {
+        if (!$ignore_competition && isset($competition) && $competition->type == 'LEAGUE' && isset($season) && $season->is_current) {
             $arr['competition_id'] = $competition->id;
         }
 
@@ -105,7 +122,8 @@ class TeamsHandler extends BaseHandlerController
         $team = Team::updateOrCreate(
             [
                 'name' => $name,
-                'country_id' => $country->id,
+                'country_id' => $country_id,
+                'gender' => $competition->gender,
             ],
             $arr
         );

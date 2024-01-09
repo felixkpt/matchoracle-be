@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Admin\Teams\View;
 
-use App\Http\Controllers\Admin\Matches\MatchesController;
-use App\Http\Controllers\Admin\Matches\View\MatchController;
 use App\Http\Controllers\Admin\Predictions\PredictionsController;
 use App\Http\Controllers\Admin\Teams\TeamsController;
 use App\Http\Controllers\CommonMethods;

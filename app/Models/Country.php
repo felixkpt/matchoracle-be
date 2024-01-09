@@ -26,9 +26,15 @@ class Country extends Model
     {
         return $this->hasMany(Competition::class)->orderby('priority_number');
     }
-    
+
     function continent()
     {
         return $this->belongsTo(Continent::class);
+    }
+
+    // Getter for Logo attribute
+    public function getLogoAttribute()
+    {
+        return asset("images/countries/{$this->flag}");
     }
 }

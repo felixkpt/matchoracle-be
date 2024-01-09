@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('icon')->nullable();
             $table->boolean('hidden')->default(false);
             $table->unsignedBigInteger('position')->default(999999);
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
         });
     }

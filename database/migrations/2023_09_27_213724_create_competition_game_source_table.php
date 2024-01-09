@@ -12,14 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('competition_game_source', function (Blueprint $table) {
+            $table->bigIncrements('id')->startingValue(1100);
             $table->unsignedBigInteger('competition_id')->default(0);
             $table->unsignedBigInteger('game_source_id')->default(0);
+            $table->unique(['competition_id', 'game_source_id']); // Ensures the combination is unique
             $table->string('source_uri')->nullable();
             $table->unsignedBigInteger('source_id')->nullable();
             $table->string('subscription_expires')->nullable();
             $table->boolean('is_subscribed')->default(0);
             $table->unsignedInteger('priority_number')->default(9999);
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });

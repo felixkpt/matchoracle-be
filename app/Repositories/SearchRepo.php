@@ -167,6 +167,12 @@ class SearchRepo
 
         $model_table = $this->model->getTable();
 
+        $builder = $this->orders($builder, $model_table);
+    }
+
+    function orders($builder, $model_table)
+    {
+
         if (request()->order_by) {
             $orderBy = Str::lower(request()->order_by);
 
@@ -190,6 +196,8 @@ class SearchRepo
         } else {
             $builder->orderBy($model_table . '.id', 'desc');
         }
+
+        return $builder;
     }
 
     /**
@@ -249,6 +257,25 @@ class SearchRepo
 
         return $this;
     }
+    /**
+     * Add an action column to the search results conditionally.
+     *
+     * @param bool $condition The condition to determine whether to add the action column.
+     * @param string $column The column name.
+     * @param string $uri The URI for the action column.
+     * @param string $view The view parameter for the action column.
+     * @param string $edit The edit parameter for the action column.
+     * @param string|null $hide The hide parameter for the action column.
+     * @return $this The SearchRepo instance.
+     */
+    public function addActionColumnWhen($condition, $column, $uri, $view = 'modal', $edit = 'modal', $hide = null)
+    {
+        if ($condition) {
+            $this->addActionColumn($column, $uri, $view, $edit, $hide);
+        }
+
+        return $this;
+    }
 
     /**
      * Paginate the search results.
@@ -264,11 +291,12 @@ class SearchRepo
 
         $builder = $this->builder;
 
-        $perPage = ($perPage ?? request()->per_page) ?? 20;
+        $perPage = ($perPage ?? request()->per_page) ?? 50;
         $page = request()->page ?? 1;
 
         // Handle last page results
         $results = $builder->paginate($perPage, $columns, 'page', $page);
+
         $currentPage = $results->currentPage();
         $lastPage = $results->lastPage();
         $items = $results->items();
@@ -309,9 +337,14 @@ class SearchRepo
         $this->sort();
         $builder =  $this->builder;
 
-        $results = ['data' => $builder->get($columns)];
-        $custom = collect($this->getCustoms());
+        $results = $builder->limit(request()->per_page ?? 50)->get($columns);
 
+        $r = $this->additionalColumns($results);
+
+        $results = ['data' => $r];
+
+        $custom = collect($this->getCustoms());
+        
         $results = $custom->merge($results);
 
         return $results;
@@ -330,22 +363,46 @@ class SearchRepo
 
         if ($result) {
             $item = $result;
+
             // Loop through added custom columns and add them to the stdClass object
             foreach ($this->addedColumns as $column => $callback) {
                 if (is_array($callback) && isset($callback['method'])) {
-
+                    // If the callback is an array with a 'method', call the method with parameters
                     $item->$column = $this->action($item, ...$callback['parameters']);
-                } else
+                } else {
+                    // If the callback is a closure, call the closure
                     $item->$column = $callback($item);
+                }
             }
         }
 
+        // Create an array with a 'data' key containing the result
         $results = ['data' => $result];
-        $custom = collect($this->getCustoms());
 
+        // Merge in custom data obtained from the 'getCustoms' method
+        $custom = collect($this->getCustoms());
         $results = $custom->merge($results);
 
         return $results;
+    }
+
+    /**
+     * Get the first search result without pagination or throw an exception if not found.
+     *
+     * @param array $columns The columns to retrieve.
+     * @return array The search result.
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException if no result is found.
+     */
+    function firstOrFail($columns = ['*'])
+    {
+        // Reuse the existing first method to get the result
+        $result = $this->first($columns);
+
+        if (!$result['data']) {
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException('No results found', 404);
+        }
+
+        return $result;
     }
 
     /**
@@ -356,9 +413,10 @@ class SearchRepo
      */
     function additionalColumns($results)
     {
-        $data = $results->items();
+        $data = method_exists($results, 'items') ? $results->items() : $results;
 
         foreach ($data as $item) {
+
             foreach ($this->addedColumns as $column => $callback) {
 
                 if (is_array($callback) && isset($callback['method'])) {
@@ -663,7 +721,7 @@ class SearchRepo
         return $this;
     }
 
-    function action($q, $uri, $view = 'modal', $edit = 'modal', $hide = null)
+    function action($q, $uri, $view = 'modal', $edit = 'modal')
     {
 
         $uri = preg_replace('#/+#', '/', $uri . '/');
@@ -679,7 +737,6 @@ class SearchRepo
             } else {
                 $use = $item['action']['use'];
                 $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/' . $item['action']['title'] . '">' . $item['title'] . '</a></li>';
-                // $str .= (!preg_match('#update-status#', $hide) ? '<li><a class="dropdown-item autotable-update-status" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/update-status">Status update</a></li>' : '');
             }
         }
 

@@ -3,106 +3,58 @@
 namespace App\Http\Controllers\Admin\Odds;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\SearchRepo;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
+use App\Repositories\Odds\OddsRepositoryInterface;
+use Illuminate\Support\Carbon;
 
 class OddsController extends Controller
 {
-    private $oddsRepository;
 
-
-    public function __construct()
+    public function __construct(protected OddsRepositoryInterface $oddsRepositoryInterface)
     {
-
-        $this->oddsRepository = autoModel(request()->year . '_odds');
     }
 
     public function index()
     {
-        return response('Games/Index', $this->oddsRepository->all());
+        return $this->oddsRepositoryInterface->index();
     }
 
-    public function year()
+    function today()
     {
-        $builder = $this->oddsRepository->query()->when(request()->game_id, fn ($q) => $q->where('game_id', request()->game_id));
-        $odds = SearchRepo::of($builder, ['id', 'home_team', 'away_team', 'date_time', 'date'])->addColumn('1x2_odds', fn($q) => $q->home_win_odds.' '. $q->draw_odds.' '.$q->away_win_odds)->paginate(10);
-
-        if (!request()->inertia()) return response(['results' => $odds]);
-
-        return response('Games/Game/Index', ['odds' => $odds]);
+        return $this->oddsRepositoryInterface->today();
     }
 
-    //Create odds
-    public function create()
+    function yesterday()
     {
-        return response('Games/Create');
+        return $this->oddsRepositoryInterface->yesterday();
     }
 
-    //Get odds by id
-    public function find(Request $request)
+    function tomorrow()
     {
-        $id = $request->id;
-        return response()->json($this->oddsRepository->find($id, ['*'], ['keytoken', 'endpoint']), 200);
+        return $this->oddsRepositoryInterface->tomorrow();
     }
 
-
-    function show()
+    function year($year)
     {
+        return $this->oddsRepositoryInterface->year($year);
     }
 
-
-    function list()
+    function yearMonth($year, $month)
     {
-
-        // Example usage
-        $searchableColumns = ['title', 'content']; // Columns to search against
-        $sortableColumns = ['id', 'title']; // Columns available for sorting
-
-        // Create a query builder for the "Game" model
-        $queryBuilder = Game::where([]);
-
-        // Apply search and sorting using SearchRepo
-        $searchRepo = SearchRepo::of($queryBuilder, $searchableColumns, $sortableColumns);
-
-        // Add a custom column "image_url" to the search results
-        $searchRepo->addColumn('image_url', function ($odds) {
-
-            // Logic to generate the image URL based on the "image" field of the odds
-            return asset('images/' . $odds->image);
-        });
-
-        // Paginate the search results
-        $results = $searchRepo->paginate(10); // 10 items per page
-
-        return response(['results' => $results]);
+        return $this->oddsRepositoryInterface->yearMonth($year, $month);
     }
 
-    //Store odds
-    public function store(Request $request)
+    function yearMonthDay($year, $month, $date)
     {
-
-        $request->validate([
-            'title' => 'required|unique:oddss,title,' . $request->id . ',id',
-            'content_short' => 'required',
-            'content' => 'required',
-            'priority_no' => 'numeric'
-        ]);
-
-        $data = $request->all();
-        $this->oddsRepository->updateOrCreate(['id' => $request->id], $data);
-
-        return to_route('oddss.index');
+        return $this->oddsRepositoryInterface->yearMonthDay($year, $month, $date);
     }
 
-    function update(Request $request)
+    public function dateRange($start_year, $start_month, $start_day, $end_year, $end_month, $end_day)
     {
-        return $this->store($request, true);
-    }
+        $from_date = Carbon::create($start_year, $start_month, $start_day);
+        $to_date = Carbon::create($end_year, $end_month, $end_day);
 
-    function destroy($id)
-    {
-        $this->oddsRepository->deleteById($id);
-        return to_route('oddss.index');
+        $predictions = $this->oddsRepositoryInterface->dateRange($from_date, $to_date);
+
+        return $predictions;
     }
 }

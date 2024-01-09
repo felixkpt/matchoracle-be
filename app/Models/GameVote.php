@@ -13,7 +13,7 @@ class GameVote extends Model
         'game_id',
         'winner',
         'over_under',
-        'gg_ng',
+        'bts',
         'user_ip',
         'user_id',
         'status_id',

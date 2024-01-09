@@ -24,10 +24,11 @@ class ContinentRepository implements ContinentRepositoryInterface
 
         $uri = '/admin/continents/';
         $res = SearchRepo::of($continents, ['id', 'name'])
+            ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->flag ? asset($q->flag) : asset('storage/football/defaultflag.png')) . '" />')
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addActionColumn('action', $uri)
-            ->htmls(['Status'])
+            ->htmls(['Status', 'Flag'])
             ->paginate();
 
         return response(['results' => $res]);

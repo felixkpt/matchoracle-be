@@ -2,11 +2,14 @@
 
 namespace App\Repositories\GamePrediction;
 
+use App\Jobs\Automation\AutomationTrait;
+use App\Models\Competition;
 use App\Models\CompetitionScoreTargetOutcome;
 use App\Models\Game;
 use App\Models\GamePrediction;
 use App\Models\GamePredictionLog;
 use App\Models\GamePredictionType;
+use App\Models\PredictionJobLog;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
 use Illuminate\Support\Carbon;
@@ -15,7 +18,7 @@ use Illuminate\Support\Facades\Log;
 class GamePredictionRepository implements GamePredictionRepositoryInterface
 {
 
-    use CommonRepoActions;
+    use CommonRepoActions, AutomationTrait;
 
     protected  $model;
     protected $sourceContext;
@@ -161,5 +164,72 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
 
         Log::info('DATA', $data);
         return response(['message' => "Competition Score Target Outcomes saved successfully."]);
+    }
+
+    function predictionsJobLogs()
+    {
+        if (request()->increment_job_run_counts) {
+            $this->loggerModel();
+        } else if (request()->is_competition_run_logging) {
+            $this->doCompetitionRunLogging();
+        } else {
+            $this->doLogging(request()->all());
+        }
+
+        return response(['results' => 'Succcess.']);
+    }
+
+    private function doLogging($data = null)
+    {
+        Log::alert('dDDD', $data);
+        $predicted_counts = $data['results']['saved_updated'] ?? 0;
+        $predition_success_counts = $predicted_counts > 0 ? 1 : 0;
+        $predition_failed_counts = $data ? ($predicted_counts === 0 ? 1 : 0) : 0;
+
+        $exists = $this->loggerModel();
+
+        if ($exists) {
+            $arr = [
+                'prediction_run_counts' => $exists->fetch_run_counts + 1,
+                'prediction_success_counts' => $exists->fetch_success_counts + $predition_success_counts,
+                'prediction_failed_counts' => $exists->fetch_failed_counts + $predition_failed_counts,
+                'predicted_counts' => $exists->predicted_counts + $predicted_counts,
+            ];
+
+            $exists->update($arr);
+
+            // if ($fetch_failed_counts) $this->logFailure(new FailedStandingLog(), $data);
+        }
+    }
+
+    private function loggerModel($increment_job_run_counts = false)
+    {
+        $prediction_type = GamePredictionType::where('name', request()->prediction_type)->first();
+
+        $today = Carbon::now()->format('Y-m-d');
+        $record = PredictionJobLog::where('date', $today)->where('prediction_type_id', $prediction_type->id)->first();
+
+        if (!$record) {
+            $arr = [
+                'date' => $today,
+                'prediction_type_id' => $prediction_type->id,
+                'job_run_counts' => 1,
+                'competition_run_counts' => 0,
+                'prediction_run_counts' => 0,
+                'prediction_success_counts' => 0,
+                'prediction_failed_counts' => 0,
+                'predicted_counts' => 0,
+            ];
+
+            $record = PredictionJobLog::create($arr);
+        } elseif ($increment_job_run_counts) $record->update(['job_run_counts' => $record->job_run_counts + 1]);
+
+        return $record;
+    }
+
+    function updateCompetitionLastTraining()
+    {
+        Competition::findOrFail(request()->competition_id)->update(['predictions_trained_to' => Carbon::parse(request()->trained_to)->format('Y-m-d'), 'predictions_last_train' => now()]);
+        return response(['message' => 'Successfully updated last train time.']);
     }
 }

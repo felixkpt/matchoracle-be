@@ -189,6 +189,7 @@ class RoutesHelper
      */
     static function handle($file, $nested_routes_folder, $routes_path, $get_folder_after = null)
     {
+        
         $path = $file->getPath();
 
         $get_folder_after = true;
@@ -208,9 +209,6 @@ class RoutesHelper
             'file_path' => $file_path,
             'folder_after_nested' => $folder_after_nested,
         ];
-
-        // if ($get_folder_after)
-        //     dump($res);
 
         return $res;
     }

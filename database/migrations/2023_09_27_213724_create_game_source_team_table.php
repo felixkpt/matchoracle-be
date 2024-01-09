@@ -12,17 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('game_source_team', function (Blueprint $table) {
+            $table->bigIncrements('id')->startingValue(1100);
             $table->unsignedBigInteger('team_id')->default(0);
             $table->unsignedBigInteger('game_source_id')->default(0);
+            $table->unique(['team_id', 'game_source_id']); // Ensures the combination is unique
             $table->string('source_uri')->nullable();
             $table->unsignedBigInteger('source_id')->nullable();
             $table->string('subscription_expires')->nullable();
             $table->boolean('is_subscribed')->default(0);
             $table->unsignedInteger('priority_number')->default(9999);
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });
+        
     }
 
     /**

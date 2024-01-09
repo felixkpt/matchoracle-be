@@ -33,7 +33,7 @@ class PostRepository implements PostRepositoryInterface
 
         $res = SearchRepo::of($posts, ['title', 'content_short', 'status', 'user_id'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, 'link'. 'link'))
             ->htmls(['Status'])
             ->statuses(PostStatus::select('id', 'name', 'icon', 'class')->get())

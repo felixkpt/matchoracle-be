@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('game_predictions', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->string('version')->default('1.0');
-            $table->unsignedInteger('prediction_type_id')->default(1);
+            $table->unsignedInteger('prediction_type_id');
             $table->unsignedBigInteger('competition_id')->default(0);
             $table->dateTime('date');
             $table->unsignedBigInteger('game_id');
@@ -43,7 +43,7 @@ return new class extends Migration
 
             $table->boolean('is_normalized')->default(false);
 
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });

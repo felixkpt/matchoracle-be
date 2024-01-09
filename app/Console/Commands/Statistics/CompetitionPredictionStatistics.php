@@ -29,5 +29,6 @@ class CompetitionPredictionStatistics extends Command
         $competitionId = $this->option('competition');
 
         dispatch(new CompetitionPredictionStatisticsJob($competitionId));
+        $this->info('Competition Prediction Statistics Job command executed successfully!');
     }
 }

@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use Database\Seeders\Admin\AdminRoleSeeder;
 use Database\Seeders\Admin\AdminUserSeeder;
+use Database\Seeders\Countries\CountriesSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder

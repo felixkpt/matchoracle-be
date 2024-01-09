@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Continent;
 use App\Models\Game;
 use App\Models\Status;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use LaracraftTech\LaravelDynamicModel\DynamicModelFactory;
 use Illuminate\Support\Str;
@@ -59,39 +61,35 @@ if (!function_exists('autoModel')) {
     }
 }
 
-if (!function_exists('_dd')) {
-    function _dd(...$args)
-    {
-        if (!headers_sent()) {
-            header('HTTP/1.1 500 Internal Server Error');
-        }
-        http_response_code(500);
-
-        call_user_func_array('dd', $args);
-    }
-}
-
 if (!function_exists('Created_at')) {
     function created_at($q)
     {
-        return $q->created_at->toDayDateTimeString();
+        return $q->created_at->diffForHumans();
     }
 }
 
 if (!function_exists('Created_by')) {
     function Created_by($q)
     {
-        return $q->user->name ?? null;
+        return getUser($q);
     }
 }
 
-if (!function_exists('Status')) {
-    function status($q)
+if (!function_exists('getStatus')) {
+    function getStatus($q)
     {
         $status = $q->status()->first();
         if ($status) {
             return '<div class="d-flex align-items-center"><iconify-icon icon="' . $status->icon . '" class="' . $status->class . ' me-1"></iconify-icon>' . Str::ucfirst(Str::replace('_', ' ', $status->name)) . '</div>';
         } else return null;
+    }
+}
+
+if (!function_exists('getUser')) {
+    function getUser($q)
+    {
+        $username = $q->user->name ?? 'System';
+        return $username;
     }
 }
 
@@ -117,10 +115,18 @@ if (!function_exists('actionLinks')) {
         ';
     }
 }
+
 if (!function_exists('activeStatusId')) {
     function activeStatusId()
     {
         return Status::where('name', 'active')->first()->id ?? 0;
+    }
+}
+
+if (!function_exists('inActiveStatusId')) {
+    function inActiveStatusId()
+    {
+        return Status::where('name', 'in_active')->first()->id ?? 0;
     }
 }
 
@@ -137,8 +143,7 @@ if (!function_exists('game_scores')) {
             $awayTeamScore = $scoreData->away_scores_half_time ?? 0;
         }
 
-        $scores = $homeTeamScore . ' - ' . $awayTeamScore;
-
+        $scores = trim($homeTeamScore) . ' - ' . trim($awayTeamScore);
         $arr = scores();
 
         return $arr[$scores] ?? -1;
@@ -290,5 +295,32 @@ if (!function_exists('getUriFromUrl')) {
         $path = isset($parsedUrl['path']) ? $parsedUrl['path'] : '';
 
         return $path;
+    }
+}
+
+if (!function_exists('default_prediction_type')) {
+    function default_prediction_type()
+    {
+        return request()->current_prediction_type ?? 1100;
+    }
+}
+
+if (!function_exists('is_connected')) {
+    function is_connected()
+    {
+        try {
+            fopen("http://www.google.com:80/", "r");
+            return true;
+        } catch (Exception $e) {
+            Log::critical('Internet connectivity issue: ' . $e->getMessage());
+            return false;
+        }
+    }
+}
+
+if (!function_exists('get_world_id')) {
+    function get_world_id()
+    {
+        return Continent::where('name', 'World')->first()->id ?? 0;
     }
 }

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('seasons', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('competition_id');
             $table->date('start_date');
@@ -23,7 +23,11 @@ return new class extends Migration
             $table->unsignedInteger('played_matches')->nullable();
             $table->unsignedBigInteger('winner_id')->nullable();
             $table->json('stages')->nullable();
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->boolean('fetched_standings')->default(false);
+            $table->boolean('fetched_all_matches')->default(false);
+            $table->boolean('fetched_all_single_matches')->default(false);
+
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });

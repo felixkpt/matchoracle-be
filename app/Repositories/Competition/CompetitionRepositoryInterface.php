@@ -32,7 +32,13 @@ interface CompetitionRepositoryInterface extends CommonRepoActionsInterface
 
     function teams($id);
     
+    function odds($id);
+    
     function statistics($id);
     
     function predictionStatistics($id);
+    
+    function doStatistics($id);
+    
+    function tabs($id);
 }

@@ -98,19 +98,20 @@ class GameComposer
         }
 
         $scoreData = $game['score'];
-        if (!$scoreData || !$scoreData['winner']) {
+        if (!$scoreData || !$scoreData['winner'] || $scoreData['home_scores_half_time'] == null) {
             return $integer ? -1 : 'U';
         }
 
         $homeTeamScore = (int)($scoreData['home_scores_half_time'] ?? 0);
         $awayTeamScore = (int)($scoreData['away_scores_half_time'] ?? 0);
 
+        $winner = null;
         if ($homeTeamScore > $awayTeamScore) {
             $winner = 'HOME_TEAM';
+        } elseif ($homeTeamScore == $awayTeamScore) {
+            $winner = 'DRAW';
         } elseif ($homeTeamScore < $awayTeamScore) {
             $winner = 'AWAY_TEAM';
-        } else {
-            $winner = 'DRAW';
         }
 
         if ($winner === 'HOME_TEAM') {

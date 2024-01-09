@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('game_votes', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('game_id');
             $table->string('winner')->nullable();
             $table->string('over_under')->nullable();
-            $table->string('gg_ng')->nullable();
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->string('bts')->nullable();
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->string('user_ip')->nullable();
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();

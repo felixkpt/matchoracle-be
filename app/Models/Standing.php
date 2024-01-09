@@ -16,6 +16,7 @@ class Standing extends Model
         'group',
         'season_id',
         'competition_id',
+        'updated_at',
     ];
 
 

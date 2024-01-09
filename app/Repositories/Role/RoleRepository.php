@@ -42,7 +42,7 @@ class RoleRepository implements RoleRepositoryInterface
             ->fillable(['name', 'guard_name'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Created_by', 'Created_by')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, $view, $edit))
             ->htmls(['Status'])
             ->paginate();

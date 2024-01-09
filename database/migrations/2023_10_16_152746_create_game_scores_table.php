@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('game_scores', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('game_id');
             $table->string('winner')->nullable();

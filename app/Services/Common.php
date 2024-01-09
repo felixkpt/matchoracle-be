@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Competition;
 use App\Models\CompetitionAbbreviation;
 use App\Models\Country;
 use App\Models\Stadium;
+use App\Models\Team;
 use App\Models\WeatherCondition;
-use App\Repositories\CompetitionRepository;
 use App\Repositories\EloquentRepository;
-use App\Repositories\TeamRepository;
 use App\Services\Games\Games;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -17,14 +17,6 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class Common
 {
-    public static function TeamRepo()
-    {
-        return new TeamRepository();
-    }
-    public static function CompetitionRepo()
-    {
-        return new CompetitionRepository();
-    }
 
     /**
      * Update competition and handle associated teams.
@@ -77,7 +69,7 @@ class Common
 
         $added = Common::saveTeams($teams, $competition, $country, $has_teams, $competition->action === 'created' ? false : true);
 
-        $removed = self::teamRepo()->model->where('competition_id', $competition->id)->whereNotIn('id', array_column($added, 'id'));
+        $removed = Team::where('competition_id', $competition->id)->whereNotIn('id', array_column($added, 'id'));
         $removedTeams = $removed->get(['id', 'name']);
         // Removing teams not currently listed under this competition on the source, but are on the DB
         if ($removed->count() > 0)
@@ -94,7 +86,7 @@ class Common
 
         $img = null;
         if (is_array($source)) {
-            ['src' => $source, 'name' => $name, 'img' => $img] = $source;
+            ['src' => $source, 'name' => $name, 'logo' => $img] = $source;
         }
 
         $source = ltrim($source, '/');
@@ -112,7 +104,7 @@ class Common
 
         $source = preg_replace('#/+#', '/', '/' . $source);
 
-        $competition = self::competitionRepo()->model->where('country_id', $country->id)->where('url', $source)->first();
+        $competition = Competition::where('country_id', $country->id)->where('url', $source)->first();
         if ($competition) {
             $competition->action = 'updated';
             return $competition;
@@ -128,7 +120,7 @@ class Common
 
             $header = $crawler->filter('.contentmiddle h1.frontH');
 
-            $img = $header->filter('img')->attr('src');
+            $img = $header->filter('logo')->attr('src');
             $name = $header->filter('span')->text();
         }
 
@@ -152,7 +144,7 @@ class Common
             'has_teams' => $has_teams
         ];
 
-        $competition = self::competitionRepo()->model->where([
+        $competition = Competition::where([
             'name' => $name,
             'url' => $source,
             'country_id' => $country->id,
@@ -164,7 +156,7 @@ class Common
                 'last_detailed_fetch' => '1970-01-01 00:00:00',
             ]);
 
-            $competition = self::competitionRepo()->model->create($arr);
+            $competition = Competition::create($arr);
             $competition->action = 'created';
         } else {
             $competition->update($arr);
@@ -173,25 +165,24 @@ class Common
 
         $res = self::saveCompetitionLogo($img, $country, $competition);
         if ($res) {
-            self::competitionRepo()->update($competition->id, ['img' => $res]);
-            $competition->img = $res;
+            $competition->update($competition->id, ['logo' => $res]);
+            $competition->logo = $res;
         }
 
         return $competition;
     }
 
-
-    static function saveCompetitionLogo($source, $country, $competition)
+    static function saveCompetitionLogo($source, $competition)
     {
-        // Log::info('savecompelogo::', [$source, $country->toArray()]);
 
         $ext = pathinfo($source, PATHINFO_EXTENSION);
         $filename = "c" . $competition->id . '.' . $ext;
 
-        $dest = "public/images/competitions/" . $country->slug . '/' . $filename; /* Complete path & file name */
+        $dest = "public/images/competitions/" . $filename;
 
-        if (Client::downloadFileFromUrl($source, $dest))
-            return $dest;
+        $path = Client::downloadFileFromUrl($source, $dest);
+        if ($path)
+            return 'assets/' . Str::after($path, 'public/');
         else
             return null;
     }
@@ -278,13 +269,14 @@ class Common
 
         return $added;
     }
+
     static function saveTeam($name, $url, $competition, $country, $has_teams, $is_fetch = false)
     {
         $data = [
             'name' => $name,
             'slug' => Str::slug($name),
             'url' => $url,
-            'img' => '',
+            'logo' => '',
             'status' => 1,
             "updated_at" => date('Y-m-d H:i:s'),
             'country_id' => $country->id,
@@ -295,7 +287,7 @@ class Common
                 'competition_id' => $competition->id,
             ]);
 
-        $res = self::teamRepo()->model->where([['name', $name], ['url', $url]])->first();
+        $res = Team::where([['name', $name], ['url', $url]])->first();
 
         if (!$res) {
             $data = array_merge($data, [
@@ -303,7 +295,7 @@ class Common
                 'last_detailed_fetch' => '1970-01-01 00:00:00',
             ]);
 
-            $res = self::teamRepo()->model->create($data);
+            $res = Team::create($data);
             $res->action = 'created';
         } else
             $res->action = 'updated';
@@ -316,25 +308,25 @@ class Common
 
         return $res;
     }
-    static function saveTeamLogo($team_id, $source)
+    
+    static function saveTeamLogo($team, $source)
     {
-        $exists = self::teamRepo()->findById($team_id);
-        if ($exists->img)
+        if ($team->logo)
             return true;
 
         $ext = pathinfo($source, PATHINFO_EXTENSION);
-        $filename = "t" . $team_id . '.' . $ext;
+        $filename = "t" . $team->id . '.' . $ext;
 
         $dest = "public/images/teams/" . $filename; /* Complete path & file name */
 
-        if (Client::downloadFileFromUrl($source, $dest)) {
-            self::teamRepo()->update($team_id, ['img' => $dest]);
+        $path = Client::downloadFileFromUrl($source, $dest);
+        if ($path) {
+            $team->update(['logo' => 'assets/' . Str::after($path, 'public/')]);
             return true;
         }
 
         return false;
     }
-
 
     static function saveCompetitionAbbreviation($competition_abbreviation)
     {
@@ -347,42 +339,6 @@ class Common
             $res->created = true;
 
         return $res;
-    }
-
-    static function getCountrySlug($source)
-    {
-        $parts = explode('/', trim($source, '/'));
-        $slug = $parts[1];
-
-        if (preg_match('#tips-and-predictions-for-russia-#', $slug))
-            $slug = 'russia';
-        elseif (preg_match('#^football-tips-and-predictions-for-#', $slug))
-            $slug = preg_replace('#^football-tips-and-predictions-for-#', '', $slug);
-        elseif (preg_match('#^tips-and-predictions-for-#', $slug))
-            $slug = preg_replace('#^tips-and-predictions-for-#', '', $slug);
-        elseif (preg_match('#^predictions-#', $slug))
-            $slug = preg_replace('#^predictions-#', '', $slug);
-        else {
-            $m = 'Cannot get country from slug';
-            Log::info($m . ':', ['source' => $source]);
-            return false;
-        }
-
-        $slug = preg_replace('#-1-hnl$#i', '', $slug);
-        $slug = preg_replace('#-j-league$#i', '', $slug);
-        $slug = preg_replace('#-divizia-a$#i', '', $slug);
-        $slug = preg_replace('#-veikkausliiga$#i', '', $slug);
-        $slug = preg_replace('#-s-league$#i', '', $slug);
-        $slug = preg_replace('#-meistriliiga$#i', '', $slug);
-        $slug = preg_replace('#-major-league-soccer$#i', '', $slug);
-        $slug = preg_replace('#-tippeligaen$#i', '', $slug);
-        $slug = preg_replace('#-superliga|-super-league$#i', '', $slug);
-        $slug = preg_replace('#-ekstraklasa$#i', '', $slug);
-        $slug = preg_replace('#-gambrinus-liga$#i', '', $slug);
-        $slug = preg_replace('#^usa$#i', 'united-states', $slug);
-        $slug = preg_replace('#^czech-rep$#i', 'czech-republic', $slug);
-
-        return $slug;
     }
 
     static function checkCompetitionAbbreviation($games_table)

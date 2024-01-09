@@ -14,7 +14,7 @@ class Continent extends Model
         'name',
         'slug',
         'code',
-        'image',
+        'flag',
         'priority_number',
         'user_id',
         'status_id',

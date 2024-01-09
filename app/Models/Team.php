@@ -29,8 +29,9 @@ class Team extends Model
         'last_updated',
         'last_fetch',
         'last_detailed_fetch',
-        'user_id',
+        'gender',
         'status_id',
+        'user_id',
     ];
 
     protected $systemFillable = ['continent_id', 'last_updated'];

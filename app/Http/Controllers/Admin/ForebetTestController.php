@@ -4,61 +4,65 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Competition;
-use App\Models\Country;
-use App\Models\Game;
-use App\Models\GameScore;
-use App\Models\Referee;
 use App\Models\Season;
-use App\Models\Team;
-use App\Services\GameSources\FootballData\Seasons;
-use App\Services\GameSources\Forebet\ForebetInit;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Services\GameSources\Forebet\ForebetStrategy;
+use App\Services\GameSources\GameSourceStrategy;
 
 class ForebetTestController extends Controller
 {
 
-    protected $api;
+    protected GameSourceStrategy $sourceContext;
 
-    function __construct()
+    function __construct(protected Competition $model)
     {
-        $this->api = new ForebetInit();
+        // Instantiate the context class
+        $this->sourceContext = new GameSourceStrategy();
+
+        // Set the desired game source (can switch between sources dynamically)
+        $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
     }
 
     function index()
     {
 
-        $competition_id = 232;
+        // $competition_id = 1329;
 
         // return $this->fetchSeasons($competition_id);
 
-        $competition = Competition::find($competition_id);
-        $season = Season::where('competition_id', $competition->id)->where('is_current', true)->first();
-        // $season = Season::where('competition_id', $competition->id)->whereYear('start_date', '2023')->first();
+        // $competition = Competition::find($competition_id);
+        // $season = Season::where('competition_id', $competition->id)->where('is_current', true)->first();
+        // $season = Season::where('competition_id', $competition->id)->whereYear('start_date', '2016')->first();
 
         // return $this->fetchStandings($competition->id, $season->id);
-        return $this->fetchMatches($competition->id, $season->id, true);
+        // return $this->fetchMatches($competition->id, $season->id, false);
+        return $this->fetchMatch(68647);
     }
 
-    function fetchSeasons($season_id)
+    function fetchSeasons($competition_id)
     {
-        $competitions = $this->api->seasonsHandler;
-        $seasons = $competitions->fetchSeasons($season_id);
+        $seasonsHandler = $this->sourceContext->seasonsHandler();
+        $seasons = $seasonsHandler->fetchSeasons($competition_id);
         dd($seasons);
     }
 
     function fetchStandings($competition_id, $season_id)
     {
-        $competitionsHandler = $this->api->standingsHandler;
-        $standings = $competitionsHandler->fetchStandings($competition_id, $season_id);
+        $standingsHandler = $this->sourceContext->standingsHandler();
+        $standings = $standingsHandler->fetchStandings($competition_id, $season_id);
         dd($standings);
     }
 
     function fetchMatches($competition_id, $season_id, $is_fixtures)
     {
-        $matchesHandler = $this->api->matchesHandler;
+        $matchesHandler = $this->sourceContext->matchesHandler();
         $matches = $matchesHandler->fetchMatches($competition_id, $season_id, $is_fixtures);
         dd($matches);
+    }
+
+    function fetchMatch($game_id)
+    {
+        $matchesHandler = $this->sourceContext->matchHandler();
+        $match = $matchesHandler->fetchMatch($game_id);
+        dd($match);
     }
 }

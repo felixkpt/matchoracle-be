@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('stadia', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->string('name');
             $table->string('location')->nullable();
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->string('image')->nullable();
             $table->unsignedBigInteger('team_id')->nullable();
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });

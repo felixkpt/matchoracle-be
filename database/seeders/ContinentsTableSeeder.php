@@ -12,23 +12,51 @@ class ContinentsTableSeeder extends Seeder
     public function run()
     {
         $continents = [
-            ['name' => 'Africa', 'code' => 'AF'],
-            ['name' => 'Antarctica', 'code' => 'AN'],
-            ['name' => 'Asia', 'code' => 'AS'],
-            ['name' => 'Europe', 'code' => 'EU'],
-            ['name' => 'North America', 'code' => 'NA'],
-            ['name' => 'Oceania', 'code' => 'OC'],
-            ['name' => 'South America', 'code' => 'SA'],
+            [
+                'name' => 'Africa',
+                'code' => 'AFR',
+            ],
+            [
+                'name' => 'Antarctica',
+                'code' => 'ANT',
+            ],
+            [
+                'name' => 'Asia',
+                'code' => 'ASI',
+            ],
+            [
+                'name' => 'Europe',
+                'code' => 'EU',
+            ],
+            [
+                'name' => 'North & Central America',
+                'code' => 'NAC',
+            ],
+            [
+                'name' => 'Oceania',
+                'code' => 'AOC',
+            ],
+            [
+                'name' => 'South America',
+                'code' => 'SOA',
+            ],
+            [
+                'name' => 'World',
+                'code' => 'INT',
+            ],
         ];
 
         foreach ($continents as $country) {
             Continent::updateOrCreate(
-                ['name' => $country['name']],
+                [
+                    'name' => $country['name']
+                ],
                 [
                     'name' => $country['name'],
                     'slug' => Str::slug($country['name']),
                     'code' => $country['code'],
-                    'status_id' => Status::where('name', 'active')->first()->id ?? 0
+                    'flag' => 'assets/images/flags/' . Str::slug($country['code']) . '.png',
+                    'status_id' => activeStatusId()
                 ]
             );
         }

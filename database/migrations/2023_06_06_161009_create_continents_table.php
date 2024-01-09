@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('continents', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->string('name');
             $table->string('slug');
             $table->string('code')->nullable();
-            $table->string('image')->nullable();
+            $table->string('flag')->nullable();
             $table->integer('priority_number')->default(9999);
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });

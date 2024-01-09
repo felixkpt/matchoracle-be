@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('competitions_logs', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('competition_id');
             $table->unsignedInteger('fetch_counts')->default(0);
             $table->text('fetch_details')->nullable();
             $table->unsignedInteger('detailed_fetch_counts')->default(0);
             $table->text('detailed_fetch_details')->nullable();
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });

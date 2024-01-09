@@ -3,19 +3,14 @@
 namespace App\Repositories\Team;
 
 use App\Models\CoachContract;
-use App\Models\Country;
 use App\Models\Game;
-use App\Models\Season;
 use App\Models\Team;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
-use App\Services\Client;
-use App\Services\Common;
+use App\Utilities\GameUtility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-use Symfony\Component\DomCrawler\Crawler;
 
 class TeamRepository implements TeamRepositoryInterface
 {
@@ -36,8 +31,9 @@ class TeamRepository implements TeamRepositoryInterface
         $uri = '/admin/teams/';
         $results = SearchRepo::of($teams, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
-            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
+            ->addColumn('Created_by', 'getUser')
+            ->addColumn('Status', 'getStatus')
+            ->addColumn('Logo', fn ($q) => '<a class="autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ? asset($q->logo) : asset('assets/images/teams/default_logo.png')) . '" /></a>')
             ->addActionItem(
                 [
                     'title' => 'Add Sources',
@@ -56,114 +52,42 @@ class TeamRepository implements TeamRepositoryInterface
             ->addFillable('website', 'website', ['input' => 'input', 'type' => 'url'])
             ->addFillable('tla', 'tla', ['input' => 'input', 'type' => 'text', 'capitalize' => true])
             ->addFillable('founded', 'founded', ['input' => 'input', 'type' => 'number'])
-            ->htmls(['Status', 'Crest'])
+            ->htmls(['Status', 'Logo'])
             ->removeFillable(['coach_id'])
             ->orderby('name');
 
         $results = $id ? $results->first() : $results->paginate(25);
 
-        return response(['results' => $results]);
+        $arr = ['results' => $results];
+
+        if (request()->without_response) return $arr;
+        return response($arr);
     }
 
-    function matches($id = null)
+    function matches($team_id = null)
     {
-        $all_params = request()->all_params;
 
-        if (is_array($all_params)) {
-            $team_id = $all_params['team_id'] ?? null;
-            $team_ids = $all_params['team_ids'] ?? null;
-            $playing = $all_params['playing'] ?? null;
-            $to_date = $all_params['to_date'] ?? Carbon::now()->format('Y-m-d');
-            $currentground = $all_params['currentground'] ?? null;
-            $season_id = $all_params['season_id'] ?? null;
-            $type = $all_params['type'] ?? null;
-            $order_by = $all_params['order_by'] ?? null;
-            $order_direction = $all_params['order_direction'] ?? 'desc';
-            $per_page = $all_params['per_page'] ?? null;
-            $without_response = $all_params['without_response'] ?? null;
-        } else {
-            $team_id = request()->team_id ?? null;
-            $team_ids = request()->team_ids ?? null;
-            $playing = request()->playing ?? null;
-            $to_date = request()->to_date ?? Carbon::now()->format('Y-m-d');
-            $currentground = request()->currentground ?? null;
-            $season_id = request()->season_id ?? null;
-            $type = request()->type ?? null;
-            $order_by = request()->order_by ?? null;
-            $order_direction = request()->order_direction ?? 'desc';
-            $per_page = request()->per_page ?? null;
-            $without_response = request()->without_response ?? null;
+        request()->merge(['team_id' => $team_id]);
+        $gameUtilities = new GameUtility();
+        $results = $gameUtilities->applyGameFilters();
+
+        if (request()->type == 'past' && request()->with_upcoming) {
+            request()->merge(['type' => 'upcoming', 'limit' => request()->upcoming_limit ?? 3, 'to_date' => null]);
+
+            if (request()->per_page) {
+                request()->merge(['per_page' => request()->per_page + request()->upcoming_limit ?? 3]);
+            }
+
+            $upcoming_results = $gameUtilities->applyGameFilters();
+            $results = $upcoming_results->union($results);
         }
 
-        if ($id) $team_id = $id;
+        $results = $gameUtilities->formatGames($results);
 
-        request()->merge(['order_by' => $order_by, 'order_direction' => $order_direction]);
+        $results = $results->paginate();
 
-        $homeWinVotes = function ($q) {
-            return $q->votes->where('winner', 'home')->count();
-        };
-
-        $drawVotes = function ($q) {
-            return $q->votes->where('winner', 'draw')->count();
-        };
-
-        $awayWinVotes = function ($q) {
-            return $q->votes->where('winner', 'away')->count();
-        };
-
-        $hasCurrentUserWinnerVote = function ($q) {
-            return !!$q->votes->where(function ($q) {
-                return $q->where('user_id', auth()->id())->orWhere('user_ip', request()->ip());
-            })->whereNotNull('winner')->first();
-        };
-
-        $teamsMatch = function ($q) use ($team_ids, $playing) {
-
-            return $q->where(function ($q) use ($team_ids, $playing) {
-                [$home_team_id, $away_team_id] = $team_ids;
-
-                $arr = [['home_team_id', $home_team_id], ['away_team_id', $away_team_id]];
-                $arr2 = [['home_team_id', $away_team_id], ['away_team_id', $home_team_id]];
-
-                if ($playing == 'home-away') {
-                    $q->where($arr);
-                } else {
-                    $q->where($arr)->orWhere($arr2);
-                }
-            });
-        };
-
-        // if ($currentground)
-        //     Log::info('currentground', [$currentground, $to_date]);
-
-        $games = Game::with(['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'home_team', 'away_team', 'score', 'votes', 'referees'])
-            ->when($team_id, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', $team_id)->orWhere('away_team_id', $team_id)))
-            ->when($team_ids, $teamsMatch)
-            ->when($currentground, fn ($q) => $currentground == 'home' ? $q->where('home_team_id', $team_id) : ($currentground == 'away' ? $q->where('away_team_id', $team_id) :  $q))
-            ->when($season_id, fn ($q) => $q->where('season_id', $season_id))
-
-            ->when($type, fn ($q) => $type == 'played' ? $q->where('utc_date', '<', $to_date) : ($type == 'upcoming' ? $q->where('utc_date', '>=', Carbon::now()) :  $q))
-            ->when($to_date, fn ($q) => $q->whereDate('utc_date', '<=', Carbon::parse($to_date)->format('Y-m-d')));
-
-        $uri = '/admin/matches/';
-        $results = SearchRepo::of($games, ['id'])
-            ->addColumn('is_future', fn ($q) => Carbon::parse($q->utc_date)->isFuture())
-            ->addColumn('full_time', fn ($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
-            ->addColumn('half_time', fn ($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
-            ->addColumn('home_win_votes', $homeWinVotes)
-            ->addColumn('draw_votes', $drawVotes)
-            ->addColumn('away_win_votes', $awayWinVotes)
-            ->addColumn('current_user_winner_vote', $hasCurrentUserWinnerVote)
-            ->addColumnWhen(true, 'home_team_league_details', fn ($q) => $this->teamLeagueDetails($q->home_team_id, $q->id))
-            ->addColumnWhen(true, 'away_team_league_details', fn ($q) => $this->teamLeagueDetails($q->away_team_id, $q->id))
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
-            ->addActionColumn('action', $uri, 'native')
-            ->htmls(['Status']);
-
-        $results = $results->paginate($per_page);
-
-        if ($without_response) {
+        if (request()->without_response || (isset(request()->all_params['without_response']))) {
+            request()->merge(['all_params' => null]);
             return $results;
         }
 
@@ -375,7 +299,7 @@ class TeamRepository implements TeamRepositoryInterface
         $uri = '/admin/teams/';
         $res = SearchRepo::of($teams, ['name', 'founded'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status', 'Crest'])

@@ -47,7 +47,7 @@ class UserRepository implements UserRepositoryInterface
             ->addFillable('two_factor_enabled', 'theme', ['input' => 'input', 'type' => 'checkbox'])
             ->addFillable('allowed_session_no', 'theme', ['input' => 'input', 'type' => 'number', 'min' => 1, 'max' => 10])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->htmls(['Status'])
             ->addColumn('action', function ($user) {
                 return '
@@ -112,7 +112,7 @@ class UserRepository implements UserRepositoryInterface
 
         $res = SearchRepo::of($user)
             ->addColumn('Created_by', 'Created_by')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addColumn('two_factor_enabled', fn ($q) => $q->two_factor_enabled ? 'Yes' : 'No')
             ->removeFillable(['password'])
             ->addFillable('roles_multilist', 'refresh_api_token', ['input' => 'select', 'type' => 'multi'])

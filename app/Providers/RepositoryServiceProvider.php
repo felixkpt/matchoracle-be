@@ -20,6 +20,8 @@ use App\Repositories\GamePrediction\GamePredictionRepository;
 use App\Repositories\GamePrediction\GamePredictionRepositoryInterface;
 use App\Repositories\GameSource\GameSourceRepository;
 use App\Repositories\GameSource\GameSourceRepositoryInterface;
+use App\Repositories\Odds\OddsRepository;
+use App\Repositories\Odds\OddsRepositoryInterface;
 use App\Repositories\Permission\PermissionRepository;
 use App\Repositories\Permission\PermissionRepositoryInterface;
 use App\Repositories\Post\Category\PostCategoryRepository;
@@ -76,6 +78,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(GamePredictionRepositoryInterface::class, GamePredictionRepository::class);
         $this->app->singleton(CompetitionStatisticsRepositoryInterface::class, CompetitionStatisticsRepository::class);
         $this->app->singleton(CompetitionPredictionStatisticsRepositoryInterface::class, CompetitionPredictionStatisticsRepository::class);
+        $this->app->singleton(OddsRepositoryInterface::class, OddsRepository::class);
     }
 
     /**

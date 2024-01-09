@@ -5,7 +5,7 @@ namespace App\Repositories\Season;
 use App\Models\Season;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
-use App\Services\GameSources\FootballDataStrategy;
+use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Http\Request;
 
@@ -22,21 +22,28 @@ class SeasonRepository implements SeasonRepositoryInterface
         $this->sourceContext = new GameSourceStrategy();
 
         // Set the desired game source (can switch between sources dynamically)
-        $this->sourceContext->setGameSourceStrategy(new FootballDataStrategy());
+        $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
     }
 
     public function index($id = null)
     {
 
         $seasons = $this->model::with(['competition', 'winner'])
+            ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
             ->when(request()->id, fn ($q) => $q->where('id', request()->id))
             ->when($id, fn ($q) => $q->where('id', $id));
 
         $uri = '/admin/seasons/';
         $results = SearchRepo::of($seasons, ['start_date'])
+            ->addColumn('Winner', fn ($q) => $q->winner->name ?? '-')
+            ->addColumn('Played', fn ($q) => '-')
+            ->addColumn('Fetched_standings', fn ($q) => $q->fetched_standings ?  'Yes' : 'No')
+            ->addColumn('Fetched_all_matches', fn ($q) => $q->fetched_all_matches ?  'Yes' : 'No')
+            ->addColumn('Fetched_all_single_matches', fn ($q) => $q->fetched_all_single_matches ?  'Yes' : 'No')
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Created_by', 'getUser')
+            ->addColumn('Status', 'getStatus')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status'])
             ->orderby('start_date', 'desc');

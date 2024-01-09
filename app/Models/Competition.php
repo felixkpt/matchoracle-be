@@ -22,14 +22,24 @@ class Competition extends Model
     'continent_id',
     'country_id',
 
-    'last_updated',
+    'seasons_last_fetch',
+    'standings_last_fetch',
+    'past_matches_last_fetch',
+    'upcoming_matches_last_fetch',
+    'single_matches_last_fetch',
+    'predictions_last_train',
+    'predictions_trained_to',
+    'stats_last_done',
+    'predictions_stats_last_done',
+    
     'games_per_season',
     'available_seasons',
-    'last_fetch',
-    'last_detailed_fetch',
+    'gender',
     'user_id',
     'status_id',
+    'has_standings',
     'has_teams',
+    'is_odds_enabled',
     'priority_number',
   ];
 

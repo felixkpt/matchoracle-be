@@ -26,7 +26,7 @@ $middleWares[] = 'auth:sanctum';
 
 Route::middleware(array_filter(array_merge($middleWares, [])))
     ->prefix($prefix)
-    ->group(function () use($nested_routes_folder) {
+    ->group(function () use ($nested_routes_folder) {
 
         $routes_path = base_path('routes/' . $nested_routes_folder);
 
@@ -40,7 +40,10 @@ Route::middleware(array_filter(array_merge($middleWares, [])))
                 $prefix = $res['prefix'];
                 $file_path = $res['file_path'];
 
-                Route::prefix($prefix)->group(function () use ($file_path) {
+                // Check if the current file is at the root of $routes_path
+                $isAtRoot = dirname($file->getPathname()) === $routes_path;
+
+                Route::prefix($isAtRoot ? '' : $prefix)->group(function () use ($file_path) {
                     require $file_path;
                 });
             }

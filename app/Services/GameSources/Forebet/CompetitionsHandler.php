@@ -7,19 +7,26 @@ use App\Models\Country;
 use App\Models\Coach;
 use App\Models\CoachContract;
 use App\Models\Competition;
-use App\Models\Season;
-use App\Models\Standing;
 use App\Models\Team;
 use App\Models\Venue;
-use App\Services\Client;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use stdClass;
-use Symfony\Component\DomCrawler\Crawler;
 
-class CompetitionsHandler extends BaseHandlerController
+class CompetitionsHandler
 {
+    use ForebetInitializationTrait;
+
+    protected $has_errors = false;
+    /**
+     * Constructor for the CompetitionsHandler class.
+     * 
+     * Initializes the strategy and calls the trait's initialization method.
+     */
+    public function __construct()
+    {
+        $this->initialize();
+    }
 
     function updateOrCreate($data)
     {

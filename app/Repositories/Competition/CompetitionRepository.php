@@ -2,26 +2,29 @@
 
 namespace App\Repositories\Competition;
 
+use App\Http\Controllers\Admin\Odds\OddsController;
 use App\Http\Controllers\Admin\Statistics\CompetitionsPredictionsStatisticsController;
 use App\Http\Controllers\Admin\Statistics\CompetitionsStatisticsController;
 use App\Http\Controllers\Admin\Teams\TeamsController;
 use App\Models\Competition;
+use App\Models\CompetitionPredictionStatistic;
+use App\Models\CompetitionStatistic;
 use App\Models\GameSource;
+use App\Models\Odd;
 use App\Models\Season;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
-use App\Services\GameSources\FootballDataStrategy;
+use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class CompetitionRepository implements CompetitionRepositoryInterface
 {
 
     use CommonRepoActions;
 
-    protected $sourceContext;
+    protected GameSourceStrategy $sourceContext;
 
     function __construct(protected Competition $model)
     {
@@ -29,35 +32,30 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         $this->sourceContext = new GameSourceStrategy();
 
         // Set the desired game source (can switch between sources dynamically)
-        $this->sourceContext->setGameSourceStrategy(new FootballDataStrategy());
+        $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
     }
 
     public function index($single = false, $id = null)
     {
 
-        $competitions = $this->model::with(['continent', 'country', 'currentSeason', 'seasons' => fn ($q) => $q->select(['id', 'competition_id', 'start_date', 'end_date', 'current_matchday', 'winner_id']), 'stages', 'gameSources'])
+        $competitions = $this->model::with(['continent', 'country', 'currentSeason', 'seasons' => fn ($q) => $q->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))->select(['id', 'competition_id', 'start_date', 'end_date', 'current_matchday', 'winner_id']), 'stages', 'gameSources'])
             ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
+            ->when(request()->is_odds_enabled == 1, fn ($q) => $q->where('is_odds_enabled', true))
+            ->when(request()->active_only == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->when($id, fn ($q) => $q->where('id', $id));
-
-        // Format the data as needed
-        $result = [
-            // 'country' => $competition->country,
-            // 'id' => $competition->id,
-            // 'name' => $competition->name,
-            // 'code' => $competition->code,
-            // 'type' => $competition->type,
-            // 'emblem' => $competition->emblem,
-            // 'season' => $competition->currentSeason,
-            // 'lastUpdated' => $competition->lastUpdated,
-        ];
 
         $uri = '/admin/competitions/';
         $results = SearchRepo::of($competitions, ['id', 'name', 'code', 'country.name', 'seasons.start_date', 'slug'])
             ->addColumn('season', fn ($q) => $q->currentSeason ? (Carbon::parse($q->currentSeason->start_date)->format('Y') . '/' . Carbon::parse($q->currentSeason->end_date)->format('Y')) : null)
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
-            ->addColumn('Emblem', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->emblem ?? asset('storage/football/defaultflag.png')) . '" />')
+            ->addColumn('Status', 'getStatus')
+            ->addColumn('Logo', fn ($q) => '<a class="autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ? asset($q->logo) : asset('assets/images/competitions/default_logo.png')) . '" /></a>')
             ->addColumn('Has_teams', fn ($q) => $q->has_teams ? 'Yes' : 'No')
+            ->addColumn('seasons_fetched', fn ($q) => $q->seasons_last_fetch ? Carbon::parse($q->seasons_last_fetch)->diffForHumans() : 'N/A')
+            ->addColumn('standings_fetched', fn ($q) => $q->standings_last_fetch ? Carbon::parse($q->standings_last_fetch)->diffForHumans() : 'N/A')
+            ->addColumn('p_matches_fetched', fn ($q) => $q->past_matches_last_fetch ? Carbon::parse($q->past_matches_last_fetch)->diffForHumans() : 'N/A')
+            ->addColumn('u_matches_fetched', fn ($q) => $q->upcoming_matches_last_fetch ? Carbon::parse($q->upcoming_matches_last_fetch)->diffForHumans() : 'N/A')
+            ->addColumn('odds', fn ($q) => Odd::whereHas('game', fn ($qry) => $qry->where('competition_id', $q->id))->count())
             ->addActionItem(
                 [
                     'title' => 'Add Sources',
@@ -66,10 +64,10 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                 'Update status'
             )
             ->addActionColumn('action', $uri, 'native')
-            ->htmls(['Status', 'Emblem'])
+            ->htmls(['Status', 'Logo'])
             ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
             ->addFillable('has_teams', 'has_teams', ['input' => 'select'])
-            ->orderby('priority_number');
+            ->orderby('id');
 
         $results = $single ? $results->first() : $results->paginate();
 
@@ -125,10 +123,10 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                 $is_subscribed = Carbon::parse($subscription_expires)->isFuture();
             }
 
-            $arr = ['uri' => $item['uri'], 'source_id' => $item['source_id'], 'competition_game_source.subscription_expires' => $subscription_expires, 'competition_game_source.is_subscribed' => $is_subscribed];
+            $arr = ['source_uri' => $item['source_uri'], 'source_id' => $item['source_id'], 'competition_game_source.subscription_expires' => $subscription_expires, 'competition_game_source.is_subscribed' => $is_subscribed];
 
             // Check if $item (URI && source_id) is not null before proceeding
-            if ($item['uri'] || $item['source_id']) {
+            if ($item['source_uri'] || $item['source_id']) {
                 // Check if the game source with the given ID doesn't exist
                 if (!$competition->gameSources()->where('game_source_id', $key)->exists()) {
                     // Attach the relationship with the URI & or source_id
@@ -147,18 +145,12 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
     function fetchSeasons($id, $data)
     {
-        $season_id = $data['season_id'];
 
         $competition = $this->model::findOrFail($id);
 
-        $competitions = $this->sourceContext->competitions();
+        $seasonsHandler = $this->sourceContext->seasonsHandler();
 
-        $season = null;
-        if ($season_id) {
-            $season = Carbon::parse(Season::find($season_id)->start_date)->format('Y');
-        }
-
-        return $competitions->fetchSeasons($competition->id, $season);
+        return $seasonsHandler->fetchSeasons($competition->id);
     }
 
     function fetchStandings($id, $data)
@@ -167,25 +159,21 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $competition = $this->model::findOrFail($id);
 
-        $competitions = $this->sourceContext->competitions();
+        $standingsHandler = $this->sourceContext->standingsHandler();
 
-        $season = Carbon::parse(Season::find($season_id)->start_date)->format('Y');
-
-        return $competitions->fetchStandings($competition->id, $season);
+        return $standingsHandler->fetchStandings($competition->id, $season_id);
     }
 
     function fetchMatches($id, $data)
     {
         $season_id = $data['season_id'];
-        $matchday = $data['matchday'];
+        $is_fixtures = !!request()->is_fixtures;
 
         $competition = $this->model::findOrFail($id);
 
-        $matches = $this->sourceContext->matches();
+        $matchesHandler = $this->sourceContext->matchesHandler();
 
-        $season = Carbon::parse(Season::find($season_id)->start_date)->format('Y');
-
-        return $matches->fetchMatches($competition->id, $season, $matchday);
+        return $matchesHandler->fetchMatches($competition->id, $season_id, $is_fixtures);
     }
 
     function listSources($id)
@@ -197,7 +185,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         $uri = '/admin/countries/';
         $res = SearchRepo::of($gamesources, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addActionColumn('action', $uri)
             ->htmls(['Status'])
             ->orderBy('name')
@@ -214,7 +202,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         $uri = '/admin/countries/';
         $res = SearchRepo::of($seasons, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addActionColumn('action', $uri)
             ->htmls(['Status'])
             ->orderBy('start_date')
@@ -242,12 +230,22 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $competition = $query->findOrFail($id);
 
-        return response(['results' => $competition]);
+        $arr = ['results' => $competition];
+
+        if (request()->without_response) return $arr;
+        return response($arr);
     }
 
     function teams($id)
     {
         return app(TeamsController::class)->index($id);
+    }
+
+    function odds($id)
+    {
+        request()->merge(['competition_id' => $id]);
+
+        return app(OddsController::class)->index();
     }
 
     function statistics($id)
@@ -258,5 +256,35 @@ class CompetitionRepository implements CompetitionRepositoryInterface
     function predictionStatistics($id)
     {
         return app(CompetitionsPredictionsStatisticsController::class)->index($id);
+    }
+
+    function doStatistics($id)
+    {
+        request()->merge(['competition_id' => $id, 'without_response' => true]);
+
+        $data = app(CompetitionsStatisticsController::class)->store();
+        $data2 = app(CompetitionsPredictionsStatisticsController::class)->store();
+
+        $messages = $data['message'] . ' ' . $data2['message'];
+        $results = [];
+
+        return response(['message' => $messages, 'results' => $results]);
+    }
+
+    function tabs($id)
+    {
+        return response(['results' => [
+            "standings" => $this->model::find($id)->seasons()->whereHas('standings')->count(),
+            "teams" => $this->model::find($id)->teams()->count(),
+            "past-matches" => $this->model::find($id)->games()->where('utc_date', '<=', Carbon::now())->count(),
+            "upcoming-matches" => $this->model::find($id)->games()->where('utc_date', '>=', Carbon::now())->count(),
+            "past-predictions" => $this->model::find($id)->games()->whereHas('prediction')->where('utc_date', '<=', Carbon::now())->count(),
+            "upcoming-predictions" => $this->model::find($id)->games()->whereHas('prediction')->where('utc_date', '>=', Carbon::now())->count(),
+            "odds" => Odd::whereHas('game', fn ($q) => $q->where('competition_id', $id))->count(),
+            "statistics" => CompetitionStatistic::where('competition_id', $id)->count() + CompetitionPredictionStatistic::where('competition_id', $id)->count(),
+            "seasons" => $this->model::find($id)->seasons()->count(),
+            "details" => 1,
+            "sources" => $this->model::find($id)->gameSources()->count(),
+        ]]);
     }
 }

@@ -36,7 +36,7 @@ class Games
      * This function sits in between DBActions and any Source
      * 
      * */
-    function detailedFixture($id, $autoModel, $is_competition = false, $ignore_update_status = false, $existing_competition = null)
+    function detailedFixture($id, $autoModel, $is_competition = false, $ignore_results_status = false, $existing_competition = null)
     {
         $this->existing_competition = $existing_competition;
         $table = $autoModel->getTable();
@@ -50,7 +50,7 @@ class Games
             ->whereNotNull($table . '.url')
             ->when($is_competition === true, fn ($q) => $q->where('competition_id', $id))
             ->when($is_competition === false, fn ($q) => $q->where('home_team_id', $id)->orwhere('away_team_id', $id))
-            ->when($ignore_update_status === false, fn ($q) => $q->where('update_status', 0))
+            ->when($ignore_results_status === false, fn ($q) => $q->where('results_status', 0))
             ->leftjoin('competitions', $table . '.competition_id', 'competitions.id')
             ->leftjoin('countries', 'competitions.country_id', 'countries.id')
             ->select(

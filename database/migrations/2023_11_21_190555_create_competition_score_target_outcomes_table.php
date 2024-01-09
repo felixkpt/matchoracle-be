@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('competition_score_target_outcomes', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->string('prediction_type');
             $table->unsignedBigInteger('competition_id');
             $table->unsignedBigInteger('train_counts');
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->date('from_date');
             $table->date('to_date');
 
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });

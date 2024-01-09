@@ -24,7 +24,7 @@ class CoachContractRepository implements CoachContractRepositoryInterface
         $uri = '/admin/teams/contracts';
         $statuses = SearchRepo::of($teams, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status', 'Crest'])
             ->addFillable('start', 'start', ['input' => 'input', 'type' => 'date'])

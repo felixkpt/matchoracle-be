@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Statistics;
 
+use App\Models\Competition;
 use App\Models\CompetitionPredictionStatistic;
 use App\Models\Game;
 use App\Models\Season;
@@ -25,8 +26,10 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
     function index()
     {
 
+        sleep(0);
+
         $results = $this->model
-            ->where('prediction_type_id', request()->prediction_type_id ?? 2)
+            ->where('prediction_type_id', default_prediction_type())
             ->where('competition_id', request()->competition_id)
             ->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))
             ->when(request()->from_date, fn ($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
@@ -43,7 +46,12 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
         $season = Season::find(request()->season_id);
         $season_id = $season->id ?? 0;
 
-        request()->merge(['prediction_type_id' => request()->prediction_type_id ?? 2, 'per_page' => 2000, 'order_by' => 'utc_date', 'order_direction' => 'asc', 'to_date' => Carbon::now()->format('Y-m-d')]);
+        request()->merge([
+            'prediction_type_id' => request()->prediction_type_id ?? 2, 'per_page' => 2000,
+            'order_by' => 'utc_date', 'order_direction' => 'asc', 'to_date' => Carbon::now()->format('Y-m-d'),
+            'without_response' => true,
+            'show_predictions' => true,
+        ]);
 
         $games = $this->gameRepositoryInterface->index(null, true);
 
@@ -104,12 +112,14 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
         $full_time_under35_preds = 0;
         $full_time_under35_preds_true = 0;
 
-        $games = $games['data'];
+        $games = $games['results']['data'];
         $ct = count($games);
 
-        echo "Total games: $ct\n\n";
+        // echo "Total games: $ct\n\n";
 
-        $unique_dates_counts = count(array_unique(array_map(fn ($c) => Carbon::parse($c)->format('Y-m-d'), array_column($games, 'utc_date'))));
+        $unique_dates_counts = count(array_unique(
+            array_map(fn ($c) => Carbon::parse($c)->format('Y-m-d'), array_column($games, 'utc_date'))
+        ));
         Log::info("Unique date counts: {$unique_dates_counts}");
 
         $matchday = 0;
@@ -122,14 +132,14 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
             $score = $game['score'];
             $matchday = $game['matchday'];
 
-            echo "Date: {$date}, Game:{$id}\n";
+            // echo "Date: {$date}, Game:{$id}\n";
 
             if (!$score) {
-                echo "No scores.\n";
+                // echo "No scores.\n";
                 continue;
             }
 
-            echo "FT: " . $score['home_scores_full_time'] . " - " . $score['away_scores_full_time'] . "\n";
+            // echo "FT: " . $score['home_scores_full_time'] . " - " . $score['away_scores_full_time'] . "\n";
 
             $hasResults = GameComposer::hasResults($game);
 
@@ -325,49 +335,61 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
             $arr = [
                 'counts' => $counts,
 
+                'full_time_home_wins_counts' => $full_time_home_wins_counts,
                 'full_time_home_wins_preds' => $full_time_home_wins_preds,
                 'full_time_home_wins_preds_true' => $full_time_home_wins_preds_true,
                 'full_time_home_wins_preds_true_percentage' => $full_time_home_wins_preds_true_percentage,
 
+                'full_time_draws_counts' => $full_time_draws_counts,
                 'full_time_draws_preds' => $full_time_draws_preds,
                 'full_time_draws_preds_true' => $full_time_draws_preds_true,
                 'full_time_draws_preds_true_percentage' => $full_time_draws_preds_true_percentage,
 
+                'full_time_away_wins_counts' => $full_time_away_wins_counts,
                 'full_time_away_wins_preds' => $full_time_away_wins_preds,
                 'full_time_away_wins_preds_true' => $full_time_away_wins_preds_true,
                 'full_time_away_wins_preds_true_percentage' => $full_time_away_wins_preds_true_percentage,
 
-                'full_time_ng_preds' => $full_time_ng_preds,
-                'full_time_ng_preds_true' => $full_time_ng_preds_true,
-                'full_time_ng_preds_true_percentage' => $full_time_ng_preds_true_percentage,
-
+                'full_time_gg_counts' => $full_time_gg_counts,
                 'full_time_gg_preds' => $full_time_gg_preds,
                 'full_time_gg_preds_true' => $full_time_gg_preds_true,
                 'full_time_gg_preds_true_percentage' => $full_time_gg_preds_true_percentage,
 
+                'full_time_ng_counts' => $full_time_ng_counts,
+                'full_time_ng_preds' => $full_time_ng_preds,
+                'full_time_ng_preds_true' => $full_time_ng_preds_true,
+                'full_time_ng_preds_true_percentage' => $full_time_ng_preds_true_percentage,
+
+                'full_time_over15_counts' => $full_time_over15_counts,
                 'full_time_over15_preds' => $full_time_over15_preds,
                 'full_time_over15_preds_true' => $full_time_over15_preds_true,
                 'full_time_over15_preds_true_percentage' => $full_time_over15_preds_true_percentage,
 
+                'full_time_under15_counts' => $full_time_under15_counts,
                 'full_time_under15_preds' => $full_time_under15_preds,
                 'full_time_under15_preds_true' => $full_time_under15_preds_true,
                 'full_time_under15_preds_true_percentage' => $full_time_under15_preds_true_percentage,
 
+                'full_time_over25_counts' => $full_time_over25_counts,
                 'full_time_over25_preds' => $full_time_over25_preds,
                 'full_time_over25_preds_true' => $full_time_over25_preds_true,
                 'full_time_over25_preds_true_percentage' => $full_time_over25_preds_true_percentage,
 
+                'full_time_under25_counts' => $full_time_under25_counts,
                 'full_time_under25_preds' => $full_time_under25_preds,
                 'full_time_under25_preds_true' => $full_time_under25_preds_true,
                 'full_time_under25_preds_true_percentage' => $full_time_under25_preds_true_percentage,
 
+                'full_time_over35_counts' => $full_time_over35_counts,
                 'full_time_over35_preds' => $full_time_over35_preds,
                 'full_time_over35_preds_true' => $full_time_over35_preds_true,
                 'full_time_over35_preds_true_percentage' => $full_time_over35_preds_true_percentage,
 
+                'full_time_under35_counts' => $full_time_under35_counts,
                 'full_time_under35_preds' => $full_time_under35_preds,
                 'full_time_under35_preds_true' => $full_time_under35_preds_true,
                 'full_time_under35_preds_true_percentage' => $full_time_under35_preds_true_percentage,
+
                 'average_score' => $average_score,
 
             ];
@@ -417,8 +439,12 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
                     )
                 );
             }
-
-            dump('end');
         }
+
+        Competition::find($competition_id)->update(['predictions_stats_last_done' => now()]);
+
+        $arr = ['message' => 'Successfully done predictions stats.', 'results' => ['updated' => $counts]];
+        if (request()->without_response) return $arr;
+        return response($arr);
     }
 }

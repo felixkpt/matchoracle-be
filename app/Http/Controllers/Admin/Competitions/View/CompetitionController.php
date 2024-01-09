@@ -113,8 +113,8 @@ class CompetitionController extends Controller
 
         $competition = $this->competitionRepositoryInterface->model::findById($id, ['*']);
 
-        $games = $game->where('competition_id', $id)->where('update_status', 0)->get();
-        $recently_fetched_games = $game->where('competition_id', $id)->where('update_status', '>', 0)->get();
+        $games = $game->where('competition_id', $id)->where('results_status', 0)->get();
+        $recently_fetched_games = $game->where('competition_id', $id)->where('results_status', '>', 0)->get();
 
         $competition = array_merge($competition->toArray(), ['games' => $games->toArray(), 'recentlyFetchedGames' => $recently_fetched_games->toArray()]);
 
@@ -178,14 +178,28 @@ class CompetitionController extends Controller
         return $this->competitionRepositoryInterface->teams($id);
     }
 
+    function odds($id)
+    {
+        return $this->competitionRepositoryInterface->odds($id);
+    }
+    
     function statistics($id)
     {
         return $this->competitionRepositoryInterface->statistics($id);
     }
-
+    
     function predictionStatistics($id)
     {
         return $this->competitionRepositoryInterface->predictionStatistics($id);
+    }
+    
+    function doStatistics($id)
+    {
+        return $this->competitionRepositoryInterface->doStatistics($id);
+    }
+    function tabs($id)
+    {
+        return $this->competitionRepositoryInterface->tabs($id);
     }
 
     function updateStatus($id)

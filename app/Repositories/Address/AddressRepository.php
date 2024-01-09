@@ -27,7 +27,7 @@ class AddressRepository implements AddressRepositoryInterface
         $statuses = SearchRepo::of($teams, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status'])
             ->orderby('name')
@@ -75,7 +75,7 @@ class AddressRepository implements AddressRepositoryInterface
         $uri = '/admin/teams/address';
         $statuses = SearchRepo::of($team, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status'])
             ->first();
@@ -157,7 +157,7 @@ class AddressRepository implements AddressRepositoryInterface
         $uri = '/admin/teams/';
         $res = SearchRepo::of($teams, ['name', 'founded'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status', 'Crest'])

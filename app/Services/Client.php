@@ -2,16 +2,12 @@
 
 namespace App\Services;
 
-use App\Services\Filerepo\FileRepo;
-use Illuminate\Http\File;
-use Illuminate\Http\UploadedFile;
+use Exception;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 
 class Client
 {
@@ -27,7 +23,7 @@ class Client
             $browser = new HttpBrowser(HttpClient::create());
             $browser->request('GET', $request);
             return $browser->getResponse();
-        } catch (ClientExceptionInterface | ServerExceptionInterface $e) {
+        } catch (Exception $e) {
             Log::critical("Network error:", ['message' => $e->getMessage()]);
             return null;
         }
@@ -57,54 +53,45 @@ class Client
         return $response ? $response->getStatusCode() : null;
     }
 
-
-    public static function downloadFileFromUrl($url, $destinationPath, $filename = null, $record = null)
+    /**
+     * Download a file from a given URL and save it to a specified destination path.
+     *
+     * @param string $url               The URL of the file to be downloaded.
+     * @param string $destinationPath   The local destination path to save the downloaded file.
+     *
+     * @return string|null              The path where the file is saved, or null on failure.
+     */
+    public static function downloadFileFromUrl($url, $destinationPath)
     {
+        // Combine destination path and filename
+        $filePath = rtrim($destinationPath, '/');
+
         try {
-            $client = HttpClient::create();
-            $response = $client->request('GET', $url);
+            // Download the file content
+            $fileContent = file_get_contents($url);
 
-            if ($response->getStatusCode() === 200) {
-
-                $content = $response->getContent();
-
-                // Generate a temporary file path to store the content
-                $tempFilePath = tempnam(sys_get_temp_dir(), 'temp_') . $filename;
-
-                // Save the content to the temporary file
-                file_put_contents($tempFilePath, $content);
-
-                // Create a Symfony File instance from the temporary file
-                $file = new File($tempFilePath);
-
-                // Create an UploadedFile instance from the Symfony File object
-                $uploadedFile = new UploadedFile(
-                    $file->getRealPath(),
-                    $filename,
-                    $file->getMimeType(),
-                    $file->getSize(),
-                    false,
-                    true
-                );
-
-                // Save the uploaded file using FileRepo
-                FileRepo::uploadFile($record, $uploadedFile, $destinationPath, $filename, null, true, null, 1, !!$record);
-
-                // Remove the temporary file
-                unlink($tempFilePath);
-
-                return $destinationPath . '/' . $filename; // File downloaded and saved successfully, return the file path
-
-            } else {
-                return null; // Failed to download file, return null
+            if ($fileContent === false) {
+                // Handle download failure
+                return null;
             }
-        } catch (TransportExceptionInterface | TimeoutExceptionInterface $e) {
-            // Handle network errors
-            Log::critical("Network error:", ['message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            // Log the exception for further analysis
+            Log::error('Error downloading content: ' . $e->getMessage());
             return null;
-        } catch (\Throwable $e) {
-            // Handle any other unexpected errors
-            Log::error("Unexpected error:", ['message' => $e->getMessage()]);
+        }
+
+        try {
+
+            File::ensureDirectoryExists(storage_path() . '/app/' . dirname($destinationPath));
+
+            // Store the downloaded file content to the specified path
+            Storage::disk('local')->put($filePath, $fileContent);
+
+            // Return the path where the file is saved
+            return $filePath;
+        } catch (Exception $e) {
+            // Log the exception for further analysis
+            Log::error('Error creating directory: ' . $e->getMessage());
             return null;
         }
     }

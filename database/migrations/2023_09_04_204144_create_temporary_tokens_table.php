@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('temporary_tokens', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->string('token', 32)->unique();
             $table->timestamp('expires_at');

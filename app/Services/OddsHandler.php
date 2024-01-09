@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Game;
+use App\Models\Odd;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Schema\Blueprint;
@@ -9,48 +11,57 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
-class Odds
+class OddsHandler
 {
-    static function save($data)
+    static function updateOrCreate($data)
     {
 
-        if (count($data['one_x_two']) !== 3)
+        if (count($data['one_x_two_odds']) !== 3)
             return false;
 
-        $table = Carbon::parse($data['date_time'])->format('Y') . '_odds';
-        self::createTable($table);
-
-        $odds = autoModel($table);
+        if ($data['competition'] && !$data['competition']['is_odds_enabled']) {
+            $competition = $data['competition'];
+            $competition->is_odds_enabled = true;
+            $competition->save();
+        }
 
         try {
             DB::beginTransaction();
 
-            $odds->updateOrCreate(['home_team' => $data['home_team'], 'away_team' => $data['away_team'], 'date' => $data['date'], 'game_id' => $data['game_id'] ?? null], [
-                'date_time' => $data['date_time'],
-                'year' => $data['year'],
-                'date' => $data['date'],
-                'time' => $data['time'],
-                'has_time' => $data['has_time'],
-                'home_team' => $data['home_team'],
-                'away_team' => $data['away_team'],
-                'home_win_odds' => $data['one_x_two'][0],
-                'draw_odds' => $data['one_x_two'][1],
-                'away_win_odds' => $data['one_x_two'][2],
-                'over_odds' => $data['over_under'][0] ?? null,
-                'under_odds' => $data['over_under'][1] ?? null,
-                'gg_odds' => $data['gg_ng'][0] ?? null,
-                'ng_odds' => $data['gg_ng'][1] ?? null,
-                'game_id' => $data['game_id'] ?? null,
-                'competition_id' => $data['competition_id'] ?? null,
-                'source' => $data['source'] ?? null,
-            ]);
+            $res = Odd::updateOrCreate(
+                [
+                    'home_team' => $data['home_team'], 'away_team' => $data['away_team'],
+                    'utc_date' => $data['utc_date'], 'game_id' => $data['game_id'] ?? null
+                ],
+                [
+                    'utc_date' => $data['utc_date'],
+                    'has_time' => $data['has_time'],
+                    'home_team' => $data['home_team'],
+                    'away_team' => $data['away_team'],
+                    'home_win_odds' => $data['one_x_two_odds'][0],
+                    'draw_odds' => $data['one_x_two_odds'][1],
+                    'away_win_odds' => $data['one_x_two_odds'][2],
+
+                    'under_25_odds' => $data['over_under_odds'][0] ?? null,
+                    'over_25_odds' => $data['over_under_odds'][1] ?? null,
+                    
+                    'gg_odds' => $data['gg_ng_odds'][0] ?? null,
+                    'ng_odds' => $data['gg_ng_odds'][1] ?? null,
+                    
+                    'game_id' => $data['game_id'] ?? null,
+                    'source_id' => $data['source_id'] ?? null,
+                ]
+            );
+
+            if (isset($data['game_id'])) {
+                Game::find($data['game_id'])->odds()->sync($res);
+            }
 
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             Log::info('Odds save failed:', ['err' => $e->getMessage(), 'data' => $data]);
         }
-
     }
 
     static function whereGame($game)
@@ -66,7 +77,7 @@ class Odds
         if (!Schema::hasTable($table)) {
             Schema::create($table, function (Blueprint $table) {
                 $table->uuid('id')->primary();
-                $table->dateTime('date_time');
+                $table->dateTime('utc_date');
                 $table->year('year');
                 $table->date('date');
                 $table->time('time')->nullable();

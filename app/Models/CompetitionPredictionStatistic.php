@@ -17,46 +17,57 @@ class CompetitionPredictionStatistic extends Model
         'matchday',
         'counts',
 
+        'full_time_home_wins_counts',
         'full_time_home_wins_preds',
         'full_time_home_wins_preds_true',
         'full_time_home_wins_preds_true_percentage',
 
+        'full_time_draws_counts',
         'full_time_draws_preds',
         'full_time_draws_preds_true',
         'full_time_draws_preds_true_percentage',
 
+        'full_time_away_wins_counts',
         'full_time_away_wins_preds',
         'full_time_away_wins_preds_true',
         'full_time_away_wins_preds_true_percentage',
 
+        'full_time_gg_counts',
         'full_time_gg_preds',
         'full_time_gg_preds_true',
         'full_time_gg_preds_true_percentage',
 
+        'full_time_ng_counts',
         'full_time_ng_preds',
         'full_time_ng_preds_true',
         'full_time_ng_preds_true_percentage',
 
+        'full_time_over15_counts',
         'full_time_over15_preds',
         'full_time_over15_preds_true',
         'full_time_over15_preds_true_percentage',
 
+        'full_time_under15_counts',
         'full_time_under15_preds',
         'full_time_under15_preds_true',
         'full_time_under15_preds_true_percentage',
 
+        'full_time_over25_counts',
         'full_time_over25_preds',
         'full_time_over25_preds_true',
         'full_time_over25_preds_true_percentage',
 
+        'full_time_under25_counts',
         'full_time_under25_preds',
         'full_time_under25_preds_true',
         'full_time_under25_preds_true_percentage',
 
+        'full_time_over35_counts',
         'full_time_over35_preds',
         'full_time_over35_preds_true',
         'full_time_over35_preds_true_percentage',
 
+        'full_time_under35_counts',
         'full_time_under35_preds',
         'full_time_under35_preds_true',
         'full_time_under35_preds_true_percentage',

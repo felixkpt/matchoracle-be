@@ -26,14 +26,15 @@ class GameSourceRepository implements GameSourceRepositoryInterface
             $statuses = $statuses->where('status_id', Status::where('name', 'active')->first()->id);
 
         $uri = '/admin/settings/picklists/game-sources/';
-        $statuses = SearchRepo::of($statuses, ['id', 'name'])
+        $results = SearchRepo::of($statuses, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Created_by', 'getUser')
+            ->addColumn('Status', 'getStatus')
             ->addActionColumn('action', $uri)
             ->htmls(['Status'])
-            ->paginate();;
+            ->paginate();
 
-        return response(['results' => $statuses]);
+        return response(['results' => $results]);
     }
 
     public function store(Request $request, $data)

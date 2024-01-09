@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin\Statistics;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\Statistics\CompetitionStatisticsRepositoryInterface;
-use Illuminate\Http\Request;
 
 class CompetitionsStatisticsController extends Controller
 {

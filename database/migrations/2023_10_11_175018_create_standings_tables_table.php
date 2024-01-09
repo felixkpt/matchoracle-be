@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('standing_tables', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('season_id');
             $table->unsignedBigInteger('standing_id');
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->unsignedInteger('goals_for');
             $table->unsignedInteger('goals_against');
             $table->integer('goal_difference');
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });

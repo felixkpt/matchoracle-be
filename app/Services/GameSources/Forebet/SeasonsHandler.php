@@ -2,42 +2,45 @@
 
 namespace App\Services\GameSources\Forebet;
 
-use App\Models\Competition;
 use App\Models\Season;
 use App\Services\Client;
+use App\Services\Common;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use stdClass;
 use Symfony\Component\DomCrawler\Crawler;
 
-class SeasonsHandler extends BaseHandlerController
+class SeasonsHandler
 {
 
-    function fetchSeasons($competition_id, $season = null)
+    use ForebetInitializationTrait;
+
+    protected $has_errors = false;
+    /**
+     * Constructor for the CompetitionsHandler class.
+     * 
+     * Initializes the strategy and calls the trait's initialization method.
+     */
+    public function __construct()
+    {
+        $this->initialize();
+    }
+
+    function fetchSeasons($competition_id)
     {
 
-        $competition = Competition::whereHas('gameSources', function ($q) use ($competition_id) {
-            $q->where('competition_id', $competition_id);
-        })->first();
+        $results = $this->prepareFetch($competition_id);
 
-        if (!$competition) {
-            return response(['message' => 'Competition #' . $competition_id . ' not found.'], 404);
-        }
-
-        // Access the source_id value for the pivot
-        $source = $competition->gameSources()->where('game_source_id', $this->sourceId)->first();
-        if (!$source) {
-            return response(['message' => 'Source for competition #' . $competition_id . ' not found.'], 404);
-        }
-
-        $source = $source->pivot;
-
-        if (!$source->is_subscribed) {
-            return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
-        }
+        if (is_array($results) && $results['message'] === true) {
+            [$competition, $season, $source, $season_str] = $results['data'];
+        } else return $results;
 
         $url = $this->sourceUrl . ltrim($source->source_uri, '/');
-        echo ($url) . "\n";
+        // echo ($url) . "\n";
 
         $content = Client::get($url);
+        if (!$content) return $this->inaccessibleMessage();
+
         $crawler = new Crawler($content);
 
         // Extracted data from the HTML will be stored in this array
@@ -54,20 +57,53 @@ class SeasonsHandler extends BaseHandlerController
             }
         });
 
+        if (!$competition->logo) {
+
+            $elem = $crawler->filter('.contentmiddle h1.frontH img[alt="league_logo"]');
+            if ($elem->count() == 1) {
+                $img_src = $elem->attr('src');
+                $path = Common::saveCompetitionLogo($img_src, $competition);
+
+                if ($path) {
+                    $competition->logo = $path;
+                    $competition->save();
+                }
+            }
+        }
 
         $country = $competition->country;
 
         $seasonsData = $seasons;
 
+        $saved = $updated = 0;
         foreach ($seasonsData as $key => $seasonData) {
             $is_current = ($key == 0);
 
             if ($seasonData->startDate) {
-                (new self())::updateOrCreate($seasonData, $country, $competition, $is_current);
+                $season = (new self())::updateOrCreate($seasonData, $country, $competition, $is_current);
+
+                if ($season->wasRecentlyCreated) {
+                    $saved++;
+                } else {
+                    $updated++;
+                }
             }
         }
 
-        return response(['message' => 'Seasons for ' . $competition->name . ' updated.']);
+        $message = 'Seasons for ' . $competition->name . ' saved/updated. ';
+        $message .= $saved . ' seasons saved, ' . $updated . ' seasons updated.';
+
+        if (!$this->has_errors) {
+            $arr = ['seasons_last_fetch' => Carbon::now()];
+
+            $competition->update($arr);
+        }
+
+        $response = ['message' => $message, 'results' => ['saved_updated' => $saved + $updated]];
+
+        if (request()->without_response) return $response;
+
+        return response($response);
     }
 
     static function updateOrCreate($seasonData, $country, $competition, $is_current = false, $played_matches = null)

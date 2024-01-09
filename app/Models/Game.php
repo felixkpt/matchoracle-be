@@ -21,6 +21,7 @@ class Game extends Model
         'matchday',
         'stage',
         'group',
+        'results_status',
         'last_updated',
         'last_fetch',
         'priority_number',
@@ -33,12 +34,12 @@ class Game extends Model
         return $this->belongsTo(Competition::class);
     }
 
-    public function home_team()
+    public function homeTeam()
     {
         return $this->belongsTo(Team::class, 'home_team_id');
     }
 
-    public function away_team()
+    public function awayTeam()
     {
         return $this->belongsTo(Team::class, 'away_team_id');
     }
@@ -55,13 +56,19 @@ class Game extends Model
 
     public function prediction()
     {
-        return $this->hasOne(GamePrediction::class)->where('prediction_type_id', request()->prediction_type_id ?? 2);
+        return $this->hasOne(GamePrediction::class)->where('prediction_type_id', default_prediction_type());
     }
 
     public function gameSources()
     {
         return $this->belongsToMany(GameSource::class)->withPivot(['source_uri', 'source_id'])->withTimestamps();
     }
+
+    public function odds()
+    {
+        return $this->belongsToMany(Odd::class)->withTimestamps();
+    }
+
 
     public function referees()
     {

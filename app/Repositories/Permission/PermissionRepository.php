@@ -32,8 +32,9 @@ class PermissionRepository implements PermissionRepositoryInterface
         $uri = '/admin/settings/role-permissions/permissions/';
         $permissions = SearchRepo::of($permissions, ['name', 'id'])
             ->fillable(['name', 'guard_name'])
+            ->addColumn('Created_by', 'getUser')
+            ->addColumn('Status', 'getStatus')
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
             ->addActionColumn('action', $uri)
             ->htmls(['Status'])
             ->paginate();

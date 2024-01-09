@@ -22,7 +22,7 @@ class CountryRepository implements CountryRepositoryInterface
     public function index($filter = false, $ids = null)
     {
 
-        $countries = $this->model::with(['continent', 'competitions'])
+        $countries = $this->model::where('has_competitions', true)->where('continent_id', '!=', get_world_id())->with(['continent', 'competitions'])
             ->when($filter, fn ($q) => $q->whereIn('id', $ids));
 
         Log::critical("country message", [Storage::disk('local')->get('')]);
@@ -30,10 +30,10 @@ class CountryRepository implements CountryRepositoryInterface
         $uri = '/admin/countries/';
         $res = SearchRepo::of($countries, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
-            ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->flag ?? asset('storage/football/defaultflag.png')) . '" />')
+            ->addColumn('Status', 'getStatus')
+            ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->flag ? asset($q->flag) : asset('storage/football/defaultflag.png')) . '" />')
             ->addColumn('has_competitions', fn ($q) =>  $q->has_competitions ? 'Yes' : 'No')
-            ->addActionColumn('action', $uri)
+            ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status', 'Flag'])
             ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
             ->addFillable('has_competitions', 'has_competitions', ['input' => 'select'])
@@ -72,7 +72,7 @@ class CountryRepository implements CountryRepositoryInterface
         $uri = '/admin/countries/';
         $statuses = SearchRepo::of($competition, ['id', 'name', 'slug'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addColumn('has_competitions', fn ($q) =>  $q->has_competitions ? 'Yes' : 'No')
             ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->emblem ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addActionColumn('action', $uri)
@@ -98,7 +98,7 @@ class CountryRepository implements CountryRepositoryInterface
         // Apply search and sorting using SearchRepo
         $searchRepo = SearchRepo::of($queryBuilder, $searchableColumns, $sortableColumns)
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->emblem ?? asset('storage/football/defaultflag.png')) . '" />')
             ->htmls(['Flag']);
 

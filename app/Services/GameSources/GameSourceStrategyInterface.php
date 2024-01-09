@@ -2,19 +2,66 @@
 
 namespace App\Services\GameSources;
 
+/**
+ * Interface GameSourceStrategyInterface
+ * 
+ * This interface defines the contract for various strategies used by game sources.
+ */
 interface GameSourceStrategyInterface
 {
+    /**
+     * Get the unique identifier for the game source strategy.
+     * 
+     * @return string
+     */
     public function getId();
 
-    public function initialCompetitions();
+    /**
+     * Get the handler for initial competitions data.
+     * 
+     * @return InitialCompetitionsHandler
+     */
+    public function initialCompetitionsHandler();
 
-    public function competitions();
+    /**
+     * Get the handler for competitions data.
+     * 
+     * @return CompetitionsHandler
+     */
+    public function competitionsHandler();
 
-    public function seasons();
+    /**
+     * Get the handler for seasons data.
+     * 
+     * @return SeasonsHandler
+     */
+    public function seasonsHandler();
 
-    public function standings();
+    /**
+     * Get the handler for standings data.
+     * 
+     * @return StandingsHandler
+     */
+    public function standingsHandler();
 
-    public function teams();
+    /**
+     * Get the handler for teams data.
+     * 
+     * @return TeamsHandler
+     */
+    public function teamsHandler();
 
-    public function matches();
+    /**
+     * Get the handler for matches data.
+     * 
+     * @return MatchesHandler
+     */
+    public function matchesHandler();
+
+    /**
+     * Get the handler for single match data.
+     * 
+     * @return MatchHandler
+     */
+    public function matchHandler();
 }

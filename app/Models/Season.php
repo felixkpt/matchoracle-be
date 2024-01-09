@@ -18,6 +18,11 @@ class Season extends Model
         'competition_id',
         'is_current',
         'winner_id',
+        'fetched_standings',
+        'fetched_all_matches',
+        'fetched_all_single_matches',
+        'status_id',
+        'user_id',
     ];
 
     protected $casts = [
@@ -37,5 +42,10 @@ class Season extends Model
     public function winner()
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function games()
+    {
+        return $this->hasMany(Game::class);
     }
 }

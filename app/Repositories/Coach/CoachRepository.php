@@ -25,7 +25,7 @@ class CoachRepository implements CoachRepositoryInterface
         $uri = '/admin/teams/coaches';
         $statuses = SearchRepo::of($teams, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addActionColumn('action', $uri, 'native')
             ->htmls(['Status', 'Crest'])
@@ -54,7 +54,7 @@ class CoachRepository implements CoachRepositoryInterface
         $uri = '/admin/teams/';
         $statuses = SearchRepo::of($team, ['id', 'name', 'country.name', 'slug'])
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Status', 'getStatus')
             ->addColumn('has_teams', fn ($q) => $q->has_teams ? 'Yes' : 'No')
             ->addActionItem(
                 [

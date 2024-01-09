@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Statistics;
 
+use App\Models\Competition;
 use App\Models\CompetitionStatistic;
 use App\Models\CompetitionStatistics;
 use App\Models\Game;
@@ -26,11 +27,38 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
     function index()
     {
 
+        sleep(0);
+
         $results = $this->model->where('competition_id', request()->competition_id)
             ->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))
             ->when(request()->from_date, fn ($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
             ->when(request()->to_date, fn ($q) => $q->whereDate('date', '<=', Carbon::parse(request()->to_date)->format('Y-m-d')))
             ->first();
+
+        $counts = $results->counts ?? 0;
+
+        if ($counts > 0) {
+
+            $results->full_time_home_wins_percentage = number_format($results->full_time_home_wins / $counts * 100, 0, '');
+            $results->full_time_draws_percentage = number_format($results->full_time_draws / $counts * 100, 0, '');
+            $results->full_time_away_wins_percentage = number_format($results->full_time_away_wins / $counts * 100, 0, '');
+
+            $results->half_time_home_wins_percentage = number_format($results->half_time_home_wins / $counts * 100, 0, '');
+            $results->half_time_draws_percentage = number_format($results->half_time_draws / $counts * 100, 0, '');
+            $results->half_time_away_wins_percentage = number_format($results->half_time_away_wins / $counts * 100, 0, '');
+
+            $results->gg_percentage = number_format($results->gg / $counts * 100, 0, '');
+            $results->ng_percentage = number_format($results->ng / $counts * 100, 0, '');
+
+            $results->over15_percentage = number_format($results->over15 / $counts * 100, 0, '');
+            $results->under15_percentage = number_format($results->under15 / $counts * 100, 0, '');
+
+            $results->over25_percentage = number_format($results->over25 / $counts * 100, 0, '');
+            $results->under25_percentage = number_format($results->under25 / $counts * 100, 0, '');
+
+            $results->over35_percentage = number_format($results->over35 / $counts * 100, 0, '');
+            $results->under35_percentage = number_format($results->under35 / $counts * 100, 0, '');
+        }
 
         return response(['results' => $results]);
     }
@@ -42,7 +70,10 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
         $season = Season::find(request()->season_id);
         $season_id = $season->id ?? 0;
 
-        request()->merge(['per_page' => 700, 'order_by' => 'utc_date', 'order_direction' => 'asc']);
+        request()->merge([
+            'per_page' => 700, 'order_by' => 'utc_date', 'order_direction' => 'asc',
+            'without_response' => true,
+        ]);
 
         $games = $this->gameRepositoryInterface->index(null, true);
 
@@ -65,12 +96,14 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
         $over35_counts = 0;
         $under35_counts = 0;
 
-        $games = $games['data'];
+        $games = $games['results']['data'];
         $ct = count($games);
 
-        echo "Total games for competition #{$competition_id}: $ct\n\n";
+        // echo "Total games for competition #{$competition_id}: $ct\n\n";
 
-        $unique_dates_counts = count(array_unique(array_map(fn ($c) => Carbon::parse($c)->format('Y-m-d'), array_column($games, 'utc_date'))));
+        $unique_dates_counts = count(array_unique(
+            array_map(fn ($c) => Carbon::parse($c)->format('Y-m-d'), array_column($games, 'utc_date'))
+        ));
         Log::info("Unique date counts: {$unique_dates_counts}");
 
         $matchday = 0;
@@ -80,10 +113,10 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
             $score = $game['score'];
             $matchday = $game['matchday'];
 
-            echo "Date: {$date}, Game:{$id}\n";
+            // echo "Date: {$date}, Game:{$id}\n";
 
             if (!$score) {
-                echo "No scores.\n";
+                // echo "No scores.\n";
                 continue;
             }
 
@@ -141,20 +174,6 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
         }
 
         if ($counts > 0) {
-            $full_time_home_wins_counts = round($full_time_home_wins_counts / $counts * 100);
-            $full_time_draws_counts = round($full_time_draws_counts / $counts * 100);
-            $full_time_away_wins_counts = round($full_time_away_wins_counts / $counts * 100);
-            $half_time_home_wins_counts = round($half_time_home_wins_counts / $counts * 100);
-            $half_time_draws_counts = round($half_time_draws_counts / $counts * 100);
-            $half_time_away_wins_counts = round($half_time_away_wins_counts / $counts * 100);
-            $gg_counts = round($gg_counts / $counts * 100);
-            $ng_counts = round($ng_counts / $counts * 100);
-            $over15_counts = round($over15_counts / $counts * 100);
-            $under15_counts = round($under15_counts / $counts * 100);
-            $over25_counts = round($over25_counts / $counts * 100);
-            $under25_counts = round($under25_counts / $counts * 100);
-            $over35_counts = round($over35_counts / $counts * 100);
-            $under35_counts = round($under35_counts / $counts * 100);
 
             if ($season_id && (!request()->date || $unique_dates_counts > 1)) {
                 CompetitionStatistic::updateOrCreate(
@@ -223,5 +242,11 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
                 );
             }
         }
+
+        Competition::find($competition_id)->update(['stats_last_done' => now()]);
+
+        $arr = ['message' => 'Successfully done stats.', 'results' => ['updated' => $counts]];
+        if (request()->without_response) return $arr;
+        return response($arr);
     }
 }

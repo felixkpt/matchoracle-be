@@ -134,7 +134,7 @@ trait DBActions
                 'has_time' => $data['has_time'],
                 'ht_results' => $data['ht_results'],
                 'ft_results' => $data['ft_results'],
-                'update_status' => 1,
+                'results_status' => 1,
                 'temperature' => $data['temperature'],
             ];
 
@@ -205,7 +205,7 @@ trait DBActions
 
         $games = $this->commonQuery(
             $game
-                ->where('update_status', 0),
+                ->where('results_status', 0),
             $id,
             $table
         );
@@ -214,7 +214,7 @@ trait DBActions
         if ($include_recently_fetched_games === true)
             $recently_fetched_games = $this->commonQuery(
                 $game
-                    ->where('update_status', '>', 0),
+                    ->where('results_status', '>', 0),
                 $id,
                 $table
             );
@@ -256,7 +256,7 @@ trait DBActions
                 $table->string('ft_results')->nullable();
                 $table->string('competition_abbreviation')->nullable();
                 $table->uuid('competition_id')->nullable();
-                $table->tinyInteger('update_status')->default(0);
+                $table->tinyInteger('results_status')->default(0);
                 $table->tinyInteger('update_failed_attempts')->default(0);
                 $table->string('url')->nullable();
                 $table->uuid('stadium_id')->nullable();

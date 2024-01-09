@@ -13,14 +13,6 @@ class OddsController extends Controller
     private $id;
 
 
-    public function __construct()
-    {
-        $this->id = request()->id;
-dd(request()->year);
-        $this->gameRepository = autoModel(request()->year . '_odds');
-    }
-
-
     public function index()
     {
         $builder = $this->gameRepository->where('id', $this->id);

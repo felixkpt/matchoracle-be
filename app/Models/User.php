@@ -107,9 +107,9 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    function user()
+    function votes()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(GameVote::class);
     }
 
     function tickets()

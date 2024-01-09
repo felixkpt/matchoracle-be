@@ -42,7 +42,8 @@ class PostCategoryRepository implements PostCategoryRepositoryInterface
                 return implode(' > ', array_reverse($names));
             })
             ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'Status')
+            ->addColumn('Created_by', 'getUser')
+            ->addColumn('Status', 'getStatus')
             ->addColumn('action', function ($item) {
                 return '
                     <div class="dropdown">
@@ -64,6 +65,7 @@ class PostCategoryRepository implements PostCategoryRepositoryInterface
                     </div>
                     ';
             })
+            ->htmls(['Status', ''])
             ->paginate();
 
         return response(['results' => $res]);
@@ -109,7 +111,7 @@ class PostCategoryRepository implements PostCategoryRepositoryInterface
 
         // Include the generated slug in the validated data
         $validatedData['slug'] = Str::lower($slug);
- 
+
         // Create a new PostCat instance with the validated data
         $validatedData['name'] = Str::title($validatedData['name']);
 

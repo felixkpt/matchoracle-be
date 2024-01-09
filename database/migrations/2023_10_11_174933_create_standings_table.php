@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('standings', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('competition_id');
             $table->unsignedBigInteger('season_id');
             $table->string('stage')->nullable();
             $table->string('type')->nullable();
             $table->string('group')->nullable();
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });

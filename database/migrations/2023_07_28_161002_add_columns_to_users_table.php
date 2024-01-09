@@ -26,7 +26,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('two_factor_enabled')->default(1);
             $table->unsignedBigInteger('default_role_id')->default(0);
             $table->string('theme')->default('light');
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             
         });

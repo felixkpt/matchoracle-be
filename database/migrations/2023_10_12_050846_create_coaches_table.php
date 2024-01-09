@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('coaches', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('name');
             $table->string('date_of_birth')->nullable();
             $table->string('nationality_id')->nullable();
-            $table->unsignedBigInteger('status_id')->default(0);
+            $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
         });

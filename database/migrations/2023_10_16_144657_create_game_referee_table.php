@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('game_referee', function (Blueprint $table) {
+            $table->bigIncrements('id')->startingValue(1100);
             $table->unsignedBigInteger('game_id')->default(0);
             $table->unsignedBigInteger('referee_id')->default(0);
             $table->timestamps();

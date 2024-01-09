@@ -19,7 +19,7 @@ Route::get('/{id}/predictions', [$controller, 'predictions']);
 
 Route::post('/{id}/update-coach', [$controller, 'updateCoach'])->hidden();
 
-Route::get('/{id}', [$controller, 'show'])->name('show');
-Route::put('/{id}', [$controller, 'update'])->name('update');
+Route::get('/{id}', [$controller, 'show'])->name('show team');
+Route::put('/{id}', [$controller, 'update'])->name('update team');
 Route::patch('/{id}/update-status', [$controller, 'updateStatus'])->hidden();
-Route::delete('/{id}', [$controller, 'destroy'])->name('destroy');
+Route::delete('/{id}', [$controller, 'destroy'])->name('destroy team');

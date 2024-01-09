@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Artisan;
 
 class Kernel extends ConsoleKernel
 {
@@ -15,8 +16,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('seeders:run')
             ->everyThirtyMinutes()
-            ->withoutOverlapping()
-            ;
+            ->withoutOverlapping();
     }
 
     /**
@@ -24,6 +24,17 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
+
+        Artisan::command('migrate:fresh {--seed}', function () {
+            /** @var \Illuminate\Console\Command $cmd */
+            $cmd = $this;
+
+            $confirmed = $cmd->ask("Are you sure you want to resign?", "Yes");
+
+            $cmd->comment('Nope!');
+            
+        })->purpose('Disable fresh command');
+
         $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
