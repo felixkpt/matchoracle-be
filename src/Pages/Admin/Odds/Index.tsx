@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import "react-datepicker/dist/react-datepicker.css";
 import FormatDate from '@/utils/FormatDate';
 import { useLocation, useNavigate } from 'react-router-dom';
-import MatchesPageHeader from '../Matches/Includes/MatchesPageHeader';
+import MatchesPageHeader from '../../../components/Matches/MatchesPageHeader';
 import { oddsColumns } from '@/utils/constants';
 
 const Index = () => {

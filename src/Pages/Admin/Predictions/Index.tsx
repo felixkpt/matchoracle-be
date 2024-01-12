@@ -5,9 +5,9 @@ import useRouteParamValidation from '@/hooks/useRouteParamValidation';
 import { useEffect, useState } from 'react';
 import "react-datepicker/dist/react-datepicker.css";
 import FormatDate from '@/utils/FormatDate';
-import MatchesPageHeader from './Includes/MatchesPageHeader';
 import { predictionsColumns } from '@/utils/constants';
 import { useLocation, useNavigate } from 'react-router-dom';
+import MatchesPageHeader from '@/components/Matches/MatchesPageHeader';
 
 const Index = () => {
 
@@ -33,7 +33,7 @@ const Index = () => {
     }, [location.pathname]);
 
     const initialDates: Array<string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
-    const [fromToDates, setFromToDates] = useState<Array<string | undefined>>(initialDates);
+    const [fromToDates, setFromToDates] = useState<Array<string | undefined>>([]);
 
     useEffect(() => {
         let combinedDates = '';

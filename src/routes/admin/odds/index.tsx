@@ -2,7 +2,7 @@ import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import Odds from "@/Pages/Admin/Odds/Index";
 import Odd from "@/Pages/Admin/Odds/View/Index";
 
-const relativeUri = 'odds/';
+const relativeUri = 'admin/odds/';
 
 const routes = [
     {

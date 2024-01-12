@@ -1,7 +1,7 @@
 import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import Seasons from "@/Pages/Admin/Seasons/Index";
 
-const relativeUri = 'seasons/';
+const relativeUri = 'admin/seasons/';
 
 const index = [
 

@@ -4,7 +4,7 @@ import topics from "./topics";
 import Categories from "@/Pages/Admin/Posts/Categories/Index";
 import Category from "@/Pages/Admin/Posts/Categories/View/Index";
 
-const relativeUri = 'posts/categories/';
+const relativeUri = 'admin/posts/categories/';
 
 const index = [
     {

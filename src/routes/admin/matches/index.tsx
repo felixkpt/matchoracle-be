@@ -2,7 +2,7 @@ import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import Matches from "@/Pages/Admin/Matches/Index";
 import Match from "@/Pages/Admin/Matches/View/Index";
 
-const relativeUri = 'matches/';
+const relativeUri = 'admin/matches/';
 
 const routes = [
     {

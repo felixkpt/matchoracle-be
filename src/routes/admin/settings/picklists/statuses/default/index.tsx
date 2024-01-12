@@ -2,7 +2,7 @@ import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import Statuses from "@/Pages/Admin/Settings/Picklists/Statuses/Default/Index";
 
 
-const relativeUri = 'settings/picklists/statuses/default/';
+const relativeUri = 'admin/settings/picklists/statuses/default/';
 
 const index = [
     {

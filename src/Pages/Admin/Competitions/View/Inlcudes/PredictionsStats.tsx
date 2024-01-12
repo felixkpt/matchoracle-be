@@ -6,6 +6,7 @@ import useAxios from '@/hooks/useAxios';
 import { CompetitionInterface, SeasonInterface } from '@/interfaces/FootballInterface';
 import { appendFromToDates } from "@/utils/helpers";
 import { useLocation } from 'react-router-dom';
+import TimeAgo from 'timeago-react';
 
 type Props = {
     competition: CompetitionInterface;
@@ -84,6 +85,10 @@ const PredictionsStats = ({ competition, selectedSeason, fromToDates, useDate }:
                                         <h6 className="d-flex gap-2 justify-content-between">
                                             <div>{`${(data.average_score) ? 'Average Score: ' + data.average_score : '0'}%`}</div>
                                         </h6>
+                                        <p className="mt-3 d-flex gap-2 justify-content-between text-muted">
+                                            <span className="pro-style">Last trained: {(competition.Predictions_last_train)}</span>
+                                            <span className="pro-style">Trained to: {competition.predictions_trained_to}</span>
+                                        </p>
                                     </div>
                                 </div>
                             ) : (

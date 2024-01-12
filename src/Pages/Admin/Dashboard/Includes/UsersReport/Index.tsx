@@ -1,11 +1,28 @@
+import useAxios from '@/hooks/useAxios';
 import UsersMiniCardSection from './UsersMiniCardSection'
 import { DashboardStatsInterface } from '@/interfaces/FootballInterface'
+import { useEffect, useState } from 'react';
 
 type Props = {
-    stats: DashboardStatsInterface | null
 }
 
-const Index = ({ stats }: Props) => {
+const Index = ({  }: Props) => {
+
+    const { get, loading, errors } = useAxios();
+    const [stats, setStats] = useState<DashboardStatsInterface | null>(null);
+
+    useEffect(() => {
+        getStats()
+    }, [])
+
+    async function getStats() {
+        get(`admin/advanced-stats`).then((results: any) => {
+            if (results) {
+                setStats(results)
+            }
+        })
+    }
+
     return (
         <div className="row mb-4">
             <h5>Users report</h5>

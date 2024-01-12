@@ -1,7 +1,7 @@
 import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import Contracts from "@/Pages/Admin/Teams/Contracts/Index";
 
-const relativeUri = 'teams/contracts/';
+const relativeUri = 'admin/teams/contracts/';
 
 const index = [
     {

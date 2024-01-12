@@ -2,15 +2,31 @@ import { Icon } from '@iconify/react/dist/iconify.js'
 import { NavLink } from 'react-router-dom'
 import DetailedMatchesInfo from '../DetailedMatchesInfo'
 import Loader from '@/components/Loader'
-import CompetitionStatsCard from '../CompetitionStatisticsStatsCard/Index'
 import { DashboardStatsInterface } from '@/interfaces/FootballInterface'
 import DashJobLogsCard from '../DashJobLogsCard'
+import useAxios from '@/hooks/useAxios'
+import { useEffect, useState } from 'react'
 
 type Props = {
-    stats: DashboardStatsInterface | null
 }
 
-const Index = ({ stats }: Props) => {
+const Index = ({ }: Props) => {
+
+    const { get, loading, errors } = useAxios();
+    const [stats, setStats] = useState<DashboardStatsInterface | null>(null);
+
+    useEffect(() => {
+        getStats()
+    }, [])
+
+    async function getStats() {
+        get(`admin/advanced-stats`).then((results: any) => {
+            if (results) {
+                setStats(results)
+            }
+        })
+    }
+
     return (
         <div className="row mb-4 align-items-start">
             <h5>Statistics & Performace</h5>
@@ -18,65 +34,6 @@ const Index = ({ stats }: Props) => {
                 <div className='row'>
                     <div className="col-12">
                         <div className="row">
-                            <div className="col-lg-6 mb-4">
-                                <NavLink to={`/admin/settings/system/job-logs?tab=matches`} className={'link-unstyled'}>
-                                    <div className="card shadow">
-                                        <div className="card-header bg-secondary text-white">
-                                            <h5 className='d-flex align-items-center gap-1'>
-                                                <Icon width={'2rem'} icon={`${'mdi:soccer-field'}`} />
-                                                <span>Competition Stats Job</span>
-                                            </h5>
-                                        </div>
-                                        <div className="card-body text-center">
-                                            {
-                                                stats?.competition_statistics_logs ?
-                                                    <CompetitionStatsCard stats={stats.competition_statistics_logs} />
-                                                    :
-                                                    <Loader />
-                                            }
-                                        </div>
-                                    </div>
-                                </NavLink>
-                            </div>
-                            <div className="col-lg-6 mb-4">
-                                <NavLink to={`/admin/settings/system/job-logs?tab=matches`} className={'link-unstyled'}>
-                                    <div className="card shadow">
-                                        <div className="card-header bg-secondary text-white">
-                                            <h5 className='d-flex align-items-center gap-1'>
-                                                <Icon width={'2rem'} icon={`${'mdi:soccer-field'}`} />
-                                                <span>Competition Prediction Stats Job</span>
-                                            </h5>
-                                        </div>
-                                        <div className="card-body text-center">
-                                            {
-                                                stats?.competition_prediction_statistics_logs ?
-                                                    <CompetitionStatsCard stats={stats.competition_prediction_statistics_logs} />
-                                                    :
-                                                    <Loader />
-                                            }
-                                        </div>
-                                    </div>
-                                </NavLink>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-12">
-                        <div className="row">
-                            <div className="col-lg-6 mb-4">
-                                <NavLink to={`/admin/settings/system/job-logs?tab=predictions`} className={'link-unstyled'}>
-                                    <div className="card shadow">
-                                        <div className="card-header bg-secondary text-white">
-                                            <h5 className='d-flex align-items-center gap-1'>
-                                                <Icon width={'2rem'} icon={`${'mdi:soccer-field'}`} />
-                                                <span>Predictions Job</span>
-                                            </h5>
-                                        </div>
-                                        <div className="card-body text-center">
-                                            <DashJobLogsCard stats={stats ? stats.predictions_job_logs : null} jobMessage="Predictions" jobActionMessage="Prediction" />
-                                        </div>
-                                    </div>
-                                </NavLink>
-                            </div>
                             <div className="col-lg-6 mb-4">
                                 <NavLink to={`/admin/matches`} className={'link-unstyled'}>
                                     <div className="card shadow">

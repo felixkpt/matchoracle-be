@@ -3,7 +3,7 @@ import CreateOrUpdate from "@/Pages/Admin/Posts/CreateOrUpdate"
 import DocView from "@/Pages/Admin/Posts/View/Index";
 import categories from "./categories";
 
-const relativeUri = 'posts/';
+const relativeUri = 'admin/posts/';
 
 const index = [
 

@@ -388,12 +388,12 @@ p {
 
 // Start pagination
 .pagination {
-  margin-bottom: 2rem;
+  margin-block: 1rem;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   list-style-type: none;
-  padding: 0 5rem;
+  // padding: 0 5rem;
 
   li a {
     border-radius: 7px;
@@ -401,6 +401,7 @@ p {
     border: gray 1px solid;
     cursor: pointer;
   }
+
   li.previous a,
   li.next a,
   li.break a {
@@ -412,18 +413,22 @@ p {
     border-color: transparent;
     color: white;
     min-width: 32px;
+
     &:hover {
-      color: white!important;
+      color: white !important;
     }
   }
+
   li.disabled a {
     color: grey;
   }
+
   li.disable,
   li.disabled a {
     cursor: default;
   }
 }
+
 // End pagination
 
 .autotable-record-counts {
@@ -433,4 +438,24 @@ p {
 // footer styles
 .footer {
   min-height: 180px;
+}
+
+.betting-tip-outcome {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 0.5rem;
+}
+
+.betting-tip-outcome-sm {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 0.5rem;
 }

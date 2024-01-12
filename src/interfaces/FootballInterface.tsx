@@ -113,6 +113,9 @@ export interface CompetitionInterface {
     country_id: string | null;
     country: CountryInterface;
     priority_number: number;
+    predictions_last_train: string | null
+    Predictions_last_train: string | null
+    predictions_trained_to: string | null
     last_updated: string;
     last_fetch: string | null;
     last_detailed_fetch: string | null;
@@ -218,6 +221,8 @@ export interface GameInterface {
     formatted_prediction: PredictionInterface,
     CS: string;
     odds: OddInterface[]
+    Fulltime: HTMLElement
+    outcome: 'W' | 'L' | 'U'
 
 }
 
@@ -340,7 +345,20 @@ export interface DashboardStatsInterface {
         'today': DashJobLogsInterface;
         'all': DashJobLogsInterface;
     };
-    matches_job_logs: {
+
+    results_matches_job_logs: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    historical_results_matches_job_logs: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    fixtures_matches_job_logs: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    shallow_fixtures_matches_job_logs: {
         'today': DashJobLogsInterface;
         'all': DashJobLogsInterface;
     };

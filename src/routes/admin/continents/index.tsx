@@ -1,7 +1,7 @@
 import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import Continents from "@/Pages/Admin/Continents/Index";
 
-const relativeUri = 'continents/';
+const relativeUri = 'admin/continents/';
 
 const index = [
 

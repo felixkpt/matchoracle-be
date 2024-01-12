@@ -42,6 +42,7 @@ const useAxios = <T = any>() => {
 
     const fetchData = async (config) => {
 
+        console.log(config)
         let elementId: string | null = null
         if (config?.elementId) {
             elementId = config.elementId

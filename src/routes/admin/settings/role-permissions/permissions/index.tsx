@@ -2,7 +2,7 @@ import Permissions from '@/Pages/Admin/Settings/RolePermissions/Permissions/Inde
 import CreateOrUpdatePermission from '@/Pages/Admin/Settings/RolePermissions/Permissions/CreateOrUpdatePermission';
 import AuthenticatedLayout from '@/Layouts/Authenicated/AuthenticatedLayout';
 
-const relativeUri = 'settings/role-permissions/permissions/';
+const relativeUri = 'admin/settings/role-permissions/permissions/';
 
 const index = [
     {

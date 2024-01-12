@@ -42,7 +42,7 @@ const Index = () => {
         { key: 'standings_fetched' },
         { key: 'p_matches_fetched' },
         { key: 'u_matches_fetched' },
-        { key: 'odds' },
+        { key: 'odds', column:'odds.' },
         { label: 'has_teams', key: 'Has_teams' },
         { label: 'priority_no', key: 'priority_number' },
         {

@@ -2,7 +2,7 @@ import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import Competitions from "@/Pages/Admin/Competitions/Index";
 import Competition from "@/Pages/Admin/Competitions/View/Index";
 
-const relativeUri = 'competitions/';
+const relativeUri = 'admin/competitions/';
 
 const index = [
 

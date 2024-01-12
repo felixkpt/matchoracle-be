@@ -6,7 +6,7 @@ import coaches from "@/routes/admin/teams/coaches";
 import venues from "@/routes/admin/teams/venues";
 import contracts from "@/routes/admin/teams/contracts";
 
-const relativeUri = 'competitions/';
+const relativeUri = 'admin/competitions/';
 
 const index = [
 

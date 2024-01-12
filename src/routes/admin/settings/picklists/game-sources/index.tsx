@@ -2,7 +2,7 @@ import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import GameSources from "@/Pages/Admin/Settings/Picklists/GameSources/Index";
 
 
-const relativeUri = 'settings/picklists/game-sources/';
+const relativeUri = 'admin/settings/picklists/game-sources/';
 
 const index = [
     {

@@ -2,7 +2,7 @@ import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import Countries from "@/Pages/Admin/Countries/Index";
 import Country from "@/Pages/Admin/Countries/View/Index";
 
-const relativeUri = 'countries/';
+const relativeUri = 'admin/countries/';
 
 const index = [
 

@@ -1,7 +1,5 @@
-import MatchesPageHeader from '@/Pages/Admin/Predictions/Includes/MatchesPageHeader';
+import MatchesPageHeader from '@/components/Matches/MatchesPageHeader';
 import { CompetitionInterface, SeasonsListInterface } from '@/interfaces/FootballInterface';
-import Str from '@/utils/Str'
-import Select from 'react-select';
 
 interface Props extends SeasonsListInterface {
     title: string

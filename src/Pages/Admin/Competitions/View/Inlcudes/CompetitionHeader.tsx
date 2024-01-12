@@ -1,8 +1,6 @@
-import useAxios from "@/hooks/useAxios"
 import { CompetitionInterface, SeasonInterface } from "@/interfaces/FootballInterface"
 import Str from "@/utils/Str"
 import { competitionLogo, countryLogo } from "@/utils/helpers"
-import { useState } from "react"
 import { NavLink } from "react-router-dom"
 import Select from 'react-select';
 

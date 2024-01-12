@@ -2,7 +2,7 @@ import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import Predictions from "@/Pages/Admin/Predictions/Index";
 import Prediction from "@/Pages/Admin/Predictions/View/Index";
 
-const relativeUri = 'predictions/';
+const relativeUri = 'admin/predictions/';
 
 const routes = [
     {

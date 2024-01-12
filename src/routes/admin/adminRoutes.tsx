@@ -1,4 +1,5 @@
 import Admin from '@/Pages/Admin/Dashboard/Index';
+import AutomationReport from '@/Pages/Admin/Dashboard/AutomationReport';
 import settings from './settings';
 import posts from './posts';
 import continents from './continents';
@@ -6,6 +7,7 @@ import countries from './countries';
 import competitions from './competitions';
 import seasons from './seasons';
 import predictions from './predictions';
+import bettingtips from './betting-tips';
 import matches from './matches';
 import teams from './teams';
 import odds from './odds';
@@ -16,6 +18,10 @@ const adminRoutes = [
   {
     path: '',
     element: <AuthenticatedLayout uri='admin' permission={null} Component={Admin} />,
+  },
+  {
+    path: 'automation-report',
+    element: <AuthenticatedLayout uri='admin/automation-report' permission={null} Component={AutomationReport} />,
   },
   {
     path: 'posts',
@@ -44,6 +50,10 @@ const adminRoutes = [
   {
     path: 'predictions',
     children: predictions,
+  },
+  {
+    path: 'betting-tips',
+    children: bettingtips,
   },
   {
     path: 'seasons',

@@ -1,7 +1,7 @@
 import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout"
 import Index from '@/Pages/Admin/Settings/System/JobLogs/Index'
 
-const relativeUri = 'settings/system/job-logs/'
+const relativeUri = 'admin/settings/system/job-logs/'
 
 const index = [
 

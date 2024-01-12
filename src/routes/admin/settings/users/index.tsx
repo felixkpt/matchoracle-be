@@ -3,7 +3,7 @@ import Users from '../../../../Pages/Admin/Settings/Users/Index';
 import Detail from "../../../../Pages/Admin/Settings/Users/View/Index"
 import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 
-const relativeUri = 'settings/users/'
+const relativeUri = 'admin/settings/users/'
 
 const index = [
 

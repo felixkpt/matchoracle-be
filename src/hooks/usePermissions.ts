@@ -22,8 +22,8 @@ const usePermissions = () => {
             permission = permission.replace(/\./g, '/')
             
             permission = convertToLaravelPattern(permission)
-
-            const permissionCleaned = permission == '/' ? 'admin' : Str.afterLast(permission, 'admin/').replace(/\/$/, '')
+            
+            const permissionCleaned = permission == '/' ? 'admin' : permission.replace(/\/$/, '')
 
             const httpMethod = method.toUpperCase()
             let found = !!routePermissions.find((route) => String(route).startsWith(permissionCleaned + '@') && String(route).includes('@' + httpMethod));
