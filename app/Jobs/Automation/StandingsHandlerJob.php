@@ -20,17 +20,29 @@ class StandingsHandlerJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
     protected $sourceContext;
+    /**
+     * The task to be performed by the job.
+     *
+     * @var string
+     */
+    protected $task = 'recent_results';
 
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct($task)
     {
+
         // Instantiate the context class for handling game sources
         $this->sourceContext = new GameSourceStrategy();
 
         // Set the initial game source strategy (can be switched dynamically)
         $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
+
+        // Set the task property
+        if ($task) {
+            $this->task = $task;
+        }
     }
 
     /**
@@ -43,30 +55,30 @@ class StandingsHandlerJob implements ShouldQueue
         // Set the request parameter to indicate no direct response is expected
         request()->merge(['without_response' => true]);
 
+        $lastFetchColumn = 'standings_' . $this->task . '_last_fetch';
+
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
-            ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
-            ->whereHas('gameSources', function ($q) {
-                $q->where('game_source_id', $this->sourceContext->getId());
+            ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
+            ->when(!request()->ignore_status, function ($query) {
+                $query->where('status_id', activeStatusId());
+            })
+            ->whereHas('gameSources', function ($query) {
+                $query->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('seasons')
-            ->when(
-                !request()->historical_results,
-                fn ($q) =>
-                $q->whereHas(
-                    'games',
-                    fn ($q) =>
-                    $q->where('utc_date', '>=', Carbon::now()->subDays(5))
-                        ->where('utc_date', '<', Carbon::now())
-                )
-            )
-            ->where('has_standings', true)
-            ->where(function ($q) {
-                $q->whereNull('standings_last_fetch')
-                    ->orWhere('standings_last_fetch', '<=', Carbon::now()->subHours(24 * 3));
+            ->when($this->task == 'recent_results', function ($query) {
+                $query->whereHas('games', function ($subQuery) {
+                    $subQuery->where('utc_date', '>=', Carbon::now()->subDays(5))
+                        ->where('utc_date', '<', Carbon::now());
+                });
             })
+            ->where('has_standings', true)
+            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, 24 * 3))
+            ->select('competitions.*')
             ->limit(700)
-            ->orderBy('standings_last_fetch', 'asc')->get();
+            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
+            ->get();
 
         // Loop through each competition to fetch and update standings
         $should_sleep_for_competitions = false;
@@ -116,7 +128,7 @@ class StandingsHandlerJob implements ShouldQueue
                 $should_sleep_for_seasons = false;
             }
 
-            $this->updateLastFetch($competition, $seasons, 'standings_last_fetch');
+            $this->updateLastAction($competition, $seasons, $lastFetchColumn);
 
             echo "------------\n";
 

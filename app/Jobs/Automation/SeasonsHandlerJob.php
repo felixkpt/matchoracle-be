@@ -43,17 +43,19 @@ class SeasonsHandlerJob implements ShouldQueue
         // Set the request parameter to indicate no direct response is expected
         request()->merge(['without_response' => true]);
 
+        $lastFetchColumn = 'seasons_last_fetch';
+
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
+            ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
             ->whereHas('gameSources', function ($q) {
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
-            ->where(function ($q) {
-                $q->whereNull('seasons_last_fetch')
-                    ->orWhere('seasons_last_fetch', '<=', Carbon::now()->subHours(24 * 15));
-            })
-            ->limit(700)->orderBy('seasons_last_fetch', 'asc')->get();
+            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, 24 * 15))
+            ->select('competitions.*')
+            ->limit(700)->orderBy('competition_last_actions.'.$lastFetchColumn, 'asc')
+            ->get();
 
         // Loop through each competition to fetch and update seasons
         $total = $competitions->count();
@@ -75,7 +77,7 @@ class SeasonsHandlerJob implements ShouldQueue
             // Output the fetch result for logging
             echo $data['message'] . "\n";
 
-            $this->updateLastFetch($competition, 'from_seasons', 'seasons_last_fetch');
+            $this->updateLastAction($competition, 'from_seasons', $lastFetchColumn);
 
             echo "------------\n";
 

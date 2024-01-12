@@ -21,16 +21,6 @@ class Competition extends Model
     'abbreviation',
     'continent_id',
     'country_id',
-
-    'seasons_last_fetch',
-    'standings_last_fetch',
-    'past_matches_last_fetch',
-    'upcoming_matches_last_fetch',
-    'single_matches_last_fetch',
-    'predictions_last_train',
-    'predictions_trained_to',
-    'stats_last_done',
-    'predictions_stats_last_done',
     
     'games_per_season',
     'available_seasons',
@@ -47,6 +37,11 @@ class Competition extends Model
     'user_id',
     'status_id',
   ];
+
+  public function lastAction()
+  {
+    return $this->hasOne(CompetitionLastAction::class);
+  }
 
   function continent()
   {

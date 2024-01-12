@@ -27,15 +27,16 @@ class MatchesHandlerCommand extends Command
      */
     public function handle()
     {
-        $task = $this->option('task') ?? 'results';
-        $ignore_date = $this->option('ignore-date');
+        $task = $this->option('task') ?? 'recent_results';
 
-        if ($task != 'historical_results' && $task != 'results' && $task != 'shallow_fixtures' && $task != 'fixtures') {
-            $this->warn('Task should be either results or shallow_fixtures, fixtures');
+        if ($task != 'recent_results' && $task != 'historical_results' && $task != 'shallow_fixtures' && $task != 'fixtures') {
+            $this->warn('Task should be recent_results, historical_results, shallow_fixtures or fixtures');
             return 0;
         }
 
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
+
+        $ignore_date = $this->option('ignore-date');
 
         dispatch(new MatchesHandlerJob($task, $ignore_date));
         $this->info('Matches handler command executed successfully!');

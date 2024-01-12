@@ -26,7 +26,7 @@ class MatchHandlerJob implements ShouldQueue
      *
      * @var string
      */
-    protected $task = 'results';
+    protected $task = 'recent_results';
     protected $ignore_date;
 
     /**
@@ -58,19 +58,32 @@ class MatchHandlerJob implements ShouldQueue
         // Set the request parameter to indicate no direct response is expected
         request()->merge(['without_response' => true]);
 
+        $lastFetchColumn = 'match_' . $this->task . '_last_fetch';
+
+        // Set delay based on the task type:
+        // Default case for historical_results
+        $delay = 24 * 2;
+        if ($this->task == 'shallow_fixtures') {
+            $delay = 24 * 2;
+        } elseif ($this->task == 'fixtures') {
+            $delay = 24 * 4;
+        } elseif ($this->task == 'recent_results') {
+            $delay = 24 * 1;
+        }
+
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
+            ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
             // ->where('id', 1622)
             ->whereHas('gameSources', function ($q) {
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('games')
-            ->where(function ($q) {
-                $q->whereNull('single_matches_last_fetch')
-                    ->orWhere('single_matches_last_fetch', '<=', Carbon::now()->subHours(5));
-            })
-            ->limit(1000)->orderBy('single_matches_last_fetch', 'asc')->get();
+            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+            ->select('competitions.*')
+            ->limit(1000)->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
+            ->get();
 
         // Loop through each competition to fetch and update matches
         $should_sleep_for_competitions = false;
@@ -102,17 +115,17 @@ class MatchHandlerJob implements ShouldQueue
 
                     // Conditionally filter games based on the task being performed
                     ->when($this->task == 'historical_results', function ($q) {
-                        $q
-                            ->when(!$this->ignore_date, fn ($q) => $q->where('utc_date', '<', Carbon::now()->subDays(5)));
+                        $q->where('utc_date', '<', Carbon::now()->subDays(5));
                     })
-                    ->when($this->task == 'results', function ($q) {
-                        $q
-                            ->when(!$this->ignore_date, fn ($q) => $q->where('utc_date', '>=', Carbon::now()->subDays(5)))
+                    ->when($this->task == 'recent_results', function ($q) {
+                        $q->where('utc_date', '>=', Carbon::now()->subDays(5))
                             ->where('utc_date', '<=', Carbon::now()->subHours(5));
                     })
-                    ->when($this->task == 'fixtures', fn ($q) => $q
+                    ->when($this->task == 'shallow_fixtures', fn ($q) => $q
                         ->where('utc_date', '>', Carbon::now())
                         ->where('utc_date', '<=', Carbon::now()->addDays(7)))
+                    ->when($this->task == 'fixtures', fn ($q) => $q
+                        ->where('utc_date', '>', Carbon::now()->addDays(7)))
 
                     // status 1 is left for match handler
                     ->where('results_status', '<', 2);
@@ -124,7 +137,7 @@ class MatchHandlerJob implements ShouldQueue
 
                 $games = $builder
                     // if results check at least 3 hours, else if fixtures check last 2 days
-                    ->where('last_fetch', '<=', Carbon::now()->subHours($this->task == 'results' ? 3 : 24 * 2))
+                    ->where('last_fetch', '<=', Carbon::now()->subHours($this->task == 'recent_results' ? 3 : 24 * 2))
                     ->limit(1000)
                     ->orderBy('last_fetch', 'asc')->get();
 
@@ -167,7 +180,7 @@ class MatchHandlerJob implements ShouldQueue
                 $should_sleep_for_seasons = false;
             }
 
-            $this->updateLastFetch($competition, $seasons, 'single_matches_last_fetch');
+            $this->updateLastAction($competition, $seasons, $lastFetchColumn);
 
             echo "------------\n\n";
 

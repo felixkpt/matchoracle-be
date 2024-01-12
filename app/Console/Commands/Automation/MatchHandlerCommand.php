@@ -27,11 +27,11 @@ class MatchHandlerCommand extends Command
      */
     public function handle()
     {
-        $task = $this->option('task') ?? 'results';
+        $task = $this->option('task') ?? 'recent_results';
         $ignore_date = $this->option('ignore-date');
 
-        if ($task != 'historical_results' && $task != 'results' && $task != 'fixtures') {
-            $this->warn('Task should be historical_results, results or fixtures.');
+        if ($task != 'recent_results' && $task != 'historical_results' && $task != 'shallow_fixtures' && $task != 'fixtures') {
+            $this->warn('Task should be recent_results, historical_results, shallow_fixtures or fixtures');
             return 0;
         }
 

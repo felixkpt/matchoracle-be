@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('standing_job_logs', function (Blueprint $table) {
             $table->bigIncrements('id')->startingValue(1100);
+            $table->enum('task', ['recent_results', 'historical_results'])->default('recent_results');
             $table->date('date');
             $table->integer('source_id')->default(0);
-           
+
             $table->integer('job_run_counts')->default(0);
             $table->integer('competition_run_counts')->default(0);
             $table->integer('fetch_run_counts')->default(0);
             $table->integer('fetch_success_counts')->default(0);
             $table->integer('fetch_failed_counts')->default(0);
-            
+
             $table->integer('updated_standings_counts')->default(0);
             $table->timestamps();
         });

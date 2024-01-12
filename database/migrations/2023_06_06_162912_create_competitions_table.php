@@ -30,15 +30,6 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->string('plan')->nullable();
 
-            $table->dateTime('seasons_last_fetch')->nullable();
-            $table->dateTime('standings_last_fetch')->nullable();
-            $table->dateTime('past_matches_last_fetch')->nullable();
-            $table->dateTime('upcoming_matches_last_fetch')->nullable();
-            $table->dateTime('single_matches_last_fetch')->nullable();
-            $table->dateTime('predictions_last_train')->nullable();
-            $table->date('predictions_trained_to')->nullable();
-            $table->dateTime('stats_last_done')->nullable();
-            $table->dateTime('predictions_stats_last_done')->nullable();
             $table->unsignedInteger('games_per_season')->nullable()->default(0);
             $table->unsignedInteger('available_seasons')->nullable()->default(0);
             $table->integer('priority_number')->default(9999);

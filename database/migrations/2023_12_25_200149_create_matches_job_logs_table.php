@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('matches_job_logs', function (Blueprint $table) {
             $table->bigIncrements('id')->startingValue(1100);
-            $table->enum('task', ['results', 'historical_results', 'fixtures', 'shallow_fixtures'])->default('results');
+            $table->enum('task', ['recent_results', 'historical_results', 'fixtures', 'shallow_fixtures'])->default('recent_results');
             $table->date('date');
             $table->integer('source_id')->default(0);
 
