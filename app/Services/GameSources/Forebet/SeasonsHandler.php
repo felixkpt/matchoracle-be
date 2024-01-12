@@ -93,12 +93,7 @@ class SeasonsHandler
         $message = 'Seasons for ' . $competition->name . ' saved/updated. ';
         $message .= $saved . ' seasons saved, ' . $updated . ' seasons updated.';
 
-        if (!$this->has_errors) {
-            $arr = ['seasons_last_fetch' => Carbon::now()];
-
-            $competition->update($arr);
-        }
-
+        
         $response = ['message' => $message, 'results' => ['saved_updated' => $saved + $updated]];
 
         if (request()->without_response) return $response;

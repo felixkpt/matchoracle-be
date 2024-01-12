@@ -332,19 +332,21 @@ class SearchRepo
      * @param array $columns The columns to retrieve.
      * @return array The search results.
      */
-    function get($columns = ['*'])
+    function get($perPage = null, $columns = ['*'])
     {
         $this->sort();
         $builder =  $this->builder;
 
-        $results = $builder->limit(request()->per_page ?? 50)->get($columns);
+        $perPage = ($perPage ?? request()->per_page) ?? 50;
+
+        $results = $builder->limit($perPage)->get($columns);
 
         $r = $this->additionalColumns($results);
 
         $results = ['data' => $r];
 
         $custom = collect($this->getCustoms());
-        
+
         $results = $custom->merge($results);
 
         return $results;

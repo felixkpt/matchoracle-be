@@ -4,7 +4,6 @@ namespace App\Jobs\Automation;
 
 use App\Models\Competition;
 use App\Models\FailedMatchLog;
-use App\Models\Game;
 use Illuminate\Support\Str;
 use App\Models\MatchJobLog;
 use App\Services\GameSources\Forebet\ForebetStrategy;
@@ -62,13 +61,14 @@ class MatchHandlerJob implements ShouldQueue
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
             ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
+            // ->where('id', 1622)
             ->whereHas('gameSources', function ($q) {
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('games')
             ->where(function ($q) {
                 $q->whereNull('single_matches_last_fetch')
-                    ->orWhere('single_matches_last_fetch', '<=', Carbon::now()->subHours(3));
+                    ->orWhere('single_matches_last_fetch', '<=', Carbon::now()->subHours(5));
             })
             ->limit(1000)->orderBy('single_matches_last_fetch', 'asc')->get();
 
@@ -80,12 +80,15 @@ class MatchHandlerJob implements ShouldQueue
             $this->doCompetitionRunLogging();
 
             $seasons = $competition->seasons()
+                ->when($this->task == 'fixtures', fn ($q) => $q->where('is_current', true))
                 ->whereDate('start_date', '>=', '2020-01-01')
                 ->where('fetched_all_single_matches', false)
-                ->take((($this->task == 'results' && !$this->ignore_date) || $this->task == 'fixtures') ? 2 : 15)->orderBy('start_date', 'desc')->get();
+                ->take($this->task == 'historical_results' ? 15 : 1)
+                ->orderBy('start_date', 'desc')->get();
+            $total_seasons = $seasons->count();
 
             $should_sleep_for_seasons = false;
-            foreach ($seasons as $season) {
+            foreach ($seasons as $season_key => $season) {
                 $season_games = $season->games()->count();
 
                 $builder = $season->games()
@@ -107,17 +110,17 @@ class MatchHandlerJob implements ShouldQueue
                             ->when(!$this->ignore_date, fn ($q) => $q->where('utc_date', '>=', Carbon::now()->subDays(5)))
                             ->where('utc_date', '<=', Carbon::now()->subHours(5));
                     })
+                    ->when($this->task == 'fixtures', fn ($q) => $q
+                        ->where('utc_date', '>', Carbon::now())
+                        ->where('utc_date', '<=', Carbon::now()->addDays(7)))
 
                     // status 1 is left for match handler
-
-                    ->when($this->task == 'fixtures', fn ($q) => $q
-                        ->where('utc_date', '>=', Carbon::now())
-                        ->where('utc_date', '<=', Carbon::now()->addDays(7)))
                     ->where('results_status', '<', 2);
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
-                echo "Season #{$season->id} ({$start_date}/{$end_date}, untouched games {$builder->count()}/{$season_games} games)\n";
+
+                echo ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date}, untouched games {$builder->count()}/{$season_games} games)\n";
 
                 $games = $builder
                     // if results check at least 3 hours, else if fixtures check last 2 days
@@ -125,12 +128,13 @@ class MatchHandlerJob implements ShouldQueue
                     ->limit(1000)
                     ->orderBy('last_fetch', 'asc')->get();
 
-                echo "After applying last fetch check >= 2 hrs: {$games->count()} games\n";
-                if ($games->count() === 0) continue;
+                $total_games = $games->count();
+                echo "After applying last fetch check >= 2 hrs: {$total_games} games\n";
+                if ($total_games === 0) continue;
 
                 // Loop through each game to fetch and update matches
                 foreach ($games as $key => $game) {
-                    echo ($key + 1) . ". Game: #{$game->id}, {$game->utc_date}, ({$game->homeTeam->name} vs {$game->awayTeam->name}, {$game->competition->name})\n";
+                    echo ($key + 1) . "/{$total_games}. Game: #{$game->id}, {$game->utc_date}, ({$game->homeTeam->name} vs {$game->awayTeam->name}, {$game->competition->name})\n";
 
                     while (!is_connected()) {
                         echo "You are offline. Retrying in 10 secs...\n";
@@ -154,17 +158,16 @@ class MatchHandlerJob implements ShouldQueue
 
                     $this->doLogging($data);
                     // Introduce a delay to avoid rapid consecutive requests
-                    sleep(10);
+                    sleep(5);
                 }
-
-                $competition->single_matches_last_fetch = now();
-                $competition->save();
 
                 echo "\n";
                 // Introduce a delay to avoid rapid consecutive requests
                 sleep($should_sleep_for_seasons ? 10 : 0);
                 $should_sleep_for_seasons = false;
             }
+
+            $this->updateLastFetch($competition, $seasons, 'single_matches_last_fetch');
 
             echo "------------\n\n";
 

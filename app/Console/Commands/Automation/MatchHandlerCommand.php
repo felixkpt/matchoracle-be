@@ -4,6 +4,7 @@ namespace App\Console\Commands\Automation;
 
 use App\Jobs\Automation\MatchHandlerJob;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class MatchHandlerCommand extends Command
 {
@@ -28,13 +29,13 @@ class MatchHandlerCommand extends Command
     {
         $task = $this->option('task') ?? 'results';
         $ignore_date = $this->option('ignore-date');
-        
+
         if ($task != 'historical_results' && $task != 'results' && $task != 'fixtures') {
             $this->warn('Task should be historical_results, results or fixtures.');
             return 0;
         }
 
-        $this->info('Task: ' . ($task == 'results' ? 'results update.' : 'fixtures update.'));
+        $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
 
         dispatch(new MatchHandlerJob($task, $ignore_date));
         $this->info('Match handler command executed successfully!');

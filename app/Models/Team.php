@@ -75,4 +75,9 @@ class Team extends Model
     {
         return $this->hasMany(Prediction::class, 'predicted_winner_id');
     }
+
+    public function games()
+    {
+        return $this->hasMany(Game::class);
+    }
 }

@@ -34,7 +34,7 @@ class GetNestedRoutes
     public function list()
     {
         // Get all the nested routes from the 'nested-routes/admin' folder
-        $nestedRoutes = RoutesHelper::getRoutes(config('nested_routes.admin_folder'), $this->leftTrim);
+        $nestedRoutes = (new RoutesHelper())->getRoutes($this->leftTrim);
 
         // // Group the routes by folder hierarchy
         // $nestedRoutes = $this->groupRoutesByFolder($nestedRoutes);
@@ -87,5 +87,4 @@ class GetNestedRoutes
             }
         }
     }
-
 }

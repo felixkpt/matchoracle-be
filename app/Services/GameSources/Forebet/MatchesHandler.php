@@ -62,16 +62,11 @@ class MatchesHandler implements MatchesInterface
             $updated = $updated + $updated_new;
             $messages[] = $msg_new;
 
-            sleep(15);
+            sleep(10);
         }
 
         if (!$this->has_errors && $season && !$season->is_current && Carbon::parse($season->end_date)->isPast()) {
             $season->update(['fetched_all_matches' => true]);
-        }
-
-        if (!$this->has_errors) {
-            $arr = [($this->is_fixtures ? 'upcoming' : 'past') . '_matches_last_fetch' => Carbon::now()];
-            $competition->update($arr);
         }
 
         $message = implode(', ', $messages);

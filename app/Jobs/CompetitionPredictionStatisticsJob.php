@@ -54,7 +54,7 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
                 ->whereHas('games')
                 ->where(function ($q) {
                     $q->whereNull('predictions_stats_last_done')
-                        ->orWhere('predictions_stats_last_done', '<=', Carbon::now()->subHours(24 * 7));
+                        ->orWhere('predictions_stats_last_done', '<=', Carbon::now()->subHours(24 * 0));
                 })
                 ->when($this->competitionId, function ($query) {
                     $query->where('id', $this->competitionId);

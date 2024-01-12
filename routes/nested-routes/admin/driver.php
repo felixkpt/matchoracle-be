@@ -18,10 +18,11 @@ use Illuminate\Support\Str;
 
 $nested_routes_folder = config('nested_routes.admin_folder');
 // Prefix all generated routes
-$prefix = 'api/admin';
+$prefix = 'api';
 // Middlewares to be passed before accessing any route
-$middleWares = ['api', 'nested_routes_auth'];
-
+$middleWares = [];
+$middleWares[] = 'api';
+$middleWares[] = 'nested_routes_auth';
 $middleWares[] = 'auth:sanctum';
 
 Route::middleware(array_filter(array_merge($middleWares, [])))
@@ -35,15 +36,12 @@ Route::middleware(array_filter(array_merge($middleWares, [])))
 
             foreach ($route_files as $file) {
 
-                $res = RoutesHelper::handle($file, $nested_routes_folder, $routes_path);
+                $res = (new RoutesHelper(''))->handle($file);
 
                 $prefix = $res['prefix'];
                 $file_path = $res['file_path'];
 
-                // Check if the current file is at the root of $routes_path
-                $isAtRoot = dirname($file->getPathname()) === $routes_path;
-
-                Route::prefix($isAtRoot ? '' : $prefix)->group(function () use ($file_path) {
+                Route::prefix($prefix)->group(function () use ($file_path) {
                     require $file_path;
                 });
             }

@@ -3,51 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Competition;
 use App\Models\CompetitionPredictionStatisticJobLog;
 use App\Models\CompetitionStatisticJobLog;
-use App\Models\Country;
 use App\Models\Game;
 use App\Models\MatchesJobLog;
 use App\Models\MatchJobLog;
-use App\Models\Odd;
 use App\Models\PredictionJobLog;
-use App\Models\Season;
 use App\Models\SeasonJobLog;
-use App\Models\Standing;
 use App\Models\StandingJobLog;
-use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 
-class AdminController extends Controller
+class AutomationReportController extends Controller
 {
+
     public function index()
-    {
-        return view('home');
-    }
-
-    public function stats()
-    {
-        sleep(1);
-        $activeStatusId = activeStatusId();
-
-        $results = [
-            'countries' => $this->getCountriesStats(Country::class),
-            'competitions' => $this->getModelStats(Competition::class, $activeStatusId),
-            'odds_enabled_competitions' => $this->getOddsEnabledStats(Competition::class, $activeStatusId),
-            'seasons' => $this->getModelStats(Season::class, $activeStatusId),
-            'standings' => $this->getModelStats(Standing::class, $activeStatusId),
-            'teams' => $this->getModelStats(Team::class, $activeStatusId),
-            'matches' => $this->getMatchesStats(),
-            'predictions' => $this->getPredictionsStats(Game::class, $activeStatusId),
-            'odds' => $this->getOddsStats(Odd::class, $activeStatusId),
-        ];
-
-        return response(['results' => $results]);
-    }
-
-    public function advancedStats()
     {
         $activeStatusId = activeStatusId();
 
@@ -99,32 +69,6 @@ class AdminController extends Controller
         return response(['results' => $results]);
     }
 
-    private function getModelStats($modelClass, $activeStatusId)
-    {
-        return [
-            'totals' => $modelClass::count(),
-            'active' => $modelClass::where('status_id', $activeStatusId)->count(),
-            'inactive' => $modelClass::where('status_id', '!=', $activeStatusId)->count(),
-        ];
-    }
-
-    private function getCountriesStats($modelClass)
-    {
-        return [
-            'totals' => $modelClass::count(),
-            'with_competitions' => $modelClass::where('has_competitions', true)->count(),
-            'without_competitions' => $modelClass::where('has_competitions', false)->count(),
-        ];
-    }
-
-    private function getOddsEnabledStats($modelClass, $activeStatusId)
-    {
-        return [
-            'totals' => $modelClass::where('is_odds_enabled', true)->count(),
-            'active' => $modelClass::where('is_odds_enabled', true)->where('status_id', $activeStatusId)->count(),
-            'inactive' => $modelClass::where('is_odds_enabled', true)->where('status_id', '!=', $activeStatusId)->count(),
-        ];
-    }
 
     private function getMatchStatsQuery($date = null)
     {
@@ -135,15 +79,6 @@ class AdminController extends Controller
         }
 
         return $query;
-    }
-
-    private function getMatchesStats($date = null)
-    {
-        return [
-            'totals' => $this->getMatchStatsQuery($date)->count(),
-            'past' => $this->getMatchStatsQuery($date)->where('utc_date', '<=', now())->count(),
-            'upcoming' => $this->getMatchStatsQuery($date)->where('utc_date', '>', now())->count(),
-        ];
     }
 
     private function prepareGetAdvancedMatchesStats($date = null)
@@ -175,15 +110,6 @@ class AdminController extends Controller
             'totals' => $modelClass::whereHas('prediction')->count(),
             'past' => $modelClass::whereHas('prediction')->where('utc_date', '<=', now())->where('status_id', $activeStatusId)->count(),
             'upcoming' => $modelClass::whereHas('prediction')->where('utc_date', '>', now())->where('status_id', $activeStatusId)->count(),
-        ];
-    }
-
-    private function getOddsStats($modelClass, $activeStatusId)
-    {
-        return [
-            'totals' => $modelClass::whereHas('game')->count(),
-            'past' => $modelClass::whereHas('game')->where('utc_date', '<=', now())->where('status_id', $activeStatusId)->count(),
-            'upcoming' => $modelClass::whereHas('game')->where('utc_date', '>', now())->where('status_id', $activeStatusId)->count(),
         ];
     }
 

@@ -75,6 +75,8 @@ class SeasonsHandlerJob implements ShouldQueue
             // Output the fetch result for logging
             echo $data['message'] . "\n";
 
+            $this->updateLastFetch($competition, 'from_seasons', 'seasons_last_fetch');
+
             echo "------------\n";
 
             $this->doLogging($data);

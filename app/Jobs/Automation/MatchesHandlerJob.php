@@ -56,23 +56,27 @@ class MatchesHandlerJob implements ShouldQueue
         $this->loggerModel(true);
 
         // Set the request parameter to indicate no direct response is expected
-        request()->merge(['without_response' => true]);
+        request()->merge(['without_response' => true, 'shallow_fetch' => $this->task == 'shallow_fixtures']);
 
-        $taskType = ($this->task == 'fixtures') ? 'upcoming' : 'past';
+        $taskType = Str::endsWith($this->task, 'fixtures') ? 'upcoming' : 'past';
         $lastFetchColumn = $taskType . '_matches_last_fetch';
 
-        // Fetch competitions that need season data updates
+        // shallow_fixtures, fixtures, results delay set
+        $delay = $this->task == 'shallow_fixtures' ? 24 * 2 : ($this->task == 'fixtures' ? 24 * 4 : 24 * 3);
+
+        // Get competitions that need matches data updates
         $competitions = Competition::query()
             ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
-            // ->where('id', 1457)
+            // ->where('id', 1622)
             ->whereHas('gameSources', function ($q) {
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('seasons')
-            ->where(function ($q) use ($lastFetchColumn, $taskType) {
+            ->where(function ($q) use ($lastFetchColumn, $delay) {
                 $q->whereNull($lastFetchColumn)
-                    ->orWhere($lastFetchColumn, '<=', Carbon::now()->subHours(($taskType == 'upcoming' ? 24 * 7 : 24 * 3)));
+                    ->orWhere($lastFetchColumn, '<=', Carbon::now()->subHours($delay));
             })
+            ->when($this->task == 'results', fn ($q) => $q->whereHas('games', fn ($q) => $q->where('utc_date', '>', Carbon::now()->subDays(5))->where('utc_date', '<', Carbon::now()->subHours(5))))
             ->limit(700)
             ->orderBy($lastFetchColumn, 'asc')->get();
 
@@ -84,20 +88,20 @@ class MatchesHandlerJob implements ShouldQueue
             $this->doCompetitionRunLogging();
 
             $seasons = $competition->seasons()
-                ->when($this->task == 'fixtures', fn ($q) => $q->where('is_current', true))
+                ->when(Str::endsWith($this->task, 'fixtures'), fn ($q) => $q->where('is_current', true))
                 ->whereDate('start_date', '>=', '2015-01-01')
-                // ->whereDate('start_date', '<=', '2019-01-01')
                 ->where('fetched_all_matches', false)
-                ->take(15)
+                ->take($this->task == 'historical_results' ? 15 : 1)
                 ->orderBy('start_date', 'desc')->get();
+            $total_seasons = $seasons->count();
 
             $should_sleep_for_seasons = false;
-            foreach ($seasons as $season) {
+            foreach ($seasons as $season_key => $season) {
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
 
-                echo "Season #{$season->id} ({$start_date}/{$end_date})\n";
+                echo ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date})\n";
 
                 while (!is_connected()) {
                     echo "You are offline. Retrying in 10 secs...\n";
@@ -108,7 +112,7 @@ class MatchesHandlerJob implements ShouldQueue
                 $matchesHandler = $this->sourceContext->matchesHandler();
 
                 // Fetch matches for the current competition
-                $data = $matchesHandler->fetchMatches($competition->id, $season->id, $this->task == 'fixtures');
+                $data = $matchesHandler->fetchMatches($competition->id, $season->id, Str::endsWith($this->task, 'fixtures'));
 
                 // Output the fetch result for logging
                 echo $data['message'] . "\n";
@@ -121,6 +125,8 @@ class MatchesHandlerJob implements ShouldQueue
                 sleep($should_sleep_for_seasons ? 15 : 0);
                 $should_sleep_for_seasons = false;
             }
+
+            $this->updateLastFetch($competition, $seasons, $lastFetchColumn);
 
             $this->determineCompetitionGamesPerSeason($competition, $seasons);
 
@@ -156,11 +162,13 @@ class MatchesHandlerJob implements ShouldQueue
 
     private function loggerModel($increment_job_run_counts = false)
     {
+        $task = $this->task;
         $today = Carbon::now()->format('Y-m-d');
-        $record = MatchesJobLog::where('date', $today)->where('source_id', $this->sourceContext->getId())->first();
+        $record = MatchesJobLog::where('task', $task)->where('date', $today)->where('source_id', $this->sourceContext->getId())->first();
 
         if (!$record) {
             $arr = [
+                'task' => $task,
                 'date' => $today,
                 'source_id' => $this->sourceContext->getId(),
                 'job_run_counts' => 1,

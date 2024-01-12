@@ -3,7 +3,6 @@
 namespace App\Services\NestedRoutes;
 
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
@@ -12,16 +11,12 @@ class RoutesHelper
 {
     protected $nested_routes_folder;
     protected $prefix_from;
-    protected $renameMainFolders;
 
     function __construct($prefix_from = null)
     {
-        $this->renameMainFolders = [
-            'admin' => 'dashboard'
-        ];
-
         $this->nested_routes_folder = config('nested_routes.admin_folder');
-        $this->prefix_from = trim($prefix_from ? $prefix_from : 'admin', '/');
+
+        $this->prefix_from = $prefix_from ?? 'admin';
     }
     /**
      * Get nested routes from a specific folder.
@@ -39,19 +34,18 @@ class RoutesHelper
             $folder = $routes_path;
             $routes = $this->getRoutesReal($folder, $routes_path, $leftTrim);
 
-            $foldermain = $this->getFolderAfterNested($folder);
-
+            $foldermin = $this->getFolderAfterNested($folder);
+            
             $item = [
-                'folder' => ($this->renameMainFolders[$foldermain] ?? $foldermain),
+                'folder' => $foldermin,
                 'children' => [],
                 'routes' => $routes,
-                'hidden' => $this->getHidden($foldermain),
-                'icon' => $this->getIcon($foldermain),
-                'position' => $this->getPosition($foldermain),
+                'hidden' => $this->getHidden($foldermin),
+                'icon' => $this->getIcon($foldermin),
+                'position' => $this->getPosition($foldermin),
             ];
 
-        
-            $items = $this->iterateFolders($folder, $routes_path, $leftTrim, true);
+            $items = $this->iterateFolders($folder, $routes_path, $leftTrim);
 
             array_unshift($items, $item);
 
@@ -74,7 +68,7 @@ class RoutesHelper
         return null;
     }
 
-    private function iterateFolders($folder, $routes_path, $leftTrim, $is_main = false)
+    private function iterateFolders($folder, $routes_path, $leftTrim)
     {
 
         $items = [];
@@ -84,15 +78,15 @@ class RoutesHelper
 
             $routes = $this->getRoutesReal($folder, $routes_path, $leftTrim);
 
-            $foldermain = $this->getFolderAfterNested($folder);
+            $foldermin = $this->getFolderAfterNested($folder);
 
             $item = [
-                'folder' => $is_main ? ($this->renameMainFolders[$foldermain] ?? $foldermain) : $foldermain,
+                'folder' => $foldermin,
                 'children' => $this->iterateFolders($folder, $routes_path, $leftTrim),
                 'routes' => $routes,
-                'hidden' => $this->getHidden($foldermain),
-                'icon' => $this->getIcon($foldermain),
-                'position' => $this->getPosition($foldermain),
+                'hidden' => $this->getHidden($foldermin),
+                'icon' => $this->getIcon($foldermin),
+                'position' => $this->getPosition($foldermin),
             ];
 
             $items[] = $item;
@@ -122,13 +116,10 @@ class RoutesHelper
         // Filter out the driver.php files and process each route file
         $route_files = collect(File::files($folder))->filter(fn ($file) => !Str::is($file->getFileName(), 'driver.php') && Str::endsWith($file->getFileName(), '.route.php'));
 
-
         foreach ($route_files as $file) {
 
             // Handle the route file and extract relevant information
             $res = $this->handle($file, $routes_path, $leftTrim);
-
-            // dump($res);
 
             $prefix = $res['prefix'];
             $file_path = $res['file_path'];
@@ -195,11 +186,8 @@ class RoutesHelper
             });
         }
 
-        // dd(33);
-
         return $items;
     }
-
     /**
      * Handle the processing of a route file and extract relevant information.
      *
@@ -209,8 +197,13 @@ class RoutesHelper
      * @param bool $get_folder_after_nested Whether to get the folder name after the 'nested-routes' folder.
      * @return array The processed route information as an associative array.
      */
-    function handle($file, $get_folder_after = null)
+    function handle($file, $routes_path = null, $get_folder_after = null)
     {
+        $routes_path = $routes_path ?? $this->nested_routes_folder;
+
+        if (!$get_folder_after) {
+            $get_folder_after = base_path('routes/' . $this->nested_routes_folder);
+        }
 
         $path = $file->getPath();
 
@@ -218,12 +211,24 @@ class RoutesHelper
 
         $folder_after_nested = null;
         if ($get_folder_after)
-            $folder_after_nested = $this->getFolderAfterNested($path, $this->nested_routes_folder);
+            $folder_after_nested = $this->getFolderAfterNested($path);
 
         $file_name = $file->getFileName();
         $prefix = $file_name;
 
-        $prefix = $this->getPrefix($file);
+        $prefix = $this->getPrefix($file, $routes_path);
+
+
+        $isAtRoot = false;
+        // Check if the current file is at the root of $routes_path
+        if ($file->getPathname() === $routes_path) {
+            $isAtRoot = true;
+        } else {
+            $main_index_file = Str::afterLast($file->getPathname(), '/') . 'route.php';
+            if ($file->getBasename() != $main_index_file || $file->getBasename() !== 'index.route.php') {
+                $prefix = $prefix . '/' . Str::before($file->getBasename(), '.route.php');
+            }
+        }
 
         $file_path = $file->getPathName();
         $res = [
@@ -235,50 +240,32 @@ class RoutesHelper
         return $res;
     }
 
-    function getPrefix($file)
+    function getPrefix($file, $routes_path)
     {
 
-        // $prefix = '';
-        // if ($file->getPathname() !== $routes_path) {
-        //     $sub = Str::replace('\\', '/', dirname($file->getPathname()));
-        //     $sub = Str::afterLast($sub, $this->nested_routes_folder);
-        //     $prefix = $this->prefix_from.'/'.Str::after($sub, $this->prefix_from);
-        // }
-
-        // return $prefix;
-
-        $file_name = $file->getBaseName();
-
-        $path = $file->getPath();
-
-        $dirname = Str::afterLast($path, $file_name);
-        $prefix = Str::afterLast($dirname, $this->nested_routes_folder);
-
-        $replaced_filename = Str::replace('index.route.php', '', $file_name);
-
-        $replaced_filename = Str::replace('.route.php', '', $replaced_filename);
-
-        $file_name = $replaced_filename;
-        if (Str::endsWith($prefix, $replaced_filename)) {
-            $file_name = '';
+        $prefix = '';
+        if ($file->getPathname() !== $routes_path) {
+            $sub = Str::replace('\\', '/', dirname($file->getPathname()));
+            $sub = Str::afterLast($sub, $this->nested_routes_folder);
+            $prefix = Str::after($sub, $this->prefix_from);
         }
 
-        if ($file_name) {
-            $file_name = '/' . $file_name;
-        }
+        return $prefix;
 
-        $prefix = strtolower($prefix . $file_name);
+        // api/admin/settings/role-permissions/roles/roles/get-user-roles-and-direct-permissions
 
-        if (!Str::startsWith(trim($prefix, '/'), $this->prefix_from)) {
-            $prefix = '/' . $this->prefix_from . $prefix;
-        }
+        $prefix = str_replace($file_name, '', $path);
+        $prefix = str_replace($routes_path, '', $prefix);
+        $main_file = Str::afterLast($prefix, '/');
 
-        // if ($file_name == 'advanced-stats.route.php' || $file_name == 'betting-tips.route.php') {
-        //     Log::info("SELECTED::", [
-        //         $path,
-        //         $prefix,
-        //     ]);
-        // }
+        $ext_route = str_replace('index.route.php', '', $file_name);
+        if ($main_file . '.route.php' === $ext_route)
+            $ext_route = str_replace($main_file . '.', '.', $ext_route);
+        $ext_route = str_replace('.route.php', '', $ext_route);
+        if ($ext_route)
+            $ext_route = '/' . $ext_route;
+
+        $prefix = strtolower($prefix . $ext_route);
 
         return $prefix;
     }

@@ -50,6 +50,16 @@ class StandingsHandlerJob implements ShouldQueue
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('seasons')
+            ->when(
+                !request()->historical_results,
+                fn ($q) =>
+                $q->whereHas(
+                    'games',
+                    fn ($q) =>
+                    $q->where('utc_date', '>=', Carbon::now()->subDays(5))
+                        ->where('utc_date', '<', Carbon::now())
+                )
+            )
             ->where('has_standings', true)
             ->where(function ($q) {
                 $q->whereNull('standings_last_fetch')
@@ -70,13 +80,15 @@ class StandingsHandlerJob implements ShouldQueue
                 ->where('fetched_standings', false)
                 ->take(15)
                 ->orderBy('start_date', 'desc')->get();
+            $total_seasons = $seasons->count();
 
             $should_sleep_for_seasons = false;
-            foreach ($seasons as $season) {
+            foreach ($seasons as $season_key => $season) {
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
-                echo "Season #{$season->id} ({$start_date}/{$end_date})\n";
+
+                echo ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date})\n";
 
                 while (!is_connected()) {
                     echo "You are offline. Retrying in 10 secs...\n";
@@ -103,6 +115,8 @@ class StandingsHandlerJob implements ShouldQueue
                 sleep($should_sleep_for_seasons ? 15 : 0);
                 $should_sleep_for_seasons = false;
             }
+
+            $this->updateLastFetch($competition, $seasons, 'standings_last_fetch');
 
             echo "------------\n";
 

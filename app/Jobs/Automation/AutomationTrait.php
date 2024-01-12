@@ -21,4 +21,12 @@ trait AutomationTrait
     {
         $model->create(['date' => Carbon::now(), 'message' => $data['message']]);
     }
+
+    private function updateLastFetch($competition, $seasons, $column)
+    {
+        if ($seasons == 'from_seasons' || $seasons->count() > 0) {
+            $competition->$column = now();
+            $competition->save();
+        }
+    }
 }

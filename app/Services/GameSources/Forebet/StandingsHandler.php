@@ -88,11 +88,6 @@ class StandingsHandler
             });
         }
 
-        if (!$this->has_errors) {
-            $arr = ['standings_last_fetch' => Carbon::now(), 'has_standings' => !!$competition->standings->count()];
-            $competition->update($arr);
-        }
-
         if ($saved + $updated > 0 && $season && !$season->is_current && Carbon::parse($season->end_date)->isPast()) {
             $season->update(['fetched_standings' => true]);
         }

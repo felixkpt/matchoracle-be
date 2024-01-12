@@ -8,8 +8,8 @@ $controller = MatchesController::class;
 
 // Routes for different match views
 Route::get('/', [$controller, 'index'])->name('all matches'); // All matches
-Route::get('/today', [$controller, 'index'])->name('today\'s matches'); // Today's matches
-Route::get('/yesterday', [$controller, 'index'])->name('yesterday\'s matches'); // Yesterday's matches
+Route::get('/today', [$controller, 'today'])->name('today\'s matches'); // Today's matches
+Route::get('/yesterday', [$controller, 'yesterday'])->name('yesterday\'s matches'); // Yesterday's matches
 Route::get('/tomorrow', [$controller, 'tomorrow'])->name('tomorrow\'s matches'); // Tomorrow's matches
 
 // Routes for matches based on year, year/month, and year/month/day

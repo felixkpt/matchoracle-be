@@ -55,6 +55,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
             ->addColumn('standings_fetched', fn ($q) => $q->standings_last_fetch ? Carbon::parse($q->standings_last_fetch)->diffForHumans() : 'N/A')
             ->addColumn('p_matches_fetched', fn ($q) => $q->past_matches_last_fetch ? Carbon::parse($q->past_matches_last_fetch)->diffForHumans() : 'N/A')
             ->addColumn('u_matches_fetched', fn ($q) => $q->upcoming_matches_last_fetch ? Carbon::parse($q->upcoming_matches_last_fetch)->diffForHumans() : 'N/A')
+            ->addColumn('Predictions_last_train', fn ($q) => $q->predictions_last_train ? Carbon::parse($q->predictions_last_train)->diffForHumans() : 'N/A')
             ->addColumn('odds', fn ($q) => Odd::whereHas('game', fn ($qry) => $qry->where('competition_id', $q->id))->count())
             ->addActionItem(
                 [
