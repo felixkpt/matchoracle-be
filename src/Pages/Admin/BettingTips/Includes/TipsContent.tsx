@@ -27,7 +27,7 @@ const TipsContent = ({ data, odds_name, odds_name_print, odds, outcome }: Props)
                 data.map((game: GameInterface) => {
 
                     return (
-                        <div className="row border border-0 border-bottom border-dark">
+                        <div key={game.id} className="row border border-0 border-bottom border-dark">
                             <div className="col-12 text-muted">
                                 <small>{FormatDate.toLocaleDateString(game.utc_date)}</small>
                             </div>

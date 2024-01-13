@@ -39,7 +39,6 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
   // Function to handle tab click event
   function handleTab(e: React.MouseEvent, tabName: string): void {
 
-    e.preventDefault();
     const newUrl = `${window.location.pathname}?tab=${tabName}`;
     window.history.pushState({ path: newUrl }, "", newUrl);
 

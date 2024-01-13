@@ -37,12 +37,12 @@ const Multiples = ({ uri, type, odds_name, odds_name_print }: Props) => {
 
                                     <>
                                         {
-                                            data.data.map((items: any) => {
+                                            data.data.map((items: any, key: number) => {
 
                                                 return (
-                                                    <>
+                                                    <div key={key}>
                                                         <TipsContent data={items.betslip} odds_name={odds_name} odds_name_print={odds_name_print} odds={items.odds} outcome={items.outcome} />
-                                                    </>
+                                                    </div>
                                                 )
                                             })
                                         }

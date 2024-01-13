@@ -185,6 +185,8 @@ p {
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  border: 1px solid var(--bs-gray-400);
+  padding: 0.2rem;
 }
 
 .symbol-image-sm {
@@ -192,6 +194,8 @@ p {
   width: 30px;
   height: 30px;
   border-radius: 50%;
+  border: 1px solid var(--bs-gray-400);
+  padding: 0.1rem;
 
 }
 
@@ -200,6 +204,8 @@ p {
   width: 18px;
   height: 18px;
   border-radius: 50%;
+  border: 1px solid var(--bs-gray-400);
+  padding: 0.06rem;
 
 }
 

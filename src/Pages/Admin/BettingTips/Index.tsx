@@ -1,9 +1,6 @@
 import Error404 from '@/Pages/ErrorPages/Error404';
 import useRouteParamValidation from '@/hooks/useRouteParamValidation';
-import { useEffect, useState } from 'react';
 import "react-datepicker/dist/react-datepicker.css";
-import FormatDate from '@/utils/FormatDate';
-import { useLocation, useNavigate } from 'react-router-dom';
 import AutoTabs from '@/components/AutoTabs';
 import { TabInterface } from '@/interfaces/UncategorizedInterfaces';
 import GGTips from './Tabs/GGTips';
@@ -14,44 +11,12 @@ import DrawTips from './Tabs/DrawTips';
 import AwayWinTips from './Tabs/AwayWinTips';
 import Under25Tips from './Tabs/Under25Tips';
 import MatchesPageHeader from '@/components/Matches/MatchesPageHeader';
+import useFromToDates from '@/hooks/useFromToDates';
 
 const Index = () => {
 
-    const location = useLocation();
-    const navigate = useNavigate();
-
     const errorsState = useRouteParamValidation();
-
-    const [baseUri, setBaseUri] = useState(`/admin/betting-tips/`)
-    const [previousUrl, setPreviousUrl] = useState<string | null>(null)
-
-    useEffect(() => {
-
-        let url = location.pathname
-        setBaseUri(url ? `${url}` : `/admin/betting-tips/`)
-
-        if (previousUrl !== location.pathname) {
-            setPreviousUrl(location.pathname)
-        }
-
-    }, [location.pathname]);
-
-    const initialDates: Array<string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
-    const [fromToDates, setFromToDates] = useState<Array<string | undefined>>([]);
-
-    useEffect(() => {
-        let combinedDates = '';
-        if (fromToDates[0]) {
-            combinedDates = fromToDates[0];
-            if (fromToDates[1]) {
-                if (combinedDates != fromToDates[1])
-                    combinedDates = `${combinedDates}/to/${fromToDates[1]}`;
-
-                const newUrl = `/admin/betting-tips/${combinedDates}`;
-                navigate(newUrl);
-            }
-        }
-    }, [fromToDates, history])
+    const { fromToDates, setFromToDates, baseUri, previousUrl } = useFromToDates('/admin/betting-tips/');
 
     const tabs: TabInterface[] = [
         {
