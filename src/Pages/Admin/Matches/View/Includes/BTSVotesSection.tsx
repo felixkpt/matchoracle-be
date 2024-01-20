@@ -5,15 +5,15 @@ import { useEffect, useState } from 'react'
 
 type Props = {
     game: GameInterface
-    setGame: any
 }
 
-const BTSVotesSection = ({ game, setGame }: Props) => {
+const BTSVotesSection = ({ game: initialGame }: Props) => {
 
     const { post } = useAxios()
 
-    const [isFuture, setIsFuture] = useState(true)
+    const [game, setGame] = useState<GameInterface>(initialGame)
 
+    const [isFuture, setIsFuture] = useState(true)
     const [voted, setVoted] = useState(false)
     const [showVotes, setShowVotes] = useState(false)
 
@@ -21,12 +21,6 @@ const BTSVotesSection = ({ game, setGame }: Props) => {
     const [button2Width, setbutton2Width] = useState<string>('0');
     const [showText, setShowText] = useState(false);
     const [votingInProgress, setVotingInProgress] = useState(false); // State to track voting in progress
-
-    useEffect(() => {
-        if (game) {
-            setGame(game)
-        }
-    }, [game])
 
     function handleVote(e: any) {
 
@@ -117,9 +111,13 @@ const BTSVotesSection = ({ game, setGame }: Props) => {
                     ) : (
                         <div>
                             <div className='col-12'>GG/NG?</div>
-                            <div className='col-12 row justify-content-between'>
-                                <div onClick={handleVote} data-target='gg' title='Predict BTS - Yes' className='col vote-btn home fw-bold text-center p-1'>GG</div>
-                                <div onClick={handleVote} data-target='ng' title='Predict BTS - No' className='col vote-btn draw fw-bold text-center p-1'>NG</div>
+                            <div className='col-12'>
+                                <div className='col-12'>
+                                    <div className='d-flex justify-content-center'>
+                                        <div onClick={handleVote} data-target='gg' title='Predict BTS - Yes' className='col vote-btn home fw-bold text-center p-1'>GG</div>
+                                        <div onClick={handleVote} data-target='ng' title='Predict BTS - No' className='col vote-btn draw fw-bold text-center p-1'>NG</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}

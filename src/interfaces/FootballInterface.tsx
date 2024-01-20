@@ -146,10 +146,14 @@ export interface ScoreInterface {
 export interface PredictionInterface {
     type: string;
     game_id: string;
-    hda: string;
-    home_win_proba: number;
-    draw_proba: number;
-    away_win_proba: number;
+    ft_hda: string;
+    ft_home_win_proba: number;
+    ft_draw_proba: number;
+    ft_away_win_proba: number;
+    ht_hda: string;
+    ht_home_win_proba: number;
+    ht_draw_proba: number;
+    ht_away_win_proba: number;
     gg: string;
     gg_proba: number;
     ng_proba: number;
@@ -223,7 +227,38 @@ export interface GameInterface {
     odds: OddInterface[]
     Fulltime: HTMLElement
     outcome: 'W' | 'L' | 'U'
+    Winner: string
 
+}
+
+export interface PredictionCategoryInterface {
+    counts: number;
+    preds: number;
+    preds_true: number;
+    preds_true_percentage: number;
+}
+
+export interface PredictionStatisticsInterface {
+    counts: number;
+    full_time: {
+        home_wins: PredictionCategoryInterface;
+        draws: PredictionCategoryInterface;
+        away_wins: PredictionCategoryInterface;
+        gg: PredictionCategoryInterface;
+        ng: PredictionCategoryInterface;
+        over15: PredictionCategoryInterface;
+        under15: PredictionCategoryInterface;
+        over25: PredictionCategoryInterface;
+        under25: PredictionCategoryInterface;
+        over35: PredictionCategoryInterface;
+        under35: PredictionCategoryInterface;
+    };
+    half_time: {
+        home_wins: PredictionCategoryInterface;
+        draws: PredictionCategoryInterface;
+        away_wins: PredictionCategoryInterface;
+    };
+    average_score: number;
 }
 
 export interface GameSourceInterface {
@@ -270,6 +305,52 @@ export interface DashJobLogsInterface {
     total_fetch_success_counts: number;
     total_fetch_failed_counts: number;
     total_updated_items_counts: number;
+}
+
+export interface BettingTipsStatisticsInterface {
+    id: string
+    type: string
+    is_multiples: boolean
+    Multiples: 'Yes' | 'No'
+    range: string
+    initial_bankroll: number
+    bankroll_topups: number
+    final_bankroll: number
+    total: number
+    won: number
+    won_percentage: number
+    gain: number
+    roi: number
+    longest_winning_streak: number
+    longest_losing_streak: number
+}
+
+export interface BettingTipsTotalsInterface {
+    total_totals: number;
+    total_won: number;
+    total_gain: number;
+    average_roi: number;
+}
+
+
+export interface DashboardStatsMatchJobLogsInterface {
+
+    historical_results: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    recent_results: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    shallow_fixtures: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    fixtures: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
 }
 export interface DashboardStatsInterface {
     countries: {
@@ -342,38 +423,20 @@ export interface DashboardStatsInterface {
         'all': DashJobLogsInterface;
     };
     standings_job_logs: {
-        'today': DashJobLogsInterface;
-        'all': DashJobLogsInterface;
+        historical_results: {
+            'today': DashJobLogsInterface;
+            'all': DashJobLogsInterface;
+        };
+        recent_results: {
+            'today': DashJobLogsInterface;
+            'all': DashJobLogsInterface;
+        };
     };
 
-    results_matches_job_logs: {
-        'today': DashJobLogsInterface;
-        'all': DashJobLogsInterface;
-    };
-    historical_results_matches_job_logs: {
-        'today': DashJobLogsInterface;
-        'all': DashJobLogsInterface;
-    };
-    fixtures_matches_job_logs: {
-        'today': DashJobLogsInterface;
-        'all': DashJobLogsInterface;
-    };
-    shallow_fixtures_matches_job_logs: {
-        'today': DashJobLogsInterface;
-        'all': DashJobLogsInterface;
-    };
-    results_match_job_logs: {
-        'today': DashJobLogsInterface;
-        'all': DashJobLogsInterface;
-    };
-    historical_results_match_job_logs: {
-        'today': DashJobLogsInterface;
-        'all': DashJobLogsInterface;
-    };
-    fixtures_match_job_logs: {
-        'today': DashJobLogsInterface;
-        'all': DashJobLogsInterface;
-    };
+    matches_job_logs: DashboardStatsMatchJobLogsInterface
+
+    match_job_logs: DashboardStatsMatchJobLogsInterface
+
     predictions_job_logs: {
         'today': DashJobLogsInterface;
         'all': DashJobLogsInterface;
@@ -386,6 +449,13 @@ export interface DashboardStatsInterface {
         'today': CompetitionPredictionStatsInterface;
         'all': CompetitionPredictionStatsInterface;
     }
+
+    betting_tips_statistics_logs:
+    {
+        'today': BettingTipsStatsInterface[]
+        'all': BettingTipsStatsInterface
+    }
+
 }
 
 export interface MatchesInterface {
@@ -403,6 +473,12 @@ export interface CompetitionStatsInterface {
     total_job_run_count: number;
     total_competition_run_counts: number;
     total_seasons_run_counts: number;
+    total_games_run_counts: number;
+}
+export interface BettingTipsStatsInterface {
+    total_job_run_count: number;
+    total_competition_run_counts: number;
+    total_types_run_counts: number;
     total_games_run_counts: number;
 }
 

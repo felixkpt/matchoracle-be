@@ -1,7 +1,7 @@
 export const predictionsColumns = [
     { key: 'Game' },
-    { key: '1X2' },
-    { key: 'Pick' },
+    { key: 'FT_HDA', label: '1X2' },
+    { key: 'FT_HDA_PICK', label: 'Pick' },
     { key: 'BTS' },
     { key: 'Over25' },
     { key: 'CS' },
@@ -25,4 +25,15 @@ export const oddsColumns = [
     { key: 'GG' },
     { key: 'NG' },
     { key: 'Game' },
+]
+
+export const predictionModes = [
+    {
+        id: 1,
+        name: 'Default',
+    },
+    {
+        id: 2,
+        name: 'Source',
+    },
 ]

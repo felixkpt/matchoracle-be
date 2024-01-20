@@ -2,7 +2,9 @@ import AutoTable from '@/components/AutoTable'
 
 type Props = {}
 
-const MatchesJobLogs = (props: Props) => {
+
+const HistoricalResults = (props: Props) => {
+
 
   const columns = [
     { key: 'id' },
@@ -20,7 +22,7 @@ const MatchesJobLogs = (props: Props) => {
   return (
     <div>
       <AutoTable
-        baseUri='/admin/settings/system/job-logs/matches'
+        baseUri='/admin/settings/system/job-logs/matches?task=historical_results'
         columns={columns}
         search={true}
       />
@@ -28,4 +30,4 @@ const MatchesJobLogs = (props: Props) => {
   )
 }
 
-export default MatchesJobLogs
+export default HistoricalResults

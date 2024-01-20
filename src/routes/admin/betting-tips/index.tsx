@@ -1,5 +1,6 @@
 import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import BettingTips from "@/Pages/Admin/BettingTips/Index";
+import Stats from "@/Pages/Admin/BettingTips/Stats";
 import BettingTip from "@/Pages/Admin/BettingTips/View/Index";
 
 const relativeUri = 'admin/betting-tips/';
@@ -40,6 +41,10 @@ const routes = [
     {
         path: `:start_year/:start_month/:start_day/to/:end_year/:end_month/:end_day`,
         element: <AuthenticatedLayout uri={`${relativeUri}:start_year/:start_month/:start_day/to/:end_year/:end_month/:end_day`} permission="" Component={BettingTips} />,
+    },
+    {
+        path: `stats`,
+        element: <AuthenticatedLayout uri={`${relativeUri}stats`} permission="" Component={Stats} />,
     },
 ];
 

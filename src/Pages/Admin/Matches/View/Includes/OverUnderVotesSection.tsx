@@ -5,15 +5,15 @@ import { useEffect, useState } from 'react'
 
 type Props = {
     game: GameInterface
-    setGame: any
 }
 
-const OverUnderVotesSection = ({ game, setGame }: Props) => {
+const OverUnderVotesSection = ({ game: initialGame }: Props) => {
 
     const { post } = useAxios()
 
-    const [isFuture, setIsFuture] = useState(true)
+    const [game, setGame] = useState<GameInterface>(initialGame)
 
+    const [isFuture, setIsFuture] = useState(true)
     const [voted, setVoted] = useState(false)
     const [showVotes, setShowVotes] = useState(false)
 
@@ -21,12 +21,6 @@ const OverUnderVotesSection = ({ game, setGame }: Props) => {
     const [button2Width, setbutton2Width] = useState<string>('0');
     const [showText, setShowText] = useState(false);
     const [votingInProgress, setVotingInProgress] = useState(false); // State to track voting in progress
-
-    useEffect(() => {
-        if (game) {
-            setGame(game)
-        }
-    }, [game])
 
     function handleVote(e: any) {
 
@@ -65,7 +59,7 @@ const OverUnderVotesSection = ({ game, setGame }: Props) => {
 
     }, [game, game.current_user_votes])
 
-useEffect(() => {
+    useEffect(() => {
 
         if (!isFuture || voted) {
             setTimeout(() => {
@@ -118,9 +112,13 @@ useEffect(() => {
                     ) : (
                         <div>
                             <div className='col-12'>Over/Under 2.5?</div>
-                            <div className='col-12 row justify-content-between'>
-                                <div onClick={handleVote} data-target='over' title='Predict Over 2.5' className='col vote-btn home fw-bold text-center p-1'>OV</div>
-                                <div onClick={handleVote} data-target='under' title='Predict Under 2.5' className='col vote-btn draw fw-bold text-center p-1'>UN</div>
+                            <div className='col-12'>
+                                <div className='col-12'>
+                                    <div className='d-flex justify-content-center'>
+                                        <div onClick={handleVote} data-target='over' title='Predict Over 2.5' className='col vote-btn home fw-bold text-center p-1'>OV</div>
+                                        <div onClick={handleVote} data-target='under' title='Predict Under 2.5' className='col vote-btn draw fw-bold text-center p-1'>UN</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}

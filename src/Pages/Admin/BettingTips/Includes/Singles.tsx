@@ -19,46 +19,47 @@ const Singles = ({ uri, type, odds_name, odds_name_print }: Props) => {
     const { data, get, loading } = useAxios()
 
     useEffect(() => {
-        let localUri = `${uri}?type=${type}&page=${page}&per_page=${per_page}`
+        let localUri = `${uri}${uri.includes('?') ? '&' : '?'}type=${type}&page=${page}&per_page=${per_page}`
         get(localUri)
     }, [uri, type, page, per_page])
 
     return (
         <div>
-            {
-                data ?
-                    <div className="card">
-                        <div className="card-header">
-                            <h5 className="d-flex gap-2 justify-content-between">Singles <span className="text-success">{data.total} tips</span></h5>
-                        </div>
-                        <div className="card-body">
-                            {
-                                !loading || data ?
+            <div className="card">
+                <div className="card-header">
+                    <h5 className="d-flex gap-2 justify-content-between">Singles <span className="text-success">{data?.total || 0} betslips</span></h5>
+                </div>
+                <div className="card-body">
+                    {
+                        data ?
+                            <div>
+                                {
+                                    !loading || data ?
 
-                                    <>
-                                        <TipsContent data={data.data} odds_name={odds_name} odds_name_print={odds_name_print} />
-                                        <InvestmentCard investment={data.investment} />
+                                        <>
+                                            <TipsContent data={data.data} odds_name={odds_name} odds_name_print={odds_name_print} />
+                                            <InvestmentCard investment={data.investment} />
 
-                                    </>
-                                    :
-                                    <Loader />
+                                        </>
+                                        :
+                                        <Loader />
 
-                            }
-                            <Pagination items={data} setPage={setPage} setPerPage={setPerPage} loading={loading} />
-                        </div>
+                                }
+                                <Pagination items={data} setPage={setPage} setPerPage={setPerPage} loading={loading} />
+                            </div>
+                            :
+                            <>
+                                {
+                                    loading ?
+                                        <Loader />
+                                        :
+                                        <div>Data Error</div>
+                                }
+                            </>
 
-                    </div>
-                    :
-                    <>
-                        {
-                            loading ?
-                                <Loader />
-                                :
-                                <div>Data Error</div>
-                        }
-                    </>
-
-            }
+                    }
+                </div>
+            </div>
 
         </div>
     )

@@ -97,7 +97,7 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
     <div className="auto-tabs">
       {
         title &&
-        <PageHeader title={`${title} - ${localOpenTab?.name}`} action={action} actionText={actionText} actionLink={actionLink} permission={permission} method={method} actionTargetId={actionTargetId} listUrl={listUrl} setRecord={setRecord} />
+        <PageHeader title={`${title} - ${localOpenTab?.label || localOpenTab?.name}`} action={action} actionText={actionText} actionLink={actionLink} permission={permission} method={method} actionTargetId={actionTargetId} listUrl={listUrl} setRecord={setRecord} />
       }
       <div className="tabs-section">
 
@@ -112,7 +112,7 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
                 data-toggle="tab"
               >
                 <small className="tab-items">1</small>
-                <span className="tab-name">{tab.name}</span>
+                <span className="tab-name">{tab.label || tab.name}</span>
               </NavLink>
             </li>
           ))}

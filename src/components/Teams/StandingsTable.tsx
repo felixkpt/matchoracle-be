@@ -4,6 +4,7 @@ import FormatDate from '@/utils/FormatDate'
 import Str from '@/utils/Str'
 import { teamLogo } from '@/utils/helpers'
 import { NavLink } from 'react-router-dom'
+import TimeAgo from 'timeago-react'
 
 type Props = {
   standings: StandingInterface[] | undefined
@@ -83,8 +84,8 @@ const StandingsTable = ({ standings, minimal, homeTeamId, awayTeamId }: Props) =
                     </NavLink>
                   ))}
                 </div>
-                <div className='d-flex justify-content-end'>
-                  <small className="col-12 text-muted text-end">Updated {FormatDate.toLocaleDateString(standing.updated_at)}</small>
+                <div className='d-flex'>
+                  <small className={`col-12 text-muted ${minimal ? 'text-center' : 'text-center text-md-end'}`}>Updated {<TimeAgo datetime={standing.updated_at} />}</small>
                 </div>
               </div>
             </div>

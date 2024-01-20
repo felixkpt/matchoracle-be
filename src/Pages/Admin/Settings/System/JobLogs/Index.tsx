@@ -1,11 +1,16 @@
 import AutoTabs from "@/components/AutoTabs";
 import SeasonsJobLogs from "./Tabs/SeasonsJobLogs";
-import StandingsJobLogs from "./Tabs/StandingsJobLogs";
-import MatchesJobLogs from "./Tabs/MatchesJobLogs";
-import ResultsMatchJobLogs from "./Tabs/ResultsMatchJobLogs";
-import FixturesMatchJobLogs from "./Tabs/FixturesMatchJobLogs";
-import HistoricalResultsMatchJobLogs from "./Tabs/HistoricalResultsMatchJobLogs";
 import PredictionsJobLogs from "./Tabs/PredictionsJobLogs";
+import StandingsHistoricalResults from "./Tabs/Standings/HistoricalResults";
+import StandingsRecentResults from "./Tabs/Standings/RecentResults";
+import MatchesHistoricalResults from "./Tabs/MatchesJobLogs/HistoricalResults";
+import MatchesRecentResults from "./Tabs/MatchesJobLogs/RecentResults";
+import MatchesShallowFixtures from "./Tabs/MatchesJobLogs/ShallowFixtures";
+import MatchesFixtures from "./Tabs/MatchesJobLogs/Fixtures";
+import MatchHistoricalResults from "./Tabs/MatchJobLogs/HistoricalResults";
+import MatchRecentResults from "./Tabs/MatchJobLogs/RecentResults";
+import MatchShallowFixtures from "./Tabs/MatchJobLogs/ShallowFixtures";
+import MatchFixtures from "./Tabs/MatchJobLogs/Fixtures";
 
 type Props = {}
 
@@ -17,24 +22,47 @@ const Index = (props: Props) => {
             content: <SeasonsJobLogs />,
         },
         {
-            name: "Standings",
-            content: <StandingsJobLogs />,
+            name: "Standings - Historical Results",
+            content: <StandingsHistoricalResults />,
         },
         {
-            name: "Matches",
-            content: <MatchesJobLogs />,
+            name: "Standings - Recent Results",
+            content: <StandingsRecentResults />,
         },
         {
-            name: "Results Match",
-            content: <ResultsMatchJobLogs />,
-        },{
-            name: "Fixtures Match",
-            content: <FixturesMatchJobLogs />,
+            name: "Matches - Historical Results",
+            content: <MatchesHistoricalResults />,
         },
         {
-            name: "Historical Results Match",
-            content: <HistoricalResultsMatchJobLogs />,
+            name: "Matches - Recent Results",
+            content: <MatchesRecentResults />,
         },
+        {
+            name: "Matches - Shallow Fixtures",
+            content: <MatchesShallowFixtures />,
+        },
+        {
+            name: "Matches - Fixures",
+            content: <MatchesFixtures />,
+        },
+        
+        {
+            name: "Match - Historical Results",
+            content: <MatchHistoricalResults />,
+        },
+        {
+            name: "Match - Recent Results",
+            content: <MatchRecentResults />,
+        },
+        {
+            name: "Match - Shallow Fixtures",
+            content: <MatchShallowFixtures />,
+        },
+        {
+            name: "Match - Fixures",
+            content: <MatchFixtures />,
+        },
+
         {
             name: "Predictions",
             content: <PredictionsJobLogs />,

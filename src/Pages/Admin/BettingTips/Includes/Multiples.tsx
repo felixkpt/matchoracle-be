@@ -19,54 +19,56 @@ const Multiples = ({ uri, type, odds_name, odds_name_print }: Props) => {
     const { data, get, loading } = useAxios()
 
     useEffect(() => {
-        let localUri = `${uri}?type=${type}&page=${page}&per_page=${per_page}&multiples=1`
+        let localUri = `${uri}${uri.includes('?') ? '&' : '?'}type=${type}&page=${page}&per_page=${per_page}&multiples=1`
         get(localUri)
     }, [uri, page, per_page])
 
     return (
         <div>
-            {
-                data ?
-                    <div className="card">
-                        <div className="card-header">
-                            <h5 className="d-flex gap-2 justify-content-between">Accumulators <span className="text-success">{data.total} betslips</span></h5>
-                        </div>
-                        <div className="card-body">
-                            {
-                                !loading || data ?
+            <div className="card">
+                <div className="card-header">
+                    <h5 className="d-flex gap-2 justify-content-between">Accumulators <span className="text-success">{data?.total || 0} betslips</span></h5>
+                </div>
+                <div className="card-body">
+                    {
+                        data ?
+                            <div>
+                                {
+                                    !loading || data ?
 
-                                    <>
-                                        {
-                                            data.data.map((items: any, key: number) => {
+                                        <>
+                                            {
+                                                data.data.map((items: any, key: number) => {
 
-                                                return (
-                                                    <div key={key}>
-                                                        <TipsContent data={items.betslip} odds_name={odds_name} odds_name_print={odds_name_print} odds={items.odds} outcome={items.outcome} />
-                                                    </div>
-                                                )
-                                            })
-                                        }
-                                        <InvestmentCard investment={data.investment} />
-                                    </>
-                                    :
-                                    <Loader />
+                                                    return (
+                                                        <div key={key}>
+                                                            <TipsContent data={items.betslip} odds_name={odds_name} odds_name_print={odds_name_print} odds={items.odds} outcome={items.outcome} final_bankroll={items.final_bankroll} />
+                                                        </div>
+                                                    )
+                                                })
+                                            }
+                                            <InvestmentCard investment={data.investment} />
+                                        </>
+                                        :
+                                        <Loader />
 
-                            }
-                            <Pagination items={data} setPage={setPage} setPerPage={setPerPage} loading={loading} />
-                        </div>
+                                }
+                                <Pagination items={data} setPage={setPage} setPerPage={setPerPage} loading={loading} />
+                            </div>
+                            :
+                            <>
+                                {
+                                    loading ?
+                                        <Loader />
+                                        :
+                                        <div>Data Error</div>
+                                }
+                            </>
 
-                    </div>
-                    :
-                    <>
-                        {
-                            loading ?
-                                <Loader />
-                                :
-                                <div>Data Error</div>
-                        }
-                    </>
+                    }
+                </div>
 
-            }
+            </div>
 
         </div>
     )

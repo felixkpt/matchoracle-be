@@ -2,7 +2,7 @@ import AutoTable from '@/components/AutoTable'
 
 type Props = {}
 
-const StandingsJobLogs = (props: Props) => {
+const RecentResults = (props: Props) => {
 
   const columns = [
     { key: 'id' },
@@ -20,7 +20,7 @@ const StandingsJobLogs = (props: Props) => {
   return (
     <div>
       <AutoTable
-        baseUri='/admin/settings/system/job-logs/standings'
+        baseUri='/admin/settings/system/job-logs/standings?task=recent_results'
         columns={columns}
         search={true}
       />
@@ -28,4 +28,4 @@ const StandingsJobLogs = (props: Props) => {
   )
 }
 
-export default StandingsJobLogs
+export default RecentResults

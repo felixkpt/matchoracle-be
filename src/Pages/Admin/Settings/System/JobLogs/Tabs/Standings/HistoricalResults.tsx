@@ -2,7 +2,7 @@ import AutoTable from '@/components/AutoTable'
 
 type Props = {}
 
-const MatchJobLogs = (props: Props) => {
+const RecentResults = (props: Props) => {
 
   const columns = [
     { key: 'id' },
@@ -12,7 +12,7 @@ const MatchJobLogs = (props: Props) => {
     { key: 'fetch_run_counts', label: 'Fetch runs' },
     { key: 'fetch_success_counts', label: 'Fetch success' },
     { key: 'fetch_failed_counts', label: 'Fetch failed' },
-    { key: 'updated_matches_counts', label: 'Updated matches' },
+    { key: 'updated_standings_counts', label: 'Updated standings' },
     { label: 'Last run', key: 'Last_run' },
     { label: 'Created At', key: 'Created_at' },
   ]
@@ -20,7 +20,7 @@ const MatchJobLogs = (props: Props) => {
   return (
     <div>
       <AutoTable
-        baseUri='/admin/settings/system/job-logs/match?task=fixtures'
+        baseUri='/admin/settings/system/job-logs/standings?task=recent_results'
         columns={columns}
         search={true}
       />
@@ -28,4 +28,4 @@ const MatchJobLogs = (props: Props) => {
   )
 }
 
-export default MatchJobLogs
+export default RecentResults

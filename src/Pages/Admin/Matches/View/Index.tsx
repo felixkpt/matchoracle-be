@@ -24,8 +24,9 @@ const Index = () => {
   const [game, setGame] = useState<GameInterface>()
   const [homeTeam, setHomeTeam] = useState<TeamInterface>()
   const [awayTeam, setAwayTeam] = useState<TeamInterface>()
-  const [homeTeamRecentResults, setHomeTeamRecentResults] = useState<string[]>(['U', 'U', 'U', 'U', 'U'])
-  const [awayTeamRecentResults, setAwayTeamRecentResults] = useState<string[]>(['U', 'U', 'U', 'U', 'U'])
+  const defaultOutcomes = ['U', 'U', 'U', 'U', 'U']
+  const [homeTeamRecentResults, setHomeTeamRecentResults] = useState<string[]>(defaultOutcomes)
+  const [awayTeamRecentResults, setAwayTeamRecentResults] = useState<string[]>(defaultOutcomes)
 
   const { get: getStandings } = useAxios()
   const [standings, setStandings] = useState<StandingInterface[]>()
@@ -42,12 +43,17 @@ const Index = () => {
     getGame(`admin/matches/view/${id}?break_preds=1`).then((res) => {
       const { data } = res
       if (data) {
-        setGame(data)
-        setHomeTeam(data.home_team)
-        setAwayTeam(data.away_team)
-        setKey((c) => c + 1)
+        handleSetGame(data)
       }
     })
+  }
+
+  function handleSetGame(game: GameInterface) {
+    setGame(game);
+    setHomeTeam(game.home_team);
+    setAwayTeam(game.away_team);
+    setKey((c) => c + 1);
+
   }
 
   // Getting standings
@@ -101,7 +107,7 @@ const Index = () => {
                     </div>
                   }
                   <MatchPageHeader game={game} homeTeam={homeTeam} awayTeam={awayTeam} homeTeamRecentResults={homeTeamRecentResults} awayTeamRecentResults={awayTeamRecentResults} />
-                  <ResultsVotesSection game={game} setGame={setGame} />
+                  <ResultsVotesSection game={game} />
                   <div className="row">
                     <div className="col-12">
                       <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} perPage={10} withUpcoming={true} />
@@ -120,7 +126,7 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="col-12">
-                  <PredictionsSection game={game} setGame={setGame} />
+                  <PredictionsSection game={game} />
                 </div>
               </div>
             </div>

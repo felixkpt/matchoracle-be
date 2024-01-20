@@ -1,14 +1,9 @@
 import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
 import Predictions from "@/Pages/Admin/Predictions/Index";
-import Prediction from "@/Pages/Admin/Predictions/View/Index";
 
 const relativeUri = 'admin/predictions/';
 
 const routes = [
-    {
-        path: `view/:id`,
-        element: <AuthenticatedLayout uri={`${relativeUri}view/:id`} permission="" Component={Prediction} />,
-    },
     {
         path: ``,
         element: <AuthenticatedLayout uri={relativeUri} permission="" Component={Predictions} />,

@@ -4,16 +4,16 @@ import { GameInterface } from '@/interfaces/FootballInterface'
 import { useEffect, useState } from 'react'
 
 type Props = {
-    game: GameInterface
-    setGame: any
-}
+    game: GameInterface;
+};
 
-const ResultsVotesSection = ({ game, setGame }: Props) => {
+const ResultsVotesSection = ({ game:initialGame }: Props) => {
 
     const { post } = useAxios()
 
+    const [game, setGame] = useState<GameInterface>(initialGame)
+    
     const [isFuture, setIsFuture] = useState(true)
-
     const [voted, setVoted] = useState(false)
     const [showVotes, setShowVotes] = useState(false)
 
@@ -22,12 +22,6 @@ const ResultsVotesSection = ({ game, setGame }: Props) => {
     const [button3Width, setbutton3Width] = useState<string>('0');
     const [showText, setShowText] = useState(false);
     const [votingInProgress, setVotingInProgress] = useState(false); // State to track voting in progress
-
-    useEffect(() => {
-        if (game) {
-            setGame(game)
-        }
-    }, [game])
 
     function handleVote(e: any) {
 
@@ -78,6 +72,9 @@ const ResultsVotesSection = ({ game, setGame }: Props) => {
 
     }, [isFuture, voted, game])
 
+    console.log(game.current_user_votes?.winner)
+
+
     useEffect(() => {
 
         if (isFuture || voted) {
@@ -126,10 +123,12 @@ const ResultsVotesSection = ({ game, setGame }: Props) => {
                     ) : (
                         <div>
                             <div className='col-12'>Who will win?</div>
-                            <div className='col-12 row justify-content-between'>
-                                <div onClick={handleVote} data-target='home' title='Predict Home win' className='col vote-btn home fw-bold text-center p-1'>1</div>
-                                <div onClick={handleVote} data-target='draw' title='Predict Draw' className='col vote-btn draw fw-bold text-center p-1'>X</div>
-                                <div onClick={handleVote} data-target='away' title='Predict Away win' className='col vote-btn away fw-bold text-center bg-secondary p-1'>2</div>
+                            <div className='col-12'>
+                                <div className='d-flex justify-content-center'>
+                                    <div onClick={handleVote} data-target='home' title='Predict Home win' className='col vote-btn home fw-bold text-center p-1'>1</div>
+                                    <div onClick={handleVote} data-target='draw' title='Predict Draw' className='col vote-btn draw fw-bold text-center p-1'>X</div>
+                                    <div onClick={handleVote} data-target='away' title='Predict Away win' className='col vote-btn away fw-bold text-center bg-secondary p-1'>2</div>
+                                </div>
                             </div>
                         </div>
                     )}

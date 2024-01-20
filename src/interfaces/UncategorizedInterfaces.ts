@@ -34,6 +34,7 @@ export interface CollectionItemsInterface {
     fillable: { [key: string]: any }
     sortable: []
     htmls: []
+    query: string
 }
 
 export interface Link {
@@ -85,7 +86,7 @@ export interface AutoTableInterface {
     action?: ActionInterface;
     reload?: number;
     hideCreate?: boolean
-    getModelDetails?: (props: Partial<CollectionItemsInterface>) => void
+    getModelDetails?: (props: Omit<CollectionItemsInterface, 'data'>) => void
     list_sources?: { [key: string]: () => Promise<ListSourceInterface[]> }
     tableId?: string
     modalSize?: ModalSizeType
@@ -124,5 +125,6 @@ export interface PageHeaderInterface {
 
 export interface TabInterface {
     name: string;
+    label?: string;
     content: JSX.Element;
 };

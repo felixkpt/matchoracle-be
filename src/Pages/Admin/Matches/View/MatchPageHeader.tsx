@@ -4,6 +4,7 @@ import FormatDate from "@/utils/FormatDate";
 import { NavLink } from "react-router-dom";
 import RenderTeamLogoAndForm from "./RenderTeamLogoAndForm";
 import { competitionLogo } from "@/utils/helpers";
+import TimeAgo from "timeago-react";
 
 type Props = {
   game: GameInterface;
@@ -44,9 +45,19 @@ const MatchPageHeader = ({ game, homeTeam, awayTeam, homeTeamRecentResults, away
             <h6 className="col-md-12 col-xxl-6 text-muted">{FormatDate.toLocaleDateString(game?.utc_date)}</h6>
             <h6 className="col-md-12 col-xxl-6 text-muted">
               <div className="d-flex gap-2 justify-content-center justify-content-xxl-start">
-                <span>Results:</span> <span className="d-flex gap-1">FT: <b>{ftRes}</b> {htRes && <span>HT: <b>({htRes})</b></span>}</span>
+                <span>Results:</span>
+                <span className="d-flex gap-1">{
+                  game.Winner == 'POSTPONED' ? 'PST' :
+                    <>
+                      FT: <b>{ftRes}</b> {htRes && <span>HT: <b>({htRes})</b></span>}
+                    </>
+                }
+                </span>
               </div>
             </h6>
+          </div>
+          <div className="row justify-content-center">
+            <small className="text-muted">Updated {<TimeAgo datetime={game.updated_at} />}</small>
           </div>
         </div>
       </div>

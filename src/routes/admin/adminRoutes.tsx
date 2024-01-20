@@ -1,5 +1,5 @@
 import Admin from '@/Pages/Admin/Dashboard/Index';
-import AutomationReport from '@/Pages/Admin/Dashboard/AutomationReport';
+import AutomationReport from '@/Pages/Admin/Dashboard/AutomationReport/Index';
 import settings from './settings';
 import posts from './posts';
 import continents from './continents';

@@ -58,7 +58,7 @@ const useFromToDates = (base_uri: string) => {
             navigate(newUrl);
         }
 
-    }, [fromToDates, history, navigate, location.pathname, location.search, location.hash])
+    }, [fromToDates, navigate, location.pathname, location.search, location.hash])
 
 
 

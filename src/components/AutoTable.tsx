@@ -33,6 +33,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
 
     const [modelDetails, setModelDetails] = useState({})
     const [htmls, setHtmls] = useState<string[]>([])
+    const [query, setQuery] = useState<string>('')
 
     useEffect(() => {
         if (tableData) {
@@ -41,13 +42,13 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
                 setModelDataLength(tableData.data.length);
             } else {
                 setModelDataLength(-1);
-                
+
             }
 
             const { data, ...others } = tableData
             if (setModelDetails) {
 
-                const rest = { ...others, tableId: id }
+                const rest = { ...others, tableId: id, query }
 
                 setModelDetails(rest)
                 setHtmls(rest.htmls)
@@ -59,6 +60,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
     }, [tableData]);
 
     const debouncedSearch = debounce(handleSearch, 400);
+    const debouncedSearch2 = debounce(setQuery, 400);
 
     const handleChecked = (checked: boolean, itemId: string | number | null) => {
         if (modelDataLength <= 0) return;
@@ -191,7 +193,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
 
     useEffect(() => {
         // Set opacity to 0 when the count changes
-        if(modelDataLength == -1) setCountOpacity(0);
+        if (modelDataLength == -1) setCountOpacity(0);
 
         // After a delay, reset opacity to 1
         const opacityTimeout = setTimeout(() => {
@@ -231,7 +233,10 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
                                                 <li><a data-search="all">all</a></li>
                                             </ul>
                                         </div>
-                                        <input type="text" className="form-control" name="q" id="search-btn" onChange={(e: any) => debouncedSearch(e.target.value)} placeholder="Search here..." />
+                                        <input type="text" className="form-control" name="q" id="search-btn" onChange={(e: any) => {
+                                            debouncedSearch(e.target.value)
+                                            debouncedSearch2(e.target.value)
+                                        }} placeholder="Search here..." />
                                         <span className="input-group-btn">
                                             <button className="btn btn-default" type="button"><span className="glyphicon glyphicon-search"></span></button>
                                         </span>

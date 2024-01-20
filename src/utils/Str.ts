@@ -39,7 +39,7 @@ class Str {
         return subject.split(search).slice(-1)[0];
     }
 
-    static title(subject: string): string {
+    static title(subject: string, cases?: object[]): string {
         if (!subject) return subject
 
         let strVal = '';
@@ -47,6 +47,10 @@ class Str {
         for (var chr = 0; chr < str.length; chr++) {
             let sub = str[chr]
             if (sub === 'id') sub = 'ID'
+
+            if (cases && cases[sub]) {
+                sub = cases[sub]
+            }
 
             strVal += sub.substring(0, 1).toUpperCase() + sub.substring(1, sub.length) + ' '
         }

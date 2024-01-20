@@ -9,13 +9,14 @@ type Props = {
     odds_name_print: string
     odds?: number
     outcome?: string
+    final_bankroll?: string
 }
 
 function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
-const TipsContent = ({ data, odds_name, odds_name_print, odds, outcome }: Props) => {
+const TipsContent = ({ data, odds_name, odds_name_print, odds, outcome, final_bankroll }: Props) => {
     return (
         <div>
             <div className="row border border-0 border-bottom border-dark p-2 bg-body-secondary rounded">
@@ -71,7 +72,7 @@ const TipsContent = ({ data, odds_name, odds_name_print, odds, outcome }: Props)
                     <div className='d-flex align-items-center justify-content-between gap-2 shadow p-1 rounded'>
                         <div>Total odds <strong className='text-success'>{odds}</strong></div>
                         <div>|</div>
-                        <div>
+                        <div className='d-flex align-items-center justify-content-between gap-2'>
                             {
                                 outcome == 'W' ?
                                     <strong className='text-success'>Won</strong>
@@ -85,6 +86,10 @@ const TipsContent = ({ data, odds_name, odds_name_print, odds, outcome }: Props)
                                         }
                                     </>
                             }
+                            <div>|</div>
+                            <div>
+                                <small>Bankroll: {final_bankroll}</small>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -6,8 +6,6 @@ import BTSVotesSection from "./Includes/BTSVotesSection"
 
 type Props = {
     game: GameInterface
-    setGame: any
-
 }
 
 export function __dangerousHtml(html: HTMLElement | string) {
@@ -15,9 +13,8 @@ export function __dangerousHtml(html: HTMLElement | string) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
-
-const PredictionsSection = ({ game, setGame }: Props) => {
-    const { prediction: formatted_prediction } = game
+const PredictionsSection = ({ game }: Props) => {
+    const { formatted_prediction } = game
 
     return (
         <div>
@@ -29,7 +26,7 @@ const PredictionsSection = ({ game, setGame }: Props) => {
                             {__dangerousHtml(` Win-Draw-Win: ${game.CS}`)}
                             {
                                 formatted_prediction ?
-                                    <FormSummary data1={formatted_prediction.home_win_proba} data2={formatted_prediction.draw_proba} data3={formatted_prediction.away_win_proba} totals={100} data1ColorClass="bg-primary" label1=" (1)" label2=" (X)" label3=" (2)" />
+                                    <FormSummary data1={formatted_prediction.ft_home_win_proba} data2={formatted_prediction.ft_draw_proba} data3={formatted_prediction.ft_away_win_proba} totals={100} data1ColorClass="bg-primary" label1=" (1)" label2=" (X)" label3=" (2)" />
                                     : ' N/A'
                             }
                         </div>
@@ -54,8 +51,8 @@ const PredictionsSection = ({ game, setGame }: Props) => {
                 <div className="card-header"><h6>More votes</h6></div>
                 <div className="card-body">
                     <div className="row">
-                        <div className="col-6"><div className="mx-1"><OverUnderVotesSection game={game} setGame={setGame} /></div></div>
-                        <div className="col-6"><div className="mx-1"><BTSVotesSection game={game} setGame={setGame} /></div></div>
+                        <div className="col-md-6"><div className="mx-1"><OverUnderVotesSection game={game} /></div></div>
+                        <div className="col-md-6"><div className="mx-1"><BTSVotesSection game={game} /></div></div>
                     </div>
                 </div>
             </div>
