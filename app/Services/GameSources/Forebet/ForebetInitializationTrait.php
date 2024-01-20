@@ -97,7 +97,8 @@ trait ForebetInitializationTrait
 
         if (Str::contains($full_time_results, ':')) return false;
 
-        $winner = null;
+        $winner = isset($score['postponed']) ? Str::upper('postponed') : null;
+
         $home_scores_full_time = null;
         $away_scores_full_time = null;
 
@@ -152,6 +153,11 @@ trait ForebetInitializationTrait
                 if (isset($data['home_scores_half_time']) && $data['home_scores_half_time'] >= 0) {
                     $results_status = 2;
                     $game->update(['results_status' => $results_status, 'status' => 'FINISHED']);
+                }
+                // postponed
+                else if ($score->winner = Str::upper('postponed')) {
+                    $results_status = 2;
+                    $game->update(['results_status' => $results_status, 'status' => Str::upper('postponed')]);
                 }
 
                 // Avoid overwriting

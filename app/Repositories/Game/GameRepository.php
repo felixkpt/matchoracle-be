@@ -8,9 +8,11 @@ use App\Repositories\CommonRepoActions;
 use App\Repositories\Team\TeamRepositoryInterface;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
+use App\Utilities\GamePredictionStatsUtility;
 use App\Utilities\GameStatsUtility;
 use App\Utilities\GameUtility;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class GameRepository implements GameRepositoryInterface
 {
@@ -33,15 +35,30 @@ class GameRepository implements GameRepositoryInterface
 
         $gameUtilities = new GameUtility();
 
-        $results = $gameUtilities->applyGameFilters($id);
-        $results = $gameUtilities->formatGames($results);
+        $results_raw = $gameUtilities->applyGameFilters($id);
+
+        $results = $gameUtilities->formatGames($results_raw);
 
         if (request()->is_predictor == 1) {
             $results = (new GameStatsUtility())->addGameStatistics($results);
             $results = array_reverse($results->get()['data']->toArray());
+
             return request()->task == 'train' && count($results) < 50 ? [] : $results;
         } else {
-            $results = $id ? $results->first() : $results->paginate(request()->per_page ?? 50);
+
+            if ($id) {
+                $results = $results->first();
+            } else {
+
+                if (request()->get_prediction_stats) {
+
+                    $stats = (new GamePredictionStatsUtility())->doStats(($results_raw)->whereHas('score')->limit(-1)->get()->toArray());
+                    $results = $stats;
+                } else {
+                    $results = $results->paginate(request()->per_page ?? 50);
+                }
+            }
+
             $arr = ['results' => $results];
 
             if (request()->without_response) return $arr;
@@ -127,12 +144,12 @@ class GameRepository implements GameRepositoryInterface
             ]
         );
 
-        request()->merge(['break_preds' => true]);
+        request()->merge(['without_response' => true, 'break_preds' => true]);
 
-        return response(['type' => 'success', 'message' => 'Voted successfully', 'results' => $this->index($id, true)]);
+        return response(['type' => 'success', 'message' => 'Voted successfully', 'results' => $this->index($id, true)['results']]);
     }
 
-        public function updateGame($id)
+    public function updateGame($id)
     {
         return $this->sourceContext->matchHandler()->fetchMatch($id);
     }

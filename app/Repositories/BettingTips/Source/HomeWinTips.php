@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Repositories\BettingTips\Core;
+namespace App\Repositories\BettingTips\Source;
 
 use App\Repositories\BettingTips\BettingTipsTrait;
 use App\Utilities\GameUtility;
-use Illuminate\Support\Carbon;
 
 class HomeWinTips
 {
@@ -15,7 +14,7 @@ class HomeWinTips
     private $odds_max_threshold = 3.0;
 
     private $proba_name = 'ft_home_win_proba';
-    private $proba_threshold = 43;
+    private $proba_threshold = 40;
 
     private $multiples_combined_min_odds = 3;
 
@@ -23,8 +22,7 @@ class HomeWinTips
     {
         $gameUtilities = new GameUtility();
         $results = $gameUtilities->applyGameFilters()
-            ->whereHas('odds', fn ($q) => $this->oddsRange($q))
-            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
+            ->whereHas('odds', fn ($q) => $this->oddsRange($q));
 
         $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold));
         $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'home_win'));
@@ -44,8 +42,7 @@ class HomeWinTips
     {
         $gameUtilities = new GameUtility();
         $results = $gameUtilities->applyGameFilters()
-            ->whereHas('odds', fn ($q) => $this->oddsRange($q))
-            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
+            ->whereHas('odds', fn ($q) => $this->oddsRange($q));
 
         $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold));
         $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'home_win'));
@@ -59,12 +56,5 @@ class HomeWinTips
         $results['investment'] = $investment;
 
         return $results;
-    }
-
-    function predictionStatisticFilter($q)
-    {
-        if (!request()->show_source_predictions) {
-            // $q->where('full_time_home_wins_preds_true_percentage', '>=', 55);
-        }
     }
 }

@@ -59,6 +59,11 @@ class Game extends Model
         return $this->hasOne(GamePrediction::class)->where('prediction_type_id', default_prediction_type());
     }
 
+    public function sourcePrediction()
+    {
+        return $this->hasOne(GameSourcePrediction::class)->where('source_id', default_source_id());
+    }
+
     public function gameSources()
     {
         return $this->belongsToMany(GameSource::class)->withPivot(['source_uri', 'source_id'])->withTimestamps();

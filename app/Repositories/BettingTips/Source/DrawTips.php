@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Repositories\BettingTips\Core;
+namespace App\Repositories\BettingTips\Source;
 
 use App\Repositories\BettingTips\BettingTipsTrait;
 use App\Utilities\GameUtility;
-use Illuminate\Support\Carbon;
 
 class DrawTips
 {
@@ -18,7 +17,7 @@ class DrawTips
     private $proba_threshold = 37;
 
     private $proba_name2 = 'ng_proba';
-    private $proba_threshold2 = 44;
+    private $proba_threshold2 = 40;
 
     private $multiples_combined_min_odds = 5;
 
@@ -26,8 +25,7 @@ class DrawTips
     {
         $gameUtilities = new GameUtility();
         $results = $gameUtilities->applyGameFilters()
-            ->whereHas('odds', fn ($q) => $this->oddsRange($q))
-            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
+            ->whereHas('odds', fn ($q) => $this->oddsRange($q));
 
         $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold)->where($this->proba_name2, '>=', $this->proba_threshold2));
         $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'draw'));
@@ -44,8 +42,7 @@ class DrawTips
     function multiples()
     {
         $gameUtilities = new GameUtility();
-        $results = $gameUtilities->applyGameFilters()->whereHas('odds', fn ($q) => $this->oddsRange($q))
-            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
+        $results = $gameUtilities->applyGameFilters()->whereHas('odds', fn ($q) => $this->oddsRange($q));
 
         $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold));
         $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'draw'));
@@ -59,12 +56,5 @@ class DrawTips
         $results['investment'] = $investment;
 
         return $results;
-    }
-
-    function predictionStatisticFilter($q)
-    {
-        if (!request()->show_source_predictions) {
-            $q->where('full_time_draws_preds_true_percentage', '>=', 20);
-        }
     }
 }

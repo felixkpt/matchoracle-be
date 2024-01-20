@@ -19,7 +19,6 @@ class StandingsHandlerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
-    protected $sourceContext;
     /**
      * The task to be performed by the job.
      *
@@ -32,6 +31,10 @@ class StandingsHandlerJob implements ShouldQueue
      */
     public function __construct($task)
     {
+
+        // Set the maximum execution time (seconds)
+        $this->maxExecutionTime = 60 * 10;
+        $this->startTime = time();
 
         // Instantiate the context class for handling game sources
         $this->sourceContext = new GameSourceStrategy();
@@ -70,11 +73,12 @@ class StandingsHandlerJob implements ShouldQueue
             ->when($this->task == 'recent_results', function ($query) {
                 $query->whereHas('games', function ($subQuery) {
                     $subQuery->where('utc_date', '>=', Carbon::now()->subDays(5))
-                        ->where('utc_date', '<', Carbon::now());
+                        ->where('utc_date', '<', Carbon::now())
+                        ->where('results_status', '>', 0);
                 });
             })
             ->where('has_standings', true)
-            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, 24 * 3))
+            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, 60 * 24 * 2))
             ->select('competitions.*')
             ->limit(700)
             ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
@@ -84,6 +88,9 @@ class StandingsHandlerJob implements ShouldQueue
         $should_sleep_for_competitions = false;
         $total = $competitions->count();
         foreach ($competitions as $key => $competition) {
+
+            if ($this->runTimeExceeded()) exit;
+            
             echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
             $this->doCompetitionRunLogging();
 
@@ -95,6 +102,7 @@ class StandingsHandlerJob implements ShouldQueue
             $total_seasons = $seasons->count();
 
             $should_sleep_for_seasons = false;
+            $should_update_last_action = false;
             foreach ($seasons as $season_key => $season) {
 
                 $start_date = Str::before($season->start_date, '-');
@@ -121,6 +129,7 @@ class StandingsHandlerJob implements ShouldQueue
 
                 $should_sleep_for_competitions = true;
                 $should_sleep_for_seasons = true;
+                $should_update_last_action = true;
 
                 $this->doLogging($data);
                 // Introduce a delay to avoid rapid consecutive requests
@@ -128,7 +137,7 @@ class StandingsHandlerJob implements ShouldQueue
                 $should_sleep_for_seasons = false;
             }
 
-            $this->updateLastAction($competition, $seasons, $lastFetchColumn);
+            $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
             echo "------------\n";
 

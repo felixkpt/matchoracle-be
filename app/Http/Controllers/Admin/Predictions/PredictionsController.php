@@ -14,11 +14,20 @@ class PredictionsController extends Controller
 
     use CommonMethods;
 
+    protected $predictionModeId;
+
     function __construct(
         private GameRepositoryInterface $gameRepositoryInterface,
         private GamePredictionRepositoryInterface $gamePredictionRepositoryInterface,
     ) {
-        request()->merge(['show_predictions' => true, 'break_preds' => true]);
+        $this->predictionModeId = request()->prediction_mode_id;
+
+        request()->merge([
+            'break_preds' => true,
+            'show_predictions' => $this->predictionModeId == 1,
+            'show_source_predictions' => $this->predictionModeId == 2,
+            'to_date' => Carbon::now()->addDays(7),
+        ]);
     }
 
     function index()

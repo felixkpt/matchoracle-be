@@ -62,7 +62,7 @@ class MatchesHandler implements MatchesInterface
             $updated = $updated + $updated_new;
             $messages[] = $msg_new;
 
-            sleep(10);
+            sleep(5);
         }
 
         if (!$this->has_errors && $season && !$season->is_current && Carbon::parse($season->end_date)->isPast()) {
@@ -335,7 +335,6 @@ class MatchesHandler implements MatchesInterface
                         } elseif ($i === 4) {
                             $k = $crawler->filter('a');
                             if ($k->count()) {
-                                Log::info('GMURI::' . getUriFromUrl($k->attr('href')));
                                 $match['game_details']['full_time_results'] = null;
                                 $match['game_details']['uri'] = getUriFromUrl($k->attr('href'));
                             }
@@ -359,15 +358,15 @@ class MatchesHandler implements MatchesInterface
         $season_id = $season->id;
         $country_id = $country->id;
         $date = Carbon::parse($match['date'] . ' ' . $match['time']);
-        $utc_date = $date->toDateTimeString();
+        $utc_date = $date->format('Y-m-d H:i');
 
-        $season_end_date = Carbon::parse($season->end_date)->addYear();
-        // Assuming $season_end_date is a variable representing the end date of the season
-        if (Carbon::parse($utc_date)->greaterThan($season_end_date)) {
-            // Log the critical error
-            Log::critical('UTC date is newer than season end date. Aborting process.' . $utc_date . ' <--->' . $season_end_date);
-            return false;
-        }
+        // $season_end_date = Carbon::parse($season->end_date)->addYear();
+        // // Assuming $season_end_date is a variable representing the end date of the season
+        // if (Carbon::parse($utc_date)->greaterThan($season_end_date)) {
+        //     // Log the critical error
+        //     Log::critical('UTC date is newer than season end date. Aborting process.' . $utc_date . ' <--->' . $season_end_date);
+        //     return false;
+        // }
 
         $has_time = $match['has_time'];
         $status = $date->isFuture() ? 'SCHEDULED' : (Str::contains($match['date'], ':') ? 'PENDING' : 'FINISHED');
@@ -421,8 +420,12 @@ class MatchesHandler implements MatchesInterface
         $game_details_uri = $match['game_details']['uri'];
 
         // Check if the entry already exists in the pivot table
-        if (!$game->gameSources()->where('game_source_id', $this->sourceId)->exists()) {
+        $query = $game->gameSources()->where('game_source_id', $this->sourceId);
+        if (!$query->exists()) {
             $game->gameSources()->attach($this->sourceId, ['source_uri' => $game_details_uri]);
+        } elseif ($query->whereNull('source_uri')->exists()) {
+            // If the entry exists but the source_uri is NULL, update the source_uri
+            $query->update(['source_uri' => $game_details_uri]);
         }
 
         // Synchronize referees

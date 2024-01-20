@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('game_predictions', function (Blueprint $table) {
+        Schema::create('game_source_predictions', function (Blueprint $table) {
             $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
-            $table->string('version')->default('1.0');
-            $table->unsignedInteger('prediction_type_id');
-            $table->unsignedBigInteger('competition_id')->default(0);
-            $table->dateTime('date');
+            $table->unsignedInteger('source_id');
+            $table->dateTime('utc_date');
             $table->unsignedBigInteger('game_id');
-          
+
             $table->tinyInteger('ft_hda_pick')->nullable();
             $table->integer('ft_home_win_proba')->nullable();
             $table->integer('ft_draw_proba')->nullable();
@@ -45,12 +43,9 @@ return new class extends Migration
             $table->tinyInteger('over_under35_pick')->nullable();
             $table->integer('over35_proba')->nullable();
             $table->integer('under35_proba')->nullable();
-
-
+            
             $table->integer('cs')->nullable();
             $table->float('cs_proba')->nullable();
-
-            $table->boolean('is_normalized')->default(false);
 
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
@@ -63,6 +58,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('game_predictions');
+        Schema::dropIfExists('game_source_predictions');
     }
 };

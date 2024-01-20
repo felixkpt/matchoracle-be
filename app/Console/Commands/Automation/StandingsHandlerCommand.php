@@ -27,7 +27,7 @@ class StandingsHandlerCommand extends Command
      */
     public function handle()
     {
-        $task = $this->option('task') ?? 'results';
+        $task = $this->option('task') ?? 'recent_results';
 
         if ($task != 'recent_results' && $task != 'historical_results') {
             $this->warn('Task should be either recent_results or historical_results');

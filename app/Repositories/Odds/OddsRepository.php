@@ -20,9 +20,15 @@ class OddsRepository implements OddsRepositoryInterface
 
     public function index($id = null)
     {
+        $from_date = request()->from_date ?? null;
+        $date = request()->date ?? null;
+        $to_date = request()->to_date ?? null;
+
         $odds = $this->model::query()
-            ->when(request()->competition_id, fn ($q) => $q->whereHas('game', fn ($q) => $q->where('competition_id', request()->competition_id)->when(request()->season_id, fn($q) => $q->where('season_id', request()->season_id))))
-            ->when(request()->yesterday, fn ($q) => $q->whereDate('utc_date', Carbon::yesterday()))
+            ->when(request()->competition_id, fn ($q) => $q->whereHas('game', fn ($q) => $q->where('competition_id', request()->competition_id)->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))))
+            ->when($from_date, fn ($q) => $q->whereDate('utc_date', '>=', Carbon::parse($from_date)->format('Y-m-d')))
+            ->when($to_date, fn ($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($to_date)->format('Y-m-d')))
+            ->when($date, fn ($q) => $q->whereDate('utc_date', '=', Carbon::parse($date)->format('Y-m-d')))->when(request()->yesterday, fn ($q) => $q->whereDate('utc_date', Carbon::yesterday()))
             ->when(request()->today, fn ($q) => $q->whereDate('utc_date', Carbon::today()))
             ->when(request()->tomorrow, fn ($q) => $q->whereDate('utc_date', Carbon::tomorrow()))
             ->when(request()->year, fn ($q) => $q->whereYear('utc_date', request()->year))

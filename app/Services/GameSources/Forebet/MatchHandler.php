@@ -2,13 +2,12 @@
 
 namespace App\Services\GameSources\Forebet;
 
-use App\Models\Competition;
 use App\Models\Game;
+use App\Models\GameSourcePrediction;
 use App\Services\Client;
 use App\Services\Common;
 use App\Services\OddsHandler;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -40,10 +39,6 @@ class MatchHandler
             return $this->matchMessage('Update status is satisfied.');
         }
 
-        if ($game->last_fetch >= Carbon::now()->subHours(2)) {
-            return $this->matchMessage('Last fetch is ' . (Carbon::parse($game->last_fetch)->diffForHumans()));
-        }
-
         $gameSource = $game->gameSources()->where('game_source_id', $this->sourceId)->first();
 
         if (!$gameSource) {
@@ -53,6 +48,10 @@ class MatchHandler
         $source_uri = $gameSource->pivot->source_uri;
         if (!$source_uri) {
             return $this->matchMessage('No source/details uri');
+        }
+
+        if ($game->last_fetch >= Carbon::now()->subHours(2)) {
+            return $this->matchMessage('Last fetch is ' . (Carbon::parse($game->last_fetch)->diffForHumans()));
         }
 
         $url = $this->sourceUrl . ltrim($source_uri, '/');
@@ -69,31 +68,6 @@ class MatchHandler
 
         $header = $crawler->filter('div.predictioncontain');
         $l = $header->filter('div.lLogo a img.matchTLogo');
-
-        $home_team_logo = null;
-        if ($l->count() === 1)
-            $home_team_logo = $l->attr('src');
-
-        $l = $header->filter('time div.date_bah');
-        if ($l->count() === 0) {
-            $response = ['message' => 'Source has no date.'];
-            if (request()->without_response) return $response;
-            return response($response, 500);
-        }
-
-        $dt_raw = preg_replace('#\/#', '-', $l->text());
-
-        $has_time = false;
-        if (Str::endsWith($dt_raw, 'GMT')) {
-            $date_time = Carbon::parse($dt_raw)->addMinutes(0)->format('Y-m-d H:i:s');
-            $has_time = true;
-        } else
-            $date_time = Carbon::parse($dt_raw)->format('Y-m-d H:i:s');
-
-        $l = $header->filter('div.weather_main_pr div span');
-        $stadium = null;
-        if ($l->count() === 1)
-            $stadium = $l->text();
 
         $temperatureElement = explode(', ', $header->filter('.weather_main_pr')->text());
 
@@ -134,6 +108,7 @@ class MatchHandler
         if ($l->count() === 1)
             $away_team_logo = $l->attr('src');
 
+        $postponed = false;
         $full_time_results = $half_time_results = null;
 
         $res = $crawler->filter('div#1x2_table .rcnt')->filter('.lscr_td')->first();
@@ -141,8 +116,15 @@ class MatchHandler
         if ($res->count() > 0) {
             $l = $res->filter('.lscrsp');
             $full_time_results = null;
-            if ($l->count() === 1)
+            if ($l->count() === 1) {
                 $full_time_results = $l->text();
+            } else {
+                // Case game was Postp.
+                $res = $crawler->filter('div#1x2_table .rcnt')->filter('.lmin_td .l_min')->first();
+                if ($res->count() > 0) {
+                    $postponed = $res->text() == 'Postp.';
+                }
+            }
 
             $l = $res->filter('.ht_scr');
             $half_time_results = null;
@@ -152,46 +134,56 @@ class MatchHandler
             }
         }
 
-        $one_x_two_odds = array_slice(array_filter($crawler->filter('div#1x2_table .rcnt')->filter('.prmod .haodd span')->each(function (Crawler $node) {
-            $odds = $node->text();
-            if ($odds > 0 && $odds < 30)
-                return $odds;
-            else
-                return;
-        })), 0, 3);
-        $over_under_odds = array_filter($crawler->filter('div#uo_table .rcnt')->filter('.prmod .haodd span')->each(function (Crawler $node) {
-            $odds = $node->text();
-            if ($odds > 0 && $odds < 20)
-                return $odds;
-            else
-                return;
-        }));
-        $gg_ng_odds = array_filter($crawler->filter('div#bts_table .rcnt')->filter('.prmod .haodd span')->each(function (Crawler $node) {
-            $odds = $node->text();
-            if ($odds > 0 && $odds < 20)
-                return $odds;
-            else
-                return;
-        }));
+
+        $header = $crawler->filter('div.predictioncontain');
+
+        [$ft_hda_odds, $ft_hda_preds, $ft_hda_preds_pick] = $this->oddsAndPredictionsForHDAFT($crawler);
+        [$over_under_odds, $over_under_preds, $over_under_preds_pick] = $this->oddsAndPredictionsForOverUnder($crawler);
+        [$gg_ng_odds, $gg_ng_preds, $gg_ng_preds_pick] = $this->oddsAndPredictionsForBTSTable($crawler);
+        [$cs_odds, $cs_pred, $cs_pred_pick] = $this->oddsAndPredictionsForCS($crawler);
+        [$ht_hda_odds, $ht_hda_preds, $ht_hda_preds_pick] = $this->oddsAndPredictionsForHDAHT($crawler);
+
+        $ft_hda_preds_pick = ($ft_hda_preds_pick == '1' ? 0 : ($ft_hda_preds_pick == 'X' ? 1 : ($ft_hda_preds_pick == '2' ? 2 : null)));
+        $over_under_preds_pick = ($over_under_preds_pick == 'Under') ? 0 : ($over_under_preds_pick == 'Over' ? 1 : null);
+        $gg_ng_preds_pick = ($gg_ng_preds_pick == 'No') ? 0 : ($gg_ng_preds_pick == 'Yes' ? 1 : null);
+
+        $ht_hda_preds_pick = ($ht_hda_preds_pick == '1' ? 0 : ($ht_hda_preds_pick == 'X' ? 1 : ($ht_hda_preds_pick == '2' ? 2 : null)));
 
         $data = [
-            'home_team_logo' => $home_team_logo,
-            'utc_date' => $date_time,
-            'has_time' => $has_time,
-            'stadium' => $stadium,
+            'home_team_logo' => $this->getTeamLogo($header, 'div.lLogo a img.matchTLogo'),
+            'utc_date' => $this->parseDateTime($header),
+            'has_time' => $this->hasTime($header),
+            'stadium' => $this->getStadium($header),
+
             'competition' => $competition,
             'competition_url' => $competition_url,
             'away_team_logo' => $away_team_logo,
             'full_time_results' => $full_time_results,
             'half_time_results' => $half_time_results,
-            'one_x_two_odds' => $one_x_two_odds,
+            'postponed' => $postponed,
+
+            'ft_hda_odds' => $ft_hda_odds,
+            'ft_hda_preds' => $ft_hda_preds,
+            'ft_hda_preds_pick' => $ft_hda_preds_pick,
+
             'over_under_odds' => $over_under_odds,
+            'over_under_preds' => $over_under_preds,
+            'over_under_preds_pick' => $over_under_preds_pick,
+
             'gg_ng_odds' => $gg_ng_odds,
+            'gg_ng_preds' => $gg_ng_preds,
+            'gg_ng_preds_pick' => $gg_ng_preds_pick,
+
+            'cs_pred' => $cs_pred,
+            'cs_odds' => $cs_odds,
+
+            'ht_hda_odds' => $ht_hda_odds,
+            'ht_hda_preds' => $ht_hda_preds,
+            'ht_hda_preds_pick' => $ht_hda_preds_pick,
 
             'temperature' => $temperature,
             'weather_condition' => $weather_condition,
         ];
-
 
         $message = $this->updateGame($game, $data);
         $saved = 0;
@@ -202,6 +194,132 @@ class MatchHandler
         if (request()->without_response) return $response;
 
         return response($response);
+    }
+
+    private function oddsAndPredictions(Crawler $crawler, $tableSelector, $predictionSelector, $oddsSelector, $numPredictions, $maxOdds)
+    {
+        $table = $crawler->filter($tableSelector);
+
+        $predictions = array_slice(array_filter($table->filter($predictionSelector)->each(function (Crawler $node) {
+            $pred = $node->text();
+            return ($pred > 0 && $pred <= 100) ? $pred : null;
+        })), 0, $numPredictions);
+
+        $pick = $table->filter('.forepr')->text();
+
+        $odds = array_slice(array_filter($table->filter($oddsSelector)->each(function (Crawler $node) {
+            $odd = $node->text();
+            return ($odd > 0 && $odd < 30) ? $odd : null;
+        })), 0, $maxOdds);
+
+        return [
+            $odds,
+            $predictions,
+            $pick,
+        ];
+    }
+
+    private function oddsAndPredictionsForHDAFT(Crawler $crawler)
+    {
+        return $this->oddsAndPredictions(
+            $crawler,
+            'div#1x2_table .rcnt',
+            '.fprc span',
+            '.prmod .haodd span',
+            3,
+            3
+        );
+    }
+
+    private function oddsAndPredictionsForHDAHT(Crawler $crawler)
+    {
+        return $this->oddsAndPredictions(
+            $crawler,
+            'div#htft_table .rcnt',
+            '.fprc span',
+            '.prmod .haodd span',
+            3,
+            3
+        );
+    }
+
+    private function oddsAndPredictionsForOverUnder(Crawler $crawler)
+    {
+        return $this->oddsAndPredictions(
+            $crawler,
+            'div#uo_table .rcnt',
+            '.fprc span',
+            '.prmod .haodd span',
+            2,
+            2
+        );
+    }
+
+    private function oddsAndPredictionsForBTSTable(Crawler $crawler)
+    {
+        return $this->oddsAndPredictions(
+            $crawler,
+            'div#bts_table .rcnt',
+            '.fprc span',
+            '.prmod .haodd span',
+            2,
+            2
+        );
+    }
+
+    private function oddsAndPredictionsForCS(Crawler $crawler)
+    {
+        $hda = $crawler->filter('div#1x2_table .rcnt');
+
+        $res = $hda->filter('.ex_sc.tabonly');
+        $cs_pred = null;
+        if ($res->count() > 0) {
+            $cs_pred = $res->text();
+        }
+
+        return [null, $cs_pred, null];
+    }
+
+    private function getTeamLogo($header, $selector)
+    {
+        $logoElement = $header->filter($selector);
+        return $logoElement->count() === 1 ? $logoElement->attr('src') : null;
+    }
+
+    private function parseDateTime($header)
+    {
+        $dateElement = $header->filter('time div.date_bah');
+        if ($dateElement->count() === 0) {
+            $this->handleNoDate();
+        }
+
+        $dtRaw = preg_replace('#\/#', '-', $dateElement->text());
+
+        return Str::endsWith($dtRaw, 'GMT')
+            ? Carbon::parse($dtRaw)->addMinutes(0)->format('Y-m-d H:i')
+            : Carbon::parse($dtRaw)->format('Y-m-d H:i');
+    }
+
+    private function hasTime($header)
+    {
+        $dateElement = $header->filter('time div.date_bah');
+        return Str::endsWith(preg_replace('#\/#', '-', $dateElement->text()), 'GMT');
+    }
+
+    private function getStadium($header)
+    {
+        $stadiumElement = $header->filter('div.weather_main_pr div span');
+        return $stadiumElement->count() === 1 ? $stadiumElement->text() : null;
+    }
+
+    private function handleNoDate()
+    {
+        $response = ['message' => 'Source has no date.'];
+        if (request()->without_response) {
+            return $response;
+        }
+
+        return response($response, 500);
     }
 
     private function updateGame($game, $data)
@@ -231,7 +349,7 @@ class MatchHandler
             ];
 
             $results_status = -1;
-            if ($data['full_time_results']) {
+            if ($data['full_time_results'] || $data['postponed']) {
                 $scores = $data;
                 $results_status = $this->storeScores($game, $scores);
             }
@@ -251,7 +369,7 @@ class MatchHandler
             }
 
             if ($game_utc_date != $data['utc_date'])
-                $msg .= ' Time updated (' . $game_utc_date . ' > ' . $data['utc_date'].').';
+                $msg .= ' Time updated (' . $game_utc_date . ' > ' . $data['utc_date'] . ').';
 
 
             $game->update($arr);
@@ -264,7 +382,7 @@ class MatchHandler
                 'has_time' => $data['has_time'],
                 'home_team' => $game['homeTeam']->name,
                 'away_team' => $game['awayTeam']->name,
-                'one_x_two_odds' => $data['one_x_two_odds'],
+                'hda_odds' => $data['ft_hda_odds'],
                 'over_under_odds' => $data['over_under_odds'],
                 'gg_ng_odds' => $data['gg_ng_odds'],
                 'game_id' => $game->id,
@@ -272,10 +390,54 @@ class MatchHandler
                 'competition' => $competition,
             ]);
 
+            $this->saveSourcePreds($game->id, $data);
+
             return $msg;
         } else {
             // delete fixture, date changed
         }
+    }
+
+    function saveSourcePreds($game_id, $data)
+    {
+
+        GameSourcePrediction::updateOrCreate(
+            [
+                'source_id' => $this->sourceId,
+                'utc_date' => $data['utc_date'],
+                'game_id' => $game_id,
+            ],
+            [
+                'source_id' => $this->sourceId,
+                'utc_date' => $data['utc_date'],
+                'game_id' => $game_id,
+
+                // Full Time Predictions
+                'ft_hda_pick' => $data['ft_hda_preds_pick'],
+                'ft_home_win_proba' => $data['ft_hda_preds'][0] ?? null,
+                'ft_draw_proba' => $data['ft_hda_preds'][1] ?? null,
+                'ft_away_win_proba' => $data['ft_hda_preds'][2] ?? null,
+
+                // Half Time Predictions
+                'ht_hda_pick' => $data['ht_hda_preds_pick'],
+                'ht_home_win_proba' => $data['ht_hda_preds'][0] ?? null,
+                'ht_draw_proba' => $data['ht_hda_preds'][1] ?? null,
+                'ht_away_win_proba' => $data['ht_hda_preds'][2] ?? null,
+
+                // Both Teams to Score
+                'bts_pick' => $data['gg_ng_preds_pick'],
+                'ng_proba' => $data['gg_ng_preds'][0] ?? null,
+                'gg_proba' => $data['gg_ng_preds'][1] ?? null,
+
+                // Over/Under 2.5 Goals
+                'over_under25_pick' => $data['over_under_preds_pick'],
+                'under25_proba' => $data['over_under_preds'][0] ?? null,
+                'over25_proba' => $data['over_under_preds'][1] ?? null,
+
+                // Correct Score
+                'cs' => scores()[$data['cs_pred']] ?? null,
+            ]
+        );
     }
 
     function handleCompetitionAbbreviation($competition)

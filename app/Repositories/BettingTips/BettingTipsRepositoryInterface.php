@@ -15,4 +15,5 @@ interface BettingTipsRepositoryInterface extends CommonRepoActionsInterface
     public function yearMonth($year, $month);
     public function yearMonthDay($year, $month, $date);
     public function dateRange($from_date, $to_date);
+    public function stats();
 }

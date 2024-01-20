@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Game;
 use App\Models\Odd;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +15,7 @@ class OddsHandler
     static function updateOrCreate($data)
     {
 
-        if (count($data['one_x_two_odds']) !== 3)
+        if (count($data['hda_odds']) !== 3)
             return false;
 
         if ($data['competition'] && !$data['competition']['is_odds_enabled']) {
@@ -38,9 +37,9 @@ class OddsHandler
                     'has_time' => $data['has_time'],
                     'home_team' => $data['home_team'],
                     'away_team' => $data['away_team'],
-                    'home_win_odds' => $data['one_x_two_odds'][0],
-                    'draw_odds' => $data['one_x_two_odds'][1],
-                    'away_win_odds' => $data['one_x_two_odds'][2],
+                    'home_win_odds' => $data['hda_odds'][0],
+                    'draw_odds' => $data['hda_odds'][1],
+                    'away_win_odds' => $data['hda_odds'][2],
 
                     'under_25_odds' => $data['over_under_odds'][0] ?? null,
                     'over_25_odds' => $data['over_under_odds'][1] ?? null,

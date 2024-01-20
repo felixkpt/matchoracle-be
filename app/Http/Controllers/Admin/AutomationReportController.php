@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BettingTipsStatisticJobLog;
 use App\Models\CompetitionPredictionStatisticJobLog;
 use App\Models\CompetitionStatisticJobLog;
 use App\Models\Game;
@@ -27,19 +28,30 @@ class AutomationReportController extends Controller
         $today = now()->format('Y-m-d');
 
         $seasonsJobLogs = $this->getJobLogsStats(SeasonJobLog::class, $today, 'updated_seasons');
-        $standingsJobLogs = $this->getJobLogsStats(StandingJobLog::class, $today, 'updated_standings');
 
-        $resultsMatchesJobLogs = $this->getMatchesJobLogsStats(MatchesJobLog::class, 'results', $today);
-        $historicalResultsMatchesJobLogs = $this->getMatchesJobLogsStats(MatchesJobLog::class, 'historical_results', $today);
-        $shallowFixturesMatchesJobLogs = $this->getMatchesJobLogsStats(MatchesJobLog::class, 'shallow_fixtures', $today);
-        $fixturesMatchesJobLogs = $this->getMatchesJobLogsStats(MatchesJobLog::class, 'fixtures', $today);
+        $standingsJobLogs = [
+            'historical_results' => $this->getJobLogsStats(StandingJobLog::class, $today, 'updated_standings'),
+            'recent_results' => $this->getJobLogsStats(StandingJobLog::class, $today, 'updated_standings'),
+        ];
 
-        $resultsMatchJobLogs = $this->getMatchJobLogsStats(MatchJobLog::class, 'results', $today);
-        $historicalResultsMatchJobLogs = $this->getMatchJobLogsStats(MatchJobLog::class, 'historical_results', $today);
-        $fixturesMatchJobLogs = $this->getMatchJobLogsStats(MatchJobLog::class, 'fixtures', $today);
+        $matchesJobLogs = [
+            'historical_results' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'historical_results', $today),
+            'recent_results' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'recent_results', $today),
+            'shallow_fixtures' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'shallow_fixtures', $today),
+            'fixtures' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'fixtures', $today),
+        ];
+
+        $matchJobLogs = [
+            'historical_results' => $this->getMatchJobLogsStats(MatchJobLog::class, 'historical_results', $today),
+            'recent_results' => $this->getMatchJobLogsStats(MatchJobLog::class, 'recent_results', $today),
+            'shallow_fixtures' => $this->getMatchJobLogsStats(MatchJobLog::class, 'shallow_fixtures', $today),
+            'fixtures' => $this->getMatchJobLogsStats(MatchJobLog::class, 'fixtures', $today),
+        ];
 
         $competitionStatisticsLogs = $this->getCompetitionStatisticsStats($today);
         $competitionPredictionStatisticsLogs = $this->getCompetitionPredictionStats($today);
+        $bettingTipsStatisticLogs = $this->getBettingTipsStatisticLogsStats($today);
+        
         $predictionsJobLogs = $this->getPredictionJobLogsStats($today);
 
         $matches = $this->getAdvancedMatchesStats();
@@ -51,18 +63,16 @@ class AutomationReportController extends Controller
             'seasons_job_logs' => $seasonsJobLogs,
             'standings_job_logs' => $standingsJobLogs,
 
-            'results_matches_job_logs' => $resultsMatchesJobLogs,
-            'historical_results_matches_job_logs' => $historicalResultsMatchesJobLogs,
-            'shallow_fixtures_matches_job_logs' => $shallowFixturesMatchesJobLogs,
-            'fixtures_matches_job_logs' => $fixturesMatchesJobLogs,
+            'matches_job_logs' => $matchesJobLogs,
+            'match_job_logs' => $matchJobLogs,
 
-            'results_match_job_logs' => $resultsMatchJobLogs,
-            'historical_results_match_job_logs' => $historicalResultsMatchJobLogs,
-            'fixtures_match_job_logs' => $fixturesMatchJobLogs,
+            'competition_statistics_logs' => $competitionStatisticsLogs,
+            'competition_prediction_statistics_logs' => $competitionPredictionStatisticsLogs,
 
             'competition_statistics_logs' => $competitionStatisticsLogs,
             'competition_prediction_statistics_logs' => $competitionPredictionStatisticsLogs,
             'predictions_job_logs' => $predictionsJobLogs,
+            'betting_tips_statistics_logs' => $bettingTipsStatisticLogs,
             'advanced_matches' => $matches,
         ];
 
@@ -184,6 +194,16 @@ class AutomationReportController extends Controller
         return [
             'all' => CompetitionPredictionStatisticJobLog::selectRaw($selects)->first(),
             'today' => CompetitionPredictionStatisticJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
+        ];
+    }
+
+    private function getBettingTipsStatisticLogsStats($date)
+    {
+        $selects = 'SUM(job_run_counts) as total_job_run_count, SUM(types_run_counts) as total_types_run_counts, SUM(games_run_counts) as total_games_run_counts';
+
+        return [
+            'all' => BettingTipsStatisticJobLog::selectRaw($selects)->first(),
+            'today' => BettingTipsStatisticJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
         ];
     }
 

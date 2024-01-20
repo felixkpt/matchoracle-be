@@ -15,7 +15,7 @@ class BettingTipsController extends Controller
     function __construct(
         private BettingTipsRepositoryInterface $bettingTipsRepositoryInterface,
     ) {
-        request()->merge(['show_predictions' => true, 'break_preds' => true]);
+        request()->merge(['break_preds' => app()->runningInConsole() ? false : true]);
     }
 
     function index()
@@ -61,5 +61,10 @@ class BettingTipsController extends Controller
         $predictions = $this->bettingTipsRepositoryInterface->dateRange($from_date, $to_date);
 
         return $predictions;
+    }
+
+    function stats()
+    {
+        return $this->bettingTipsRepositoryInterface->stats();
     }
 }

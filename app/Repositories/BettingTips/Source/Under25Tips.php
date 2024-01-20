@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Repositories\BettingTips\Core;
+namespace App\Repositories\BettingTips\Source;
 
 use App\Repositories\BettingTips\BettingTipsTrait;
 use App\Utilities\GameUtility;
 
-class Over25Tips
+class Under25Tips
 {
     use BettingTipsTrait;
 
-    private $odds_name = 'over_25_odds';
+    private $odds_name = 'under_25_odds';
     private $odds_min_threshold = 1.3;
     private $odds_max_threshold = 5.0;
 
-    private $proba_name = 'over25_proba';
-    private $proba_threshold = 53;
+    private $proba_name = 'under25_proba';
+    private $proba_threshold = 55;
 
-    private $proba_name2 = 'gg_proba';
-    private $proba_threshold2 = 51;
+    private $proba_name2 = 'ft_home_win_proba';
+    private $proba_threshold2 = 20;
 
     private $multiples_combined_min_odds = 5;
 
@@ -25,11 +25,10 @@ class Over25Tips
     {
         $gameUtilities = new GameUtility();
         $results = $gameUtilities->applyGameFilters()
-            ->whereHas('odds', fn ($q) => $this->oddsRange($q))
-            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
+            ->whereHas('odds', fn ($q) => $this->oddsRange($q));
 
         $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold)->where($this->proba_name2, '>=', $this->proba_threshold2));
-        $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'over_25'));
+        $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'under_25'));
 
         $investment = $this->singlesInvestment($results);
 
@@ -44,11 +43,10 @@ class Over25Tips
     {
         $gameUtilities = new GameUtility();
         $results = $gameUtilities->applyGameFilters()
-            ->whereHas('odds', fn ($q) => $this->oddsRange($q))
-            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
+            ->whereHas('odds', fn ($q) => $this->oddsRange($q));
 
         $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold)->where($this->proba_name2, '>=', $this->proba_threshold2));
-        $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'over_25'));
+        $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'under_25'));
 
         $investment = $this->multiplesInvestment($results);
 
@@ -61,10 +59,4 @@ class Over25Tips
         return $results;
     }
 
-    function predictionStatisticFilter($q)
-    {
-        if (!request()->show_source_predictions) {
-            $q->where('full_time_over25_preds_true_percentage', '>=', 50);
-        }
-    }
 }

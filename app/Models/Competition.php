@@ -102,4 +102,9 @@ class Competition extends Model
   {
     return $this->hasMany(Standing::class, 'competition_id')->with('standingTable.team');
   }
+
+  public function predictionStatistic()
+  {
+    return $this->hasMany(CompetitionPredictionStatistic::class);
+  }
 }

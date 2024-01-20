@@ -38,7 +38,14 @@ class CompetitionRepository implements CompetitionRepositoryInterface
     public function index($single = false, $id = null)
     {
 
-        $competitions = $this->model::with(['continent', 'country', 'currentSeason', 'seasons' => fn ($q) => $q->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))->select(['id', 'competition_id', 'start_date', 'end_date', 'current_matchday', 'winner_id']), 'stages', 'gameSources'])
+        $competitions = $this->model::with([
+            'lastAction',
+            'continent', 'country', 'currentSeason',
+            'seasons' => fn ($q) => $q->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
+                ->select(['id', 'competition_id', 'start_date', 'end_date', 'current_matchday', 'winner_id']),
+            'stages', 'gameSources',
+
+        ])
             ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
             ->when(request()->is_odds_enabled == 1, fn ($q) => $q->where('is_odds_enabled', true))
             ->when(request()->active_only == 1, fn ($q) => $q->where('status_id', activeStatusId()))
@@ -51,11 +58,25 @@ class CompetitionRepository implements CompetitionRepositoryInterface
             ->addColumn('Status', 'getStatus')
             ->addColumn('Logo', fn ($q) => '<a class="autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ? asset($q->logo) : asset('assets/images/competitions/default_logo.png')) . '" /></a>')
             ->addColumn('Has_teams', fn ($q) => $q->has_teams ? 'Yes' : 'No')
-            ->addColumn('seasons_fetched', fn ($q) => $q->seasons_last_fetch ? Carbon::parse($q->seasons_last_fetch)->diffForHumans() : 'N/A')
-            ->addColumn('standings_fetched', fn ($q) => $q->standings_last_fetch ? Carbon::parse($q->standings_last_fetch)->diffForHumans() : 'N/A')
-            ->addColumn('p_matches_fetched', fn ($q) => $q->past_matches_last_fetch ? Carbon::parse($q->past_matches_last_fetch)->diffForHumans() : 'N/A')
-            ->addColumn('u_matches_fetched', fn ($q) => $q->upcoming_matches_last_fetch ? Carbon::parse($q->upcoming_matches_last_fetch)->diffForHumans() : 'N/A')
-            ->addColumn('Predictions_last_train', fn ($q) => $q->predictions_last_train ? Carbon::parse($q->predictions_last_train)->diffForHumans() : 'N/A')
+            ->addColumn('seasons_fetched', function ($q) {
+                $item = $q->lastAction->seasons_last_fetch ?? null;
+                return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
+            })
+            ->addColumn('standings_fetched', function ($q) {
+                $item = $q->lastAction->standings_recent_results_last_fetch ?? null;
+                return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
+            })
+            ->addColumn('p_matches_fetched', function ($q) {
+                $item = $q->lastAction->matches_recent_results_last_fetch ?? null;
+                return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
+            })
+            ->addColumn('u_matches_fetched', function ($q) {
+                $item = $q->lastAction->matches_fixtures_last_fetch ?? null;
+                return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
+            })->addColumn('Predictions_last_train', function ($q) {
+                $item = $q->lastAction->predictions_last_train ?? null;
+                return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
+            })            
             ->addColumn('odds', fn ($q) => Odd::whereHas('game', fn ($qry) => $qry->where('competition_id', $q->id))->count())
             ->addActionItem(
                 [

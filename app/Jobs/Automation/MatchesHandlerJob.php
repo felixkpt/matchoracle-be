@@ -19,7 +19,6 @@ class MatchesHandlerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
-    protected $sourceContext;
     /**
      * The task to be performed by the job.
      *
@@ -33,6 +32,10 @@ class MatchesHandlerJob implements ShouldQueue
      */
     public function __construct($task, $ignore_date)
     {
+        // Set the maximum execution time (seconds)
+        $this->maxExecutionTime = 60 * 10;
+        $this->startTime = time();
+
         // Instantiate the context class for handling game sources
         $this->sourceContext = new GameSourceStrategy();
 
@@ -61,15 +64,15 @@ class MatchesHandlerJob implements ShouldQueue
 
         $lastFetchColumn = 'matches_' . $this->task . '_last_fetch';
 
-        // Set delay based on the task type:
+        // Set delay in minutes based on the task type:
         // Default case for historical_results
-        $delay = 24 * 3;
+        $delay = 60 * 24 * 3;
         if ($this->task == 'shallow_fixtures') {
-            $delay = 24 * 2;
+            $delay = 60 * 24 * 2;
         } elseif ($this->task == 'fixtures') {
-            $delay = 24 * 5;
+            $delay = 60 * 24 * 3;
         } elseif ($this->task == 'recent_results') {
-            $delay = 24 * 2;
+            $delay = 60 * 24 * 2;
         }
 
         // Get competitions that need matches data updates
@@ -104,7 +107,10 @@ class MatchesHandlerJob implements ShouldQueue
             $total_seasons = $seasons->count();
 
             $should_sleep_for_seasons = false;
+            $should_update_last_action = false;
             foreach ($seasons as $season_key => $season) {
+
+                if ($this->runTimeExceeded()) exit;
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
@@ -127,6 +133,7 @@ class MatchesHandlerJob implements ShouldQueue
 
                 $should_sleep_for_competitions = true;
                 $should_sleep_for_seasons = true;
+                $should_update_last_action = true;
 
                 $this->doLogging($data);
                 // Introduce a delay to avoid rapid consecutive requests
@@ -134,7 +141,7 @@ class MatchesHandlerJob implements ShouldQueue
                 $should_sleep_for_seasons = false;
             }
 
-            $this->updateLastAction($competition, $seasons, $lastFetchColumn);
+            $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
             $this->determineCompetitionGamesPerSeason($competition, $seasons);
 

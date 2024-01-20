@@ -19,13 +19,15 @@ class SeasonsHandlerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
-    protected $sourceContext;
-
     /**
      * Create a new job instance.
      */
     public function __construct()
     {
+        // Set the maximum execution time (seconds)
+        $this->maxExecutionTime = 60 * 10;
+        $this->startTime = time();
+
         // Instantiate the context class for handling game sources
         $this->sourceContext = new GameSourceStrategy();
 
@@ -52,14 +54,17 @@ class SeasonsHandlerJob implements ShouldQueue
             ->whereHas('gameSources', function ($q) {
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
-            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, 24 * 15))
+            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, 60 * 24 * 15))
             ->select('competitions.*')
-            ->limit(700)->orderBy('competition_last_actions.'.$lastFetchColumn, 'asc')
+            ->limit(700)->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
             ->get();
 
         // Loop through each competition to fetch and update seasons
         $total = $competitions->count();
         foreach ($competitions as $key => $competition) {
+
+            if ($this->runTimeExceeded()) exit;
+            
             echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
             $this->doCompetitionRunLogging();
 
@@ -77,7 +82,7 @@ class SeasonsHandlerJob implements ShouldQueue
             // Output the fetch result for logging
             echo $data['message'] . "\n";
 
-            $this->updateLastAction($competition, 'from_seasons', $lastFetchColumn);
+            $this->updateLastAction($competition, true, $lastFetchColumn);
 
             echo "------------\n";
 

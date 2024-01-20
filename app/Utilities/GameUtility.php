@@ -15,6 +15,22 @@ use Illuminate\Support\Carbon;
  */
 class GameUtility
 {
+    use FormatPredictionTrait;
+
+    protected $predictionTypeMode;
+
+    function __construct()
+    {
+        $this->predictionTypeMode = request()->show_source_predictions ? 'sourcePrediction' : 'prediction';
+
+        $this->configureExecutionSettings();
+    }
+
+    private function configureExecutionSettings()
+    {
+        ini_set('max_execution_time', 60 * 10);
+        ini_set('memory_limit', '1024M');
+    }
 
     function applyGameFilters($id = null)
     {
@@ -56,8 +72,9 @@ class GameUtility
         request()->merge(['order_by' => $order_by ?? 'utc_date', 'per_page' => $per_page]);
         request()->merge(['order_direction' => $order_direction]);
 
-        $games = Game::with(['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'homeTeam', 'awayTeam', 'score', 'votes', 'referees', 'prediction', 'odds'])
+        $games = Game::with(['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'homeTeam', 'awayTeam', 'score', 'votes', 'referees', 'prediction', 'sourcePrediction', 'odds'])
             ->when(request()->show_predictions, fn ($q) => $q->whereHas('prediction'))
+            ->when(request()->show_source_predictions, fn ($q) => $q->whereHas('sourcePrediction'))
             ->when($season_id, fn ($q) => $q->where('season_id', $season_id))
             ->when($team_id, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', $team_id)->orWhere('away_team_id', $team_id)))
             ->when($team_ids, fn ($q) => $this->teamsMatch($q, $team_ids, $playing))
@@ -161,7 +178,10 @@ class GameUtility
         $uri = '/admin/matches/';
 
         $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name'])
-            ->addColumnWhen(!request()->is_predictor, 'ID', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '#' . $q->id . '</a>')
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'ID', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '#' . $q->id . '</a>')
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Competition', fn ($q) => '<a class="autotable-navigate hover-underline text-decoration-underline link-unstyled" data-id="' . $q->competition->id . '" href="/admin/competitions/view/' . $q->competition->id . '">' . '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->competition->logo ? asset($q->competition->logo) : asset('assets/images/competitions/default_logo.png')) . '" /><span class="ms-1">' . $q->competition->name . '</span></a>')
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Game', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . $q->homeTeam->name . ' vs ' . $q->awayTeam->name . '</a>', 'cs')
+            ->addColumn('Winner', fn ($q) => $q->score ? GameComposer::winningSide($q) : null)
             ->addColumn('is_future', fn ($q) => Carbon::parse($q->utc_date)->isFuture())
             ->addColumn('full_time', fn ($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
             ->addColumn('half_time', fn ($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
@@ -173,164 +193,39 @@ class GameUtility
             ->addColumn('gg_votes', $ggVotes)
             ->addColumn('ng_votes', $ngVotes)
 
-            ->addColumnWhen(request()->break_preds, 'Game', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . $q->homeTeam->name . ' vs ' . $q->awayTeam->name . '</a>', 'cs')
-            ->addColumnWhen(request()->break_preds, '1X2', fn ($q) => $this->format1X2(clone $q))
-            ->addColumnWhen(request()->break_preds, 'Pick', fn ($q) => $this->formatHda(clone $q))
+            ->addColumnWhen(request()->break_preds, 'FT_HDA', fn ($q) => $this->formatFTHDAProba(clone $q))
+            ->addColumnWhen(request()->break_preds, 'FT_HDA_PICK', fn ($q) => $this->formatFTHDAPick(clone $q))
+            ->addColumnWhen(request()->break_preds, 'HT_HDA', fn ($q) => $this->formatHTHDAProba(clone $q))
+            ->addColumnWhen(request()->break_preds, 'HT_HDA_PICK', fn ($q) => $this->formatHTHDAPick(clone $q))
             ->addColumnWhen(request()->break_preds, 'BTS', fn ($q) => $this->formatBTS(clone $q))
             ->addColumnWhen(request()->break_preds, 'Over25', fn ($q) => $this->formatGoals(clone $q))
             ->addColumnWhen(request()->break_preds, 'CS', fn ($q) => $this->formatCS(clone $q))
             ->addColumnWhen(request()->break_preds, 'Halftime', fn ($q) => $this->formatHTScores(clone $q))
             ->addColumnWhen(request()->break_preds, 'Fulltime', fn ($q) => $this->formatFTScores(clone $q))
 
-            ->addColumnWhen(!request()->is_predictor, 'formatted_prediction', fn ($q) => $this->format_pred(clone $q))
             ->addColumnWhen(!request()->is_predictor, 'current_user_votes', fn ($q) => $this->currentUserVotes($q))
-            ->addColumnWhen(!request()->is_predictor, 'Created_at', 'Created_at')
-            ->addColumnWhen(!request()->is_predictor, 'Last_fetch', fn ($q) => Carbon::parse($q->last_fetch)->diffForHumans())
-            ->addColumnWhen(!request()->is_predictor, 'Predicted', fn ($q) => $q->prediction ? Carbon::parse($q->prediction->created_at)->diffForHumans() : 'N/A')
             ->addColumnWhen(!request()->is_predictor, 'Created_by', 'getUser')
-            ->addColumnWhen(!request()->is_predictor, 'Status', 'getStatus')
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'formatted_prediction', fn ($q) => $this->formatted_prediction(clone $q))
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Created_at', 'Created_at')
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Last_fetch', fn ($q) => Carbon::parse($q->last_fetch)->diffForHumans())
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response),
+                'Predicted',
+                function ($q) {
+                    if (request()->show_source_predictions) {
+                        return 'N/A';
+                    }
+                    return $q->prediction ? Carbon::parse($q->prediction->created_at)->diffForHumans() : 'N/A';
+                }
+            )
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Status', 'getStatus')
 
-            ->addActionColumnWhen(!request()->is_predictor, 'action', $uri, 'native', !!request()->is_predictor)
-            ->htmls(['Status', 'ID', 'Game', '1X2', 'Pick', 'BTS', 'Over25', 'CS', 'Halftime', 'Fulltime']);
+            ->addActionColumnWhen((!request()->is_predictor && !request()->without_response), 'action', $uri, 'native', !!request()->is_predictor)
+            ->htmls(['Status', 'ID', 'Competition', 'Game', 'FT_HDA', 'FT_HDA_PICK', 'BTS', 'Over25', 'CS', 'Halftime', 'Fulltime']);
 
         if (!request()->order_by)
             $results = $results->orderby('utc_date', request()->type == 'upcoming' ? 'asc' : 'desc');
 
         return $results;
-    }
-
-    private function single_pred($q, $col = null)
-    {
-
-        if ($q->prediction) {
-            $pred = $this->format_pred($q->prediction);
-
-            if ($col == 'hda_proba')
-                return $pred->home_win_proba . '%, ' . $pred->draw_proba . '%, ' . $pred->away_win_proba . '%';
-            if ($col == 'hda')
-                return $pred->Hda;
-            if ($col == 'bts')
-                return $pred->Bts;
-            if ($col == 'over25')
-                return $pred->Over25;
-            if ($col == 'cs')
-                return $pred->Cs;
-
-            return $pred;
-        }
-
-        return '-';
-    }
-
-    private function format_pred($pred)
-    {
-        $cs = array_search($pred->cs, scores());
-        $pred->Hda = $pred->hda == 0 ? '1' : ($pred->hda == 1 ? 'X' : '2');
-        $pred->Bts = $pred->bts == 1 ? 'YES' : 'NO';
-        $pred->Over25 = $pred->over25 == 1 ? 'OV' : 'UN';
-        $pred->Cs = $cs;
-        return $pred;
-    }
-
-    private function format1X2($q)
-    {
-        $class = 'border-start text-dark';
-
-        return '<div class="border-4 ps-1 text-nowrap ' . $class . ' d-inline-block">' . $this->single_pred(clone $q, 'hda_proba') . '</div>';
-    }
-
-    private function formatHda($q)
-    {
-        $has_res = GameComposer::hasResults($q);
-        $res = GameComposer::winningSide($q, true);
-
-        $class = 'bg-light-blue text-dark';
-
-        $pred = $q->prediction;
-        if ($pred && $has_res) {
-            if ($pred->hda == $res) {
-                $class = 'border-bottom bg-success text-white';
-            } elseif ($pred) {
-                $class = 'border-bottom border-danger text-danger';
-            }
-        }
-
-        return '<div class="rounded-circle border p-1 ' . $class . ' d-inline-block text-center results-icon-md">' . $this->single_pred(clone $q, 'hda') . '</div>';
-    }
-
-    private function formatBTS($q)
-    {
-        $has_res = GameComposer::hasResults($q);
-        $res = GameComposer::bts($q, true);
-
-        $class = 'border-bottom-light-blue text-dark';
-
-        $pred = $q->prediction;
-        if ($pred && $has_res) {
-            if ($pred->bts == $res) {
-                $class = 'border-bottom border-success';
-            } elseif ($pred) {
-                $class = 'border-bottom border-danger ';
-            }
-        }
-
-        return '<div class="border-2 py-1 ' . $class . ' d-inline-block text-center results-icon-md">' . $this->single_pred(clone $q, 'bts') . '</div>';
-    }
-
-    private function formatGoals($q)
-    {
-        $has_res = GameComposer::hasResults($q);
-        $res = GameComposer::goals($q, true);
-
-        $class = 'border-bottom-light-blue text-dark';
-
-        $pred = $q->prediction;
-        if ($pred && $has_res) {
-            if ($pred->over25 && $res > 2) {
-                $class = 'border-bottom border-success';
-            } elseif (!$pred->over25 && $res <= 2) {
-                $class = 'border-bottom border-success';
-            } elseif ($pred) {
-                $class = 'border-bottom border-danger';
-            }
-        }
-
-        return '<div class="border-2 py-1 ' . $class . ' d-inline-block text-center results-icon-md">' . $this->single_pred(clone $q, 'over25') . '</div>';
-    }
-
-    private function formatCS($q)
-    {
-
-        $has_res = GameComposer::hasResults($q);
-
-        $class = 'border-bottom-light-blue text-dark';
-
-        $pred = $q->prediction;
-        if ($pred && $has_res) {
-            $res = GameComposer::cs($q);
-
-            if ($res) {
-                $class = 'border-bottom border-success';
-            }
-        }
-
-        return '<div class="border-2 py-1 text-nowrap ' . $class . ' d-inline-block text-center results-icon-md">' . $this->single_pred(clone $q, 'cs') . '</div>';
-    }
-
-    private function formatHTScores($q)
-    {
-
-        $class = 'border-start text-dark';
-
-        return '<div class="border-4 p-1 text-nowrap ' . $class . ' d-inline-block text-center results-icon-md">' . $q->half_time . '</div>';
-    }
-
-    private function formatFTScores($q)
-    {
-
-        $class = 'border-start text-dark';
-
-        return '<div class="border-4 p-1 text-nowrap ' . $class . ' d-inline-block text-center results-icon-md">' . $q->full_time . '</div>';
     }
 
     private function currentUserVotes($q)

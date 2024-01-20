@@ -2,27 +2,38 @@
 
 namespace App\Repositories\BettingTips;
 
+use App\Models\BettingTipsStatistic;
 use App\Models\Game;
-use App\Repositories\BettingTips\Core\AwayWinTips;
-use App\Repositories\BettingTips\Core\DrawTips;
-use App\Repositories\BettingTips\Core\GGTips;
-use App\Repositories\BettingTips\Core\HomeWinTips;
-use App\Repositories\BettingTips\Core\NGTips;
-use App\Repositories\BettingTips\Core\Over25Tips;
-use App\Repositories\BettingTips\Core\Under25Tips;
 use App\Repositories\CommonRepoActions;
+use App\Repositories\SearchRepo;
+use Illuminate\Support\Carbon;
 
 class BettingTipsRepository implements BettingTipsRepositoryInterface
 {
 
     use CommonRepoActions;
 
+    protected $predictionModeId;
+
     function __construct(protected Game $model)
     {
+        $this->predictionModeId = request()->prediction_mode_id;
+
+        request()->merge([
+            'break_preds' => true,
+            'show_predictions' => $this->predictionModeId == 1,
+            'show_source_predictions' => $this->predictionModeId == 2,
+            'to_date' => Carbon::now()->addDays(7),
+        ]);
+
+        if (!request()->from_date) {
+            request()->merge(['from_date' => Carbon::now()->subMonths(12 * 3)]);
+        }
     }
 
     public function index()
     {
+
         $results = $this->getTipResults(request()->type);
 
         $arr = ['results' => $results];
@@ -35,7 +46,8 @@ class BettingTipsRepository implements BettingTipsRepositoryInterface
 
     protected function getTipResults($tipType)
     {
-        $tipClass = $this->getTipClass($tipType);
+
+        $tipClass = BettingTipsFactory::create($this->predictionModeId, $tipType);
 
         if (request()->multiples) {
             return $tipClass->multiples();
@@ -43,29 +55,6 @@ class BettingTipsRepository implements BettingTipsRepositoryInterface
             return $tipClass->singles();
         }
     }
-
-    protected function getTipClass($tipType)
-    {
-        switch ($tipType) {
-            case 'home_win_tips':
-                return new HomeWinTips();
-            case 'away_win_tips':
-                return new AwayWinTips();
-            case 'draw_tips':
-                return new DrawTips();
-            case 'gg_tips':
-                return new GGTips();
-            case 'ng_tips':
-                return new NGTips();
-            case 'over_25_tips':
-                return new Over25Tips();
-            case 'under_25_tips':
-                return new Under25Tips();
-            default:
-                abort(404, 'Tip type not found');
-        }
-    }
-
 
     public function today()
     {
@@ -112,5 +101,19 @@ class BettingTipsRepository implements BettingTipsRepositoryInterface
     public function show($id)
     {
         return $this->index($id);
+    }
+
+    public function stats()
+    {
+        $builder = BettingTipsStatistic::query();
+
+        $results = SearchRepo::of($builder, ['type', 'range'])
+            ->addColumn('Created_by', 'getUser')
+            ->addColumn('Status', 'getStatus')
+            ->addColumn('Multiples', fn ($q) => $q->is_multiples ? 'Yes' : 'No')
+            ->htmls(['Status'])
+            ->paginate();
+
+        return response(['results' => $results]);
     }
 }

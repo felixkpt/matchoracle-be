@@ -2,6 +2,7 @@
 
 use App\Models\Continent;
 use App\Models\Game;
+use App\Models\GameSource;
 use App\Models\Status;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -302,6 +303,13 @@ if (!function_exists('default_prediction_type')) {
     function default_prediction_type()
     {
         return request()->current_prediction_type ?? 1100;
+    }
+}
+
+if (!function_exists('default_source_id')) {
+    function default_source_id()
+    {
+        return GameSource::where('url', 'https://www.forebet.com/')->first()->id ?? 0;
     }
 }
 

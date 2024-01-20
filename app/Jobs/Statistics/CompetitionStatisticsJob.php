@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Statistics;
 
 use App\Http\Controllers\Admin\Statistics\CompetitionsStatisticsController;
 use App\Jobs\Automation\AutomationTrait;
@@ -42,16 +42,23 @@ class CompetitionStatisticsJob implements ShouldQueue
     {
         $this->loggerModel(true);
 
+        $lastFetchColumn = 'stats_last_done';
+        $delay = 24 * 0.1;
+
+        // Get competitions that need stats done
         $competitions = Competition::query()
-            ->where('status_id', activeStatusId())
-            ->whereHas('games')
-            ->where(function ($q) {
-                $q->whereNull('stats_last_done')
-                    ->orWhere('stats_last_done', '<=', Carbon::now()->subHours(24 * 0));
-            })
+            ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
+            ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
             ->when($this->competitionId, function ($query) {
-                $query->where('id', $this->competitionId);
-            })->get();
+                $query->where('competitions.id', $this->competitionId);
+            })
+            ->whereHas('games')
+            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+            ->select('competitions.*')
+            ->limit(700)
+            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
+            ->get();
+
 
         // Loop through each competition
         $total = $competitions->count();

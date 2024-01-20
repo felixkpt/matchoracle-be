@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BettingTipsStatistic;
 use App\Models\Competition;
 use App\Models\CompetitionPredictionStatisticJobLog;
 use App\Models\CompetitionStatisticJobLog;
@@ -57,16 +58,25 @@ class AdminController extends Controller
         $today = now()->format('Y-m-d');
 
         $seasonsJobLogs = $this->getJobLogsStats(SeasonJobLog::class, $today, 'updated_seasons');
-        $standingsJobLogs = $this->getJobLogsStats(StandingJobLog::class, $today, 'updated_standings');
 
-        $resultsMatchesJobLogs = $this->getMatchesJobLogsStats(MatchesJobLog::class, 'results', $today);
-        $historicalResultsMatchesJobLogs = $this->getMatchesJobLogsStats(MatchesJobLog::class, 'historical_results', $today);
-        $shallowFixturesMatchesJobLogs = $this->getMatchesJobLogsStats(MatchesJobLog::class, 'shallow_fixtures', $today);
-        $fixturesMatchesJobLogs = $this->getMatchesJobLogsStats(MatchesJobLog::class, 'fixtures', $today);
+        $standingsJobLogs = [
+            'historical_results' => $this->getJobLogsStats(StandingJobLog::class, $today, 'updated_standings'),
+            'recent_results' => $this->getJobLogsStats(StandingJobLog::class, $today, 'updated_standings'),
+        ];
 
-        $resultsMatchJobLogs = $this->getMatchJobLogsStats(MatchJobLog::class, 'results', $today);
-        $historicalResultsMatchJobLogs = $this->getMatchJobLogsStats(MatchJobLog::class, 'historical_results', $today);
-        $fixturesMatchJobLogs = $this->getMatchJobLogsStats(MatchJobLog::class, 'fixtures', $today);
+        $matchesJobLogs = [
+            'historical_results' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'historical_results', $today),
+            'recent_results' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'recent_results', $today),
+            'shallow_fixtures' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'shallow_fixtures', $today),
+            'fixtures' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'fixtures', $today),
+        ];
+
+        $matchJobLogs = [
+            'historical_results' => $this->getMatchJobLogsStats(MatchJobLog::class, 'historical_results', $today),
+            'recent_results' => $this->getMatchJobLogsStats(MatchJobLog::class, 'recent_results', $today),
+            'shallow_fixtures' => $this->getMatchJobLogsStats(MatchJobLog::class, 'shallow_fixtures', $today),
+            'fixtures' => $this->getMatchJobLogsStats(MatchJobLog::class, 'fixtures', $today),
+        ];
 
         $competitionStatisticsLogs = $this->getCompetitionStatisticsStats($today);
         $competitionPredictionStatisticsLogs = $this->getCompetitionPredictionStats($today);
@@ -78,22 +88,22 @@ class AdminController extends Controller
             'users' => $users,
             'subscribed_users' => $subscribedUsers,
             'tipsters' => $tipsters,
+
             'seasons_job_logs' => $seasonsJobLogs,
             'standings_job_logs' => $standingsJobLogs,
 
-            'results_matches_job_logs' => $resultsMatchesJobLogs,
-            'historical_results_matches_job_logs' => $historicalResultsMatchesJobLogs,
-            'shallow_fixtures_matches_job_logs' => $shallowFixturesMatchesJobLogs,
-            'fixtures_matches_job_logs' => $fixturesMatchesJobLogs,
-
-            'results_match_job_logs' => $resultsMatchJobLogs,
-            'historical_results_match_job_logs' => $historicalResultsMatchJobLogs,
-            'fixtures_match_job_logs' => $fixturesMatchJobLogs,
+            'matches_job_logs' => $matchesJobLogs,
+            'match_job_logs' => $matchJobLogs,
 
             'competition_statistics_logs' => $competitionStatisticsLogs,
             'competition_prediction_statistics_logs' => $competitionPredictionStatisticsLogs,
+
             'predictions_job_logs' => $predictionsJobLogs,
             'advanced_matches' => $matches,
+            'betting_tips_statistics' => [
+                'all' => BettingTipsStatistic::where('range', 'Last 1 year')->orderby('gain', 'desc')->get(),
+                'totals' => BettingTipsStatistic::where('range', 'Last 1 year')->selectRaw('SUM(gain) as total_gain, SUM(total) as total_totals, SUM(won) as total_won, ROUND(AVG(roi)) as average_roi')->first(),
+            ],
         ];
 
         return response(['results' => $results]);

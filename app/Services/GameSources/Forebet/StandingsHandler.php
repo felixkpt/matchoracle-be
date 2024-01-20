@@ -6,6 +6,7 @@ use App\Models\Standing;
 use App\Models\StandingTable;
 use App\Services\Client;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 use Illuminate\Support\Str;
 
@@ -189,6 +190,11 @@ class StandingsHandler
             $teamData = $tableData[1];
 
             $team = (new TeamsHandler())->updateOrCreate($teamData, $country, $competition, $season);
+
+            if (!$team) {
+                Log::critical("Team could not be created for compe: {$competition->id}, season {$season->id}", [$teamData]);
+                continue;
+            }
 
             // Create or update the standings table record
             $res = StandingTable::updateOrCreate(

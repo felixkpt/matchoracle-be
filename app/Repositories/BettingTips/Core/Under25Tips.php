@@ -2,6 +2,7 @@
 
 namespace App\Repositories\BettingTips\Core;
 
+use App\Repositories\BettingTips\BettingTipsTrait;
 use App\Utilities\GameUtility;
 use Illuminate\Support\Carbon;
 
@@ -10,25 +11,28 @@ class Under25Tips
     use BettingTipsTrait;
 
     private $odds_name = 'under_25_odds';
-    private $odds_min_threshold = 1.5;
+    private $odds_min_threshold = 1.3;
     private $odds_max_threshold = 5.0;
 
     private $proba_name = 'under25_proba';
-    private $proba_threshold = 56;
+    private $proba_threshold = 53;
 
-    function __construct()
-    {
-        request()->merge(['to_date' => Carbon::now()->addDays(7)]);
-    }
+    private $proba_name2 = 'ft_home_win_proba';
+    private $proba_threshold2 = 0;
+
+    private $multiples_combined_min_odds = 5;
 
     function singles()
     {
         $gameUtilities = new GameUtility();
-        $results = $gameUtilities->applyGameFilters()->whereHas('odds', fn ($q) => $this->oddsRange($q));
-        $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold));
+        $results = $gameUtilities->applyGameFilters()
+            ->whereHas('odds', fn ($q) => $this->oddsRange($q))
+            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
+
+        $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold)->where($this->proba_name2, '>=', $this->proba_threshold2));
         $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'under_25'));
 
-        $investment = $this->sinlgesInvestment($results);
+        $investment = $this->singlesInvestment($results);
 
         $results = $results->paginate(request()->per_page ?? 50);
 
@@ -40,11 +44,14 @@ class Under25Tips
     function multiples()
     {
         $gameUtilities = new GameUtility();
-        $results = $gameUtilities->applyGameFilters()->whereHas('odds', fn ($q) => $this->oddsRange($q));
-        $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold));
+        $results = $gameUtilities->applyGameFilters()
+            ->whereHas('odds', fn ($q) => $this->oddsRange($q))
+            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
+
+        $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold)->where($this->proba_name2, '>=', $this->proba_threshold2));
         $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'under_25'));
 
-        $investment = $this->multiplesInvestment($results, 5);
+        $investment = $this->multiplesInvestment($results);
 
         $results = $investment['betslips'];
         $results = $this->paginate($results, request()->per_page ?? 50);
@@ -53,5 +60,12 @@ class Under25Tips
         $results['investment'] = $investment;
 
         return $results;
+    }
+
+    function predictionStatisticFilter($q)
+    {
+        if (!request()->show_source_predictions) {
+            $q->where('full_time_under25_preds_true_percentage', '>=', 50);
+        }
     }
 }

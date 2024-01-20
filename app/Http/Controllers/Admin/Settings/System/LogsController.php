@@ -23,7 +23,8 @@ class LogsController extends Controller
     public function seasonsJobLogs()
     {
         $model = SeasonJobLog::query();
-        $data = SearchRepo::of($model)
+        
+        $data = SearchRepo::of($model, ['date'])
             ->addColumn('Last_run', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addColumn('Created_at', fn ($q) => Carbon::parse($q->created_at)->diffForHumans())
             ->paginate();
@@ -33,8 +34,10 @@ class LogsController extends Controller
 
     public function standingsJobLogs()
     {
-        $model = StandingJobLog::query();
-        $data = SearchRepo::of($model)
+        $model = StandingJobLog::query()
+        ->when(request()->task, fn ($q) => $q->where('task', request()->task));
+        
+        $data = SearchRepo::of($model, ['date'])
             ->addColumn('Last_run', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addColumn('Created_at', fn ($q) => Carbon::parse($q->created_at)->diffForHumans())
             ->paginate();
@@ -44,8 +47,10 @@ class LogsController extends Controller
 
     public function matchesJobLogs()
     {
-        $model = MatchesJobLog::query();
-        $data = SearchRepo::of($model)
+        $model = MatchesJobLog::query()
+        ->when(request()->task, fn ($q) => $q->where('task', request()->task));
+
+        $data = SearchRepo::of($model, ['date'])
             ->addColumn('Last_run', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addColumn('Created_at', fn ($q) => Carbon::parse($q->created_at)->diffForHumans())
             ->paginate();
@@ -57,7 +62,8 @@ class LogsController extends Controller
     {
         $model = MatchJobLog::query()
             ->when(request()->task, fn ($q) => $q->where('task', request()->task));
-        $data = SearchRepo::of($model)
+
+        $data = SearchRepo::of($model, ['date'])
             ->addColumn('Last_run', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addColumn('Created_at', fn ($q) => Carbon::parse($q->created_at)->diffForHumans())
             ->paginate();
@@ -68,7 +74,7 @@ class LogsController extends Controller
     public function predictionsJobLogs()
     {
         $model = PredictionJobLog::query();
-        $data = SearchRepo::of($model)
+        $data = SearchRepo::of($model, ['date'])
             ->addColumn('Last_run', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addColumn('Created_at', fn ($q) => Carbon::parse($q->created_at)->diffForHumans())
             ->paginate();

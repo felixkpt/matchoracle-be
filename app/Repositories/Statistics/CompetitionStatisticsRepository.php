@@ -104,7 +104,7 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
         $unique_dates_counts = count(array_unique(
             array_map(fn ($c) => Carbon::parse($c)->format('Y-m-d'), array_column($games, 'utc_date'))
         ));
-        Log::info("Unique date counts: {$unique_dates_counts}");
+        // Log::info("Unique date counts: {$unique_dates_counts}");
 
         $matchday = 0;
         foreach ($games as $game) {

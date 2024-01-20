@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Repositories\BettingTips\Core;
+namespace App\Repositories\BettingTips\Source;
 
 use App\Repositories\BettingTips\BettingTipsTrait;
 use App\Utilities\GameUtility;
-use Illuminate\Support\Carbon;
 
 class NGTips
 {
@@ -15,10 +14,10 @@ class NGTips
     private $odds_max_threshold = 5.0;
 
     private $proba_name = 'ng_proba';
-    private $proba_threshold = 60;
+    private $proba_threshold = 55;
 
     private $proba_name2 = 'under25_proba';
-    private $proba_threshold2 = 60;
+    private $proba_threshold2 = 50;
 
     private $multiples_combined_min_odds = 5;
 
@@ -26,8 +25,7 @@ class NGTips
     {
         $gameUtilities = new GameUtility();
         $results = $gameUtilities->applyGameFilters()
-            ->whereHas('odds', fn ($q) => $this->oddsRange($q))
-            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
+            ->whereHas('odds', fn ($q) => $this->oddsRange($q));
 
         $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold)->where($this->proba_name2, '>=', $this->proba_threshold2));
         $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'ng'));
@@ -45,8 +43,7 @@ class NGTips
     {
         $gameUtilities = new GameUtility();
         $results = $gameUtilities->applyGameFilters()
-            ->whereHas('odds', fn ($q) => $this->oddsRange($q))
-            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
+            ->whereHas('odds', fn ($q) => $this->oddsRange($q));
 
         $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold + 2)->where($this->proba_name2, '>=', $this->proba_threshold2));
         $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'ng'));
@@ -62,10 +59,4 @@ class NGTips
         return $results;
     }
 
-    function predictionStatisticFilter($q)
-    {
-        if (!request()->show_source_predictions) {
-            $q->where('full_time_ng_preds_true_percentage', '>=', 44);
-        }
-    }
 }

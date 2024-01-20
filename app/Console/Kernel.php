@@ -13,10 +13,29 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
-        $schedule->command('seeders:run')
-            ->everyThirtyMinutes()
-            ->withoutOverlapping();
+        // Seasons commands
+        $schedule->command('app:seasons-handler')->everySixHours();
+
+        // Standing commands
+        $schedule->command('app:standings-handler --task=historical_results')->hourly();
+        $schedule->command('app:standings-handler --task=recent_results')->hourly();
+
+        // Matches commands
+        $schedule->command('app:matches-handler --task=historical_results')->everySixHours();
+        $schedule->command('app:matches-handler --task=recent_results')->everyThreeHours();
+        $schedule->command('app:matches-handler --task=shallow_fixtures')->everyThreeHours();
+        $schedule->command('app:matches-handler --task=fixtures')->everyThreeHours();
+
+        // Match commands
+        $schedule->command('app:match-handler --task=historical_results')->everyFifteenMinutes();
+        $schedule->command('app:match-handler --task=recent_results')->hourly();
+        $schedule->command('app:match-handler --task=shallow_fixtures')->hourly();
+        $schedule->command('app:match-handler --task=fixtures')->hourly();
+
+        // Statistics commands
+        // $schedule->command('app:competition-statistics')->hourly();
+        $schedule->command('app:competition-prediction-statistics')->hourly();
+        $schedule->command('app:betting-tips-statistics')->hourly();
     }
 
     /**
@@ -32,7 +51,6 @@ class Kernel extends ConsoleKernel
             $confirmed = $cmd->ask("Are you sure you want to resign?", "Yes");
 
             $cmd->comment('Nope!');
-            
         })->purpose('Disable fresh command');
 
         $this->load(__DIR__ . '/Commands');

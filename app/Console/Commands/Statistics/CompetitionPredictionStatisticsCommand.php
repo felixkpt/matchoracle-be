@@ -2,17 +2,17 @@
 
 namespace App\Console\Commands\Statistics;
 
-use App\Jobs\CompetitionStatisticsJob;
+use App\Jobs\Statistics\CompetitionPredictionStatisticsJob;
 use Illuminate\Console\Command;
 
-class CompetitionStatistics extends Command
+class CompetitionPredictionStatisticsCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:competition-statistics {--competition=}';
+    protected $signature = 'app:competition-prediction-statistics {--competition=}';
 
     /**
      * The console command description.
@@ -26,10 +26,9 @@ class CompetitionStatistics extends Command
      */
     public function handle()
     {
-        $this->info('Competition Statistics Job Started Successfully.');
-
         $competitionId = $this->option('competition');
-        dispatch(new CompetitionStatisticsJob($competitionId));
-        $this->info('Competition Statistics Job command executed successfully!');
+
+        dispatch(new CompetitionPredictionStatisticsJob($competitionId));
+        $this->info('Competition Prediction Statistics Job command executed successfully!');
     }
 }

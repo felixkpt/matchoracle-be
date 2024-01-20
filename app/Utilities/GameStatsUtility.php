@@ -21,8 +21,6 @@ class GameStatsUtility
     // Add this new method to calculate and add game statistics
     function addGameStatistics($results)
     {
-        ini_set('max_execution_time', 60 * 10);
-        ini_set('memory_limit', '256M');
 
         return $results
             ->addColumn('stats', function ($matchData) {

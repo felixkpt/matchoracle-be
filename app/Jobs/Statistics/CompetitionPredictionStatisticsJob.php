@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Statistics;
 
 use App\Http\Controllers\Admin\Statistics\CompetitionsPredictionsStatisticsController;
 use App\Jobs\Automation\AutomationTrait;
@@ -49,20 +49,24 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
 
             $this->loggerModel(true);
 
+            $lastFetchColumn = 'predictions_stats_last_done';
+            $delay = 24 * 0.1;
+
+            // Get competitions that need stats done
             $competitions = Competition::query()
-                ->where('status_id', activeStatusId())
-                ->whereHas('games')
-                ->where(function ($q) {
-                    $q->whereNull('predictions_stats_last_done')
-                        ->orWhere('predictions_stats_last_done', '<=', Carbon::now()->subHours(24 * 0));
-                })
+                ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
+                ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
                 ->when($this->competitionId, function ($query) {
-                    $query->where('id', $this->competitionId);
+                    $query->where('competitions.id', $this->competitionId);
                 })
+                ->whereHas('games')
+                ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+                ->select('competitions.*')
+                ->limit(700)
+                ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
                 ->get();
 
-
-            // Loop through each competition
+            // Loop through each competition & do stats
             $total = $competitions->count();
             foreach ($competitions as $key => $competition) {
                 echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
@@ -87,6 +91,8 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
                     echo $data['message'] . "\n";
                     $this->doLogging($data);
                 }
+
+                $this->updateLastAction($competition, $seasons, $lastFetchColumn);
 
                 echo "------------\n";
             }
