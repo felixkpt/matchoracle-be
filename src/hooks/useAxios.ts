@@ -10,6 +10,7 @@ interface AxiosResponseWithData<T> extends AxiosResponse {
 }
 
 const useAxios = <T = any>() => {
+    console.log(22, baseURL('api'))
     axios.defaults.baseURL = baseURL('api');
 
     const [data, setData] = useState<T | null>(null);
