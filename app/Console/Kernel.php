@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // Seasons commands
-        $schedule->command('app:seasons-handler')->everySixHours();
+        $schedule->command('app:seasons-handler')->everyFiveMinutes();
 
         // Standing commands
         $schedule->command('app:standings-handler --task=historical_results')->hourly();
@@ -44,7 +44,7 @@ class Kernel extends ConsoleKernel
     protected function commands(): void
     {
 
-        Artisan::command('migrate:fresh {--seed}', function () {
+        Artisan::command('migrate:freshh {--seed}', function () {
             /** @var \Illuminate\Console\Command $cmd */
             $cmd = $this;
 

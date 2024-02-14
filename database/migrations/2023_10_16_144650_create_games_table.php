@@ -26,8 +26,6 @@ return new class extends Migration
             $table->string('stage')->nullable();
             $table->string('group')->nullable();
             $table->integer('results_status')->default(0);
-            $table->dateTime('last_updated')->nullable();
-            $table->dateTime('last_fetch')->nullable();
             $table->unsignedInteger('priority_number')->default(9999);
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();

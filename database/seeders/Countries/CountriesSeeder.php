@@ -1947,7 +1947,7 @@ class CountriesSeeder extends Seeder
                     'slug' => Str::slug($country['name']),
                     'code' => $country['code'],
                     'dial_code' => $country['dial_code'],
-                    'flag' => 'assets/images/flags/' . Str::slug($country['code']) . '.png',
+                    'flag' => 'assets/images/flags/png100px/' . Str::slug($country['code']) . '.png',
                     'continent_id' => $continent->id ?? 0,
                     'status_id' => activeStatusId()
                 ]
