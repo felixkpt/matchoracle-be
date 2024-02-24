@@ -167,7 +167,6 @@ const Index = () => {
 
             <div className='px-1'>
               <div id="menu">
-
                 <div id='role-switcher'>
                   <Select
                     className="basic-single text-dark mb-2"
