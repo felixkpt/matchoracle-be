@@ -157,7 +157,7 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                                                     loadingRoutePermissions === false && checked === true ? (
                                                         environment === 'local' ? <Error403 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} /> : <Error404 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} />
                                                     ) : (
-                                                        <Loader message='Granting you page access...' />
+                                                        <Loader message='Granting you page access...' position='static' />
                                                     )
                                                 }
                                             </>

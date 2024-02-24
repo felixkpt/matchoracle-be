@@ -31,7 +31,7 @@ const BettingTipsStats = ({ stats }: Props) => {
             <div className="card-header bg-secondary text-white">
                 <h5 className='d-flex align-items-center gap-1'>
                     <Icon width={'2rem'} icon={`${'mdi:chart-line-variant'}`} />
-                    <span>Betting tips stats in {localStats[0].range}</span>
+                    <span>Betting tips stats in {localStats[0]?.range}</span>
                 </h5>
             </div>
             <div className="card-body">

@@ -1,5 +1,4 @@
 import AutoTable from '@/components/AutoTable';
-import "react-datepicker/dist/react-datepicker.css";
 import { useState } from 'react';
 
 const Stats = () => {

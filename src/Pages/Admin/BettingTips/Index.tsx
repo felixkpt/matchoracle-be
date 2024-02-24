@@ -1,6 +1,5 @@
 import Error404 from '@/Pages/ErrorPages/Error404';
 import useRouteParamValidation from '@/hooks/useRouteParamValidation';
-import "react-datepicker/dist/react-datepicker.css";
 import AutoTabs from '@/components/AutoTabs';
 import { TabInterface } from '@/interfaces/UncategorizedInterfaces';
 import GGTips from './Tabs/GGTips';

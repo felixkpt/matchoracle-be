@@ -2,7 +2,6 @@ import Error404 from '@/Pages/ErrorPages/Error404';
 import AutoTable from '@/components/AutoTable';
 import useListSources from '@/hooks/apis/useListSources';
 import useRouteParamValidation from '@/hooks/useRouteParamValidation';
-import "react-datepicker/dist/react-datepicker.css";
 import { predictionModes, predictionsColumns } from '@/utils/constants';
 import MatchesPageHeader from '@/components/Matches/MatchesPageHeader';
 import useFromToDates from '@/hooks/useFromToDates';

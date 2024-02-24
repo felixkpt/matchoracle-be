@@ -13,7 +13,7 @@ const Index = () => {
   const { roles, setCurrentRole, currentRole, userMenu, loadingMenu: loading } = useRolePermissionsContext();
 
 
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [isOpen, setIsOpen] = useState < boolean > (false)
 
   useEffect(() => {
 
@@ -42,7 +42,7 @@ const Index = () => {
 
   useEffect(() => {
 
-    let exists = localStorage.getItem('sb|sidebar-collapse')
+    const exists = localStorage.getItem('sb|sidebar-collapse')
     if (exists) {
       const collaped = JSON.parse(exists)
       if (collaped === true) {
@@ -58,14 +58,52 @@ const Index = () => {
       <>
         {
           user && Array.isArray(userMenu) ?
-            <ul className="list-unstyled nested-routes main" id="menu">
+            <ul className="list-unstyled nested-routes main">
 
               {
                 userMenu.map((child: RouteCollectionInterface) => {
 
                   const { routes, children, icon, folder } = child
 
-                  const shouldShowFirstLevelRoutes = true
+                  const shouldShowFolder = routes.length > 0 || children.length > 0
+
+                  const currentId = Str.slug((folder).replace(/^\//, ''));
+
+                  const indent = 2
+
+                  if (shouldShowFolder)
+
+                    return (
+                      <div key={currentId} className='position-relative top-0 first-level'>
+                        <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target={`#${currentId}`} aria-expanded="false" aria-controls="collapsePages">
+                          <span className='d-flex align-items-center gap-1'>
+                            <Icon className='nav-icon' icon={`${icon || 'prime:bookmark'}`} />
+                            <span className='nav-label'>{Str.title(Str.afterLast(folder, '/'))}</span>
+                          </span>
+                          <div className="sb-sidenav-collapse-arrow"><Icon className='arrow-section' icon={`bi-chevron-down`} /></div>
+                        </a>
+                        <div className="collapse position-fixed-collaped sb-sidenav-light" id={`${currentId}`} aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
+                          <nav className="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
+                            <RoutesList routes={routes} />
+                            {
+                              children.length > 0 &&
+                              <>
+                                {
+                                  children.map((child) => <MenuTree key={child.folder} indent={indent} child={child} prevId={currentId} />)
+                                }
+                              </>
+                            }
+                          </nav>
+                        </div>
+                      </div>
+                    )
+
+                  else return null
+                })
+              } {
+                userMenu.map((child: RouteCollectionInterface) => {
+
+                  const { routes, children, icon, folder } = child
 
                   const shouldShowFolder = routes.length > 0 || children.length > 0
 
@@ -128,24 +166,28 @@ const Index = () => {
           <div className="nav pt-2">
 
             <div className='px-1'>
-              <div id='role-switcher'>
-                <Select
-                  className="basic-single text-dark mb-2"
-                  classNamePrefix="select"
-                  value={currentRole || []}
-                  isSearchable={true}
-                  name="roles"
-                  options={roles}
-                  getOptionValue={(option: any) => `${option['id']}`}
-                  getOptionLabel={(option: any) => `${option['name']}`}
-                  onChange={(item: any) => setCurrentRole(item)}
-                />
-              </div>
+              <div id="menu">
 
-              {memoizeMenu}
-              <span className="btn-expand-collapse d-none d-md-inline">
-                <Icon className='nav-icon' icon={`${isOpen ? 'pajamas:collapse-right' : 'pajamas:collapse-left'}`} />
-              </span>
+                <div id='role-switcher'>
+                  <Select
+                    className="basic-single text-dark mb-2"
+                    classNamePrefix="select"
+                    value={currentRole || []}
+                    isSearchable={true}
+                    name="roles"
+                    options={roles}
+                    getOptionValue={(option: any) => `${option['id']}`}
+                    getOptionLabel={(option: any) => `${option['name']}`}
+                    onChange={(item: any) => setCurrentRole(item)}
+                  />
+                </div>
+                {memoizeMenu}
+              </div>
+              <div id='sidenav-footer'>
+                <span className="btn-expand-collapse d-none d-md-flex">
+                  <Icon className='nav-icon' icon={`${isOpen ? 'pajamas:collapse-left' : 'pajamas:collapse-left'}`} />
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -173,6 +215,5 @@ export const toggleSidebar = (event?: Event, action: string | undefined = undefi
   const isToggled = document.body.classList.contains('sb-sidenav-toggled');
   localStorage.setItem('sb|sidebar-toggle', isToggled.toString());
 };
-
 
 export default Index;
