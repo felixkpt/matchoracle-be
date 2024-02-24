@@ -187,6 +187,8 @@ class StandingsHandler
         $winner = null;
         foreach ($standingData as $tableData) {
 
+            if (!isset($tableData[1])) continue;
+
             $teamData = $tableData[1];
 
             $team = (new TeamsHandler())->updateOrCreate($teamData, $country, $competition, $season);

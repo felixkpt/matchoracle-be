@@ -373,8 +373,6 @@ class MatchesHandler implements MatchesInterface
         $matchday = null;
         $stage = null;
         $group = null;
-        $last_updated = null;
-        $last_fetch = Carbon::now();
         $status_id = activeStatusId();
         $user_id = auth()->id();
 
@@ -391,8 +389,6 @@ class MatchesHandler implements MatchesInterface
             'matchday' => $matchday,
             'stage' => $stage,
             'group' => $group,
-            'last_updated' => $last_updated,
-            'last_fetch' => $last_fetch,
             'status_id' => $status_id,
             'user_id' => $user_id,
         ];
