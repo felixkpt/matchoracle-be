@@ -43,31 +43,31 @@ trait AutomationTrait
      * @param string $column
      * @param int $delay_in_minutes
      */
-    private function lastActionDelay($query, $column, $delay_in_minutes)
+    private function lastActionDelay($query, $column, $delay_in_minutes, $table = 'competition_last_actions')
     {
         // Apply a condition to the query to check for null or delayed last action.
-        $query->whereNull('competition_last_actions.' . $column)
-            ->orWhere('competition_last_actions.' . $column, '<=', Carbon::now()->subMinutes($delay_in_minutes));
+        $query->whereNull($table . '.' . $column)
+            ->orWhere($table . '.' . $column, '<=', Carbon::now()->subMinutes($delay_in_minutes));
     }
 
     /**
-     * Update or create the last action entry for the competition and specified column.
+     * Update or create the last action entry for the model and specified column.
      *
-     * @param \App\Models\Competition $competition
+     * @param $model
      * @param mixed $should_update_last_action
      * @param string $column
      */
-    private function updateLastAction($competition, $should_update_last_action, $column)
+    private function updateLastAction($model, $should_update_last_action, $column, $field = 'competition_id')
     {
         // Check if the column is specified and there are seasons to update.
         if ($column && $should_update_last_action) {
             // Update or create the last action entry with the current timestamp.
-            $competition
+            $model
                 ->lastAction()
                 ->updateOrCreate(
-                    ['competition_id' => $competition->id],
+                    [$field => $model->id],
                     [
-                        'competition_id' => $competition->id,
+                        $field => $model->id,
                         $column => now(),
                     ]
                 );

@@ -8,6 +8,7 @@ use App\Services\Client;
 use App\Services\Common;
 use App\Services\OddsHandler;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -35,6 +36,8 @@ class MatchHandler
             ->where('id', $game_id)
             ->firstOrFail();
 
+        Log::alert('$game', [$game]);
+        
         if ($game->results_status == 2) {
             return $this->matchMessage('Update status is satisfied.');
         }

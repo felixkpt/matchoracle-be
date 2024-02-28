@@ -46,6 +46,9 @@ class MatchesHandler implements MatchesInterface
         if (!request()->shallow_fetch)
             $links = $this->getMatchesLinks($url);
 
+        // if is not array then there could be an error that has occured
+        if (!is_array($links)) return $links;
+
         $links = array_unique(array_merge([$uri], $links));
 
         $messages = [];

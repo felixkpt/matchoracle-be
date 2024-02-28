@@ -82,7 +82,8 @@ class MatchHandlerJob implements ShouldQueue
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('games', function ($q) {
-                $this->delayFilters($q);
+                $q->where('results_status', '<', 2);
+                $this->lastActionFilters($q);
             })
             ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
@@ -110,6 +111,7 @@ class MatchHandlerJob implements ShouldQueue
                 $season_games = $season->games()->count();
 
                 $builder = $season->games()
+                    ->leftJoin('game_last_actions', 'games.id', 'game_last_actions.game_id')
                     ->whereHas('gameSources', function ($q) {
                         $q->where('game_source_id', $this->sourceContext->getId())
                             ->where(function ($q) {
@@ -118,7 +120,7 @@ class MatchHandlerJob implements ShouldQueue
                             });
                     });
 
-                $builder = $this->delayFilters($builder);
+                $builder = $this->lastActionFilters($builder);
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
@@ -127,10 +129,10 @@ class MatchHandlerJob implements ShouldQueue
 
                 $delay_games = 0;
                 $games = $builder
-                    // if results check at least 3 hours, else if fixtures check last 2 days
-                    ->where(fn($q) => $q->whereNull('last_fetch')->orwhere('last_fetch', '<=', Carbon::now()->subMinutes($delay_games)))
-                    ->limit(1000)
-                    ->orderBy('last_fetch', 'asc')->get();
+                    ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay, 'game_last_actions'))
+                    ->select('games.*')
+                    ->limit(1000)->orderBy('game_last_actions.' . $lastFetchColumn, 'asc')
+                    ->get();
 
                 $total_games = $games->count();
                 echo "After applying last fetch check >= {$delay_games} mins: {$total_games} games\n";
@@ -165,6 +167,8 @@ class MatchHandlerJob implements ShouldQueue
                     $$should_update_last_action = true;
 
                     $this->doLogging($data);
+                    $this->updateLastAction($game, $should_update_last_action, $lastFetchColumn, 'game_id');
+
                     // Introduce a delay to avoid rapid consecutive requests
                     sleep(4);
                 }
@@ -185,7 +189,7 @@ class MatchHandlerJob implements ShouldQueue
         }
     }
 
-    private function delayFilters($query)
+    private function lastActionFilters($query)
     {
         // Conditionally filter games based on the task being performed
         $query = $query->when($this->task == 'historical_results', function ($q) {
@@ -199,9 +203,8 @@ class MatchHandlerJob implements ShouldQueue
                 ->where('utc_date', '>', Carbon::now())
                 ->where('utc_date', '<=', Carbon::now()->addDays(7)))
             ->when($this->task == 'fixtures', fn ($q) => $q
-                ->where('utc_date', '>', Carbon::now()->addDays(7)))
-            // status 1 is left for match handler
-            ->where('results_status', '<', 2);
+                ->where('utc_date', '>', Carbon::now()->addDays(7)));
+
         return $query;
     }
 

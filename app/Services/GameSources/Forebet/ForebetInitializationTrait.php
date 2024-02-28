@@ -155,7 +155,7 @@ trait ForebetInitializationTrait
                     $game->update(['results_status' => $results_status, 'status' => 'FINISHED']);
                 }
                 // postponed
-                else if ($score->winner = Str::upper('postponed')) {
+                else if ($score->winner == Str::upper('postponed')) {
                     $results_status = 2;
                     $game->update(['results_status' => $results_status, 'status' => Str::upper('postponed')]);
                 }

@@ -22,8 +22,6 @@ class Game extends Model
         'stage',
         'group',
         'results_status',
-        'last_updated',
-        'last_fetch',
         'priority_number',
         'status_id',
         'user_id',
