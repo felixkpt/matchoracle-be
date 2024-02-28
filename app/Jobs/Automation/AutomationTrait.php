@@ -61,6 +61,7 @@ trait AutomationTrait
     {
         // Check if the column is specified and there are seasons to update.
         if ($column && $should_update_last_action) {
+            
             // Update or create the last action entry with the current timestamp.
             $model
                 ->lastAction()

@@ -127,15 +127,15 @@ class MatchHandlerJob implements ShouldQueue
 
                 echo ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date}, untouched games {$builder->count()}/{$season_games} games)\n";
 
-                $delay_games = 0;
+                $delay_games = 90;
                 $games = $builder
-                    ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay, 'game_last_actions'))
+                    ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay_games, 'game_last_actions'))
                     ->select('games.*')
                     ->limit(1000)->orderBy('game_last_actions.' . $lastFetchColumn, 'asc')
                     ->get();
 
                 $total_games = $games->count();
-                echo "After applying last fetch check >= {$delay_games} mins: {$total_games} games\n";
+                echo "After applying last action delay check >= {$delay_games} mins: {$total_games} games\n";
                 if ($total_games === 0) continue;
 
                 // Loop through each game to fetch and update matches
@@ -164,7 +164,7 @@ class MatchHandlerJob implements ShouldQueue
 
                     $should_sleep_for_competitions = true;
                     $should_sleep_for_seasons = true;
-                    $$should_update_last_action = true;
+                    $should_update_last_action = true;
 
                     $this->doLogging($data);
                     $this->updateLastAction($game, $should_update_last_action, $lastFetchColumn, 'game_id');

@@ -17,9 +17,4 @@ class GameLastAction extends Model
         'match_fixtures_last_fetch',
         'match_shallow_fixtures_last_fetch',
     ];
-
-    public function lastAction()
-    {
-        return $this->belongsTo(Game::class);
-    }
 }

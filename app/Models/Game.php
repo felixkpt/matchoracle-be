@@ -27,6 +27,11 @@ class Game extends Model
         'user_id',
     ];
 
+    public function lastAction()
+    {
+        return $this->belongsTo(GameLastAction::class);
+    }
+
     public function competition()
     {
         return $this->belongsTo(Competition::class);
