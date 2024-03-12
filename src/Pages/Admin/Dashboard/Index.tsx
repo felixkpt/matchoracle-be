@@ -31,10 +31,10 @@ const Index = (props: Props) => {
             <h2 className="page-title">{App.name()} Dashboard</h2>
             <div className="container-fluid">
               <div className="row">
-                <div className="col-9">
+                <div className="col-md-9">
                   <TopMainStats stats={stats} />
                 </div>
-                <div className="col-3">
+                <div className="col-md-3">
                   Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium nesciunt, eveniet quisquam sint harum qui ut. Consequuntur rerum cum error corrupti id nesciunt, pariatur veritatis quod totam eligendi delectus nostrum!
                 </div>
               </div>

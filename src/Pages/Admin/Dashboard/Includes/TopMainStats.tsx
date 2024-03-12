@@ -10,6 +10,17 @@ type Props = {
 }
 
 const TopMainStats = ({ stats }: Props) => {
+
+    const countries = stats?.countries
+    const competitions = stats?.competitions
+    const odds_enabled_competitions = stats?.odds_enabled_competitions
+    const seasons = stats?.seasons
+    const standings = stats?.seasons
+    const teams = stats?.seasons
+    const matches = stats?.matches
+    const predictions = stats?.predictions
+    const odds = stats?.odds
+
     return (
         <div>
             <div className="row justify-content-center">
@@ -24,26 +35,31 @@ const TopMainStats = ({ stats }: Props) => {
                             </div>
                             <div className="card-body text-center">
                                 {
-                                    stats?.countries.totals
+                                    countries && countries.totals >= 0
                                         ?
                                         <>
                                             <div className='mb-3'>
-                                                <span className="shadow-sm p-2 rounded text-muted fs-5">Total: {stats.countries.totals}</span>
+                                                <span className="shadow-sm p-2 rounded text-muted fs-5">Total: {countries.totals}</span>
                                             </div>
-                                            <div className="d-flex align-items-center gap-1 justify-content-between">
-                                                <div className='d-flex align-items-center gap-2 shadow-sm p-2 rounded text-success'>
-                                                    <span className='d-flex align-items-center gap-1'>
-                                                        <Icon width={'1rem'} icon={`${'ic:sharp-published-with-changes'}`} />
-                                                        With compe:
-                                                    </span>
-                                                    {stats?.countries.with_competitions}
+
+                                            <div className="row align-items-center justify-content-between">
+                                                <div className='col-sm-12 shadow-sm rounded text-success'>
+                                                    <div className="d-flex justify-content-between align-items-center gap-2">
+                                                        <span className='d-flex align-items-center gap-1'>
+                                                            <Icon width={'1rem'} icon={`${'ic:sharp-published-with-changes'}`} />
+                                                            With compe:
+                                                        </span>
+                                                        <span>{countries.with_competitions}</span>
+                                                    </div>
                                                 </div>
-                                                <div className='d-flex align-items-center gap-2 shadow-sm p-2 rounded text-info'>
-                                                    <span className='d-flex align-items-center gap-1'>
-                                                        <Icon width={'1rem'} icon={`${'fe:disabled'}`} />
-                                                        No compe:
-                                                    </span>
-                                                    {stats?.countries.without_competitions}
+                                                <div className='col-sm-12 shadow-sm rounded text-danger'>
+                                                    <div className="d-flex justify-content-between align-items-center gap-2">
+                                                        <span className='d-flex align-items-center gap-1'>
+                                                            <Icon width={'1rem'} icon={`${'fe:disabled'}`} />
+                                                            No compe:
+                                                        </span>
+                                                        <span>{countries.without_competitions}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </>
@@ -66,9 +82,9 @@ const TopMainStats = ({ stats }: Props) => {
                             </div>
                             <div className="card-body text-center">
                                 {
-                                    stats?.competitions.totals
+                                    competitions && competitions.totals >= 0
                                         ?
-                                        <DashMiniCard total={stats ? stats.competitions.totals : 0} active={stats ? stats.competitions.active : 0} inactive={stats ? stats.competitions.inactive : 0} />
+                                        <DashMiniCard total={stats ? competitions.totals : 0} active={stats ? competitions.active : 0} inactive={stats ? competitions.inactive : 0} />
                                         :
                                         <Loader />
                                 }
@@ -87,9 +103,9 @@ const TopMainStats = ({ stats }: Props) => {
                             </div>
                             <div className="card-body text-center">
                                 {
-                                    stats?.odds_enabled_competitions.totals
+                                    odds_enabled_competitions && odds_enabled_competitions.totals >= 0
                                         ?
-                                        <DashMiniCard total={stats ? stats.odds_enabled_competitions.totals : 0} active={stats ? stats.odds_enabled_competitions.active : 0} inactive={stats ? stats.odds_enabled_competitions.inactive : 0} />
+                                        <DashMiniCard total={stats ? odds_enabled_competitions.totals : 0} active={stats ? odds_enabled_competitions.active : 0} inactive={stats ? odds_enabled_competitions.inactive : 0} />
                                         :
                                         <Loader />
                                 }
@@ -109,9 +125,9 @@ const TopMainStats = ({ stats }: Props) => {
                             </div>
                             <div className="card-body text-center">
                                 {
-                                    stats?.seasons.totals
+                                    seasons && seasons.totals >= 0
                                         ?
-                                        <DashMiniCard total={stats ? stats.seasons.totals : 0} active={stats ? stats.seasons.active : 0} inactive={stats ? stats.seasons.inactive : 0} />
+                                        <DashMiniCard total={stats ? seasons.totals : 0} active={stats ? seasons.active : 0} inactive={stats ? seasons.inactive : 0} />
                                         :
                                         <Loader />
                                 }
@@ -130,9 +146,9 @@ const TopMainStats = ({ stats }: Props) => {
                             </div>
                             <div className="card-body text-center">
                                 {
-                                    stats?.standings.totals
+                                    standings && standings.totals >= 0
                                         ?
-                                        <DashMiniCard total={stats ? stats.standings.totals : 0} active={stats ? stats.standings.active : 0} inactive={stats ? stats.standings.inactive : 0} />
+                                        <DashMiniCard total={stats ? standings.totals : 0} active={stats ? standings.active : 0} inactive={stats ? standings.inactive : 0} />
                                         :
                                         <Loader />
                                 }
@@ -151,9 +167,9 @@ const TopMainStats = ({ stats }: Props) => {
                             </div>
                             <div className="card-body text-center">
                                 {
-                                    stats?.teams.totals
+                                    teams && teams.totals >= 0
                                         ?
-                                        <DashMiniCard total={stats ? stats.teams.totals : 0} active={stats ? stats.teams.active : 0} inactive={stats ? stats.teams.inactive : 0} />
+                                        <DashMiniCard total={stats ? teams.totals : 0} active={stats ? teams.active : 0} inactive={stats ? teams.inactive : 0} />
                                         :
                                         <Loader />
                                 }
@@ -175,9 +191,9 @@ const TopMainStats = ({ stats }: Props) => {
                             </div>
                             <div className="card-body text-center">
                                 {
-                                    stats?.matches
+                                    matches && matches.totals >= 0
                                         ?
-                                        <DashPastUpcomingCard total={stats ? stats.matches.totals : 0} past={stats ? stats.matches.past : 0} upcoming={stats ? stats.matches.upcoming : 0} />
+                                        <DashPastUpcomingCard total={stats ? matches.totals : 0} past={stats ? matches.past : 0} upcoming={stats ? stats.matches.upcoming : 0} />
                                         :
                                         <Loader />
                                 }
@@ -196,9 +212,9 @@ const TopMainStats = ({ stats }: Props) => {
                             </div>
                             <div className="card-body text-center">
                                 {
-                                    stats?.predictions.totals
+                                    predictions && predictions.totals >= 0
                                         ?
-                                        <DashPastUpcomingCard total={stats ? stats.predictions.totals : 0} past={stats ? stats.predictions.past : 0} upcoming={stats ? stats.predictions.upcoming : 0} />
+                                        <DashPastUpcomingCard total={stats ? predictions.totals : 0} past={stats ? predictions.past : 0} upcoming={stats ? stats.predictions.upcoming : 0} />
                                         :
                                         <Loader />
                                 }
@@ -217,9 +233,9 @@ const TopMainStats = ({ stats }: Props) => {
                             </div>
                             <div className="card-body text-center">
                                 {
-                                    stats?.matches
+                                    odds && odds.totals >= 0
                                         ?
-                                        <DashPastUpcomingCard total={stats ? stats.odds.totals : 0} past={stats ? stats.odds.past : 0} upcoming={stats ? stats.odds.upcoming : 0} />
+                                        <DashPastUpcomingCard total={stats ? odds.totals : 0} past={stats ? odds.past : 0} upcoming={stats ? odds.upcoming : 0} />
                                         :
                                         <Loader />
                                 }
