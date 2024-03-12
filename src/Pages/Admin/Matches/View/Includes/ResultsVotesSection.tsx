@@ -7,12 +7,12 @@ type Props = {
     game: GameInterface;
 };
 
-const ResultsVotesSection = ({ game:initialGame }: Props) => {
+const ResultsVotesSection = ({ game: initialGame }: Props) => {
 
     const { post } = useAxios()
 
     const [game, setGame] = useState<GameInterface>(initialGame)
-    
+
     const [isFuture, setIsFuture] = useState(true)
     const [voted, setVoted] = useState(false)
     const [showVotes, setShowVotes] = useState(false)
@@ -108,15 +108,15 @@ const ResultsVotesSection = ({ game:initialGame }: Props) => {
                     {(!isFuture || voted) ? (
                         <div className='col-12 d-flex align-items-end overflow-hidden'>
                             <div className='transistion winner-transistion d-flex flex-column' style={{ width: button1Width }}>
-                                <span className={`vote-counts ${showText ? 'shown' : ''}`}>{game.home_win_votes} votes{game.current_user_votes ? (game.current_user_votes.winner == 'home' ? ' (You)' : '') : ''}</span>
+                                <span className={`vote-counts ${showText ? 'shown' : ''}`}>{game.home_win_votes} votes{game.current_user_votes ? (game.current_user_votes.winner === 'home' ? <span className="text-primary ms-1">(You)</span> : '') : ''}</span>
                                 <div title='Home win votes' className={`vote-btn home fw-bold text-start ${showVotes ? 'shown' : ''}`}>1</div>
                             </div>
                             <div className='transistion winner-transistion d-flex flex-column' style={{ width: button2Width }}>
-                                <span className={`vote-counts text-center ${showText ? 'shown' : ''}`}>{game.draw_votes} votes{game.current_user_votes ? (game.current_user_votes.winner == 'draw' ? ' (You)' : '') : ''}</span>
+                                <span className={`vote-counts text-center ${showText ? 'shown' : ''}`}>{game.draw_votes} votes{game.current_user_votes ? (game.current_user_votes.winner === 'draw' ? <span className="text-primary ms-1">(You)</span> : '') : ''}</span>
                                 <div title='Draw votes' className={`vote-btn draw fw-bold text-start ${showVotes ? 'shown' : ''}`}>X</div>
                             </div>
                             <div className='transistion winner-transistion d-flex flex-column' style={{ width: button3Width }}>
-                                <span className={`vote-counts text-end ${showText ? 'shown' : ''}`}>{game.away_win_votes} votes{game.current_user_votes ? (game.current_user_votes.winner == 'away' ? ' (You)' : '') : ''}</span>
+                                <span className={`vote-counts text-end ${showText ? 'shown' : ''}`}>{game.away_win_votes} votes{game.current_user_votes ? (game.current_user_votes.winner === 'away' ? <span className="text-primary ms-1">(You)</span> : '') : ''}</span>
                                 <div title='Away win votes' className={`vote-btn away fw-bold text-start bg-secondary ${showVotes ? 'shown' : ''}`}>2</div>
                             </div>
                         </div>

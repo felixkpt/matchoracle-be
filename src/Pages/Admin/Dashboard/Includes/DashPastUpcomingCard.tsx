@@ -26,8 +26,8 @@ const DashPastUpcomingCard: React.FC<DashMiniCardProps> = ({ total, past, upcomi
                 <div className='col-sm-12 shadow-sm rounded text-danger'>
                     <div className="d-flex justify-content-between align-items-center gap-2">
                         <span className='d-flex align-items-center gap-1'>
-                            <Icon width={'1rem'} icon={`${'ic:sharp-published-with-changes'}`} />
-                            Active:
+                            <Icon width={'1rem'} icon={`${'fe:disabled'}`} />
+                            Upcoming:
                         </span>
                         <span>{upcoming}</span>
                     </div>

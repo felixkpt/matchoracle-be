@@ -100,11 +100,11 @@ const BTSVotesSection = ({ game: initialGame }: Props) => {
                     {(!isFuture || voted) ? (
                         <div className='col-12 d-flex align-items-end overflow-hidden'>
                             <div className='transistion bts-transistion d-flex flex-column' style={{ width: button1Width }}>
-                                <span className={`vote-counts ${showText ? 'shown' : ''}`}>{game.gg_votes} votes{game.current_user_votes ? (game.current_user_votes.bts == 'gg' ? ' (You)' : '') : ''}</span>
+                                <span className={`vote-counts ${showText ? 'shown' : ''}`}>{game.gg_votes} votes{game.current_user_votes ? (game.current_user_votes.bts === 'gg' ? <span className="text-primary ms-1">(You)</span> : '') : ''}</span>
                                 <div title='BTS - Yes votes' className={`vote-btn home fw-bold text-start ${showVotes ? 'shown' : ''}`}>GG</div>
                             </div>
                             <div className='transistion bts-transistion d-flex flex-column' style={{ width: button2Width }}>
-                                <span className={`vote-counts text-center ${showText ? 'shown' : ''}`}>{game.ng_votes} votes{game.current_user_votes ? (game.current_user_votes.bts == 'ng' ? ' (You)' : '') : ''}</span>
+                                <span className={`vote-counts text-center ${showText ? 'shown' : ''}`}>{game.ng_votes} votes{game.current_user_votes ? (game.current_user_votes.bts === 'ng' ? <span className="text-primary ms-1">(You)</span> : '') : ''}</span>
                                 <div title='BTS - No votes' className={`vote-btn draw fw-bold text-start ${showVotes ? 'shown' : ''}`}>NG</div>
                             </div>
                         </div>

@@ -101,11 +101,11 @@ const OverUnderVotesSection = ({ game: initialGame }: Props) => {
                     {(!isFuture || voted) ? (
                         <div className='col-12 d-flex align-items-end overflow-hidden'>
                             <div className='transistion over-under-transistion d-flex flex-column' style={{ width: button1Width }}>
-                                <span className={`vote-counts ${showText ? 'shown' : ''}`}>{game.over_votes} votes{game.current_user_votes ? (game.current_user_votes.over_under == 'over' ? ' (You)' : '') : ''}</span>
+                                <span className={`vote-counts ${showText ? 'shown' : ''}`}>{game.over_votes} votes{game.current_user_votes ? (game.current_user_votes.over_under === 'over' ? <span className="text-primary ms-1">(You)</span> : '') : ''}</span>
                                 <div title='Over 2.5 votes' className={`vote-btn home fw-bold text-start ${showVotes ? 'shown' : ''}`}>OV</div>
                             </div>
                             <div className='transistion over-under-transistion d-flex flex-column' style={{ width: button2Width }}>
-                                <span className={`vote-counts text-center ${showText ? 'shown' : ''}`}>{game.under_votes} votes{game.current_user_votes ? (game.current_user_votes.over_under == 'under' ? ' (You)' : '') : ''}</span>
+                                <span className={`vote-counts text-center ${showText ? 'shown' : ''}`}>{game.under_votes} votes{game.current_user_votes ? (game.current_user_votes.over_under === 'under' ? <span className="text-primary ms-1">(You)</span> : '') : ''}</span>
                                 <div title='Under 2.5 votes' className={`vote-btn draw fw-bold text-start ${showVotes ? 'shown' : ''}`}>UN</div>
                             </div>
                         </div>
