@@ -77,13 +77,11 @@ class MatchHandlerJob implements ShouldQueue
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
-            // ->where('id', 1622)
             ->whereHas('gameSources', function ($q) {
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('games', function ($q) {
-                $q->where('results_status', '<', 2);
-                $this->lastActionFilters($q);
+                $this->lastActionFilters($q->where('results_status', '<', 2));
             })
             ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
@@ -120,7 +118,7 @@ class MatchHandlerJob implements ShouldQueue
                             });
                     });
 
-                $builder = $this->lastActionFilters($builder);
+                $builder = $this->lastActionFilters($builder->where('results_status', '<', 2));
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');

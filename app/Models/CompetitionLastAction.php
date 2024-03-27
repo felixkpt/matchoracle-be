@@ -28,6 +28,8 @@ class CompetitionLastAction extends Model
 
         'predictions_last_train',
         'predictions_trained_to',
+
+        'predictions_last_done',
         'stats_last_done',
         'predictions_stats_last_done',
     ];

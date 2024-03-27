@@ -25,12 +25,11 @@ class PredictionsHandlerJob implements ShouldQueue
      * @var string
      */
     protected $task = 'recent_results';
-    protected $ignore_date;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $ignore_date)
+    public function __construct($task)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
@@ -44,9 +43,6 @@ class PredictionsHandlerJob implements ShouldQueue
         // Set the task property
         if ($task) {
             $this->task = $task;
-        }
-        if ($ignore_date) {
-            $this->ignore_date = $ignore_date;
         }
     }
 

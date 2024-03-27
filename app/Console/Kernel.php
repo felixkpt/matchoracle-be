@@ -21,16 +21,16 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:standings-handler --task=recent_results')->hourly();
 
         // Matches commands
-        $schedule->command('app:matches-handler --task=historical_results')->everySixHours();
-        $schedule->command('app:matches-handler --task=recent_results')->everyThreeHours();
-        $schedule->command('app:matches-handler --task=shallow_fixtures')->everyThreeHours();
-        $schedule->command('app:matches-handler --task=fixtures')->everyThreeHours();
+        $schedule->command('app:matches-handler --task=historical_results')->everyTenMinutes();
+        $schedule->command('app:matches-handler --task=recent_results')->everyTenMinutes();
+        $schedule->command('app:matches-handler --task=shallow_fixtures')->everyTenMinutes();
+        $schedule->command('app:matches-handler --task=fixtures')->everyTenMinutes();
 
         // Match commands
         $schedule->command('app:match-handler --task=historical_results')->everyFifteenMinutes();
-        $schedule->command('app:match-handler --task=recent_results')->hourly();
-        $schedule->command('app:match-handler --task=shallow_fixtures')->hourly();
-        $schedule->command('app:match-handler --task=fixtures')->hourly();
+        $schedule->command('app:match-handler --task=recent_results')->everyThirtyMinutes();
+        $schedule->command('app:match-handler --task=shallow_fixtures')->everyThirtyMinutes();
+        $schedule->command('app:match-handler --task=fixtures')->everyThirtyMinutes();
 
         // Statistics commands
         // $schedule->command('app:competition-statistics')->hourly();

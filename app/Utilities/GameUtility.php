@@ -7,6 +7,7 @@ use App\Models\GamePredictionType;
 use App\Repositories\GameComposer;
 use App\Repositories\SearchRepo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class GameUtility
@@ -65,10 +66,6 @@ class GameUtility
             $per_page = request()->per_page ?? null;
         }
 
-        if (request()->prediction_type) {
-            $this->setPredictorOptions();
-        }
-
         request()->merge(['order_by' => $order_by ?? 'utc_date', 'per_page' => $per_page]);
         request()->merge(['order_direction' => $order_direction]);
 
@@ -95,21 +92,6 @@ class GameUtility
             ->when(request()->limit, fn ($q) => $q->limit(request()->limit));
 
         return $games;
-    }
-
-    private function setPredictorOptions()
-    {
-        $prediction_type = GamePredictionType::where('name', request()->prediction_type)->first();
-        if ($prediction_type) {
-            preg_match_all('/\d+/', $prediction_type->name, $matches);
-            $result = $matches[0];
-
-            request()->merge([
-                'history_limit_per_match' => $result[0],
-                'current_ground_limit_per_match' => $result[1],
-                'h2h_limit_per_match' => $result[2],
-            ]);
-        }
     }
 
     private function typeOrdering($q, $type, $to_date)

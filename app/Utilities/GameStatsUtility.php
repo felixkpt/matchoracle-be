@@ -31,8 +31,10 @@ class GameStatsUtility
 
                 // Calculate the winner
                 $winningSide = GameComposer::winningSide($matchData, true);
+                $ft_hda_target = $winningSide;
 
-                $hda_target = $winningSide;
+                $winningSide = GameComposer::winningSideHT($matchData, true);
+                $ht_hda_target = $winningSide;
 
                 // Calculate if both teams scored (bts)
                 $bts = GameComposer::bts($matchData);
@@ -94,7 +96,8 @@ class GameStatsUtility
                     $teamsHead2HeadStats,
                     [
                         'has_results' => GameComposer::hasResults($matchData),
-                        'hda_target' => $hda_target,
+                        'ft_hda_target' => $ft_hda_target,
+                        'ht_hda_target' => $ht_hda_target,
                         'over15_target' => $over15_target,
                         'over25_target' => $over25_target,
                         'over35_target' => $over35_target,

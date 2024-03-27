@@ -229,7 +229,7 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
 
     function updateCompetitionLastTraining()
     {
-        Competition::find(request()->competition_id)->update(['predictions_trained_to' => Carbon::parse(request()->trained_to)->format('Y-m-d'), 'predictions_last_train' => now()]);
+        Competition::find(request()->competition_id)->lastAction()->update(['predictions_trained_to' => Carbon::parse(request()->trained_to)->format('Y-m-d'), 'predictions_last_train' => now()]);
         return response(['message' => 'Successfully updated last train time.']);
     }
 }

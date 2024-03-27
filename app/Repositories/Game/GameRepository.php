@@ -3,6 +3,7 @@
 namespace App\Repositories\Game;
 
 use App\Models\Game;
+use App\Models\GamePredictionType;
 use App\Models\GameVote;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\Team\TeamRepositoryInterface;
@@ -33,6 +34,11 @@ class GameRepository implements GameRepositoryInterface
     public function index($id = null, $without_response = null)
     {
 
+        // if predicting
+        if (request()->prediction_type) {
+            $this->setPredictorOptions();
+        }
+
         $gameUtilities = new GameUtility();
 
         $results_raw = $gameUtilities->applyGameFilters($id);
@@ -43,7 +49,7 @@ class GameRepository implements GameRepositoryInterface
             $results = (new GameStatsUtility())->addGameStatistics($results);
             $results = array_reverse($results->get()['data']->toArray());
 
-            return request()->task == 'train' && count($results) < 50 ? [] : $results;
+            return request()->task == 'train' && count($results) < 10 ? [] : $results;
         } else {
 
             if ($id) {
@@ -64,6 +70,36 @@ class GameRepository implements GameRepositoryInterface
             if (request()->without_response) return $arr;
             return response($arr);
         }
+    }
+
+    private function setPredictorOptions()
+    {
+        $prediction_type = $this->updateOrCreatePredictorOptions();
+        if ($prediction_type) {
+            preg_match_all('/\d+/', $prediction_type->name, $matches);
+            $results = $matches[0];
+
+            if (count($results) == 3) {
+                request()->merge([
+                    'history_limit_per_match' => $results[0],
+                    'current_ground_limit_per_match' => $results[1],
+                    'h2h_limit_per_match' => $results[2],
+                ]);
+            }
+        }
+    }
+
+    private function updateOrCreatePredictorOptions()
+    {
+        $name = request()->prediction_type;
+        return GamePredictionType::updateOrCreate(
+            [
+                'name' => $name,
+            ],
+            [
+                'name' => $name,
+            ]
+        );
     }
 
     public function today()
