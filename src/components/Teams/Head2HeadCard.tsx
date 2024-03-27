@@ -57,7 +57,6 @@ const Head2HeadCard = ({ game, homeTeam, awayTeam, perPage }: Props) => {
         <div className="card">
             <div className="card-body">
                 <h6>Head to Head</h6>
-
                 <div className="card">
                     <div className="card-header">
                         <div>
@@ -129,7 +128,7 @@ const Head2HeadCard = ({ game, homeTeam, awayTeam, perPage }: Props) => {
                                 </div>
                             </div>
                             :
-                            <div className='position-relative'><Loader message='Loading' /></div>}
+                            <div className='position-relative'><Loader justify='start' /></div>}
                     </div>
                 </div>
             </div>

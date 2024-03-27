@@ -8,6 +8,7 @@ import { subscribe, unsubscribe } from '@/utils/events';
 import { AutoTableInterface } from '../interfaces/UncategorizedInterfaces';
 import AutoActions from './AutoActions';
 import Str from '@/utils/Str';
+import Loader from './Loader';
 
 function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
@@ -212,7 +213,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
             <div className={`card overflow-auto overflow-x-auto ${modelDataLength >= 0 ? 'overflow-hidden' : 'overflow-auto'}`}>
                 <div className="card-header">
                     <div className="d-flex align-items-center justify-content-end"><span className="text-muted autotable-record-counts" style={{ opacity: countOpacity }}>{tableData?.total.toLocaleString() || 0} {`${tableData?.total == 1 ? 'record' : 'records'}`}</span></div>
-                    <div className={`mt-2 h-6 px-3 pb-1 text-sm font-medium leading-none text-center text-blue-800 dark:text-white${modelDataLength >= 0 && loading ? ' animate-pulse' : ''}`}>{modelDataLength >= 0 && loading ? 'Loading...' : ''}</div>
+                    <div className={`mt-2 h-6 px-3 pb-1 text-sm font-medium leading-none text-center text-blue-800 dark:text-white${modelDataLength >= 0 && loading ? ' animate-pulse' : ''}`}>{modelDataLength >= 0 && loading ? <Loader /> : ''}</div>
                     <div className="flex items-center justify-between pb-2 px-1.5 float-right gap-2">
                         <label htmlFor="table-search" className="sr-only d-none">Search</label>
                         {
@@ -295,11 +296,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
                                     loading ?
                                         <tr className='opacity-100 transition-opacity duration-1000'>
                                             <td colSpan={(columns?.length || 1) + 2}>
-                                                <div className='flex justify-center'>
-                                                    <div className="flex items-center justify-center w-full h-40 border border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                                                        <div className="px-3 py-1 text-sm font-medium leading-none text-center text-blue-800 bg-blue-200 rounded-full animate-pulse dark:bg-blue-900 dark:text-blue-200">Loading...</div>
-                                                    </div>
-                                                </div>
+                                                <Loader />
                                             </td>
                                         </tr>
                                         :

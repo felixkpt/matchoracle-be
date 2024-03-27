@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { CountryInterface } from "@/interfaces/FootballInterface";
 import useAxios from "@/hooks/useAxios";
 import CountryHeader from "./Includes/CountryHeader";
+import Loader from "@/components/Loader";
 
 const Index: React.FC = () => {
   const { id } = useParams()
@@ -41,11 +42,13 @@ const Index: React.FC = () => {
   return (
     <div className="mb-3">
       {
-        !loading && country &&
-        <div>
-          <CountryHeader country={country} currentTab={currentTab} />
-          <AutoTabs tabs={tabs} setCurrentTabName={setCurrentTabName} />
-        </div>
+        !loading && country ?
+          <div>
+            <CountryHeader country={country} currentTab={currentTab} />
+            <AutoTabs tabs={tabs} setCurrentTabName={setCurrentTabName} />
+          </div>
+          :
+          <Loader />
       }
 
     </div>

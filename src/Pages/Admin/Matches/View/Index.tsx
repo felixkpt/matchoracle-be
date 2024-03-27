@@ -131,7 +131,7 @@ const Index = () => {
               </div>
             </div>
             :
-            <Error404 />
+            <Error404 timeout={1} />
           :
           <Loader />
       }

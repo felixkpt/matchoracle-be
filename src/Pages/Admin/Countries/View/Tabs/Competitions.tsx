@@ -1,32 +1,37 @@
 import CompetitionsList from '@/Pages/Admin/Teams/Includes/CompetitionsList'
+import Loader from '@/components/Loader'
 import useAxios from '@/hooks/useAxios'
 import { CompetitionInterface, CountryInterface } from '@/interfaces/FootballInterface'
+import { AxiosResponse } from 'axios'
 import { useEffect, useState } from 'react'
 
 type Props = {
-    country: CountryInterface
+    country: CountryInterface | undefined
 }
 
 const Competitions = ({ country }: Props) => {
 
-    const { get, loading } = useAxios()
-    const [competitions, setCompetitions] = useState<CompetitionInterface>()
+    const { get } = useAxios()
+    const [competitions, setCompetitions] = useState<CompetitionInterface[]>()
 
     useEffect(() => {
 
-        get(`admin/competitions/country/${country.id}`).then((res: any) => {
-            if (res) {
-                setCompetitions(res.data)
-            }
-        })
+        if (country)
+            get(`admin/competitions/country/${country.id}`).then((res: AxiosResponse) => {
+                if (res) {
+                    setCompetitions(res.data)
+                }
+            })
 
     }, [country])
 
     return (
         <div>
             {
-                country && competitions &&
-                <CompetitionsList country={country} competitions={competitions} />
+                country && competitions ?
+                    <CompetitionsList country={country} competitions={competitions} />
+                    :
+                    <Loader />
             }
         </div>
     )

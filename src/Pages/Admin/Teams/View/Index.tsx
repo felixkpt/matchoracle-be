@@ -8,6 +8,7 @@ import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces"
 import { subscribe, unsubscribe } from "@/utils/events"
 import useAxios from "@/hooks/useAxios"
 import TeamHeader from "./Includes/TeamHeader"
+import Loader from "@/components/Loader"
 
 type Props = {}
 
@@ -73,15 +74,17 @@ const Index = (props: Props) => {
   return (
     <div className="mb-3">
       {
-        !loading && record &&
-        <div>
+        !loading && record ?
           <div>
             <div>
-              <TeamHeader team={record} currentTab={currentTab} />
+              <div>
+                <TeamHeader team={record} currentTab={currentTab} />
+              </div>
             </div>
+            <AutoTabs tabs={tabs} setCurrentTabName={setCurrentTabName} />
           </div>
-          <AutoTabs tabs={tabs} setCurrentTabName={setCurrentTabName} />
-        </div>
+          :
+          <Loader />
       }
 
     </div>
