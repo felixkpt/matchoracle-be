@@ -302,7 +302,7 @@ if (!function_exists('getUriFromUrl')) {
 if (!function_exists('default_prediction_type')) {
     function default_prediction_type()
     {
-        return request()->current_prediction_type ?? 1100;
+        return request()->current_prediction_type ?? 1103;
     }
 }
 

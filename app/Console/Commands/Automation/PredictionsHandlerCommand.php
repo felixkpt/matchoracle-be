@@ -28,7 +28,6 @@ class PredictionsHandlerCommand extends Command
     public function handle()
     {
         $task = $this->option('task') ?? 'run';
-        $ignore_date = $this->option('ignore-date');
 
         if ($task != 'run') {
             $this->warn('Task should be run');
@@ -37,7 +36,7 @@ class PredictionsHandlerCommand extends Command
 
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
 
-        dispatch(new PredictionsHandlerJob($task, $ignore_date));
+        dispatch(new PredictionsHandlerJob($task));
         $this->info('Predictions handler command executed successfully!');
     }
 }

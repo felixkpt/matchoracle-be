@@ -31,6 +31,9 @@ return new class extends Migration
 
             $table->dateTime('predictions_last_train')->nullable();
             $table->date('predictions_trained_to')->nullable();
+
+            $table->dateTime('predictions_last_done')->nullable();
+
             $table->dateTime('stats_last_done')->nullable();
             $table->dateTime('predictions_stats_last_done')->nullable();
 

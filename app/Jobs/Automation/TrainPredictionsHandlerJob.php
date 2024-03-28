@@ -3,7 +3,7 @@
 namespace App\Jobs\Automation;
 
 use App\Models\Competition;
-use App\Models\FailedMatchLog;
+use App\Models\FailedTrainPredictionLog;
 use App\Models\TrainPredictionJobLog;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
@@ -73,56 +73,46 @@ class TrainPredictionsHandlerJob implements ShouldQueue
             ->get();
 
         // Loop through each competition to fetch and update matches
+        $should_sleep_for_competitions = false;
         $total = $competitions->count();
         foreach ($competitions as $key => $competition) {
-            echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
+
+            $last_action = $competition->{$lastFetchColumn} ?? 'N/A';
+            echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name}), last trained: {$last_action}\n";
+
             $this->doCompetitionRunLogging();
 
-            $seasons = $competition->seasons()
-                ->whereDate('start_date', '>=', '2015-01-01')
-                ->where('fetched_standings', false)
-                ->take(15)
-                ->orderBy('start_date', 'desc')->get();
+            $command = '/usr/bin/python3 ~/Documents/Dev/python/matchoracle-predictions-v2/main.py train --competition=' . $competition->id;
 
-            // Initialize the boolean flag for season sleep
-            $should_sleep_for_seasons = false;
+            exec($command, $output, $returnCode);
 
-            foreach ($seasons as $season) {
-                $start_date = Str::before($season->start_date, '-');
-                $end_date = Str::before($season->end_date, '-');
-                echo "Season #{$season->id} ({$start_date}/{$end_date})\n";
+            echo "Return Code: $returnCode\n";
 
-                while (!is_connected()) {
-                    echo "You are offline. Retrying in 10 secs...\n";
-                    sleep(10);
-                }
-
-                // Obtain the specific handler for fetching standings based on the game source strategy
-                $standingsHandler = $this->sourceContext->standingsHandler();
-
-                // Fetch standings for the current competition
-                $data = $standingsHandler->fetchStandings($competition->id, $season->id);
-
-                // recheck if competition has_standings
-                if (!Competition::find($competition->id)->has_standings) {
-                    break;
-                }
-
-                // Output the fetch result for logging
-                echo $data['message'] . "\n";
-
-                $this->doLogging($data);
-                // Introduce a delay to avoid rapid consecutive requests
-                sleep(15);
-
-                // Set the boolean flag to true for season sleep
-                $should_sleep_for_seasons = true;
+            echo "Output:\n";
+            foreach ($output as $line) {
+                echo $line . "\n";
             }
+
+            if ($returnCode === 0) {
+                echo "Python script ran successfully!\n";
+                $should_sleep_for_competitions = true;
+            } else {
+                echo "Error: Python script failed to run. Check the output for details.\n";
+                $should_sleep_for_competitions = false;
+            }
+
+            $data['message'] = '';
+            echo $data['message'] . "\n";
+
+            $should_update_last_action = true;
+            $this->doLogging($data);
+            $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
             echo "------------\n";
 
-            // Introduce a delay to avoid rapid consecutive requests based on the boolean flag
-            sleep($should_sleep_for_seasons ? 15 : 0);
+            // Introduce a delay to avoid rapid consecutive requests
+            sleep($should_sleep_for_competitions ? 10 : 0);
+            $should_sleep_for_competitions = false;
         }
     }
 
@@ -154,7 +144,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
 
             $exists->update($arr);
 
-            if ($fetch_failed_counts) $this->logFailure(new FailedMatchLog(), $data);
+            if ($fetch_failed_counts) $this->logFailure(new FailedTrainPredictionLog(), $data);
         }
     }
 
