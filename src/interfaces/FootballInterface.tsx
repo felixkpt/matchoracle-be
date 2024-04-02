@@ -295,7 +295,7 @@ export interface CompetitionTabInterface {
 export interface SeasonsListInterface {
     seasons: SeasonInterface[] | null
     selectedSeason: SeasonInterface | null
-    handleSeasonChange: (season: SeasonInterface | null) => void;
+    handleSeasonChange?: (season: SeasonInterface | null) => void;
 
 }
 export interface DashJobLogsInterface {
@@ -438,6 +438,10 @@ export interface DashboardStatsInterface {
     match_job_logs: DashboardStatsMatchJobLogsInterface
 
     predictions_job_logs: {
+        'today': DashJobLogsInterface;
+        'all': DashJobLogsInterface;
+    };
+    train_predictions_job_logs: {
         'today': DashJobLogsInterface;
         'all': DashJobLogsInterface;
     };

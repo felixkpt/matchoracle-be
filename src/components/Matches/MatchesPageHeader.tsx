@@ -3,24 +3,23 @@ import { useEffect, useState } from "react";
 import Flatpickr from "react-flatpickr";
 
 type Props = {
-    title: string;
-    fromToDates: any
-    setFromToDates: any
+    fromToDates: Array<Date | string | undefined>
+    setFromToDates: React.Dispatch<React.SetStateAction<Array<Date | string | undefined>>>;
     className?: string
 };
 
-const MatchesPageHeader = ({ title, fromToDates, setFromToDates, className }: Props) => {
+const MatchesPageHeader = ({ fromToDates, setFromToDates, className }: Props) => {
 
     const [key, setKey] = useState<number>(0)
-    const [resetStyles, setResetStyles] = useState<object>({})
+    const [resetClasses, setresetClasses] = useState<string>('')
 
     function handleSetDate(selectedDates: Date[], resets = false) {
-        let from_date = FormatDate.YYYYMMDD(selectedDates[0])
-        let to_date = ''
-        if (selectedDates[1]) {
-            to_date = FormatDate.YYYYMMDD(selectedDates[1])
+        
+        if (selectedDates[1] || !selectedDates[0] && !selectedDates[1]) {
+            const from_date = FormatDate.YYYYMMDD(selectedDates[0])
+            const to_date = FormatDate.YYYYMMDD(selectedDates[1])
+            setFromToDates([from_date, to_date])
         }
-        setFromToDates([from_date, to_date])
 
         if (resets) {
             setKey(key + 1)
@@ -30,9 +29,9 @@ const MatchesPageHeader = ({ title, fromToDates, setFromToDates, className }: Pr
     useEffect(() => {
 
         if (fromToDates[0]) {
-            setResetStyles({ opacity: 1 })
+            setresetClasses('btn btn-badge border ms-1 bg-success-subtle opacity-1 cursor-pointer')
         } else {
-            setResetStyles({ opacity: 0, cursor: 'default' })
+            setresetClasses('btn btn-badge border ms-1 bg-success-subtle opacity-0 cursor-default')
         }
 
     }, [fromToDates])
@@ -56,12 +55,7 @@ const MatchesPageHeader = ({ title, fromToDates, setFromToDates, className }: Pr
 
     return (
         <div className={classNames}>
-            <div className="col-md-8">
-                <div className="d-flex justify-content-center justify-content-md-start">
-                    <h3 className='heading'>{title}</h3>
-                </div>
-            </div>
-            <div className="col-md-4 px-0" key={key}>
+            <div className="col-md-12 px-0" key={key}>
                 {
                     typeof setFromToDates === 'function' &&
                     <div className="d-flex justify-content-center justify-content-md-end">
@@ -75,7 +69,7 @@ const MatchesPageHeader = ({ title, fromToDates, setFromToDates, className }: Pr
                             data-position="auto center"
                         />
                         <button onClick={() => handleSetDate([])}
-                            className="btn btn-badge border ms-1 bg-success-subtle" style={resetStyles}>
+                            className={`${resetClasses ? resetClasses : 'btn btn-badge border ms-1 bg-success-subtle opacity-0'}`}>
                             <small>Reset</small>
                         </button>
                     </div>

@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { CompetitionInterface, CompetitionTabInterface } from '@/interfaces/FootballInterface';
 import CompetitionSubHeader from '../Inlcudes/CompetitionSubHeader';
 import GeneralModal from '@/components/Modals/GeneralModal';
-import AsyncSeasonsList from '../Inlcudes/AsyncSeasonsList';
 import StandingsTable from '@/components/Teams/StandingsTable';
 import Loader from '@/components/Loader';
 import DefaultMessage from '@/components/DefaultMessage';

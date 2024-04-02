@@ -1,10 +1,9 @@
-import { CompetitionTabInterface, SeasonInterface, SeasonsListInterface } from '@/interfaces/FootballInterface'
+import { CompetitionTabInterface, SeasonsListInterface } from '@/interfaces/FootballInterface'
 import CompetitionHeader from '../Inlcudes/CompetitionSubHeader';
 import AutoTable from '@/components/AutoTable';
 import GeneralModal from '@/components/Modals/GeneralModal';
 import { useEffect, useState } from 'react';
 import { appendFromToDates } from '@/utils/helpers';
-import FormatDate from '@/utils/FormatDate';
 import Str from '@/utils/Str';
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
@@ -12,9 +11,9 @@ interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
 
   const competition = record
-  const initialDates: Array<Date | string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
-  const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>(initialDates);
   const [useDate, setUseDates] = useState(false);
+  const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>([undefined, undefined]);
+
 
   const columns = [
     { key: 'ID' },

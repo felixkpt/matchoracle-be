@@ -9,10 +9,8 @@ import CompetitionStatsCard from '../Includes/StatisticsJobLogsCards/Competition
 import BettingTipsCard from '../Includes/StatisticsJobLogsCards/BettingTips'
 import DashMatchJobLogsCard from './DashMatchJobLogsCard'
 
-type Props = {
-}
 
-const Index = ({ }: Props) => {
+const Index = () => {
 
     const { get, loading, errors } = useAxios();
     const [stats, setStats] = useState<DashboardStatsInterface | null>(null);
@@ -31,7 +29,7 @@ const Index = ({ }: Props) => {
 
     return (
         <div>
-            <div className="row mb-4">
+            <div className="row justify-content-center mb-4">
                 <h2 className="page-title">System automation report</h2>
                 <div className="col-md-6 col-xl-4 col-xxl-3 mb-4">
                     <div className="card shadow h-100">
@@ -80,6 +78,21 @@ const Index = ({ }: Props) => {
                 </div>
                 <div className="col-md-6 col-xl-4 col-xxl-3 mb-4">
                     <div className="card shadow h-100">
+                        <NavLink to={`/admin/settings/system/job-logs?tab=train-predictions`} className={'link-unstyled'}>
+                            <div className="card-header bg-secondary text-white">
+                                <h5 className='d-flex align-items-center gap-1'>
+                                    <Icon width={'2rem'} icon={`${'mdi:soccer-field'}`} />
+                                    <span>Train Predictions Job</span>
+                                </h5>
+                            </div>
+                            <div className="card-body text-center">
+                                <DashJobLogsCard stats={stats ? stats.train_predictions_job_logs : null} jobMessage="Preds" jobActionMessage="Preds" />
+                            </div>
+                        </NavLink>
+                    </div>
+                </div>
+                <div className="col-md-6 col-xl-4 col-xxl-3 mb-4">
+                    <div className="card shadow h-100">
                         <NavLink to={`/admin/settings/system/job-logs?tab=predictions`} className={'link-unstyled'}>
                             <div className="card-header bg-secondary text-white">
                                 <h5 className='d-flex align-items-center gap-1'>
@@ -96,7 +109,7 @@ const Index = ({ }: Props) => {
 
             </div>
 
-            <div className="row mb-4">
+            <div className="row justify-content-center mb-4">
                 <h4>Matches Job Logs</h4>
                 <div className="col-md-6 col-xl-4 col-xxl-3 mb-4">
                     <div className="card shadow h-100">
@@ -160,7 +173,7 @@ const Index = ({ }: Props) => {
                 </div>
             </div>
 
-            <div className="row mb-4">
+            <div className="row justify-content-center mb-4">
                 <h4>Match Job Logs</h4>
                 <div className="col-md-6 col-xl-4 col-xxl-3 mb-4">
                     <div className="card shadow h-100">
@@ -224,7 +237,7 @@ const Index = ({ }: Props) => {
                 </div>
             </div>
 
-            <div className='row mb-4'>
+            <div className='row justify-content-center mb-4'>
                 <div className="col-12">
                     <h4>Statistics Job Logs</h4>
                     <div className="row">

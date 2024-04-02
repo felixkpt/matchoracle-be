@@ -1,29 +1,19 @@
-import { CompetitionTabInterface, SeasonInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
+import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
 import CompetitionHeader from "../Inlcudes/CompetitionSubHeader"
 import GeneralModal from "@/components/Modals/GeneralModal"
-import AsyncSeasonsList from "../Inlcudes/AsyncSeasonsList"
 import AutoTable from "@/components/AutoTable"
 import { useEffect, useState } from "react"
-import FormatDate from "@/utils/FormatDate"
 import { appendFromToDates } from "@/utils/helpers"
 import { predictionsColumns } from '@/utils/constants';
 import Str from "@/utils/Str"
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
-const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason, setSelectedSeason }) => {
+const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
 
     const competition = record
-    const [localSelectedSeason, setLocalSelectedSeason] = useState<SeasonInterface | null>(selectedSeason);
     const [useDate, setUseDates] = useState(false);
-
-    const initialDates: Array<Date | string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
-    const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>(initialDates);
-
-    function handleSeasonChange(season: SeasonInterface) {
-        setSelectedSeason(season)
-        setLocalSelectedSeason(season)
-    }
+    const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>([undefined, undefined]);
 
     const [baseUri, setBaseUri] = useState('')
 
@@ -36,6 +26,7 @@ const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason,
             }
             setBaseUri(uri)
         }
+
     }, [competition, fromToDates])
 
     return (

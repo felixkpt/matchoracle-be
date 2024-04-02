@@ -6,21 +6,26 @@ interface Props extends SeasonsListInterface {
     actionTitle?: string
     actionButton?: string
     record: CompetitionInterface | undefined;
-    fromToDates?: any
-    setFromToDates?: any
-    setUseDates?: any
-    setKey?: any
+    fromToDates?: Array<Date | string | undefined>;
+    setFromToDates?: React.Dispatch<React.SetStateAction<Array<Date | string | undefined>>>;
+    setUseDates?: React.Dispatch<React.SetStateAction<boolean>>;
+    setKey?: React.Dispatch<React.SetStateAction<number>>;
     hideSeasons?: boolean
 }
 
-const CompetitionSubHeader = ({ title, actionTitle, actionButton, record, fromToDates, setFromToDates, setUseDates, setKey }: Props) => {
+const CompetitionSubHeader = ({ title, actionTitle, actionButton, fromToDates, setFromToDates, setUseDates, setKey }: Props) => {
 
-    function handleSetStartDate(fromToDates: any) {
-
-        if (fromToDates && fromToDates.length == 2 && fromToDates[1]) {
+    function handleSetStartDate(fromToDates: [string, string]) {
+        if (setFromToDates) {
             setFromToDates(fromToDates)
-            setUseDates(true)
-            setKey((curr: number) => curr += 1)
+        }
+        if (fromToDates && fromToDates.length == 2 && fromToDates[1]) {
+            if (setUseDates) {
+                setUseDates(true)
+            }
+            if (setKey) {
+                setKey((curr: number) => curr += 1)
+            }
         }
     }
 
@@ -33,7 +38,7 @@ const CompetitionSubHeader = ({ title, actionTitle, actionButton, record, fromTo
                     {
                         typeof setFromToDates === 'function'
                         &&
-                        <MatchesPageHeader title={''} fromToDates={fromToDates} setFromToDates={handleSetStartDate} />
+                        <MatchesPageHeader fromToDates={fromToDates} setFromToDates={handleSetStartDate} />
                     }
                     {
                         actionButton

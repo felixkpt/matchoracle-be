@@ -1,13 +1,9 @@
-import { CompetitionTabInterface, SeasonInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
+import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
 import CompetitionHeader from "../Inlcudes/CompetitionSubHeader"
-import GeneralModal from "@/components/Modals/GeneralModal"
 import AutoTable from "@/components/AutoTable"
 import { useEffect, useState } from "react"
-import FormatDate from "@/utils/FormatDate"
 import { appendFromToDates } from "@/utils/helpers"
-import { oddsColumns, predictionsColumns } from '@/utils/constants';
-import Str from "@/utils/Str"
-
+import { oddsColumns } from '@/utils/constants';
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
@@ -15,9 +11,7 @@ const Odds: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
 
     const competition = record
     const [useDate, setUseDates] = useState(false);
-
-    const initialDates: Array<Date | string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
-    const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>(initialDates);
+    const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>([undefined, undefined]);
 
     const [baseUri, setBaseUri] = useState('')
 

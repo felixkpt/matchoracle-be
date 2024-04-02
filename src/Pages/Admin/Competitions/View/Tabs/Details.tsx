@@ -50,7 +50,6 @@ const Details = ({ record, modelDetails }: Props) => {
                                 <GeneralModal title={`Add source for ${record.name || '#'}`} actionUrl={`admin/competitions/view/${record.id}/add-sources`} size={'modal-lg'} id={`addSources`}>
                                     <AddSource record={record} />
                                 </GeneralModal>
-
                             </>
                             :
                             <DefaultMessage />

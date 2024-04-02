@@ -11,10 +11,9 @@ import MatchHistoricalResults from "./Tabs/MatchJobLogs/HistoricalResults";
 import MatchRecentResults from "./Tabs/MatchJobLogs/RecentResults";
 import MatchShallowFixtures from "./Tabs/MatchJobLogs/ShallowFixtures";
 import MatchFixtures from "./Tabs/MatchJobLogs/Fixtures";
+import TrainPredictionsJobLogs from "./Tabs/TrainPredictionsJobLogs";
 
-type Props = {}
-
-const Index = (props: Props) => {
+const Index = () => {
 
     const tabs = [
         {
@@ -45,7 +44,7 @@ const Index = (props: Props) => {
             name: "Matches - Fixures",
             content: <MatchesFixtures />,
         },
-        
+
         {
             name: "Match - Historical Results",
             content: <MatchHistoricalResults />,
@@ -62,7 +61,10 @@ const Index = (props: Props) => {
             name: "Match - Fixures",
             content: <MatchFixtures />,
         },
-
+        {
+            name: "Train Predictions",
+            content: <TrainPredictionsJobLogs />,
+        },
         {
             name: "Predictions",
             content: <PredictionsJobLogs />,
