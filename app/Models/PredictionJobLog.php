@@ -11,7 +11,7 @@ class PredictionJobLog extends Model
 
     protected $fillable = [
         'version', 'prediction_type_id', 'date', 'job_run_counts',
-        'competition_run_counts', 'prediction_run_counts',
+        'competition_run_counts',
         'prediction_success_counts', 'prediction_failed_counts',
         'predicted_counts'
     ];

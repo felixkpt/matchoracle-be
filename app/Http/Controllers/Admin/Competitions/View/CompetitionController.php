@@ -11,6 +11,7 @@ use App\Services\Games\Games;
 use App\Services\Validations\Competition\CompetitionValidationInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class CompetitionController extends Controller
 {
@@ -46,6 +47,7 @@ class CompetitionController extends Controller
 
     protected function predictions($id)
     {
+
         $competition = $this->competitionRepositoryInterface->model::findById($id);
         return response('Competitions/Competition/Predictions', compact('competition'));
     }

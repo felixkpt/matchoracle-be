@@ -121,15 +121,17 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
             'competition_id' => 'required',
             'from_date' => 'required',
             'to_date' => 'required',
+            'score_target_outcome_id' => 'required',
         ]);
 
         $score_target_outcome_ids = [
-            'hda_target' => 1,
-            'bts_target' => 2,
-            'over15_target' => 3,
-            'over25_target' => 4,
-            'over35_target' => 5,
-            'cs_target' => 6,
+            'ft_hda_target' => 1,
+            'ht_hda_target' => 2,
+            'bts_target' => 3,
+            'over15_target' => 4,
+            'over25_target' => 5,
+            'over35_target' => 6,
+            'cs_target' => 7,
         ];
 
         $score_target_outcome_id = $score_target_outcome_ids[$data['score_target_outcome_id']];

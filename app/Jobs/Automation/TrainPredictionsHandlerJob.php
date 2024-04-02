@@ -82,7 +82,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
 
             $this->doCompetitionRunLogging();
 
-            $command = '/usr/bin/python3 ~/Documents/Dev/python/matchoracle-predictions-v2/main.py train --competition=' . $competition->id;
+            $command = '/usr/bin/python3 ~/Documents/Dev/python/matchoracle-predictions-v2/main.py train --competition=' . $competition->id.' --ignore-trained';
 
             exec($command, $output, $returnCode);
 
@@ -93,12 +93,19 @@ class TrainPredictionsHandlerJob implements ShouldQueue
                 echo $line . "\n";
             }
 
+            $data = [];
             if ($returnCode === 0) {
-                echo "Python script ran successfully!\n";
                 $should_sleep_for_competitions = true;
+
+                echo "Python script ran successfully!\n";
+                $data['results']['saved_updated'] = 1;
+
             } else {
-                echo "Error: Python script failed to run. Check the output for details.\n";
                 $should_sleep_for_competitions = false;
+
+                echo "Error: Python script failed to run. Check the output for details.\n";
+                $data['results']['saved_updated'] = 0;
+                
             }
 
             $data['message'] = '';
@@ -138,8 +145,8 @@ class TrainPredictionsHandlerJob implements ShouldQueue
             $arr = [
                 'job_run_counts' => $exists->job_run_counts + 1,
                 'train_success_counts' => $exists->train_success_counts + $train_success_counts,
-                'train_failed_counts' => $exists->train_failed_counts + $updated_matches_counts,
-                'updated_matches_counts' => $exists->updated_matches_counts + $updated_matches_counts,
+                'train_failed_counts' => $exists->train_failed_counts + $fetch_failed_counts,
+                'trained_counts' => $exists->trained_counts + $train_success_counts,
             ];
 
             $exists->update($arr);
@@ -159,7 +166,6 @@ class TrainPredictionsHandlerJob implements ShouldQueue
                 'date' => $today,
                 'job_run_counts' => 1,
                 'competition_run_counts' => 0,
-                'train_run_counts' => 0,
                 'train_success_counts' => 0,
                 'train_failed_counts' => 0,
                 'trained_counts' => 0,

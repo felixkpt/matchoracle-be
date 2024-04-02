@@ -12,6 +12,7 @@ use App\Models\MatchJobLog;
 use App\Models\PredictionJobLog;
 use App\Models\SeasonJobLog;
 use App\Models\StandingJobLog;
+use App\Models\TrainPredictionJobLog;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 
@@ -51,7 +52,8 @@ class AutomationReportController extends Controller
         $competitionStatisticsLogs = $this->getCompetitionStatisticsStats($today);
         $competitionPredictionStatisticsLogs = $this->getCompetitionPredictionStats($today);
         $bettingTipsStatisticLogs = $this->getBettingTipsStatisticLogsStats($today);
-        
+
+        $trainPredictionsJobLogs = $this->getTrainPredictionJobLogsStats($today);
         $predictionsJobLogs = $this->getPredictionJobLogsStats($today);
 
         $matches = $this->getAdvancedMatchesStats();
@@ -71,6 +73,7 @@ class AutomationReportController extends Controller
 
             'competition_statistics_logs' => $competitionStatisticsLogs,
             'competition_prediction_statistics_logs' => $competitionPredictionStatisticsLogs,
+            'train_predictions_job_logs' => $trainPredictionsJobLogs,
             'predictions_job_logs' => $predictionsJobLogs,
             'betting_tips_statistics_logs' => $bettingTipsStatisticLogs,
             'advanced_matches' => $matches,
@@ -204,6 +207,16 @@ class AutomationReportController extends Controller
         return [
             'all' => BettingTipsStatisticJobLog::selectRaw($selects)->first(),
             'today' => BettingTipsStatisticJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
+        ];
+    }
+
+    private function getTrainPredictionJobLogsStats($date)
+    {
+        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(train_run_counts) as total_fetch_run_counts, SUM(train_success_counts) as total_fetch_success_counts, SUM(train_failed_counts) as total_fetch_failed_counts, SUM(trained_counts) as total_updated_items_counts';
+
+        return [
+            'all' => TrainPredictionJobLog::selectRaw($selects)->first(),
+            'today' => TrainPredictionJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
         ];
     }
 

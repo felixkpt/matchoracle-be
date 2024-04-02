@@ -22,12 +22,19 @@ class PredictionsController extends Controller
     ) {
         $this->predictionModeId = request()->prediction_mode_id;
 
-        request()->merge([
+        $arr = [
             'break_preds' => true,
-            'show_predictions' => $this->predictionModeId == 1,
             'show_source_predictions' => $this->predictionModeId == 2,
-            'to_date' => Carbon::now()->addDays(7),
-        ]);
+        ];
+        if (!$this->predictionModeId || $this->predictionModeId == 1) {
+            $arr['show_predictions'] = 1;
+        }
+
+        if (request()->type == 'upcoming') {
+            $arr['order_direction'] = 'desc';
+        }
+
+        request()->merge($arr);
     }
 
     function index()

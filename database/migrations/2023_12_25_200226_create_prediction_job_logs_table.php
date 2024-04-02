@@ -19,7 +19,6 @@ return new class extends Migration
 
             $table->integer('job_run_counts')->default(0);
             $table->integer('competition_run_counts')->default(0);
-            $table->integer('prediction_run_counts')->default(0);
             $table->integer('prediction_success_counts')->default(0);
             $table->integer('prediction_failed_counts')->default(0);
             

@@ -95,12 +95,17 @@ class PredictionsHandlerJob implements ShouldQueue
                 echo $line . "\n";
             }
 
+            $data = [];
             if ($returnCode === 0) {
-                echo "Python script ran successfully!\n";
                 $should_sleep_for_competitions = true;
+
+                echo "Python script ran successfully!\n";
+                $data['results']['saved_updated'] = 1;
             } else {
-                echo "Error: Python script failed to run. Check the output for details.\n";
                 $should_sleep_for_competitions = false;
+
+                echo "Error: Python script failed to run. Check the output for details.\n";
+                $data['results']['saved_updated'] = 0;
             }
 
             $data['message'] = '';
@@ -130,18 +135,18 @@ class PredictionsHandlerJob implements ShouldQueue
 
     private function doLogging($data = null)
     {
-        $updated_matches_counts = $data['results']['saved_updated'] ?? 0;
-        $train_success_counts = $updated_matches_counts > 0 ? 1 : 0;
-        $fetch_failed_counts = $data ? ($updated_matches_counts === 0 ? 1 : 0) : 0;
+        $prediction_success_counts = $data['results']['saved_updated'] ?? 0;
+        $train_success_counts = $prediction_success_counts > 0 ? 1 : 0;
+        $fetch_failed_counts = $data ? ($prediction_success_counts === 0 ? 1 : 0) : 0;
 
         $exists = $this->loggerModel();
 
         if ($exists) {
             $arr = [
                 'job_run_counts' => $exists->job_run_counts + 1,
-                'train_success_counts' => $exists->train_success_counts + $train_success_counts,
-                'train_failed_counts' => $exists->train_failed_counts + $updated_matches_counts,
-                'updated_matches_counts' => $exists->updated_matches_counts + $updated_matches_counts,
+                'prediction_success_counts' => $exists->prediction_success_counts + $prediction_success_counts,
+                'prediction_failed_counts' => $exists->updated_matches_counts + $prediction_success_counts,
+                'predicted_counts' => $exists->predicted_counts + $prediction_success_counts,
             ];
 
             $exists->update($arr);
@@ -161,10 +166,9 @@ class PredictionsHandlerJob implements ShouldQueue
                 'date' => $today,
                 'job_run_counts' => 1,
                 'competition_run_counts' => 0,
-                'train_run_counts' => 0,
-                'train_success_counts' => 0,
-                'train_failed_counts' => 0,
-                'trained_counts' => 0,
+                'prediction_success_counts' => 0,
+                'prediction_failed_counts' => 0,
+                'predicted_counts' => 0,
             ];
 
             $record = PredictionJobLog::create($arr);

@@ -3,6 +3,7 @@
 namespace App\Utilities;
 
 use App\Repositories\GameComposer;
+use Illuminate\Support\Facades\Log;
 
 trait FormatPredictionTrait
 {
@@ -138,7 +139,7 @@ trait FormatPredictionTrait
         $pred = $q->{$this->predictionTypeMode};
 
         $str = '';
-        if ($pred && $has_res) {
+        if ($pred) {
 
             $q->prediction = $q->{$this->predictionTypeMode};
             $res = GameComposer::cs($q);

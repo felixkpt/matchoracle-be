@@ -76,7 +76,7 @@ class GameComposer
 
         $scoreData = $game['score'];
 
-        if (isset($scoreData['winner']) && $scoreData['winner'] == 'POSTPONED') return 'POSTPONED';
+        if (isset($scoreData['winner']) && $scoreData['winner'] == 'POSTPONED') return $integer ? -1 : 'POSTPONED';
 
         if (!$scoreData || !$scoreData['winner']) {
             return $integer ? -1 : 'U';

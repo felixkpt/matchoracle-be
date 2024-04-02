@@ -8,6 +8,7 @@ use App\Models\MatchesJobLog;
 use App\Models\MatchJobLog;
 use App\Models\PredictionJobLog;
 use App\Models\StandingJobLog;
+use App\Models\TrainPredictionJobLog;
 use App\Repositories\SearchRepo;
 use Illuminate\Support\Carbon;
 
@@ -23,7 +24,7 @@ class LogsController extends Controller
     public function seasonsJobLogs()
     {
         $model = SeasonJobLog::query();
-        
+
         $data = SearchRepo::of($model, ['date'])
             ->addColumn('Last_run', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addColumn('Created_at', fn ($q) => Carbon::parse($q->created_at)->diffForHumans())
@@ -35,8 +36,8 @@ class LogsController extends Controller
     public function standingsJobLogs()
     {
         $model = StandingJobLog::query()
-        ->when(request()->task, fn ($q) => $q->where('task', request()->task));
-        
+            ->when(request()->task, fn ($q) => $q->where('task', request()->task));
+
         $data = SearchRepo::of($model, ['date'])
             ->addColumn('Last_run', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addColumn('Created_at', fn ($q) => Carbon::parse($q->created_at)->diffForHumans())
@@ -48,7 +49,7 @@ class LogsController extends Controller
     public function matchesJobLogs()
     {
         $model = MatchesJobLog::query()
-        ->when(request()->task, fn ($q) => $q->where('task', request()->task));
+            ->when(request()->task, fn ($q) => $q->where('task', request()->task));
 
         $data = SearchRepo::of($model, ['date'])
             ->addColumn('Last_run', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
@@ -67,6 +68,18 @@ class LogsController extends Controller
             ->addColumn('Last_run', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addColumn('Created_at', fn ($q) => Carbon::parse($q->created_at)->diffForHumans())
             ->paginate();
+
+        return response(['results' => $data]);
+    }
+
+    public function trainPredictionsJobLogs()
+    {
+        $model = TrainPredictionJobLog::query();
+        $data = SearchRepo::of($model, ['date'])
+            ->addColumn('Last_run', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
+            ->addColumn('Created_at', fn ($q) => Carbon::parse($q->created_at)->diffForHumans())
+            ->paginate();
+
 
         return response(['results' => $data]);
     }
