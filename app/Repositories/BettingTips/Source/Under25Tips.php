@@ -3,32 +3,25 @@
 namespace App\Repositories\BettingTips\Source;
 
 use App\Repositories\BettingTips\BettingTipsTrait;
-use App\Utilities\GameUtility;
 
 class Under25Tips
 {
     use BettingTipsTrait;
 
+    private $outcome = 'under_25';
     private $odds_name = 'under_25_odds';
     private $odds_min_threshold = 1.3;
     private $odds_max_threshold = 5.0;
 
     private $proba_name = 'under25_proba';
-    private $proba_threshold = 55;
+    private $proba_threshold = 70;
 
-    private $proba_name2 = 'ft_home_win_proba';
-    private $proba_threshold2 = 20;
-
-    private $multiples_combined_min_odds = 5;
+    private $proba_name2 = 'ng_proba';
+    private $proba_threshold2 = 55;
 
     function singles()
     {
-        $gameUtilities = new GameUtility();
-        $results = $gameUtilities->applyGameFilters()
-            ->whereHas('odds', fn ($q) => $this->oddsRange($q));
-
-        $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold)->where($this->proba_name2, '>=', $this->proba_threshold2));
-        $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'under_25'));
+        $results = $this->getGames();
 
         $investment = $this->singlesInvestment($results);
 
@@ -41,12 +34,7 @@ class Under25Tips
 
     function multiples()
     {
-        $gameUtilities = new GameUtility();
-        $results = $gameUtilities->applyGameFilters()
-            ->whereHas('odds', fn ($q) => $this->oddsRange($q));
-
-        $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold)->where($this->proba_name2, '>=', $this->proba_threshold2));
-        $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'under_25'));
+        $results = $this->getGames();
 
         $investment = $this->multiplesInvestment($results);
 
@@ -58,5 +46,4 @@ class Under25Tips
 
         return $results;
     }
-
 }

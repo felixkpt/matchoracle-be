@@ -3,38 +3,30 @@
 namespace App\Repositories\BettingTips\Core;
 
 use App\Repositories\BettingTips\BettingTipsTrait;
-use App\Utilities\GameUtility;
-use Illuminate\Support\Carbon;
 
 class HomeWinTips
 {
     use BettingTipsTrait;
 
+    private $outcome = 'home_win';
     private $odds_name = 'home_win_odds';
     private $odds_min_threshold = 1.3;
-    private $odds_max_threshold = 3.0;
+    private $odds_max_threshold = 5.0;
 
     private $proba_name = 'ft_home_win_proba';
-    private $proba_threshold = 43;
+    private $proba_threshold = 50;
 
-    private $multiples_combined_min_odds = 3;
+    private $proba_name2 = 'ng_proba';
+    private $proba_threshold2 = 40;
 
     function singles()
     {
-        $gameUtilities = new GameUtility();
-        $results = $gameUtilities->applyGameFilters()
-            ->whereHas('odds', fn ($q) => $this->oddsRange($q))
-            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
-
-        $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold));
-        $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'home_win'));
+        $results = $this->getGames();
 
         $investment = $this->singlesInvestment($results);
 
-        $results = $investment['betslips'];
-        $results = $this->paginate($results, request()->per_page ?? 50);
+        $results = $results->paginate(request()->per_page ?? 50);
 
-        unset($investment['betslips']);
         $results['investment'] = $investment;
 
         return $results;
@@ -42,13 +34,7 @@ class HomeWinTips
 
     function multiples()
     {
-        $gameUtilities = new GameUtility();
-        $results = $gameUtilities->applyGameFilters()
-            ->whereHas('odds', fn ($q) => $this->oddsRange($q))
-            ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
-
-        $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold));
-        $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, 'home_win'));
+        $results = $this->getGames();
 
         $investment = $this->multiplesInvestment($results);
 
@@ -63,8 +49,6 @@ class HomeWinTips
 
     function predictionStatisticFilter($q)
     {
-        if (!request()->show_source_predictions) {
-            // $q->where('full_time_home_wins_preds_true_percentage', '>=', 55);
-        }
+        $q->where('ft_home_wins_preds_true_percentage', '>=', 45);
     }
 }

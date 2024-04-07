@@ -22,20 +22,20 @@ return new class extends Migration
 
             $table->unsignedBigInteger('counts');
             
-            $table->unsignedBigInteger('half_time_home_wins');
-            $table->unsignedBigInteger('half_time_draws');
-            $table->unsignedBigInteger('half_time_away_wins');
-            $table->unsignedBigInteger('full_time_home_wins');
-            $table->unsignedBigInteger('full_time_draws');
-            $table->unsignedBigInteger('full_time_away_wins');
-            $table->unsignedBigInteger('gg');
-            $table->unsignedBigInteger('ng');
-            $table->unsignedBigInteger('over15');
-            $table->unsignedBigInteger('under15');
-            $table->unsignedBigInteger('over25');
-            $table->unsignedBigInteger('under25');
-            $table->unsignedBigInteger('over35');
-            $table->unsignedBigInteger('under35');
+            $table->unsignedBigInteger('ht_home_wins');
+            $table->unsignedBigInteger('ht_draws');
+            $table->unsignedBigInteger('ht_away_wins');
+            $table->unsignedBigInteger('ft_home_wins');
+            $table->unsignedBigInteger('ft_draws');
+            $table->unsignedBigInteger('ft_away_wins');
+            $table->unsignedBigInteger('ft_gg');
+            $table->unsignedBigInteger('ft_ng');
+            $table->unsignedBigInteger('ft_over15');
+            $table->unsignedBigInteger('ft_under15');
+            $table->unsignedBigInteger('ft_over25');
+            $table->unsignedBigInteger('ft_under25');
+            $table->unsignedBigInteger('ft_over35');
+            $table->unsignedBigInteger('ft_under35');
 
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();

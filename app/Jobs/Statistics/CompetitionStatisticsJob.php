@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\Statistics\CompetitionsStatisticsController;
 use App\Jobs\Automation\AutomationTrait;
 use App\Models\Competition;
 use App\Models\CompetitionStatisticJobLog;
+use App\Models\CompetitionStatistics;
+use App\Repositories\Statistics\CompetitionStatisticsRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -43,7 +45,8 @@ class CompetitionStatisticsJob implements ShouldQueue
         $this->loggerModel(true);
 
         $lastFetchColumn = 'stats_last_done';
-        $delay = 24 * 0.1;
+        // Set delay in minutes, 10 days is okay for this case
+        $delay = 60 * 24 * 10;
 
         // Get competitions that need stats done
         $competitions = Competition::query()
@@ -73,6 +76,8 @@ class CompetitionStatisticsJob implements ShouldQueue
                 ->take(15)
                 ->orderBy('start_date', 'desc')->get();
 
+            $should_update_last_action = true;
+
             foreach ($seasons as $season) {
 
                 $start_date = Str::before($season->start_date, '-');
@@ -80,11 +85,13 @@ class CompetitionStatisticsJob implements ShouldQueue
                 echo "Season #{$season->id} ({$start_date}/{$end_date})\n";
 
                 request()->merge(['season_id' => $season->id]);
-                $data = app(CompetitionsStatisticsController::class)->store();
+                $data = (new CompetitionStatisticsRepository(new CompetitionStatistics()))->store();
 
                 echo $data['message'] . "\n";
                 $this->doLogging($data);
             }
+
+            $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
             echo "------------\n";
         }

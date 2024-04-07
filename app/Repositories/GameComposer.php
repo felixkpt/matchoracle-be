@@ -138,7 +138,6 @@ class GameComposer
             return -1;
         }
 
-
         // Get the score data or provide default values if it's missing
         $scoreData = $game['score'] ?? [];
         $homeTeamScore = (int)($scoreData['home_scores_full_time'] ?? 0);
@@ -244,7 +243,7 @@ class GameComposer
 
         $score = $game['score'];
         if (!$score || !$score['winner']) {
-            return null;
+            return false;
         }
 
         if ($score['winner'] === 'DRAW') {
@@ -257,7 +256,7 @@ class GameComposer
             return true;
         }
 
-        return null;
+        return false;
     }
 
     public static function getScores($game, $teamId, $negate = false)

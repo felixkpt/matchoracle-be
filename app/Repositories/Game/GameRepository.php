@@ -13,7 +13,6 @@ use App\Utilities\GamePredictionStatsUtility;
 use App\Utilities\GameStatsUtility;
 use App\Utilities\GameUtility;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class GameRepository implements GameRepositoryInterface
 {
@@ -22,7 +21,7 @@ class GameRepository implements GameRepositoryInterface
 
     protected $sourceContext;
 
-    function __construct(protected Game $model, protected TeamRepositoryInterface $teamRepositoryInterface)
+    function __construct(protected Game $model)
     {
         // Instantiate the context class
         $this->sourceContext = new GameSourceStrategy();

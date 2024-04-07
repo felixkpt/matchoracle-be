@@ -4,14 +4,43 @@ namespace App\Repositories\BettingTips;
 
 use App\Models\Game;
 use App\Repositories\GameComposer;
+use App\Utilities\GameUtility;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 trait BettingTipsTrait
 {
     private $initial_bankroll = 1000;
     private $singles_stake_ratio = 0.1;
     private $multiples_stake_ratio = 0.1;
+    private $multiples_combined_min_odds = 5;
+
+    function getGames()
+    {
+        $gameUtilities = new GameUtility();
+        $results = $gameUtilities->applyGameFilters()
+            ->whereHas('odds', fn ($q) => $this->oddsRange($q));
+
+        if (request()->prediction_mode_id == 1 || !request()->prediction_mode_id) {
+            $results = $results->whereHas('prediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold)->where($this->proba_name2, '>=', $this->proba_threshold2))
+                ->whereHas('competition.predictionStatistic', fn ($q) => $this->predictionStatisticFilter($q));
+        } else if (request()->prediction_mode_id == 2) {
+            $results = $results->whereHas('sourcePrediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold)->where($this->proba_name2, '>=', $this->proba_threshold2));
+        }
+
+        Log::info('FFF', [request()->prediction_mode_id]);
+
+
+        $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, $this->outcome));
+
+        return $results;
+    }
+
+    function oddsRange($q)
+    {
+        $q->where($this->odds_name, '>=', $this->odds_min_threshold)->where($this->odds_name, '<=', $this->odds_max_threshold);
+    }
 
     private function singlesInvestment($results)
     {
@@ -260,11 +289,6 @@ trait BettingTipsTrait
         }
 
         return $home_team_correct_preds > 0 && $away_team_correct_preds > 0;
-    }
-
-    function oddsRange($q)
-    {
-        $q->where($this->odds_name, '>=', $this->odds_min_threshold)->where($this->odds_name, '<=', $this->odds_max_threshold);
     }
 
     private function paginate($results, $perPage)

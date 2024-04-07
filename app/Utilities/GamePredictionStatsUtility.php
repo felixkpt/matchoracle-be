@@ -3,6 +3,7 @@
 namespace App\Utilities;
 
 use App\Repositories\GameComposer;
+use Illuminate\Support\Facades\Log;
 
 class GamePredictionStatsUtility
 {
@@ -16,7 +17,7 @@ class GamePredictionStatsUtility
 
     function __construct()
     {
-        $this->predictionTypeMode = request()->show_source_predictions ? 'source_prediction' : 'prediction';
+        $this->predictionTypeMode = request()->prediction_mode_id == 2 ? 'source_prediction' : 'prediction';
     }
 
     public function doStats($games)
@@ -69,7 +70,7 @@ class GamePredictionStatsUtility
     {
         $preset = ['counts' => 0, 'preds' => 0, 'preds_true' => 0, 'preds_true_percentage' => 0];
         $stats = [
-            'full_time' => [
+            'ft' => [
                 'home_wins' => $preset,
                 'draws' => $preset,
                 'away_wins' => $preset,
@@ -82,7 +83,7 @@ class GamePredictionStatsUtility
                 'over35' => $preset,
                 'under35' => $preset,
             ],
-            'half_time' => [
+            'ht' => [
                 'home_wins' => $preset,
                 'draws' => $preset,
                 'away_wins' => $preset,
@@ -94,6 +95,8 @@ class GamePredictionStatsUtility
 
     private function isValidGame($game)
     {
+        Log::info('fff', [request()->prediction_mode_id, $this->predictionTypeMode]);
+
         $prediction = $game[$this->predictionTypeMode];
         return $prediction && isset($game['score']) && GameComposer::hasResults($game);
     }
@@ -103,11 +106,11 @@ class GamePredictionStatsUtility
         $winningSide = GameComposer::winningSide($game, true);
 
         if ($winningSide === self::HOME_TEAM) {
-            $stats['full_time']['home_wins']['counts']++;
+            $stats['ft']['home_wins']['counts']++;
         } elseif ($winningSide === self::DRAW) {
-            $stats['full_time']['draws']['counts']++;
+            $stats['ft']['draws']['counts']++;
         } elseif ($winningSide === self::AWAY_TEAM) {
-            $stats['full_time']['away_wins']['counts']++;
+            $stats['ft']['away_wins']['counts']++;
         }
     }
 
@@ -120,20 +123,20 @@ class GamePredictionStatsUtility
 
         $winningSide = GameComposer::winningSide($game, true);
 
-        $this->updatePredictionStat($stats['full_time']['home_wins'], $prediction['ft_hda_pick'], $winningSide, self::HOME_TEAM);
-        $this->updatePredictionStat($stats['full_time']['draws'], $prediction['ft_hda_pick'], $winningSide, self::DRAW);
-        $this->updatePredictionStat($stats['full_time']['away_wins'], $prediction['ft_hda_pick'], $winningSide, self::AWAY_TEAM);
+        $this->updatePredictionStat($stats['ft']['home_wins'], $prediction['ft_hda_pick'], $winningSide, self::HOME_TEAM);
+        $this->updatePredictionStat($stats['ft']['draws'], $prediction['ft_hda_pick'], $winningSide, self::DRAW);
+        $this->updatePredictionStat($stats['ft']['away_wins'], $prediction['ft_hda_pick'], $winningSide, self::AWAY_TEAM);
     }
 
     private function updateHalftimeCounts(&$stats, $winningSideHT)
     {
         // Update halftime match counts
         if ($winningSideHT === self::HOME_TEAM) {
-            $stats['half_time']['home_wins']['counts']++;
+            $stats['ht']['home_wins']['counts']++;
         } elseif ($winningSideHT === self::DRAW) {
-            $stats['half_time']['draws']['counts']++;
+            $stats['ht']['draws']['counts']++;
         } elseif ($winningSideHT === self::AWAY_TEAM) {
-            $stats['half_time']['away_wins']['counts']++;
+            $stats['ht']['away_wins']['counts']++;
         }
     }
 
@@ -145,9 +148,9 @@ class GamePredictionStatsUtility
             return;
         }
 
-        $this->updatePredictionStat($stats['half_time']['home_wins'], $prediction['ht_hda_pick'], $winningSideHT, self::HOME_TEAM);
-        $this->updatePredictionStat($stats['half_time']['draws'], $prediction['ht_hda_pick'], $winningSideHT, self::DRAW);
-        $this->updatePredictionStat($stats['half_time']['away_wins'], $prediction['ht_hda_pick'], $winningSideHT, self::AWAY_TEAM);
+        $this->updatePredictionStat($stats['ht']['home_wins'], $prediction['ht_hda_pick'], $winningSideHT, self::HOME_TEAM);
+        $this->updatePredictionStat($stats['ht']['draws'], $prediction['ht_hda_pick'], $winningSideHT, self::DRAW);
+        $this->updatePredictionStat($stats['ht']['away_wins'], $prediction['ht_hda_pick'], $winningSideHT, self::AWAY_TEAM);
     }
 
     private function updatePredictionStat(&$stat, $prediction, $actual, $outcome)
@@ -159,8 +162,8 @@ class GamePredictionStatsUtility
     private function updateBTSStats(&$stats, $game)
     {
         $bts = GameComposer::bts($game, true);
-        $this->updateBTSStat($stats['full_time']['gg'], $game[$this->predictionTypeMode]['bts_pick'], $bts, 1);
-        $this->updateBTSStat($stats['full_time']['ng'], $game[$this->predictionTypeMode]['bts_pick'], $bts, 0);
+        $this->updateBTSStat($stats['ft']['gg'], $game[$this->predictionTypeMode]['bts_pick'], $bts, 1);
+        $this->updateBTSStat($stats['ft']['ng'], $game[$this->predictionTypeMode]['bts_pick'], $bts, 0);
     }
 
     private function updateBTSStat(&$stat, $prediction, $actual, $threshold)
@@ -177,16 +180,16 @@ class GamePredictionStatsUtility
         $goals = GameComposer::goals($game, true);
 
         if (!request()->get_prediction_stats) {
-            $this->updateGoalStatOver($stats['full_time']['over15'], $game[$this->predictionTypeMode]['over_under15_pick'], $goals, 1);
-            $this->updateGoalStatUnder($stats['full_time']['under15'], $game[$this->predictionTypeMode]['over_under15_pick'], $goals, 2);
+            $this->updateGoalStatOver($stats['ft']['over15'], $game[$this->predictionTypeMode]['over_under15_pick'], $goals, 1);
+            $this->updateGoalStatUnder($stats['ft']['under15'], $game[$this->predictionTypeMode]['over_under15_pick'], $goals, 2);
         }
 
-        $this->updateGoalStatOver($stats['full_time']['over25'], $game[$this->predictionTypeMode]['over_under25_pick'], $goals, 2, true);
-        $this->updateGoalStatUnder($stats['full_time']['under25'], $game[$this->predictionTypeMode]['over_under25_pick'], $goals, 3, true);
+        $this->updateGoalStatOver($stats['ft']['over25'], $game[$this->predictionTypeMode]['over_under25_pick'], $goals, 2, true);
+        $this->updateGoalStatUnder($stats['ft']['under25'], $game[$this->predictionTypeMode]['over_under25_pick'], $goals, 3, true);
 
         if (!request()->get_prediction_stats) {
-            $this->updateGoalStatOver($stats['full_time']['over35'], $game[$this->predictionTypeMode]['over_under35_pick'], $goals, 3);
-            $this->updateGoalStatUnder($stats['full_time']['under35'], $game[$this->predictionTypeMode]['over_under35_pick'], $goals, 4);
+            $this->updateGoalStatOver($stats['ft']['over35'], $game[$this->predictionTypeMode]['over_under35_pick'], $goals, 3);
+            $this->updateGoalStatUnder($stats['ft']['under35'], $game[$this->predictionTypeMode]['over_under35_pick'], $goals, 4);
         }
     }
 
@@ -214,7 +217,7 @@ class GamePredictionStatsUtility
         $totalCorrectPredictions = 0;
         $totalPredictions = 0;
 
-        foreach ($stats['full_time'] as $resultType => $resultStats) {
+        foreach ($stats['ft'] as $resultType => $resultStats) {
             $totalCorrectPredictions += $resultStats['preds_true'];
             $totalPredictions += $resultStats['preds'];
         }
@@ -225,23 +228,23 @@ class GamePredictionStatsUtility
         $arr = [
             'counts' => $stats['counts'],
 
-            'full_time' => [
-                'home_wins' => $this->calculatePercentageStats($stats['full_time']['home_wins']),
-                'draws' => $this->calculatePercentageStats($stats['full_time']['draws']),
-                'away_wins' => $this->calculatePercentageStats($stats['full_time']['away_wins']),
-                'gg' => $this->calculatePercentageStats($stats['full_time']['gg']),
-                'ng' => $this->calculatePercentageStats($stats['full_time']['ng']),
-                'over15' => $this->calculatePercentageStats($stats['full_time']['over15']),
-                'under15' => $this->calculatePercentageStats($stats['full_time']['under15']),
-                'over25' => $this->calculatePercentageStats($stats['full_time']['over25']),
-                'under25' => $this->calculatePercentageStats($stats['full_time']['under25']),
-                'over35' => $this->calculatePercentageStats($stats['full_time']['over35']),
-                'under35' => $this->calculatePercentageStats($stats['full_time']['under35']),
+            'ft' => [
+                'home_wins' => $this->calculatePercentageStats($stats['ft']['home_wins']),
+                'draws' => $this->calculatePercentageStats($stats['ft']['draws']),
+                'away_wins' => $this->calculatePercentageStats($stats['ft']['away_wins']),
+                'gg' => $this->calculatePercentageStats($stats['ft']['gg']),
+                'ng' => $this->calculatePercentageStats($stats['ft']['ng']),
+                'over15' => $this->calculatePercentageStats($stats['ft']['over15']),
+                'under15' => $this->calculatePercentageStats($stats['ft']['under15']),
+                'over25' => $this->calculatePercentageStats($stats['ft']['over25']),
+                'under25' => $this->calculatePercentageStats($stats['ft']['under25']),
+                'over35' => $this->calculatePercentageStats($stats['ft']['over35']),
+                'under35' => $this->calculatePercentageStats($stats['ft']['under35']),
             ],
-            'half_time' => [
-                'home_wins' => $this->calculatePercentageStats($stats['half_time']['home_wins']),
-                'draws' => $this->calculatePercentageStats($stats['half_time']['draws']),
-                'away_wins' => $this->calculatePercentageStats($stats['half_time']['away_wins']),
+            'ht' => [
+                'home_wins' => $this->calculatePercentageStats($stats['ht']['home_wins']),
+                'draws' => $this->calculatePercentageStats($stats['ht']['draws']),
+                'away_wins' => $this->calculatePercentageStats($stats['ht']['away_wins']),
             ],
 
             'average_score' => $averageScore,

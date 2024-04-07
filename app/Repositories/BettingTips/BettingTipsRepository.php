@@ -21,9 +21,8 @@ class BettingTipsRepository implements BettingTipsRepositoryInterface
 
         request()->merge([
             'break_preds' => true,
-            'show_predictions' => $this->predictionModeId == 1,
-            'show_source_predictions' => $this->predictionModeId == 2,
-            'to_date' => Carbon::now()->addDays(7),
+            'show_predictions' => $this->predictionModeId == 2 ? 2 : 1,
+            'prediction_mode_id' => $this->predictionModeId == 2 ? 2 : 1,
         ]);
 
         if (!request()->from_date) {

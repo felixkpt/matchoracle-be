@@ -8,6 +8,7 @@ use App\Models\CompetitionStatistics;
 use App\Models\Game;
 use App\Models\Season;
 use App\Repositories\CommonRepoActions;
+use App\Repositories\Game\GameRepository;
 use App\Repositories\Game\GameRepositoryInterface;
 use App\Repositories\GameComposer;
 use Illuminate\Support\Carbon;
@@ -18,10 +19,8 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
 
     use CommonRepoActions;
 
-    function __construct(
-        protected CompetitionStatistics $model,
-        protected GameRepositoryInterface $gameRepositoryInterface
-    ) {
+    function __construct(protected CompetitionStatistics $model)
+    {
     }
 
     function index()
@@ -39,25 +38,25 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
 
         if ($counts > 0) {
 
-            $results->full_time_home_wins_percentage = number_format($results->full_time_home_wins / $counts * 100, 0, '');
-            $results->full_time_draws_percentage = number_format($results->full_time_draws / $counts * 100, 0, '');
-            $results->full_time_away_wins_percentage = number_format($results->full_time_away_wins / $counts * 100, 0, '');
+            $results->ft_home_wins_percentage = number_format($results->ft_home_wins / $counts * 100, 0, '');
+            $results->ft_draws_percentage = number_format($results->ft_draws / $counts * 100, 0, '');
+            $results->ft_away_wins_percentage = number_format($results->ft_away_wins / $counts * 100, 0, '');
 
-            $results->half_time_home_wins_percentage = number_format($results->half_time_home_wins / $counts * 100, 0, '');
-            $results->half_time_draws_percentage = number_format($results->half_time_draws / $counts * 100, 0, '');
-            $results->half_time_away_wins_percentage = number_format($results->half_time_away_wins / $counts * 100, 0, '');
+            $results->ht_home_wins_percentage = number_format($results->ht_home_wins / $counts * 100, 0, '');
+            $results->ht_draws_percentage = number_format($results->ht_draws / $counts * 100, 0, '');
+            $results->ht_away_wins_percentage = number_format($results->ht_away_wins / $counts * 100, 0, '');
 
-            $results->gg_percentage = number_format($results->gg / $counts * 100, 0, '');
-            $results->ng_percentage = number_format($results->ng / $counts * 100, 0, '');
+            $results->ft_gg_percentage = number_format($results->gg / $counts * 100, 0, '');
+            $results->ft_ng_percentage = number_format($results->ng / $counts * 100, 0, '');
 
-            $results->over15_percentage = number_format($results->over15 / $counts * 100, 0, '');
-            $results->under15_percentage = number_format($results->under15 / $counts * 100, 0, '');
+            $results->ft_over15_percentage = number_format($results->over15 / $counts * 100, 0, '');
+            $results->ft_under15_percentage = number_format($results->under15 / $counts * 100, 0, '');
 
-            $results->over25_percentage = number_format($results->over25 / $counts * 100, 0, '');
-            $results->under25_percentage = number_format($results->under25 / $counts * 100, 0, '');
+            $results->ft_over25_percentage = number_format($results->over25 / $counts * 100, 0, '');
+            $results->ft_under25_percentage = number_format($results->under25 / $counts * 100, 0, '');
 
-            $results->over35_percentage = number_format($results->over35 / $counts * 100, 0, '');
-            $results->under35_percentage = number_format($results->under35 / $counts * 100, 0, '');
+            $results->ft_over35_percentage = number_format($results->over35 / $counts * 100, 0, '');
+            $results->ft_under35_percentage = number_format($results->under35 / $counts * 100, 0, '');
         }
 
         return response(['results' => $results]);
@@ -73,18 +72,19 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
         request()->merge([
             'per_page' => 700, 'order_by' => 'utc_date', 'order_direction' => 'asc',
             'without_response' => true,
+            'is_competition_stats' => true,
         ]);
 
-        $games = $this->gameRepositoryInterface->index(null, true);
+        $games = (new GameRepository(new Game()))->index(null, true);
 
         $counts = 0;
 
-        $full_time_home_wins_counts = 0;
-        $full_time_draws_counts = 0;
-        $full_time_away_wins_counts = 0;
-        $half_time_home_wins_counts = 0;
-        $half_time_draws_counts = 0;
-        $half_time_away_wins_counts = 0;
+        $ft_home_wins_counts = 0;
+        $ft_draws_counts = 0;
+        $ft_away_wins_counts = 0;
+        $ht_home_wins_counts = 0;
+        $ht_draws_counts = 0;
+        $ht_away_wins_counts = 0;
 
         $gg_counts = 0;
         $ng_counts = 0;
@@ -111,6 +111,7 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
             $id = $game['id'];
             $date = $game['utc_date'];
             $score = $game['score'];
+
             $matchday = $game['matchday'];
 
             // echo "Date: {$date}, Game:{$id}\n";
@@ -122,28 +123,28 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
 
             $hasResults = GameComposer::hasResults($game);
 
-            if (!$hasResults) return;
+            if (!$hasResults) continue;
 
             $counts++;
 
             $winningSide = GameComposer::winningSide($game, true);
 
             if ($winningSide === 0) {
-                $full_time_home_wins_counts++;
+                $ft_home_wins_counts++;
             } elseif ($winningSide === 1) {
-                $full_time_draws_counts++;
+                $ft_draws_counts++;
             } elseif ($winningSide === 2) {
-                $full_time_away_wins_counts++;
+                $ft_away_wins_counts++;
             }
 
             $winningSide = GameComposer::winningSideHT($game, true);
 
             if ($winningSide === 0) {
-                $half_time_home_wins_counts++;
+                $ht_home_wins_counts++;
             } elseif ($winningSide === 1) {
-                $half_time_draws_counts++;
+                $ht_draws_counts++;
             } elseif ($winningSide === 2) {
-                $half_time_away_wins_counts++;
+                $ht_away_wins_counts++;
             }
 
             $bts = GameComposer::bts($game, true);
@@ -174,7 +175,6 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
         }
 
         if ($counts > 0) {
-
             if ($season_id && (!request()->date || $unique_dates_counts > 1)) {
                 CompetitionStatistic::updateOrCreate(
                     [
@@ -185,20 +185,20 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
                         'competition_id' => $competition_id,
                         'season_id' => $season_id,
                         'counts' => $counts,
-                        'half_time_home_wins' => $half_time_home_wins_counts,
-                        'half_time_draws' => $half_time_draws_counts,
-                        'half_time_away_wins' => $half_time_away_wins_counts,
-                        'full_time_home_wins' => $full_time_home_wins_counts,
-                        'full_time_draws' => $full_time_draws_counts,
-                        'full_time_away_wins' => $full_time_away_wins_counts,
-                        'gg' => $gg_counts,
-                        'ng' => $ng_counts,
-                        'over15' => $over15_counts,
-                        'under15' => $under15_counts,
-                        'over25' => $over25_counts,
-                        'under25' => $under25_counts,
-                        'over35' => $over35_counts,
-                        'under35' => $under35_counts,
+                        'ht_home_wins' => $ht_home_wins_counts,
+                        'ht_draws' => $ht_draws_counts,
+                        'ht_away_wins' => $ht_away_wins_counts,
+                        'ft_home_wins' => $ft_home_wins_counts,
+                        'ft_draws' => $ft_draws_counts,
+                        'ft_away_wins' => $ft_away_wins_counts,
+                        'ft_gg' => $gg_counts,
+                        'ft_ng' => $ng_counts,
+                        'ft_over15' => $over15_counts,
+                        'ft_under15' => $under15_counts,
+                        'ft_over25' => $over25_counts,
+                        'ft_under25' => $under25_counts,
+                        'ft_over35' => $over35_counts,
+                        'ft_under35' => $under35_counts,
                     ]
                 );
             } else {
@@ -224,20 +224,20 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
                         'date' => $date,
                         'matchday' => $matchday,
                         'counts' => $counts,
-                        'half_time_home_wins' => $half_time_home_wins_counts,
-                        'half_time_draws' => $half_time_draws_counts,
-                        'half_time_away_wins' => $half_time_away_wins_counts,
-                        'full_time_home_wins' => $full_time_home_wins_counts,
-                        'full_time_draws' => $full_time_draws_counts,
-                        'full_time_away_wins' => $full_time_away_wins_counts,
-                        'gg' => $gg_counts,
-                        'ng' => $ng_counts,
-                        'over15' => $over15_counts,
-                        'under15' => $under15_counts,
-                        'over25' => $over25_counts,
-                        'under25' => $under25_counts,
-                        'over35' => $over35_counts,
-                        'under35' => $under35_counts,
+                        'ht_home_wins' => $ht_home_wins_counts,
+                        'ht_draws' => $ht_draws_counts,
+                        'ht_away_wins' => $ht_away_wins_counts,
+                        'ft_home_wins' => $ft_home_wins_counts,
+                        'ft_draws' => $ft_draws_counts,
+                        'ft_away_wins' => $ft_away_wins_counts,
+                        'ft_gg' => $gg_counts,
+                        'ft_ng' => $ng_counts,
+                        'ft_over15' => $over15_counts,
+                        'ft_under15' => $under15_counts,
+                        'ft_over25' => $over25_counts,
+                        'ft_under25' => $under25_counts,
+                        'ft_over35' => $over35_counts,
+                        'ft_under35' => $under35_counts,
                     ]
                 );
             }
@@ -245,7 +245,7 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
 
         Competition::find($competition_id)->update(['stats_last_done' => now()]);
 
-        $arr = ['message' => 'Successfully done stats.', 'results' => ['updated' => $counts]];
+        $arr = ['message' => 'Total matches ' . $ct . ', successfully done stats, (updated ' . $counts . ').', 'results' => ['updated' => $counts]];
         if (request()->without_response) return $arr;
         return response($arr);
     }

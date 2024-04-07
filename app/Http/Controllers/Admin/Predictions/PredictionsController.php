@@ -24,11 +24,7 @@ class PredictionsController extends Controller
 
         $arr = [
             'break_preds' => true,
-            'show_source_predictions' => $this->predictionModeId == 2,
         ];
-        if (!$this->predictionModeId || $this->predictionModeId == 1) {
-            $arr['show_predictions'] = 1;
-        }
 
         if (request()->type == 'upcoming') {
             $arr['order_direction'] = 'desc';

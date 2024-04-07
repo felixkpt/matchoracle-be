@@ -3,7 +3,6 @@
 namespace App\Utilities;
 
 use App\Models\Game;
-use App\Models\GamePredictionType;
 use App\Repositories\GameComposer;
 use App\Repositories\SearchRepo;
 use Illuminate\Support\Carbon;
@@ -22,7 +21,7 @@ class GameUtility
 
     function __construct()
     {
-        $this->predictionTypeMode = request()->show_source_predictions ? 'sourcePrediction' : 'prediction';
+        $this->predictionTypeMode = request()->prediction_mode_id == 2 ? 'sourcePrediction' : 'prediction';
 
         $this->configureExecutionSettings();
     }
@@ -69,10 +68,7 @@ class GameUtility
         request()->merge(['order_by' => $order_by ?? 'utc_date', 'per_page' => $per_page]);
         request()->merge(['order_direction' => $order_direction]);
 
-        $games = Game::with(['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'homeTeam', 'awayTeam', 'score', 'votes', 'referees', 'prediction', 'sourcePrediction', 'odds'])
-            ->when(request()->show_predictions, fn ($q) => $q->whereHas('prediction'))
-            ->when(request()->show_source_predictions, fn ($q) => $q->whereHas('sourcePrediction'))
-            ->when($season_id, fn ($q) => $q->where('season_id', $season_id))
+        $games = Game::query()
             ->when($team_id, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', $team_id)->orWhere('away_team_id', $team_id)))
             ->when($team_ids, fn ($q) => $this->teamsMatch($q, $team_ids, $playing))
             ->when($currentground, fn ($q) => $currentground == 'home' ? $q->where('home_team_id', $team_id) : ($currentground == 'away' ? $q->where('away_team_id', $team_id) :  $q))
@@ -80,8 +76,9 @@ class GameUtility
             ->when($to_date, fn ($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($to_date)->format('Y-m-d')))
             ->when($date, fn ($q) => $q->whereDate('utc_date', '=', Carbon::parse($date)->format('Y-m-d')))
             ->when(!$date && !$to_date && $type, fn ($q) => $this->typeOrdering($q, $type, $to_date))
-            ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
+            ->when($season_id, fn ($q) => $q->where('season_id', $season_id))
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
+            ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
             ->when(request()->yesterday, fn ($q) => $q->whereDate('utc_date', Carbon::yesterday()))
             ->when(request()->today, fn ($q) => $q->whereDate('utc_date', Carbon::today()))
             ->when(request()->tomorrow, fn ($q) => $q->whereDate('utc_date', Carbon::tomorrow()))
@@ -90,6 +87,18 @@ class GameUtility
             ->when(request()->year && request()->month && request()->day, fn ($q) => $this->yearMonthDayFilter($q))
             ->when($id, fn ($q) => $q->where('games.id', $id))
             ->when(request()->limit, fn ($q) => $q->limit(request()->limit));
+
+        $with = ['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'homeTeam', 'awayTeam', 'score', 'votes', 'referees', 'odds'];
+
+        if (request()->prediction_mode_id == 1) {
+            array_push($with, 'prediction');
+            $games = $games->whereHas('prediction');
+        } else if (request()->prediction_mode_id == 2) {
+            array_push($with, 'sourcePrediction');
+            $games = $games->whereHas('sourcePrediction');
+        }
+
+        $games = $games->with($with);
 
         return $games;
     }
@@ -193,7 +202,7 @@ class GameUtility
             ->addColumnWhen((!request()->is_predictor && !request()->without_response),
                 'Predicted',
                 function ($q) {
-                    if (request()->show_source_predictions) {
+                    if (request()->prediction_mode_id == 2) {
                         return 'N/A';
                     }
                     return $q->prediction ? Carbon::parse($q->prediction->created_at)->diffForHumans() : 'N/A';

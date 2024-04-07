@@ -26,12 +26,12 @@ class CompetitionLastAction extends Model
         'match_fixtures_last_fetch',
         'match_shallow_fixtures_last_fetch',
 
-        'predictions_last_train',
-        'predictions_trained_to',
-
-        'predictions_last_done',
         'stats_last_done',
         'predictions_stats_last_done',
+        
+        'predictions_last_train',
+        'predictions_trained_to',
+        'predictions_last_done',
     ];
 
     public function lastAction()

@@ -27,19 +27,22 @@ trait FormatPredictionTrait
 
     protected function formatFTHDAPick($q)
     {
-        $has_res = GameComposer::hasResults($q);
-        $res = GameComposer::winningSide($q, true);
 
         $class = 'bg-light-blue text-dark';
 
         $pred = $q->{$this->predictionTypeMode};
         $str = '-';
-        if ($pred && $has_res) {
+        if ($pred) {
             $str = $pred->ft_hda_pick == 0 ? '1' : ($pred->ft_hda_pick == 1 ? 'X' : '2');
-            if ($pred->ft_hda_pick == $res) {
-                $class = 'border-bottom bg-success text-white';
-            } elseif ($pred) {
-                $class = 'border-bottom border-danger text-danger';
+            $has_res = GameComposer::hasResults($q);
+            $res = GameComposer::winningSide($q, true);
+
+            if ($has_res) {
+                if ($pred->ft_hda_pick == $res) {
+                    $class = 'border-bottom bg-success text-white';
+                } elseif ($pred) {
+                    $class = 'border-bottom border-danger text-danger';
+                }
             }
         }
 
@@ -61,19 +64,23 @@ trait FormatPredictionTrait
 
     protected function formatHTHDAPick($q)
     {
-        $has_res = GameComposer::hasResults($q);
-        $res = GameComposer::winningSide($q, true);
 
         $class = 'bg-light-blue text-dark';
 
         $pred = $q->{$this->predictionTypeMode};
         $str = '-';
-        if ($pred && $has_res) {
+        if ($pred) {
             $str = $pred->ft_hda_pick == 0 ? '1' : ($pred->ft_hda_pick == 1 ? 'X' : '2');
-            if ($pred->ft_hda_pick == $res) {
-                $class = 'border-bottom bg-success text-white';
-            } elseif ($pred) {
-                $class = 'border-bottom border-danger text-danger';
+            $has_res = GameComposer::hasResults($q);
+            $res = GameComposer::winningSide($q, true);
+
+            if ($has_res) {
+
+                if ($pred->ft_hda_pick == $res) {
+                    $class = 'border-bottom bg-success text-white';
+                } elseif ($pred) {
+                    $class = 'border-bottom border-danger text-danger';
+                }
             }
         }
 
@@ -82,20 +89,20 @@ trait FormatPredictionTrait
 
     protected function formatBTS($q)
     {
-        $has_res = GameComposer::hasResults($q);
-        $res = GameComposer::bts($q, true);
 
         $class = 'border-bottom-light-blue text-dark';
 
         $pred = $q->{$this->predictionTypeMode};
         $str = '-';
-        if ($pred && $has_res) {
+        if ($pred) {
             $str = $pred->bts_pick == 1 ? 'YES' : 'NO';
+            $has_res = GameComposer::hasResults($q);
+            $res = GameComposer::bts($q, true);
 
             if ($pred->bts_pick == $res) {
                 $class = 'border-bottom border-success';
-            } elseif ($pred) {
-                $class = 'border-bottom border-danger ';
+            } elseif ($pred && $has_res) {
+                $class = 'border-bottom border-danger';
             }
         }
 
@@ -105,34 +112,35 @@ trait FormatPredictionTrait
 
     protected function formatGoals($q)
     {
-        $has_res = GameComposer::hasResults($q);
-        $res = GameComposer::goals($q, true);
 
         $class = 'border-bottom-light-blue text-dark';
 
         $pred = $q->{$this->predictionTypeMode};
 
         $str = '-';
-        if ($pred && $has_res) {
+        if ($pred) {
             $str = $pred->over_under25_pick == 1 ? 'OV' : 'UN';
+            $has_res = GameComposer::hasResults($q);
+            $res = GameComposer::goals($q, true);
 
-            if ($pred->over_under25_pick && $res > 2) {
-                $class = 'border-bottom border-success';
-            } elseif (!$pred->over_under25_pick && $res <= 2) {
-                $class = 'border-bottom border-success';
-            } elseif ($pred) {
-                $class = 'border-bottom border-danger';
+            Log::info('RESULTS:: ', ['Id', $q->id, 'Res', $res, 'Pick', $pred->over_under25_pick, 'HAS RES', !!$has_res]);
+
+            if ($has_res) {
+                if ($pred->over_under25_pick == 1 && $res > 2) {
+                    $class = 'border-bottom border-success';
+                } elseif ($pred->over_under25_pick == 0 && $res <= 2) {
+                    $class = 'border-bottom border-success';
+                } else {
+                    $class = 'border-bottom border-danger';
+                }
             }
         }
-
 
         return '<div class="border-2 py-1 ' . $class . ' d-inline-block text-center results-icon-md">' . $str . '</div>';
     }
 
     protected function formatCS($q)
     {
-
-        $has_res = GameComposer::hasResults($q);
 
         $class = 'border-bottom-light-blue text-dark';
 
@@ -142,9 +150,10 @@ trait FormatPredictionTrait
         if ($pred) {
 
             $q->prediction = $q->{$this->predictionTypeMode};
+            $has_res = GameComposer::hasResults($q);
             $res = GameComposer::cs($q);
 
-            if ($res) {
+            if ($has_res && $res) {
                 $class = 'border-bottom border-success';
             }
 

@@ -23,60 +23,60 @@ return new class extends Migration
 
             $table->unsignedBigInteger('counts');
 
-            $table->integer('full_time_home_wins_counts');
-            $table->integer('full_time_home_wins_preds');
-            $table->integer('full_time_home_wins_preds_true');
-            $table->integer('full_time_home_wins_preds_true_percentage');
+            $table->integer('ft_home_wins_counts');
+            $table->integer('ft_home_wins_preds');
+            $table->integer('ft_home_wins_preds_true');
+            $table->integer('ft_home_wins_preds_true_percentage');
 
-            $table->integer('full_time_draws_counts');
-            $table->integer('full_time_draws_preds');
-            $table->integer('full_time_draws_preds_true');
-            $table->integer('full_time_draws_preds_true_percentage');
+            $table->integer('ft_draws_counts');
+            $table->integer('ft_draws_preds');
+            $table->integer('ft_draws_preds_true');
+            $table->integer('ft_draws_preds_true_percentage');
 
-            $table->integer('full_time_away_wins_counts');
-            $table->integer('full_time_away_wins_preds');
-            $table->integer('full_time_away_wins_preds_true');
-            $table->integer('full_time_away_wins_preds_true_percentage');
+            $table->integer('ft_away_wins_counts');
+            $table->integer('ft_away_wins_preds');
+            $table->integer('ft_away_wins_preds_true');
+            $table->integer('ft_away_wins_preds_true_percentage');
 
-            $table->integer('full_time_gg_counts');
-            $table->integer('full_time_gg_preds');
-            $table->integer('full_time_gg_preds_true');
-            $table->integer('full_time_gg_preds_true_percentage');
+            $table->integer('ft_gg_counts');
+            $table->integer('ft_gg_preds');
+            $table->integer('ft_gg_preds_true');
+            $table->integer('ft_gg_preds_true_percentage');
 
-            $table->integer('full_time_ng_counts');
-            $table->integer('full_time_ng_preds');
-            $table->integer('full_time_ng_preds_true');
-            $table->integer('full_time_ng_preds_true_percentage');
+            $table->integer('ft_ng_counts');
+            $table->integer('ft_ng_preds');
+            $table->integer('ft_ng_preds_true');
+            $table->integer('ft_ng_preds_true_percentage');
 
-            $table->integer('full_time_over15_counts');
-            $table->integer('full_time_over15_preds');
-            $table->integer('full_time_over15_preds_true');
-            $table->integer('full_time_over15_preds_true_percentage');
+            $table->integer('ft_over15_counts');
+            $table->integer('ft_over15_preds');
+            $table->integer('ft_over15_preds_true');
+            $table->integer('ft_over15_preds_true_percentage');
 
-            $table->integer('full_time_under15_counts');
-            $table->integer('full_time_under15_preds');
-            $table->integer('full_time_under15_preds_true');
-            $table->integer('full_time_under15_preds_true_percentage');
+            $table->integer('ft_under15_counts');
+            $table->integer('ft_under15_preds');
+            $table->integer('ft_under15_preds_true');
+            $table->integer('ft_under15_preds_true_percentage');
 
-            $table->integer('full_time_over25_counts');
-            $table->integer('full_time_over25_preds');
-            $table->integer('full_time_over25_preds_true');
-            $table->integer('full_time_over25_preds_true_percentage');
+            $table->integer('ft_over25_counts');
+            $table->integer('ft_over25_preds');
+            $table->integer('ft_over25_preds_true');
+            $table->integer('ft_over25_preds_true_percentage');
 
-            $table->integer('full_time_under25_counts');
-            $table->integer('full_time_under25_preds');
-            $table->integer('full_time_under25_preds_true');
-            $table->integer('full_time_under25_preds_true_percentage');
+            $table->integer('ft_under25_counts');
+            $table->integer('ft_under25_preds');
+            $table->integer('ft_under25_preds_true');
+            $table->integer('ft_under25_preds_true_percentage');
 
-            $table->integer('full_time_over35_counts');
-            $table->integer('full_time_over35_preds');
-            $table->integer('full_time_over35_preds_true');
-            $table->integer('full_time_over35_preds_true_percentage');
+            $table->integer('ft_over35_counts');
+            $table->integer('ft_over35_preds');
+            $table->integer('ft_over35_preds_true');
+            $table->integer('ft_over35_preds_true_percentage');
 
-            $table->integer('full_time_under35_counts');
-            $table->integer('full_time_under35_preds');
-            $table->integer('full_time_under35_preds_true');
-            $table->integer('full_time_under35_preds_true_percentage');
+            $table->integer('ft_under35_counts');
+            $table->integer('ft_under35_preds');
+            $table->integer('ft_under35_preds_true');
+            $table->integer('ft_under35_preds_true_percentage');
 
             $table->integer('accuracy_score')->nullable();
             $table->integer('precision_score')->nullable();
