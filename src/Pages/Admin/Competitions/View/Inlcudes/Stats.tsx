@@ -67,21 +67,21 @@ const Stats = ({ competition, selectedSeason, fromToDates, useDate }: Props) => 
                         <div>
                             {data ? (
                                 <div className="row">
-                                    {renderProgressBar('Full time - Home Wins', data.full_time_home_wins, data.full_time_home_wins_percentage, 'success')}
-                                    {renderProgressBar('Full time - Draws', data.full_time_draws, data.full_time_draws_percentage, 'secondary')}
-                                    {renderProgressBar('Full time - Away Wins', data.full_time_away_wins, data.full_time_away_wins_percentage, 'primary')}
-                                    {renderProgressBar('BTS Time - Yes', data.gg, data.gg_percentage, 'success')}
-                                    {renderProgressBar('BTS Time - No', data.ng, data.ng_percentage, 'secondary')}
-                                    {renderProgressBar('Over/Under 1.5 - Over', data.over15, data.over15_percentage, 'success')}
-                                    {renderProgressBar('Over/Under 1.5 - Under', data.under15, data.under15_percentage, 'secondary')}
-                                    {renderProgressBar('Over/Under 2.5 - Over', data.over25, data.over25_percentage, 'success')}
-                                    {renderProgressBar('Over/Under 2.5 - Under', data.under25, data.under25_percentage, 'secondary')}
-                                    {renderProgressBar('Over/Under 3.5 - Over', data.over35, data.over35_percentage, 'success')}
-                                    {renderProgressBar('Over/Under 3.5 - Under', data.under35, data.under35_percentage, 'secondary')}
-                                    {renderProgressBar('Half time - Home Wins', data.half_time_home_wins, data.half_time_home_wins_percentage, 'success')}
-                                    {renderProgressBar('Half time - Draws', data.half_time_draws, data.half_time_draws_percentage, 'secondary')}
-                                    {renderProgressBar('Half time - Away Wins', data.half_time_away_wins, data.half_time_away_wins_percentage, 'primary')}
-                                    
+                                    {renderProgressBar('Full time - Home Wins', data.ft_home_wins, data.ft_home_wins_percentage, 'success')}
+                                    {renderProgressBar('Full time - Draws', data.ft_draws, data.ft_draws_percentage, 'secondary')}
+                                    {renderProgressBar('Full time - Away Wins', data.ft_away_wins, data.ft_away_wins_percentage, 'primary')}
+                                    {renderProgressBar('BTS Time - Yes', data.ft_gg, data.ft_gg_percentage, 'success')}
+                                    {renderProgressBar('BTS Time - No', data.ft_ng, data.ft_ng_percentage, 'secondary')}
+                                    {renderProgressBar('Over/Under 1.5 - Over', data.ft_over15, data.ft_over15_percentage, 'success')}
+                                    {renderProgressBar('Over/Under 1.5 - Under', data.ft_under15, data.ft_under15_percentage, 'secondary')}
+                                    {renderProgressBar('Over/Under 2.5 - Over', data.ft_over25, data.ft_over25_percentage, 'success')}
+                                    {renderProgressBar('Over/Under 2.5 - Under', data.ft_under25, data.ft_under25_percentage, 'secondary')}
+                                    {renderProgressBar('Over/Under 3.5 - Over', data.ft_over35, data.ft_over35_percentage, 'success')}
+                                    {renderProgressBar('Over/Under 3.5 - Under', data.ft_under35, data.ft_under35_percentage, 'secondary')}
+                                    {renderProgressBar('Half time - Home Wins', data.ht_home_wins, data.ht_home_wins_percentage, 'success')}
+                                    {renderProgressBar('Half time - Draws', data.ht_draws, data.ht_draws_percentage, 'secondary')}
+                                    {renderProgressBar('Half time - Away Wins', data.ht_away_wins, data.ht_away_wins_percentage, 'primary')}
+
                                 </div>
                             ) : (
                                 <DefaultMessage />

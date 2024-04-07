@@ -83,10 +83,10 @@ const Index = () => {
                 errorsState === 0 ?
                     <div>
                         <div className="row shadow-sm">
-                            <div className="col-md-9">
+                            <div className="col-xl-9">
                                 <MatchesPageHeader title={'Betting Tips List'} fromToDates={fromToDates} setFromToDates={setFromToDates} className="shadow-none" />
                             </div>
-                            <div className="col-md-3">
+                            <div className="col-xl-3">
                                 <div className='d-flex gap-1 align-items-center shadow-sm px-2 rounded'>
                                     <div className='text-nowrap'>Tips Mode:</div> <Select
                                         className="form-control border-0"

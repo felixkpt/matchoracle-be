@@ -8,10 +8,6 @@ interface Props {
   baseUri: string;
 }
 
-const capitalizeFirstLetter = (str: string) => {
-  return str.replace(/(?:^|\s)\S/g, (char) => char.toUpperCase());
-};
-
 const renderCategory = (category: string, data: any) => {
   return (
     <tr key={category}>
@@ -40,9 +36,10 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
     if (baseUri) {
       get(baseUri, { params: { get_prediction_stats: true } }).then((res) => {
         if (res) {
-          const { full_time, half_time, counts, average_score } = res;
-          setFTStats({ full_time, counts, average_score });
-          setHTStats({ half_time, counts, average_score });
+          console.log(res)
+          const { ft, ht, counts, average_score } = res;
+          setFTStats({ ft, counts, average_score });
+          setHTStats({ ht, counts, average_score });
         }
       });
     }
@@ -115,11 +112,11 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {renderNestedCategories(FTStats.full_time)}
+                    {renderNestedCategories(FTStats.ft)}
                     {
-                      FTStats.full_time
+                      FTStats.ft
                       &&
-                      renderTotals(FTStats.full_time)
+                      renderTotals(FTStats.ft)
                     }
                   </tbody>
                 </table>
@@ -137,8 +134,8 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {renderNestedCategories(HTStats?.half_time)}
-                    {HTStats?.half_time && renderTotals(HTStats.half_time)}
+                    {renderNestedCategories(HTStats?.ht)}
+                    {HTStats?.ht && renderTotals(HTStats.ht)}
                   </tbody>
                 </table>
               </div>

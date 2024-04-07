@@ -6,7 +6,6 @@ import useAxios from '@/hooks/useAxios';
 import { CompetitionInterface, SeasonInterface } from '@/interfaces/FootballInterface';
 import { appendFromToDates } from "@/utils/helpers";
 import { useLocation } from 'react-router-dom';
-import TimeAgo from 'timeago-react';
 
 type Props = {
     competition: CompetitionInterface;

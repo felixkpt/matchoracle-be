@@ -240,7 +240,7 @@ export interface PredictionCategoryInterface {
 
 export interface PredictionStatisticsInterface {
     counts: number;
-    full_time: {
+    ft: {
         home_wins: PredictionCategoryInterface;
         draws: PredictionCategoryInterface;
         away_wins: PredictionCategoryInterface;
@@ -253,7 +253,7 @@ export interface PredictionStatisticsInterface {
         over35: PredictionCategoryInterface;
         under35: PredictionCategoryInterface;
     };
-    half_time: {
+    ht: {
         home_wins: PredictionCategoryInterface;
         draws: PredictionCategoryInterface;
         away_wins: PredictionCategoryInterface;

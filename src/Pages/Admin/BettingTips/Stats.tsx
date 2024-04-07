@@ -1,9 +1,8 @@
 import AutoTable from '@/components/AutoTable';
-import { useState } from 'react';
 
 const Stats = () => {
 
-    const [baseUri, setBaseUri] = useState('/admin/betting-tips/stats')
+    const baseUri = '/admin/betting-tips/stats'
 
     const columns = [
         { key: 'type' },
