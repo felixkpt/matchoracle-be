@@ -212,8 +212,8 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
         <div id={id} className={`autotable shadow p-1 rounded my-3 relative shadow-md sm:rounded-lg`}>
             <div className={`card overflow-auto overflow-x-auto ${modelDataLength >= 0 ? 'overflow-hidden' : 'overflow-auto'}`}>
                 <div className="card-header">
-                    <div className="d-flex align-items-center justify-content-end text-muted gap-1">
-                        {!loading && <span title='Click to reload' className='cursor-pointer shadow-sm px-1' onClick={reloadAutoTable}>Rel</span>}
+                    <div className="d-flex align-items-center justify-content-end align-items-center text-muted gap-1">
+                        {!loading && <small title='Click to reload' className='cursor-pointer rounded px-1' onClick={reloadAutoTable}><Icon icon="mdi:reload"/></small>}
                         <span className="autotable-record-counts" style={{ opacity: countOpacity }}>{tableData?.total.toLocaleString() || 0} {`${tableData?.total == 1 ? 'record' : 'records'}`}</span>
                     </div>
                     <div className={`mt-2 h-6 px-3 pb-1 text-sm font-medium leading-none text-center text-blue-800 dark:text-white${modelDataLength >= 0 && loading ? ' animate-pulse' : ''}`}>{modelDataLength >= 0 && loading ? <Loader /> : ''}</div>

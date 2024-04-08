@@ -1,5 +1,4 @@
 {
-  
   "compilerOptions": {
     "composite": true,
     "allowJs": true,
@@ -19,11 +18,8 @@
     }
   },
   "include": [
-    "src"
-, "src/assets/prismjs"  ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+    "src",
+    "src/assets/prismjs"
+  ],
+  "references": []
 }
