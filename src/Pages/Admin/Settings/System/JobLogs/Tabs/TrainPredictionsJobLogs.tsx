@@ -22,6 +22,7 @@ const TrainPredictionsJobLogs = () => {
         baseUri='/admin/settings/system/job-logs/train-predictions'
         columns={columns}
         search={true}
+        tableId='TrainPredictionsJobLogs'
       />
     </div>
   )

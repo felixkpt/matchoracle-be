@@ -19,15 +19,6 @@ const Index = () => {
     const [record2, setRecord2] = useState<DataInterface>()
 
 
-    const [active_only, setActiveOnly] = useState<boolean>(() => {
-        let stored_state = localStorage.getItem('competitions:active_only')
-        let show = false
-        if (stored_state)
-            show = JSON.parse(stored_state)
-
-        return show
-    })
-
     const { competitions: list_sources } = useListSources()
     const [actionUrl, setActionUrl] = useState<string>('/admin/competitions')
 
@@ -152,21 +143,14 @@ const Index = () => {
 
     }, [])
 
-    function handleActiveOnly(e: any) {
-        const val = e.target.checked
-        setActiveOnly(val)
-        localStorage.setItem('competitions:active_only', JSON.stringify(val))
-        setKey(key + 1)
-    }
-
     const tabs = [
         {
             name: "All",
-            content: <All columns={columns} active_only={active_only} setModelDetails={setModelDetails} />,
+            content: <All columns={columns} setModelDetails={setModelDetails} />,
         },
         {
             name: "OddsEnabled",
-            content: <OddsEnabled columns={columns} active_only={active_only} setModelDetails={setModelDetails} />,
+            content: <OddsEnabled columns={columns} setModelDetails={setModelDetails} />,
         },
     ]
 
@@ -176,19 +160,7 @@ const Index = () => {
             <PageHeader title={'Competitions list'} action="button" actionText="Create Competition" actionTargetId="competitionModal" permission='admin/competitions' setRecord={setRecord} />
             <div className="d-flex justify-content-end">
                 <div className={`col-6 col-md-3 form-group d-flex justify-content-end`}>
-                    <div className="form-check">
-                        <input
-                            className="form-check-input"
-                            id='active_only'
-                            type='checkbox'
-                            name={`active_only`}
-                            defaultChecked={active_only}
-                            onChange={handleActiveOnly}
-                        />
-                        <label className="form-check-label" htmlFor={`active_only`}>
-                            Show active only
-                        </label>
-                    </div>
+                    
                 </div>
             </div>
             <div>

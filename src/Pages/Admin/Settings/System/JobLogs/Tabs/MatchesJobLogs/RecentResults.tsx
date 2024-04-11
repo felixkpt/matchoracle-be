@@ -24,6 +24,7 @@ const RecentResults = (props: Props) => {
                 baseUri='/admin/settings/system/job-logs/matches?task=recent_results'
                 columns={columns}
                 search={true}
+                tableId='RecentResultsMatchesJoblogsTable'
             />
         </div>
     )

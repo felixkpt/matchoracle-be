@@ -53,6 +53,7 @@ const Users = ({ role }: Props) => {
                                 },
                             ]}
                             search={true}
+                            tableId='roleUsersTable'
                         />
                         <GeneralModal setKey={setKey} title='Add User to Role' actionUrl={`admin/settings/role-permissions/roles/view/${role.id}/add-user`} id={`addUserToRole`}>
                             <AddUser key={key} role={role} />

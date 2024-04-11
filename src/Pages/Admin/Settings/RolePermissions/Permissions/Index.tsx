@@ -45,6 +45,7 @@ const Index = () => {
         getModelDetails={setModelDetails}
         search={true}
         list_sources={list_sources}
+        tableId='permissionsTable'
       />
       {
         modelDetails && <><AutoModal id={`CreatePermission`} modelDetails={modelDetails} actionUrl='/admin/settings/role-permissions/permissions' list_sources={list_sources} /></>

@@ -44,6 +44,7 @@ const Index = () => {
           ]}
           getModelDetails={setModelDetails}
           search={true}
+          tableId='postStatusesTable'
         />
       </div>
       {

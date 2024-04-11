@@ -72,6 +72,7 @@ const Index = () => {
                                     list_sources={list_sources}
                                     perPage={200}
                                     getModelDetails={setModelDetails}
+                                    tableId='predictionsTable'
                                 />
                                 <PredictionStatsTable key={modelDetails?.query || 0} baseUri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}&q=${modelDetails?.query || ''}`} />
                             </div>

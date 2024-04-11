@@ -144,7 +144,7 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
             <>
               {
                 loading ?
-                  <Loader justify='start' />
+                  <Loader justify='center' />
                   :
                   <div>No data available</div>
               }

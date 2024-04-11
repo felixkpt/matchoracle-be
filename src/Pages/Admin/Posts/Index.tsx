@@ -35,7 +35,8 @@ const Posts = ({ category }: Props) => {
               key: 'action',
             },
           ]}
-          search={true}
+          search={true} 
+          tableId='PostsTable'
         />
       </div>
     </div>

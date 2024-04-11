@@ -36,7 +36,7 @@ const Odds: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
                     <CompetitionHeader title="Odds" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
 
                     {baseUri &&
-                        <AutoTable key={baseUri} columns={oddsColumns} baseUri={baseUri} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+                        <AutoTable key={baseUri} columns={oddsColumns} baseUri={baseUri} search={true} tableId={'competitionMatchesTable'} customModalId="teamModal" />
                     }
                 </div>
             }

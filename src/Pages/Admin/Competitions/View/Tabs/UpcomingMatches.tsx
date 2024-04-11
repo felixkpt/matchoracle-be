@@ -49,7 +49,7 @@ const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) =
           <CompetitionHeader title="Upcoming Matches" actionTitle="Fetch Upcoming Matches" actionButton="fetchUpcomingMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
 
           {baseUri &&
-            <AutoTable key={baseUri} columns={columns} baseUri={baseUri} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+            <AutoTable key={baseUri} columns={columns} baseUri={baseUri} search={true} tableId={'competitionUpcomingMatchesTable'} customModalId="teamModal" />
           }
 
           {

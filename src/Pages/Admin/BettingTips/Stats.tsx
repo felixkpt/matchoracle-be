@@ -32,6 +32,7 @@ const Stats = () => {
                     columns={columns}
                     search={true}
                     perPage={200}
+                    tableId='BettingTipsStatsTable'
                 />
             </div>
         </div>

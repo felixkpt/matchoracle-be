@@ -72,9 +72,10 @@ const PrepareStatusUpdateModal = () => {
                                         {
                                             (record && (selected || selected === null)) ?
                                                 <Select
+                                                    key={record.id}
                                                     className="form-control"
                                                     classNamePrefix="select"
-                                                    defaultValue={selected}
+                                                    value={selected}
                                                     isDisabled={false}
                                                     isLoading={false}
                                                     isClearable={false}
@@ -89,7 +90,7 @@ const PrepareStatusUpdateModal = () => {
                                         }
                                     </div>
                                     <div className="form-group mt-2 text-end">
-                                        <button type="submit" className="btn  btn-primary submit-btn ">Save</button>
+                                        <button type="submit" className="btn btn-primary submit-btn ">Save</button>
                                     </div>
                                 </form>
                             </div>

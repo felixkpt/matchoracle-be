@@ -43,6 +43,7 @@ const Index = () => {
             ]}
             getModelDetails={setModelDetails}
             search={true}
+            tableId='gamesourcesTable'
           />
         </div>
       </div>

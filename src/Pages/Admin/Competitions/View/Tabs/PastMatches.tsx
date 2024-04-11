@@ -51,7 +51,7 @@ const PastMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
           <CompetitionHeader title="Past Matches" actionTitle="Fetch Results" actionButton="fetchPastMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
 
           {baseUri &&
-            <AutoTable key={baseUri} columns={columns} baseUri={baseUri} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+            <AutoTable key={baseUri} columns={columns} baseUri={baseUri} search={true} tableId={'competitionPastMatchesTable'} customModalId="teamModal" />
           }
 
           <GeneralModal title={`Fetch Results form`} actionUrl={`admin/competitions/view/${competition.id}/fetch-matches`} size={'modal-lg'} id={`fetchPastMatches`}>

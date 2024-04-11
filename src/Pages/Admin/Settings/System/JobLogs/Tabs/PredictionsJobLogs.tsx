@@ -24,6 +24,7 @@ const PredictionsJobLogs = (props: Props) => {
         baseUri='/admin/settings/system/job-logs/predictions'
         columns={columns}
         search={true}
+        tableId='PredictionsJobLogs'
       />
     </div>
   )

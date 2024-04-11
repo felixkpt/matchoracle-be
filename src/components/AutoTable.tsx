@@ -9,12 +9,15 @@ import { AutoTableInterface } from '../interfaces/UncategorizedInterfaces';
 import AutoActions from './AutoActions';
 import Str from '@/utils/Str';
 import Loader from './Loader';
+import Select from 'react-select';
 
 function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getModelDetails, list_sources, tableId, modalSize, customModalId, perPage }: AutoTableInterface) => {
+    const id = tableId ? tableId : 'AutoTable'
+
     const {
         tableData,
         loading,
@@ -24,13 +27,18 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
         setPerPage,
         setReload,
         hidePerPage,
-    } = useAutoTableEffect(baseUri, listUri, { perPage });
+        status,
+        setStatus,
+    } = useAutoTableEffect(baseUri, listUri, tableId, { perPage });
 
-    const id = tableId ? tableId : 'AutoTable'
+    const [statuses, setStatuses] = useState<(string | number)[]>([]);
+
+    const [visibleItemsCounts, setVisibleItemsCounts] = useState<number>(0);
+    const [checkedAllItems, setCheckedAllItems] = useState<boolean>(false);
 
     const [checkedItems, setCheckedItems] = useState<(string | number)[]>([]);
-    const [checkedAllItems, setCheckedAllItems] = useState<boolean>(false);
-    const [modelDataLength, setModelDataLength] = useState<number>(-1);
+    const [checkedAllCurrentItems, setCheckedAllCurrentItems] = useState<boolean>(false);
+    const [currentPageDataLength, setCurrentPageDataLength] = useState<number>(-1);
 
     const [modelDetails, setModelDetails] = useState({})
     const [htmls, setHtmls] = useState<string[]>([])
@@ -40,9 +48,10 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
         if (tableData) {
 
             if (tableData?.data?.length >= 0) {
-                setModelDataLength(tableData.data.length);
+                setCurrentPageDataLength(tableData.data.length);
+                setStatuses(tableData.statuses)
             } else {
-                setModelDataLength(-1);
+                setCurrentPageDataLength(-1);
 
             }
 
@@ -57,14 +66,14 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
                     getModelDetails(rest)
                 }
             }
-        } else setModelDataLength(-1);
+        } else setCurrentPageDataLength(-1);
     }, [tableData]);
 
     const debouncedSearch = debounce(handleSearch, 400);
     const debouncedSearch2 = debounce(setQuery, 400);
 
     const handleChecked = (checked: boolean, itemId: string | number | null) => {
-        if (modelDataLength <= 0) return;
+        if (currentPageDataLength <= 0) return;
 
         if (itemId !== null) {
             if (checked) {
@@ -89,11 +98,20 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
     };
 
     useEffect(() => {
-        if (modelDataLength <= 0) return;
 
-        if (tableData && checkedItems?.length === tableData.data.length) setCheckedAllItems(true);
-        else setCheckedAllItems(false);
-    }, [checkedItems]);
+        if (currentPageDataLength <= 0 || !tableData) return;
+
+        const timed = setTimeout(() => {
+            const checkboxTableItems = document.querySelectorAll(`#${tableId} .checkbox-table-item`)?.length
+            if (checkboxTableItems) {
+                setVisibleItemsCounts(checkboxTableItems)
+                if (checkedItems?.length !== checkboxTableItems) setCheckedAllItems(false);
+            }
+        }, 1000);
+
+        return () => clearTimeout(timed)
+
+    }, [checkedItems, currentPageDataLength]);
 
     const [columns, setColumns] = useState(initCols)
 
@@ -113,8 +131,10 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
             };
 
             return (
-                <th key={key} scope='col' className='px-6 py-3 cursor-pointer' onClick={handleHeaderClick}>
-                    {Str.title(label || key.split('.')[0])}
+                <th key={key} scope='col' className='border-top'>
+                    <span className='px-6 py-3 cursor-pointer' onClick={handleHeaderClick}>
+                        {Str.title(label || key.split('.')[0])}
+                    </span>
                     {isSorted && (
                         <span className='ml-1'>
                             {sortDirection === 'asc' ? (
@@ -144,7 +164,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
     const autoActions = new AutoActions(modelDetails, tableData, navigate, list_sources, exclude, modalSize, customModalId)
 
     useEffect(() => {
-        if (modelDataLength) {
+        if (currentPageDataLength) {
 
             const autotableNavigateElements = document.querySelectorAll('.autotable .autotable-navigate');
             autotableNavigateElements.forEach((element) => {
@@ -177,7 +197,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
             };
         }
 
-    }, [navigate, modelDataLength, handleOrderBy]);
+    }, [navigate, currentPageDataLength, handleOrderBy]);
 
 
     function getDynamicValue(row: any, path: string) {
@@ -194,13 +214,13 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
 
     useEffect(() => {
         // Set opacity to 0 when the count changes
-        if (modelDataLength == -1) setCountOpacity(0);
+        if (currentPageDataLength == -1) setCountOpacity(0);
 
         // After a delay, reset opacity to 1
         const opacityTimeout = setTimeout(() => {
             if (tableData?.total)
                 setCountOpacity(1);
-            if (modelDataLength == 0)
+            if (currentPageDataLength == 0)
                 setCountOpacity(1);
         }, 300);
 
@@ -208,15 +228,77 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
         return () => clearTimeout(opacityTimeout);
     }, [tableData?.total]);
 
+
+    function handlehandleStatus(e: any) {
+        const val = e.target.checked
+        setStatus(val)
+        localStorage.setItem(`app.${tableId}.status`, JSON.stringify(val))
+    }
+
     return (
         <div id={id} className={`autotable shadow p-1 rounded my-3 relative shadow-md sm:rounded-lg`}>
-            <div className={`card overflow-auto overflow-x-auto ${modelDataLength >= 0 ? 'overflow-hidden' : 'overflow-auto'}`}>
+            <div className={`card`}>
                 <div className="card-header">
-                    <div className="d-flex align-items-center justify-content-end align-items-center text-muted gap-1">
-                        {!loading && <small title='Click to reload' className='cursor-pointer rounded px-1' onClick={reloadAutoTable}><Icon icon="mdi:reload"/></small>}
-                        <span className="autotable-record-counts" style={{ opacity: countOpacity }}>{tableData?.total.toLocaleString() || 0} {`${tableData?.total == 1 ? 'record' : 'records'}`}</span>
+                    <div className="row align-items-center justify-content-end align-items-center text-muted">
+                        <div className='col-12 col-xl-9 cursor-default'>
+                            <div className="d-flex align-items-center justify-content-start gap-3">
+                                {
+                                    checkedAllItems ?
+                                        <div className='d-inline bg-light p-1 rounded'><Icon icon={`prime:bookmark`} className='me-2' /><span>All {tableData?.total} records selected</span></div>
+                                        :
+                                        checkedItems.length > 0 &&
+                                        <>
+                                            {
+                                                checkedItems.length === visibleItemsCounts && checkedItems?.length !== tableData?.total ?
+                                                    <div className='d-inline bg-light p-1 rounded'><Icon icon={`prime:bookmark`} className='me-2' /><span>You have selected {visibleItemsCounts} items, <span className='text-info cursor-pointer' onClick={() => setCheckedAllItems(true)}>click here</span> to include {tableData?.total} records.</span></div>
+                                                    :
+                                                    <div className='d-inline bg-light p-1 rounded'><Icon icon={`prime:bookmark`} className='me-2' /><span>{checkedItems.length} records selected</span></div>
+                                            }
+                                        </>
+                                }
+                                {
+                                    checkedItems.length > 0 &&
+                                    <div style={{ minWidth: '160px' }} className='d-flex align-items-center gap-2'>
+                                        Status update:
+                                        <Select
+                                            className=''
+                                            options={statuses}
+                                            getOptionValue={(option: any) => `${option['id']}`}
+                                            getOptionLabel={(option: any) => Str.title(`${option['name']}`)}
+                                        />
+                                        <button className="btn btn-sm btn-primary">Save</button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div className='col-12 col-xl-3'>
+                            <div className="d-flex align-items-center justify-content-end gap-1">
+                                <div>
+                                    <div className='d-flex align-items-center justify-content-end gap-1'>
+                                        {!loading && <small title='Click to reload' className='cursor-pointer rounded px-1' onClick={reloadAutoTable}><Icon icon="mdi:reload" /></small>}
+                                        <small className="autotable-record-counts" style={{ opacity: countOpacity }}>{tableData?.total.toLocaleString() || 0} {`${tableData?.total == 1 ? 'record' : 'records'}`}</small>
+                                    </div>
+                                </div>
+                                <div className="p-2 align-items-center">
+                                    <small className="d-flex gap-1">
+                                        <input
+                                            className="form-check-input"
+                                            id='active_only'
+                                            type='checkbox'
+                                            name={`active_only`}
+                                            defaultChecked={status}
+                                            onChange={handlehandleStatus}
+                                        />
+                                        <label className="form-check-label" htmlFor={`active_only`}>
+                                            Active only
+                                        </label>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-                    <div className={`mt-2 h-6 px-3 pb-1 text-sm font-medium leading-none text-center text-blue-800 dark:text-white${modelDataLength >= 0 && loading ? ' animate-pulse' : ''}`}>{modelDataLength >= 0 && loading ? <Loader /> : ''}</div>
+                    <div className={`mt-2 h-6 px-3 pb-1 text-sm font-medium leading-none text-center text-blue-800 dark:text-white${currentPageDataLength >= 0 && loading ? ' animate-pulse' : ''}`}>{currentPageDataLength >= 0 && loading ? <Loader /> : ''}</div>
                     <div className="flex items-center justify-between pb-2 px-1.5 float-right gap-2">
                         <label htmlFor="table-search" className="sr-only d-none">Search</label>
                         {
@@ -251,35 +333,37 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
                     </div>
                 </div>
 
-                <div className="card-body">
+                <div className={`card-body overflow-auto overflow-x-auto ${currentPageDataLength >= 0 ? 'overflow-hidden' : 'overflow-auto'}`}>
                     <table className="table table-hover">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
-                                <th scope="col" className="p-x cursor-default col">
-                                    <div className="form-check">
-                                        <label className="form-check-label" htmlFor="checkbox-all-search">
-                                            <input
-                                                id="checkbox-all-search"
-                                                className="form-check-input" type="checkbox" value=""
-                                                checked={checkedAllItems}
-                                                onChange={(e) => handleChecked(e.target.checked, null)} />
-                                            All
-                                        </label>
-                                    </div>
+                                <th scope="col" className="border-top">
+                                    <span className='p-x cursor-pointer col'>
+                                        <span className="form-check">
+                                            <label className="form-check-label" htmlFor="checkbox-all-search">
+                                                <input
+                                                    id="checkbox-all-search"
+                                                    className="form-check-input" type="checkbox" value=""
+                                                    checked={checkedItems.length ? checkedItems.length === visibleItemsCounts || checkedItems.length == tableData?.total : false}
+                                                    onChange={(e) => handleChecked(e.target.checked, null)} />
+                                                <span className='cursor-pointer'>All</span>
+                                            </label>
+                                        </span>
+                                    </span>
 
                                 </th>
                                 {columns && renderTableHeaders(columns)}
                             </tr>
                         </thead>
                         <tbody>
-                            {(modelDataLength > 0 && tableData) ? tableData.data.map(row => (
+                            {(currentPageDataLength > 0 && tableData) ? tableData.data.map(row => (
                                 <tr key={row.id} className={`"bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600" ${loading === false ? 'opacity-100 transition-opacity duration-1000' : 'opacity-[0.9]'}`}>
                                     <td className="w-4 p-4">
                                         <div className="form-check">
                                             <label className="form-check-label" htmlFor={`checkbox-table-search-${row.id}`}>
                                                 <input
                                                     id={`checkbox-table-search-${row.id}`}
-                                                    className="form-check-input" type="checkbox"
+                                                    className="form-check-input checkbox-table-item" type="checkbox"
                                                     onChange={(e) => handleChecked(e.target.checked, row.id)}
                                                     checked={checkedItems.includes(row.id)} />
                                             </label>
@@ -321,7 +405,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
             </div>
             <div>
                 {
-                    (modelDataLength >= 0 && tableData) && tableData.per_page &&
+                    (currentPageDataLength >= 0 && tableData) && tableData.per_page &&
                     <Pagination items={tableData} setPage={setPage} setPerPage={setPerPage} hidePerPage={hidePerPage} loading={loading} />
                 }
             </div>

@@ -35,6 +35,7 @@ export interface CollectionItemsInterface {
     sortable: []
     htmls: []
     query: string
+    statuses: []
 }
 
 export interface Link {

@@ -24,7 +24,8 @@ const Fixtures = (props: Props) => {
                 baseUri='/admin/settings/system/job-logs/match?task=recent_results'
                 columns={columns}
                 search={true}
-            />
+                tableId='FixturesMatchJoblogsTable'
+                />
         </div>
     )
 }

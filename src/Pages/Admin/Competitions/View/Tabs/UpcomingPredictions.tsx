@@ -37,7 +37,7 @@ const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason 
                     <CompetitionHeader title="Upcoming Predictions" actionTitle="Do Predictions" actionButton="doPredictions" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
 
                     {baseUri &&
-                        <AutoTable key={baseUri} columns={predictionsColumns} baseUri={baseUri} search={true} tableId={'matchesTable'} customModalId="teamModal" />
+                        <AutoTable key={baseUri} columns={predictionsColumns} baseUri={baseUri} search={true} tableId={'competitionUpcomingPredictionsTable'} customModalId="teamModal" />
                     }
                     <GeneralModal title={`Predictions form`} actionUrl={`admin/competitions/view/${competition.id}/predict`} size={'modal-lg'} id={`doPredictions`}>
                         <div className="form-group mb-3">

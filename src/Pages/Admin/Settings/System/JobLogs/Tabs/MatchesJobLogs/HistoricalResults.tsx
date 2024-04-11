@@ -25,6 +25,7 @@ const HistoricalResults = (props: Props) => {
         baseUri='/admin/settings/system/job-logs/matches?task=historical_results'
         columns={columns}
         search={true}
+        tableId='HistoricalResultsMatchesJoblogsTable'
       />
     </div>
   )

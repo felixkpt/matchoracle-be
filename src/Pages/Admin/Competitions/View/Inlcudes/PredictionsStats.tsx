@@ -68,17 +68,17 @@ const PredictionsStats = ({ competition, selectedSeason, fromToDates, useDate }:
                         <div>
                             {data ? (
                                 <div className="row">
-                                    {renderProgressBar('Full Time Home Wins', data.full_time_home_wins_counts, data.full_time_home_wins_preds, data.full_time_home_wins_preds_true, data.full_time_home_wins_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Draws', data.full_time_draws_counts, data.full_time_draws_preds, data.full_time_draws_preds_true, data.full_time_draws_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Away Wins', data.full_time_away_wins_counts, data.full_time_away_wins_preds, data.full_time_away_wins_preds_true, data.full_time_away_wins_preds_true_percentage)}
-                                    {renderProgressBar('Full Time BTS - Yes', data.full_time_gg_counts, data.full_time_gg_preds, data.full_time_gg_preds_true, data.full_time_gg_preds_true_percentage)}
-                                    {renderProgressBar('Full Time BTS - No', data.full_time_ng_counts, data.full_time_ng_preds, data.full_time_ng_preds_true, data.full_time_ng_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Over 1.5', data.full_time_over15_counts, data.full_time_over15_preds, data.full_time_over15_preds_true, data.full_time_over15_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Under 1.5', data.full_time_under15_counts, data.full_time_under15_preds, data.full_time_under15_preds_true, data.full_time_under15_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Over 2.5', data.full_time_over25_counts, data.full_time_over25_preds, data.full_time_over25_preds_true, data.full_time_over25_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Under 2.5', data.full_time_under25_counts, data.full_time_under25_preds, data.full_time_under25_preds_true, data.full_time_under25_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Over 3.5', data.full_time_over35_counts, data.full_time_over35_preds, data.full_time_over35_preds_true, data.full_time_over35_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Under 3.5', data.full_time_under35_counts, data.full_time_under35_preds, data.full_time_under35_preds_true, data.full_time_under35_preds_true_percentage)}
+                                    {renderProgressBar('Full Time Home Wins', data.ft_home_wins_counts, data.ft_home_wins_preds, data.ft_home_wins_preds_true, data.ft_home_wins_preds_true_percentage)}
+                                    {renderProgressBar('Full Time Draws', data.ft_draws_counts, data.ft_draws_preds, data.ft_draws_preds_true, data.ft_draws_preds_true_percentage)}
+                                    {renderProgressBar('Full Time Away Wins', data.ft_away_wins_counts, data.ft_away_wins_preds, data.ft_away_wins_preds_true, data.ft_away_wins_preds_true_percentage)}
+                                    {renderProgressBar('Full Time BTS - Yes', data.ft_gg_counts, data.ft_gg_preds, data.ft_gg_preds_true, data.ft_gg_preds_true_percentage)}
+                                    {renderProgressBar('Full Time BTS - No', data.ft_ng_counts, data.ft_ng_preds, data.ft_ng_preds_true, data.ft_ng_preds_true_percentage)}
+                                    {renderProgressBar('Full Time Over 1.5', data.ft_over15_counts, data.ft_over15_preds, data.ft_over15_preds_true, data.ft_over15_preds_true_percentage)}
+                                    {renderProgressBar('Full Time Under 1.5', data.ft_under15_counts, data.ft_under15_preds, data.ft_under15_preds_true, data.ft_under15_preds_true_percentage)}
+                                    {renderProgressBar('Full Time Over 2.5', data.ft_over25_counts, data.ft_over25_preds, data.ft_over25_preds_true, data.ft_over25_preds_true_percentage)}
+                                    {renderProgressBar('Full Time Under 2.5', data.ft_under25_counts, data.ft_under25_preds, data.ft_under25_preds_true, data.ft_under25_preds_true_percentage)}
+                                    {renderProgressBar('Full Time Over 3.5', data.ft_over35_counts, data.ft_over35_preds, data.ft_over35_preds_true, data.ft_over35_preds_true_percentage)}
+                                    {renderProgressBar('Full Time Under 3.5', data.ft_under35_counts, data.ft_under35_preds, data.ft_under35_preds_true, data.ft_under35_preds_true_percentage)}
 
                                     <div className="col-12 mt-4">
                                         <h6 className="d-flex gap-2 justify-content-between">

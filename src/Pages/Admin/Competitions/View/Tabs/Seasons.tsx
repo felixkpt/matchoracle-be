@@ -31,7 +31,7 @@ const Seasons: React.FC<Props> = ({ record, selectedSeason }) => {
         <div>
           <CompetitionHeader title="Seasons" actionTitle="Fetch Seasons" actionButton={'fetchSeasons'} record={competition} />
 
-          <AutoTable key={selectedSeason?.id} columns={columns} baseUri={`admin/seasons?competition_id=${competition.id}`} search={true} tableId={'seasonsTable'} customModalId="teamModal" />
+          <AutoTable key={selectedSeason?.id} columns={columns} baseUri={`admin/seasons?competition_id=${competition.id}`} search={true} tableId={'competitionSeasonsTable'} customModalId="teamModal" />
 
           {
             competition &&

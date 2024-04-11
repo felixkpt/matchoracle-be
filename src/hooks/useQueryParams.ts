@@ -30,6 +30,7 @@ function useQueryParams() {
     get,
     set,
     remove,
+    queryParams,
   };
 }
 

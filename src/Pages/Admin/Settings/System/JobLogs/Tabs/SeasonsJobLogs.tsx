@@ -23,6 +23,7 @@ const SeasonsJobLogs = (props: Props) => {
         baseUri='/admin/settings/system/job-logs/seasons'
         columns={columns}
         search={true}
+        tableId='SeasonsJobLogs'
       />
     </div>
   )

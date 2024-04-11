@@ -26,6 +26,7 @@ const Index = () => {
                             search={true}
                             list_sources={list_sources}
                             perPage={200}
+                            tableId='oddsTable'
                         />
                     </div>
                     :

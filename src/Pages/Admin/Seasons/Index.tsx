@@ -27,6 +27,7 @@ const Seasons = () => {
                 columns={columns}
                 search={true}
                 list_sources={list_sources}
+                tableId='seasonsTable'
             />
         </div>
     );
