@@ -6,7 +6,6 @@ use App\Models\Game;
 use App\Models\GamePredictionType;
 use App\Models\GameVote;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\Team\TeamRepositoryInterface;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use App\Utilities\GamePredictionStatsUtility;

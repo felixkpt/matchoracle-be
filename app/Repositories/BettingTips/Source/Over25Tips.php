@@ -16,8 +16,8 @@ class Over25Tips
     private $proba_name = 'over25_proba';
     private $proba_threshold = 70;
 
-    private $proba_name2 = 'gg_proba';
-    private $proba_threshold2 = 55;
+    private $proba_name2 = 'ft_away_win_proba';
+    private $proba_threshold2 = 45;
 
     function singles()
     {

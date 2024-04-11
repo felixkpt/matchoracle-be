@@ -16,8 +16,8 @@ class Under25Tips
     private $proba_name = 'under25_proba';
     private $proba_threshold = 70;
 
-    private $proba_name2 = 'ng_proba';
-    private $proba_threshold2 = 55;
+    private $proba_name2 = 'ft_draw_proba';
+    private $proba_threshold2 = 40;
 
     function singles()
     {

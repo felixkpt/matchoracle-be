@@ -299,10 +299,10 @@ if (!function_exists('getUriFromUrl')) {
     }
 }
 
-if (!function_exists('default_prediction_type')) {
-    function default_prediction_type()
+if (!function_exists('current_prediction_type')) {
+    function current_prediction_type()
     {
-        return request()->current_prediction_type ?? 1103;
+        return request()->prediction_type_id ?? request()->current_prediction_type ?? 1107;
     }
 }
 

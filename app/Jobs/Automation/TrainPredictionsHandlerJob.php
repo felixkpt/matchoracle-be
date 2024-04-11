@@ -158,11 +158,11 @@ class TrainPredictionsHandlerJob implements ShouldQueue
     private function loggerModel($increment_job_run_counts = false)
     {
         $today = Carbon::now()->format('Y-m-d');
-        $record = TrainPredictionJobLog::where('prediction_type_id', default_prediction_type())->where('date', $today)->first();
+        $record = TrainPredictionJobLog::where('prediction_type_id', current_prediction_type())->where('date', $today)->first();
 
         if (!$record) {
             $arr = [
-                'prediction_type_id' => default_prediction_type(),
+                'prediction_type_id' => current_prediction_type(),
                 'date' => $today,
                 'job_run_counts' => 1,
                 'competition_run_counts' => 0,

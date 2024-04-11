@@ -48,7 +48,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         ])
             ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
             ->when(request()->is_odds_enabled == 1, fn ($q) => $q->where('is_odds_enabled', true))
-            ->when(request()->active_only == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->when($id, fn ($q) => $q->where('id', $id));
 
         $uri = '/admin/competitions/';

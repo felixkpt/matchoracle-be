@@ -7,6 +7,7 @@ use App\Models\Team;
 use App\Repositories\GameComposer;
 use App\Repositories\Team\TeamRepository;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class GameStatsUtility
 {
@@ -132,10 +133,13 @@ class GameStatsUtility
         ];
 
         request()->merge(['all_params' => $all_params]);
+        $threshold = floor($per_page * .8);
 
         $home_team_matches = app(TeamController::class)->matches($home_team_id)['data'];
 
-        if (count($home_team_matches) < $per_page) return null;
+        // Log::info('threshold: ' . $threshold . ' ct-->' . count($home_team_matches));
+
+        if (count($home_team_matches) < $threshold) return null;
 
 
         $all_params['team_id'] = $away_team_id;
@@ -143,7 +147,7 @@ class GameStatsUtility
 
         $away_team_matches = app(TeamController::class)->matches($away_team_id)['data'];
 
-        if (count($away_team_matches) < $per_page) return null;
+        if (count($away_team_matches) < $threshold) return null;
 
         $home_team_matches_with_stats = $this->calculateTeamStats($home_team_matches, $home_team_id);
         $away_team_matches_with_stats = $this->calculateTeamStats($away_team_matches, $away_team_id);
@@ -227,16 +231,17 @@ class GameStatsUtility
         ];
 
         request()->merge(['all_params' => $all_params]);
+        $threshold = floor($per_page * .8);
 
         // $home_team_matches = app(TeamController::class)->matches($home_team_id)['data'];
-        // if (count($home_team_matches) < $per_page) return null;
+        // if (count($home_team_matches) < $threshold) return null;
 
         $all_params['currentground'] = 'away';
         $all_params['team_id'] = $home_team_id;
         request()->merge(['all_params' => $all_params]);
 
         // $away_team_matches = app(TeamController::class)->matches($away_team_id)['data'];
-        // if (count($away_team_matches) < $per_page) return null;
+        // if (count($away_team_matches) < $threshold) return null;
 
         // $home_team_matches_with_stats = $this->calculateTeamStats($home_team_matches, $home_team_id);
         // $away_team_matches_with_stats = $this->calculateTeamStats($away_team_matches, $away_team_id);

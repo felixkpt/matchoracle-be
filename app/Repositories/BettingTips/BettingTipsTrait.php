@@ -29,8 +29,6 @@ trait BettingTipsTrait
             $results = $results->whereHas('sourcePrediction', fn ($q) => $q->where($this->proba_name, '>=', $this->proba_threshold)->where($this->proba_name2, '>=', $this->proba_threshold2));
         }
 
-        Log::info('FFF', [request()->prediction_mode_id]);
-
 
         $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, $this->outcome));
 
