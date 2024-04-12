@@ -7,11 +7,10 @@ $controller = UsersController::class;
 Route::get('/', [$controller, 'index'])->name('users.index')->icon('mdi:leads');
 Route::get('/create', [$controller, 'create'])->name('users.create')->icon('prime:bookmark')->hidden(true);
 Route::post('/', [$controller, 'store'])->name('users.store')->icon('c');
-
 Route::get('/search', [$controller, 'searchUsers']);
 Route::get('/emails', [$controller, 'searchEmails']);
 Route::get('/emailsSearch', [$controller, 'searchUserEmails']);
+Route::get('/export', [$controller, 'exportUsers']);
 
 Route::delete('/delete/{user}', [$controller, 'destroyUser']);
-
-Route::get('/export', [$controller, 'exportUsers']);
+Route::patch('/update-status', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)

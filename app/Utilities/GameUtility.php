@@ -69,6 +69,7 @@ class GameUtility
         request()->merge(['order_direction' => $order_direction]);
 
         $games = Game::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->when($team_id, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', $team_id)->orWhere('away_team_id', $team_id)))
             ->when($team_ids, fn ($q) => $this->teamsMatch($q, $team_ids, $playing))
             ->when($currentground, fn ($q) => $currentground == 'home' ? $q->where('home_team_id', $team_id) : ($currentground == 'away' ? $q->where('away_team_id', $team_id) :  $q))

@@ -29,3 +29,4 @@ Route::get('/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{e
 Route::post('/', [$controller, 'store'])->name('store match'); // Store a new match
 Route::put('/', [$controller, 'update'])->name('update match'); // Update an existing match
 Route::delete('/{id}', [$controller, 'destroy'])->name('destroy match'); // Delete a specific match
+Route::patch('/update-status', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)

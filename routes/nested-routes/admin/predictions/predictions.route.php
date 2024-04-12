@@ -27,6 +27,7 @@ Route::get('/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{e
 
 // Delete prediction route
 Route::delete('/{id}', [$controller, 'destroy'])->name('destroy prediction'); // Delete a specific prediction
+Route::patch('/update-status', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)
 
 // Routes for Python app integration
 Route::prefix('from-python-app')->group(function () use ($controller) {

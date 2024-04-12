@@ -28,16 +28,15 @@ class ForebetTestController extends Controller
         request()->merge(['shallow_fetch' => true]);
 
         $competition_id = 1330;
-
         // return $this->fetchSeasons($competition_id);
 
-        $competition = Competition::find($competition_id);
-        $season = Season::where('competition_id', $competition->id)->where('is_current', false)->first();
+        // $competition = Competition::find($competition_id);
+        // $season = Season::where('competition_id', $competition->id)->where('is_current', false)->first();
         // $season = Season::where('competition_id', $competition->id)->whereYear('start_date', '2016')->first();
 
         // return $this->fetchStandings($competition->id, $season->id);
-        return $this->fetchMatches($competition->id, $season->id, false);
-        return $this->fetchMatch(49568);
+        // return $this->fetchMatches($competition->id, $season->id, false);
+        return $this->fetchMatch(8985);
     }
 
     function fetchSeasons($competition_id)

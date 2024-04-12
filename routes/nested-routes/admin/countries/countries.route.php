@@ -9,3 +9,4 @@ Route::get('/where-has-club-teams', [$controller, 'whereHasClubTeams'])->name('C
 Route::get('/where-has-national-teams', [$controller, 'whereHasNationalTeams'])->name('National Teams');
 
 Route::post('/', [$controller, 'store'])->name('store country');
+Route::patch('/update-status', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)

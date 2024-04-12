@@ -12,6 +12,7 @@ use App\Utilities\GamePredictionStatsUtility;
 use App\Utilities\GameStatsUtility;
 use App\Utilities\GameUtility;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class GameRepository implements GameRepositoryInterface
 {
@@ -47,7 +48,12 @@ class GameRepository implements GameRepositoryInterface
             $results = (new GameStatsUtility())->addGameStatistics($results);
             $results = array_reverse($results->get()['data']->toArray());
 
-            return request()->task == 'train' && count($results) < 10 ? [] : $results;
+            // Use array_filter with an arrow function
+            $results = array_filter($results, fn ($item) => isset($item['stats']) && $item['stats']);
+
+            Log::info('RESULTS:: ', $results);
+
+            return request()->task == 'train' && count($results) < 50 ? [] : $results;
         } else {
 
             if ($id) {

@@ -76,7 +76,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
             })->addColumn('Predictions_last_train', function ($q) {
                 $item = $q->lastAction->predictions_last_train ?? null;
                 return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
-            })            
+            })
             ->addColumn('odds', fn ($q) => Odd::whereHas('game', fn ($qry) => $qry->where('competition_id', $q->id))->count())
             ->addActionItem(
                 [
@@ -309,4 +309,5 @@ class CompetitionRepository implements CompetitionRepositoryInterface
             "sources" => $this->model::find($id)->gameSources()->count(),
         ]]);
     }
+
 }

@@ -20,6 +20,8 @@ class PredictionsController extends Controller
         private GameRepositoryInterface $gameRepositoryInterface,
         private GamePredictionRepositoryInterface $gamePredictionRepositoryInterface,
     ) {
+        $this->repo = $gameRepositoryInterface;
+        
         $this->predictionModeId = request()->prediction_mode_id;
 
         $arr = [

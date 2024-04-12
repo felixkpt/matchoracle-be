@@ -16,6 +16,7 @@ class MatchesController extends Controller
     function __construct(
         private GameRepositoryInterface $gameRepositoryInterface,
     ) {
+        $this->repo = $gameRepositoryInterface;
     }
 
     function index($competition_id = null)

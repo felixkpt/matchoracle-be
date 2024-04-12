@@ -27,6 +27,11 @@ trait CommonMethods
         return $this->repo->updateStatus($id);
     }
 
+    function updateStatuses(Request $request)
+    {
+        return $this->repo->updateStatuses($request);
+    }
+
     /**
      * Remove the specified resource from storage.
      */

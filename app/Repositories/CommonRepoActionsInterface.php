@@ -2,6 +2,8 @@
 
 namespace App\Repositories;
 
+use Illuminate\Http\Request;
+
 interface CommonRepoActionsInterface
 {
 
@@ -9,6 +11,7 @@ interface CommonRepoActionsInterface
 
     function updateStatus($id);
 
-    function destroy($id);
+    function updateStatuses(Request $request);
 
+    function destroy($id);
 }

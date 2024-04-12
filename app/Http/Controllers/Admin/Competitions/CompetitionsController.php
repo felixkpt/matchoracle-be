@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Competitions;
 
+use App\Http\Controllers\CommonMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Competition\CompetitionRepositoryInterface;
 use App\Services\Validations\Competition\CompetitionValidationInterface;
@@ -9,11 +10,13 @@ use Illuminate\Http\Request;
 
 class CompetitionsController extends Controller
 {
+    use CommonMethods;
 
     function __construct(
         private CompetitionRepositoryInterface $competitionRepositoryInterface,
         private CompetitionValidationInterface $competitionValidationInterface,
     ) {
+        $this->repo = $competitionRepositoryInterface;
     }
 
     function index()
@@ -31,9 +34,9 @@ class CompetitionsController extends Controller
     {
 
         if ($request->competition_origin == 'source') {
-        
+
             $data = $this->competitionValidationInterface->storeFromSource();
-        
+
             return $this->competitionRepositoryInterface->storeFromSource($request, $data);
         }
 
@@ -49,4 +52,5 @@ class CompetitionsController extends Controller
 
         return $this->competitionRepositoryInterface->storeFetch($request);
     }
+
 }

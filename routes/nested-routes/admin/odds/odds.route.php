@@ -23,3 +23,4 @@ Route::get('/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{e
 Route::post('/', [$controller, 'store'])->name('store odds');
 Route::put('/', [$controller, 'update'])->name('update odds');
 Route::delete('/{id}', [$controller, 'destroy'])->name('destroy odds');
+Route::patch('/update-status', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)
