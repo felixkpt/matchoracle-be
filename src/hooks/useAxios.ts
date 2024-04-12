@@ -10,7 +10,7 @@ interface AxiosResponseWithData<T> extends AxiosResponse {
 }
 
 const useAxios = <T = any>() => {
-   
+
     axios.defaults.baseURL = baseURL('api');
 
     const [data, setData] = useState<T | null>(null);
@@ -79,7 +79,7 @@ const useAxios = <T = any>() => {
                     const msg = axiosError.response?.data?.message || 'An error occurred.'
                     const errors = axiosError.response?.data?.errors
                     setErrors(msg, elementId);
-                    
+
                     if (status && status !== 200 && status !== 201 && status !== 401 && (!errors || status !== 422)) {
                         publish('notification', { message: msg, type: 'error', status })
                     }
@@ -115,7 +115,7 @@ const useAxios = <T = any>() => {
     const get = (url: string, config = {}) => fetchData({ method: 'GET', url, ...config });
     const post = (url: string, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config });
     const put = (url: string, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config, _method: 'patch' });
-    const patch = (url: string, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config, _method: 'patch' });
+    const patch = (url: string, data = {}, config = {}) => fetchData({ method: 'PATCH', url, data, ...config });
     const destroy = (url: string, data = {}, config = {}) => fetchData({ method: 'DELETE', url, ...config });
     const getFile = async (url: string, config = {}, placeholder: string | null = null) => {
 

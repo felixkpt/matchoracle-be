@@ -36,6 +36,7 @@ export interface CollectionItemsInterface {
     htmls: []
     query: string
     statuses: []
+    module_uri: string
 }
 
 export interface Link {
@@ -62,7 +63,7 @@ export interface ResponseDataInterface {
     data: any;
 }
 
-interface ColumnInterface {
+export interface ColumnInterface {
     label?: string
     key: string
     column?: string

@@ -10,12 +10,14 @@ import AutoActions from './AutoActions';
 import Str from '@/utils/Str';
 import Loader from './Loader';
 import Select from 'react-select';
+import AutoTableHeader from './AutoTableHeader';
+import useAxios from '@/hooks/useAxios';
 
 function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
-const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getModelDetails, list_sources, tableId, modalSize, customModalId, perPage }: AutoTableInterface) => {
+const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetails, list_sources, tableId, modalSize, customModalId, perPage }: AutoTableInterface) => {
     const id = tableId ? tableId : 'AutoTable'
 
     const {
@@ -29,20 +31,24 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
         hidePerPage,
         status,
         setStatus,
-    } = useAutoTableEffect(baseUri, listUri, tableId, { perPage });
+        fullQueryString,
+    } = useAutoTableEffect(baseUri, tableId, { perPage });
 
     const [statuses, setStatuses] = useState<(string | number)[]>([]);
+    const [selectedStatus, setSelectedStatus] = useState<(string)>();
+    const [moduleUri, setModuleUri] = useState<(string)>('');
 
     const [visibleItemsCounts, setVisibleItemsCounts] = useState<number>(0);
     const [checkedAllItems, setCheckedAllItems] = useState<boolean>(false);
 
     const [checkedItems, setCheckedItems] = useState<(string | number)[]>([]);
-    const [checkedAllCurrentItems, setCheckedAllCurrentItems] = useState<boolean>(false);
     const [currentPageDataLength, setCurrentPageDataLength] = useState<number>(-1);
 
     const [modelDetails, setModelDetails] = useState({})
     const [htmls, setHtmls] = useState<string[]>([])
     const [query, setQuery] = useState<string>('')
+    const { patch: statusesUpdate, loading: statusesLoading, errors: statusesErrors } = useAxios()
+
 
     useEffect(() => {
         if (tableData) {
@@ -50,9 +56,10 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
             if (tableData?.data?.length >= 0) {
                 setCurrentPageDataLength(tableData.data.length);
                 setStatuses(tableData.statuses)
+                setSelectedStatus(tableData.statuses[0])
+                setModuleUri(tableData.module_uri)
             } else {
                 setCurrentPageDataLength(-1);
-
             }
 
             const { data, ...others } = tableData
@@ -114,40 +121,6 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
     }, [checkedItems, currentPageDataLength]);
 
     const [columns, setColumns] = useState(initCols)
-
-    const renderTableHeaders = (columns: any) => {
-        return columns.map((column: any) => {
-            const { label, key, isSorted, sortDirection } = column;
-
-            const handleHeaderClick = () => {
-                const newColumns = columns.map((c: any) => ({
-                    ...c,
-                    isSorted: c.key === key,
-                    sortDirection: c.key === key ? (c.sortDirection === 'asc' ? 'desc' : 'asc') : '',
-                }));
-
-                handleOrderBy(key);
-                setColumns(newColumns);
-            };
-
-            return (
-                <th key={key} scope='col' className='border-top'>
-                    <span className='px-6 py-3 cursor-pointer' onClick={handleHeaderClick}>
-                        {Str.title(label || key.split('.')[0])}
-                    </span>
-                    {isSorted && (
-                        <span className='ml-1'>
-                            {sortDirection === 'asc' ? (
-                                <Icon icon="fluent:caret-up-20-filled" />)
-                                : (
-                                    <Icon icon="fluent:caret-down-20-filled" />
-                                )}
-                        </span>
-                    )}
-                </th>
-            );
-        });
-    };
 
     useEffect(() => {
         subscribe('reloadAutoTable', reloadAutoTable)
@@ -228,8 +201,27 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
         return () => clearTimeout(opacityTimeout);
     }, [tableData?.total]);
 
+    const massUpdateStatuse = (e: any) => {
+        const btnSaving = e.currentTarget
 
-    function handlehandleStatus(e: any) {
+        if (btnSaving.classList.contains('btn-saving')) return
+
+        btnSaving.classList.add('btn-saving', 'cursor-progress')
+        btnSaving.querySelector('.statuses-loader').classList.remove('d-none')
+
+        const updateUri = moduleUri + `update-status?${fullQueryString}`
+
+        statusesUpdate(updateUri, { ids: checkedAllItems ? 'all' : checkedItems, status_id: selectedStatus?.id }).then((results: any) => {
+            if (results) {
+                reloadAutoTable()
+                setCheckedItems([])
+                btnSaving.classList.remove('btn-saving', 'cursor-progress')
+                btnSaving.querySelector('.statuses-loader').classList.add('d-none')
+            }
+        })
+    }
+
+    function handleStatus(e: any) {
         const val = e.target.checked
         setStatus(val)
         localStorage.setItem(`app.${tableId}.status`, JSON.stringify(val))
@@ -263,10 +255,12 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
                                         <Select
                                             className=''
                                             options={statuses}
+                                            value={selectedStatus}
+                                            onChange={setSelectedStatus}
                                             getOptionValue={(option: any) => `${option['id']}`}
                                             getOptionLabel={(option: any) => Str.title(`${option['name']}`)}
                                         />
-                                        <button className="btn btn-sm btn-primary">Save</button>
+                                        <button className="btn btn-sm btn-primary d-flex align-items-center gap-1" onClick={(e) => massUpdateStatuse(e)}><div className="statuses-loader d-none"><Loader message='' /></div>Submit</button>
                                     </div>
                                 }
                             </div>
@@ -287,7 +281,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
                                             type='checkbox'
                                             name={`active_only`}
                                             defaultChecked={status}
-                                            onChange={handlehandleStatus}
+                                            onChange={handleStatus}
                                         />
                                         <label className="form-check-label" htmlFor={`active_only`}>
                                             Active only
@@ -352,7 +346,7 @@ const AutoTable = ({ baseUri, listUri, search, columns: initCols, exclude, getMo
                                     </span>
 
                                 </th>
-                                {columns && renderTableHeaders(columns)}
+                                {columns && <AutoTableHeader columns={columns} handleOrderBy={handleOrderBy} setColumns={setColumns} />}
                             </tr>
                         </thead>
                         <tbody>

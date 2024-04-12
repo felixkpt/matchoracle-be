@@ -2,33 +2,40 @@ import { useEffect, useState } from 'react';
 import useAxios from './useAxios';
 import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces';
 import queryString from 'query-string';
+import { ParsedQuery } from 'query-string';
+import { useParams } from 'react-router-dom';
 
 interface AutoTableOptionsInterface {
-    perPage: number | undefined
+    perPage?: string | undefined;
 }
 
-const useAutoTableEffect = (baseUri: string, listUri: string | undefined, tableId: string | undefined, options: AutoTableOptionsInterface) => {
+const useAutoTableEffect = (
+    baseUri: string,
+    tableId: string | undefined,
+    options: AutoTableOptionsInterface
+) => {
     const [tableData, setTableData] = useState<CollectionItemsInterface | null>(null);
-    const [page, setPage] = useState<number | string>(1);
-    const [per_page, setPerPage] = useState<number | string>(options.perPage || 50);
+    const [page, setPage] = useState<string | undefined>('1');
+    const [per_page, setPerPage] = useState<string | undefined>(options.perPage || '50');
     const [orderBy, setOrderBy] = useState<string | undefined>(undefined);
     const [orderDirection, setOrderDirection] = useState<string>('desc');
     const [q, setQuery] = useState<string | undefined>(undefined);
     const [reload, setReload] = useState<number>(0);
     const [hidePerPage, setHidePerPage] = useState<boolean>(false);
-    const [params, setParams] = useState<{ [key: string]: string | undefined }>({});
-    const [url, setUrl] = useState<string>(`${baseUri}${listUri ? '/' + listUri : ''}`);
-    const [status, setStatus] = useState<boolean>(() => {
-        const stored_state = localStorage.getItem(`app.${tableId}.status`)
-        let show = false
-        if (stored_state)
-            show = JSON.parse(stored_state)
+    const [fullQueryString, setFullQueryString] = useState<string>(baseUri);
+    const { id } = useParams<hany>();
 
-        return show
-    })
+    const [status, setStatus] = useState<number | undefined>(() => {
+        const stored_state = localStorage.getItem(`app.${tableId}.status`);
+        let show = 0; // default to 0 (false)
+        if (stored_state) {
+            show = JSON.parse(stored_state) ? 1 : 0;
+        }
+        return show;
+    });
 
     // Initialize useAxios with the desired endpoint for fetching the data
-    const { data, loading, error, get } = useAxios();
+    const { data, loading, get } = useAxios();
 
     useEffect(() => {
         fetchData();
@@ -36,26 +43,33 @@ const useAutoTableEffect = (baseUri: string, listUri: string | undefined, tableI
 
     async function fetchData() {
         try {
+            const mergedParams = <{ [key: string]: string | undefined }>{ };
+            mergedParams['id'] = id || '';
+            mergedParams['q'] = q;
+            mergedParams['status'] = status ? '1' : '0';
+            mergedParams['page'] = page;
+            mergedParams['per_page'] = per_page;
+            mergedParams['order_by'] = orderBy;
+            mergedParams['order_direction'] = orderDirection;
 
-            const mergedParams = { ...params };
-            mergedParams['q'] = q
-            mergedParams['status'] = status ? 1 : 0
-            mergedParams['page'] = page
-            mergedParams['per_page'] = per_page
-            mergedParams['order_by'] = orderBy
-            mergedParams['order_direction'] = orderDirection
+            // Cast parsedUrlParams to ParsedQuery<string | undefined>
+            const parsedUrlParams = queryString.parseUrl(baseUri).query as ParsedQuery<string | undefined>;
 
-            const parsedUrlParams = queryString.parseUrl(url).query;
-            const newUrl = queryString.parseUrl(url).url
+            // Ensure parsedUrlParams is of type { [key: string]: string | undefined }
+            const queryParams: { [key: string]: string | undefined } = parsedUrlParams ? parsedUrlParams : {};
+
+            const newUrl = queryString.parseUrl(baseUri).url;
 
             // Merge parameters from the provided URL with the hook-managed parameters
-            Object.keys(parsedUrlParams).forEach(key => {
+            Object.keys(queryParams).forEach((key) => {
                 if (!(key in mergedParams)) {
-                    mergedParams[key] = parsedUrlParams[key];
+                    mergedParams[key] = queryParams[key];
                 }
             });
 
             const queryStringParams = queryString.stringify(mergedParams);
+            setFullQueryString(queryStringParams)
+
             const finalUrl = `${newUrl}?${queryStringParams}`;
 
             // Check if the URL contains 'hide_per_page'
@@ -73,7 +87,7 @@ const useAutoTableEffect = (baseUri: string, listUri: string | undefined, tableI
     useEffect(() => {
         // Update the tableData state with the fetched data
         setTableData(data);
-    }, [data])
+    }, [data]);
 
     function handleOrderBy(key: string) {
         if (key === orderBy) setOrderDirection((orderDirection) => (orderDirection === 'asc' ? 'desc' : 'asc'));
@@ -95,6 +109,7 @@ const useAutoTableEffect = (baseUri: string, listUri: string | undefined, tableI
         hidePerPage,
         status,
         setStatus,
+        fullQueryString,
     };
 };
 

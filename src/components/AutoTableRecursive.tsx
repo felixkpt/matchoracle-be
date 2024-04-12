@@ -6,15 +6,13 @@ import { convertToTitleCase } from '@/utils/helpers';
 
 interface Props {
   baseUri: any
-  listUri: any
   search: any
   sortColumns: any
 }
 
-const AutoTableRecursive = ({ baseUri, listUri, search, sortColumns }: Props) => {
+const AutoTableRecursive = ({ baseUri, search, sortColumns }: Props) => {
   const { tableData, loading, handleOrderBy, handleSearch, setPage, setPerPage } = useAutoTableEffect(
-    baseUri,
-    listUri
+    baseUri
   );
 
   const [modelDataLength, setModelDataLength] = useState<number>(-1);
