@@ -49,7 +49,7 @@ class GameRepository implements GameRepositoryInterface
             $results = array_reverse($results->get()['data']->toArray());
 
             // Use array_filter with an arrow function
-            $results = array_filter($results, fn ($item) => isset($item['stats']) && $item['stats']);
+            $results = array_values(array_filter($results, fn ($item) => isset($item['stats']) && $item['stats']));
 
             Log::info('RESULTS:: ', $results);
 
