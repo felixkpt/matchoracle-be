@@ -18,7 +18,6 @@ const AjaxPost = () => {
 
         const formElement = event.detail.nativeEvent.target; // Get the form element
         const formData = new FormData(formElement); // Create a FormData object from the form
-
         const moreData = event.detail?.moreData || []
         for (const key in moreData) {
 
@@ -46,6 +45,11 @@ const AjaxPost = () => {
         if (button) {
             button.disabled = true
             button.classList.add('disabled')
+
+            if (button.classList.contains('btn-saving')) return
+            button.classList.add('btn-saving', 'cursor-progress')
+            button.querySelector('.submit-btn-loader').classList.remove('d-none')
+
         }
 
         let results
@@ -67,6 +71,8 @@ const AjaxPost = () => {
         if (button) {
             button.disabled = false
             button.classList.remove('disabled')
+            button.classList.remove('btn-saving', 'cursor-progress')
+            button.querySelector('.submit-btn-loader').classList.add('d-none')
         }
 
     };

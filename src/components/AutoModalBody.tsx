@@ -122,6 +122,7 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
             const detail = event.detail;
 
             if (detail.results) {
+          
                 if (detail.elementId === id && setKey) {
                     setTimeout(() => {
                         setKey((curr) => curr + 1);

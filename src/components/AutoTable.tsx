@@ -4,14 +4,14 @@ import Pagination from './Pagination';
 import { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
-import { subscribe, unsubscribe } from '@/utils/events';
+import { publish, subscribe, unsubscribe } from '@/utils/events';
 import { AutoTableInterface } from '../interfaces/UncategorizedInterfaces';
 import AutoActions from './AutoActions';
 import Str from '@/utils/Str';
-import Loader from './Loader';
 import Select from 'react-select';
 import AutoTableHeader from './AutoTableHeader';
-import useAxios from '@/hooks/useAxios';
+import SubmitButton from './SubmitButton';
+import Loader from './Loader';
 
 function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
@@ -47,7 +47,6 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     const [modelDetails, setModelDetails] = useState({})
     const [htmls, setHtmls] = useState<string[]>([])
     const [query, setQuery] = useState<string>('')
-    const { patch: statusesUpdate, loading: statusesLoading, errors: statusesErrors } = useAxios()
 
 
     useEffect(() => {
@@ -132,6 +131,29 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
         setReload((curr) => curr + 1)
     }
 
+    useEffect(() => {
+
+        subscribe('ajaxPostDone', handleAjaxPostDone as EventListener);
+
+        return () => unsubscribe('ajaxPostDone', handleAjaxPostDone as EventListener);
+
+    }, [])
+
+    const handleAjaxPostDone = (event: CustomEvent<{ [key: string]: any }>) => {
+
+        if (event.detail) {
+            const detail = event.detail;
+
+            if (detail.results) {
+                if (detail.elementId === 'statusesUpdate') {
+                    setReload((curr) => curr + 1)
+                    setCheckedItems([])
+                }
+            }
+        }
+    }
+
+
     const navigate = useNavigate()
 
     const autoActions = new AutoActions(modelDetails, tableData, navigate, list_sources, exclude, modalSize, customModalId)
@@ -201,26 +223,6 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
         return () => clearTimeout(opacityTimeout);
     }, [tableData?.total]);
 
-    const massUpdateStatuse = (e: any) => {
-        const btnSaving = e.currentTarget
-
-        if (btnSaving.classList.contains('btn-saving')) return
-
-        btnSaving.classList.add('btn-saving', 'cursor-progress')
-        btnSaving.querySelector('.statuses-loader').classList.remove('d-none')
-
-        const updateUri = moduleUri + `update-status?${fullQueryString}`
-
-        statusesUpdate(updateUri, { ids: checkedAllItems ? 'all' : checkedItems, status_id: selectedStatus?.id }).then((results: any) => {
-            if (results) {
-                reloadAutoTable()
-                setCheckedItems([])
-                btnSaving.classList.remove('btn-saving', 'cursor-progress')
-                btnSaving.querySelector('.statuses-loader').classList.add('d-none')
-            }
-        })
-    }
-
     function handleStatus(e: any) {
         const val = e.target.checked
         setStatus(val)
@@ -242,7 +244,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                                         <>
                                             {
                                                 checkedItems.length === visibleItemsCounts && checkedItems?.length !== tableData?.total ?
-                                                    <div className='d-inline bg-light p-1 rounded'><Icon icon={`prime:bookmark`} className='me-2' /><span>You have selected {visibleItemsCounts} items, <span className='text-info cursor-pointer' onClick={() => setCheckedAllItems(true)}>click here</span> to include {tableData?.total} records.</span></div>
+                                                    <div className='d-inline bg-light p-1 rounded'><Icon icon={`prime:bookmark`} className='me-2' /><span>You have selected {visibleItemsCounts} items, <span className='text-info cursor-pointer' onClick={() => setCheckedAllItems(true)}>click here</span> to include all {tableData?.total} records.</span></div>
                                                     :
                                                     <div className='d-inline bg-light p-1 rounded'><Icon icon={`prime:bookmark`} className='me-2' /><span>{checkedItems.length} records selected</span></div>
                                             }
@@ -250,18 +252,22 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                                 }
                                 {
                                     checkedItems.length > 0 &&
-                                    <div style={{ minWidth: '160px' }} className='d-flex align-items-center gap-2'>
-                                        Status update:
-                                        <Select
-                                            className=''
-                                            options={statuses}
-                                            value={selectedStatus}
-                                            onChange={setSelectedStatus}
-                                            getOptionValue={(option: any) => `${option['id']}`}
-                                            getOptionLabel={(option: any) => Str.title(`${option['name']}`)}
-                                        />
-                                        <button className="btn btn-sm btn-primary d-flex align-items-center gap-1" onClick={(e) => massUpdateStatuse(e)}><div className="statuses-loader d-none"><Loader message='' /></div>Submit</button>
-                                    </div>
+                                    <form key={0} method='post' id='statusesUpdate' action-url={moduleUri + `update-status?${fullQueryString}`} onSubmit={(e) => publish('ajaxPost', e)}>
+                                        <input type="hidden" name='_method' value='patch' />
+                                        <input type="hidden" name='ids' value={checkedAllItems ? 'all' : checkedItems} />
+                                        <div style={{ minWidth: '160px' }} className='d-flex align-items-center gap-2'>
+                                            Status update:
+                                            <Select
+                                                name='status_id'
+                                                options={statuses}
+                                                value={selectedStatus}
+                                                onChange={setSelectedStatus}
+                                                getOptionValue={(option: any) => `${option['id']}`}
+                                                getOptionLabel={(option: any) => Str.title(`${option['name']}`)}
+                                            />
+                                            <SubmitButton />
+                                        </div>
+                                    </form>
                                 }
                             </div>
                         </div>
