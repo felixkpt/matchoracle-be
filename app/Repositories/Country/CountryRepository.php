@@ -22,10 +22,12 @@ class CountryRepository implements CountryRepositoryInterface
     public function index($filter = false, $ids = null)
     {
 
-        $countries = $this->model::where('has_competitions', true)->where('continent_id', '!=', get_world_id())->with(['continent', 'competitions'])
+        $countries = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->where('has_competitions', true)->where('continent_id', '!=', get_world_id())->with(['continent', 'competitions'])
             ->when($filter, fn ($q) => $q->whereIn('id', $ids));
 
-        Log::critical("country message", [Storage::disk('local')->get('')]);
+        if ($this->applyFiltersOnly) return $countries;
 
         $uri = '/admin/countries/';
         $res = SearchRepo::of($countries, ['id', 'name'])
@@ -45,7 +47,7 @@ class CountryRepository implements CountryRepositoryInterface
 
     function whereHasClubTeams()
     {
-        $ids = $this->model::where('has_competitions', true)->get()->pluck('id');
+        $ids = $this->model::query()->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))->where('has_competitions', true)->get()->pluck('id');
 
         return $this->index(true, $ids);
     }
@@ -67,7 +69,7 @@ class CountryRepository implements CountryRepositoryInterface
 
     public function show($id)
     {
-        $competition = $this->model::where('id', $id);
+        $competition = $this->model::query()->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))->where('id', $id);
 
         $uri = '/admin/countries/';
         $statuses = SearchRepo::of($competition, ['id', 'name', 'slug'])

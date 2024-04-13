@@ -19,7 +19,8 @@ class ContinentRepository implements ContinentRepositoryInterface
     public function index()
     {
 
-        $continents = $this->model::query();
+        $continents = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()));
 
         if ($this->applyFiltersOnly) return $continents;
 

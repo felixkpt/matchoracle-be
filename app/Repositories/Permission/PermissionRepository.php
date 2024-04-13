@@ -27,7 +27,9 @@ class PermissionRepository implements PermissionRepositoryInterface
     public function index()
     {
 
-        $permissions = $this->model::whereNull('uri');
+        $permissions = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->whereNull('uri');
 
         $uri = '/admin/settings/role-permissions/permissions/';
         $permissions = SearchRepo::of($permissions, ['name', 'id'])
@@ -65,7 +67,9 @@ class PermissionRepository implements PermissionRepositoryInterface
     {
 
         if ($id === 'all') {
-            $permissions = $this->model::whereNotNull('uri');
+            $permissions = $this->model::query()
+                ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+                ->whereNotNull('uri');
         } else {
             $permission = Role::findOrFail($id);
             $permissions = $permission->permissions();

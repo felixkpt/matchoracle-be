@@ -18,6 +18,7 @@ use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class CompetitionRepository implements CompetitionRepositoryInterface
 {
@@ -38,17 +39,18 @@ class CompetitionRepository implements CompetitionRepositoryInterface
     public function index($single = false, $id = null)
     {
 
-        $competitions = $this->model::with([
-            'lastAction',
-            'continent', 'country', 'currentSeason',
-            'seasons' => fn ($q) => $q->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
-                ->select(['id', 'competition_id', 'start_date', 'end_date', 'current_matchday', 'winner_id']),
-            'stages', 'gameSources',
+        $competitions = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->with([
+                'lastAction',
+                'continent', 'country', 'currentSeason',
+                'seasons' => fn ($q) => $q->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
+                    ->select(['id', 'competition_id', 'start_date', 'end_date', 'current_matchday', 'winner_id']),
+                'stages', 'gameSources',
 
-        ])
+            ])
             ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
             ->when(request()->is_odds_enabled == 1, fn ($q) => $q->where('is_odds_enabled', true))
-            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->when($id, fn ($q) => $q->where('id', $id));
 
         if ($this->applyFiltersOnly)
@@ -294,6 +296,19 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         $results = [];
 
         return response(['message' => $messages, 'results' => $results]);
+    }
+
+    function getDatesWithGames($id)
+    {
+        $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
+        $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
+
+        $dates = $this->model::find($id)->games()->whereDate('utc_date', '>=', $from_date)->whereDate('utc_date', '<=', $to_date)->orderBy('utc_date')->pluck('utc_date')->toArray();
+
+        $dates = array_values(array_unique(array_map(fn($date) => Carbon::parse($date)->format('Y-m-d'), $dates)));
+        
+        return response(['results' => $dates]);
+
     }
 
     function tabs($id)

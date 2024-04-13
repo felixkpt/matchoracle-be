@@ -24,9 +24,13 @@ class TeamRepository implements TeamRepositoryInterface
     public function index($id = null)
     {
 
-        $teams = $this->model::with(['country', 'competition', 'address', 'venue', 'coachContract' => fn ($q) => $q->with('coach'), 'gameSources'])
+        $teams = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->with(['country', 'competition', 'address', 'venue', 'coachContract' => fn ($q) => $q->with('coach'), 'gameSources'])
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
             ->when($id, fn ($q) => $q->where('id', $id));
+
+        if ($this->applyFiltersOnly) return $teams;
 
         $uri = '/admin/teams/';
         $results = SearchRepo::of($teams, ['id', 'name'])

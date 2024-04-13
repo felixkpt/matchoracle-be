@@ -28,11 +28,15 @@ class SeasonRepository implements SeasonRepositoryInterface
     public function index($id = null)
     {
 
-        $seasons = $this->model::with(['competition', 'winner'])
+        $seasons = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->with(['competition', 'winner'])
             ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
             ->when(request()->id, fn ($q) => $q->where('id', request()->id))
             ->when($id, fn ($q) => $q->where('id', $id));
+
+        if ($this->applyFiltersOnly) return $seasons;
 
         $uri = '/admin/seasons/';
         $results = SearchRepo::of($seasons, ['start_date'])

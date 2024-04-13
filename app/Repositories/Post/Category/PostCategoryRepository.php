@@ -24,9 +24,13 @@ class PostCategoryRepository implements PostCategoryRepositoryInterface
     {
 
         $postcats = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->when(isset(request()->id) && request()->id > 0, fn ($q) => $q->where('id', request()->id))
             ->when(isset(request()->n_id) && request()->n_id > 0, fn ($q) => $q->where('id', '!=', request()->n_id))
             ->when(isset(request()->parent_category_id), fn ($q) => $q->where('parent_category_id', request()->parent_category_id));
+
+        if ($this->applyFiltersOnly) return $postcats;
+
         $res = SearchRepo::of($postcats, ['id', 'name', 'image'])
             ->addColumn('name', function ($item) {
 

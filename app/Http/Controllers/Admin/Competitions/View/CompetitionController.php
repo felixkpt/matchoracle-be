@@ -3,18 +3,18 @@
 namespace App\Http\Controllers\Admin\Competitions\View;
 
 use App\Http\Controllers\Admin\Competitions\CompetitionsController;
+use App\Http\Controllers\CommonMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Competition\CompetitionRepositoryInterface;
-use App\Repositories\TeamRepository;
 use App\Services\Common;
 use App\Services\Games\Games;
 use App\Services\Validations\Competition\CompetitionValidationInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class CompetitionController extends Controller
 {
+    use CommonMethods;
 
     public function __construct(
         private CompetitionRepositoryInterface $competitionRepositoryInterface,
@@ -129,7 +129,6 @@ class CompetitionController extends Controller
         return app(CompetitionsController::class)->store($request);
     }
 
-
     function show($id)
     {
         return $this->competitionRepositoryInterface->show($id);
@@ -184,17 +183,17 @@ class CompetitionController extends Controller
     {
         return $this->competitionRepositoryInterface->odds($id);
     }
-    
+
     function statistics($id)
     {
         return $this->competitionRepositoryInterface->statistics($id);
     }
-    
+
     function predictionStatistics($id)
     {
         return $this->competitionRepositoryInterface->predictionStatistics($id);
     }
-    
+
     function doStatistics($id)
     {
         return $this->competitionRepositoryInterface->doStatistics($id);
@@ -202,6 +201,11 @@ class CompetitionController extends Controller
     function tabs($id)
     {
         return $this->competitionRepositoryInterface->tabs($id);
+    }
+
+    function getDatesWithGames($id)
+    {
+        return $this->competitionRepositoryInterface->getDatesWithGames($id);
     }
 
     function updateStatus($id)

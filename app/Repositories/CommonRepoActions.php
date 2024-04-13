@@ -60,7 +60,7 @@ trait CommonRepoActions
                 $ids = explode(',', $ids);
 
                 $builder->whereIn('id', $ids)->update($arr);
-                $msg = count($ids) . ' record statuses updated.';
+                $msg = count($ids) . ' records statuses updated.';
             }
         }
 

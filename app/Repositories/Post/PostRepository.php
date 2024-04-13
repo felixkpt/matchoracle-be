@@ -27,14 +27,18 @@ class PostRepository implements PostRepositoryInterface
         //     'Post 5' => fn () => Post::first(),
         // ]);
 
-        $uri = '/admin/posts/';
-        $posts = $this->model::with(['user', 'status'])
+        $posts = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->with(['user', 'status'])
             ->when(isset(request()->category_id) && request()->category_id > 0, fn ($q) => $q->where('category_id', request()->category_id));
 
+        if ($this->applyFiltersOnly) return $posts;
+
+        $uri = '/admin/posts/';
         $res = SearchRepo::of($posts, ['title', 'content_short', 'status', 'user_id'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')
-            ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, 'link'. 'link'))
+            ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, 'link' . 'link'))
             ->htmls(['Status'])
             ->statuses(PostStatus::select('id', 'name', 'icon', 'class')->get())
             ->paginate();

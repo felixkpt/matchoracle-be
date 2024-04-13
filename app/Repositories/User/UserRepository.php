@@ -37,6 +37,8 @@ class UserRepository implements UserRepositoryInterface
             }
         });
 
+        if ($this->applyFiltersOnly) return $users;
+
         $users = SearchRepo::of($users, ['name', 'id'])
             ->addColumn('Roles', function ($user) {
                 return implode(', ', $user->roles()->get()->pluck('name')->toArray());
@@ -108,7 +110,11 @@ class UserRepository implements UserRepositoryInterface
 
     public function show($id)
     {
-        $user = $this->model::with(['user', 'roles', 'direct_permissions'])->where(['users.id' => $id]);
+        $user = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->with(['user', 'roles', 'direct_permissions'])->where(['users.id' => $id]);
+
+        if ($this->applyFiltersOnly) return $user;
 
         $res = SearchRepo::of($user)
             ->addColumn('Created_by', 'Created_by')

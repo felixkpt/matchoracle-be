@@ -30,7 +30,10 @@ class RoleRepository implements RoleRepositoryInterface
     public function index()
     {
 
-        $roles = $this->model::query();
+        $roles = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()));
+
+        if ($this->applyFiltersOnly) return $roles;
 
         if (request()->all == '1')
             return response(['results' => $roles->get()]);

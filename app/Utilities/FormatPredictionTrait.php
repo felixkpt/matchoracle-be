@@ -123,8 +123,6 @@ trait FormatPredictionTrait
             $has_res = GameComposer::hasResults($q);
             $res = GameComposer::goals($q, true);
 
-            Log::info('RESULTS:: ', ['Id', $q->id, 'Res', $res, 'Pick', $pred->over_under25_pick, 'HAS RES', !!$has_res]);
-
             if ($has_res) {
                 if ($pred->over_under25_pick == 1 && $res > 2) {
                     $class = 'border-bottom border-success';

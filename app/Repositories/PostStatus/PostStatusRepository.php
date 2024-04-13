@@ -21,10 +21,13 @@ class PostStatusRepository implements PostStatusRepositoryInterface
     public function index()
     {
 
-        $statuses = $this->model::query();
+        $statuses = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()));
 
         if (request()->all == '1')
             return response(['results' => $statuses->get()]);
+
+        if ($this->applyFiltersOnly) return $statuses;
 
         $uri = '/admin/settings/picklists/statuses/post-statuses/';
         $statuses = SearchRepo::of($statuses, ['id', 'name'])

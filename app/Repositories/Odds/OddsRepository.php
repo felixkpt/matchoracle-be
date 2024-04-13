@@ -25,6 +25,7 @@ class OddsRepository implements OddsRepositoryInterface
         $to_date = request()->to_date ?? null;
 
         $odds = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->when(request()->competition_id, fn ($q) => $q->whereHas('game', fn ($q) => $q->where('competition_id', request()->competition_id)->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))))
             ->when($from_date, fn ($q) => $q->whereDate('utc_date', '>=', Carbon::parse($from_date)->format('Y-m-d')))
             ->when($to_date, fn ($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($to_date)->format('Y-m-d')))

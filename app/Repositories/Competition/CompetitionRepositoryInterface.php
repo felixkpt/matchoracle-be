@@ -39,6 +39,8 @@ interface CompetitionRepositoryInterface extends CommonRepoActionsInterface
     function predictionStatistics($id);
 
     function doStatistics($id);
+    
+    function getDatesWithGames($id);
 
     function tabs($id);
 }

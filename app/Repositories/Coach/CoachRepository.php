@@ -20,10 +20,13 @@ class CoachRepository implements CoachRepositoryInterface
     public function index()
     {
 
-        $teams = $this->model::with(['nationality']);
-        
+        $coaches = $this->model::query()
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->with(['nationality']);
+        if ($this->applyFiltersOnly) return $coaches;
+
         $uri = '/admin/teams/coaches';
-        $statuses = SearchRepo::of($teams, ['id', 'name'])
+        $statuses = SearchRepo::of($coaches, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')
             ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
@@ -31,7 +34,7 @@ class CoachRepository implements CoachRepositoryInterface
             ->htmls(['Status', 'Crest'])
             ->addFillable('date_of_birth', 'date_of_birth', ['input' => 'input', 'type' => 'date'])
             ->orderby('name')
-            ->paginate(request()->competition_id ? $teams->count() : 20);
+            ->paginate(request()->competition_id ? $coaches->count() : 20);
 
         return response(['results' => $statuses]);
     }

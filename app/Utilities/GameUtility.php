@@ -90,7 +90,7 @@ class GameUtility
             ->when(request()->limit, fn ($q) => $q->limit(request()->limit));
 
         $with = ['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'homeTeam', 'awayTeam', 'score', 'votes', 'referees', 'odds'];
-
+        
         if (request()->prediction_mode_id == 1) {
             array_push($with, 'prediction');
             $games = $games->whereHas('prediction');
