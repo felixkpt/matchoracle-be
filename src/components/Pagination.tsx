@@ -8,31 +8,29 @@ interface PaginationProps {
   items: any;
   setPage: (value: string) => void
   setPerPage: (value: string) => void
+  setPaginatorChangeKey?: (value: number) => void
   hidePerPage?: boolean
   loading?: boolean
 }
 
-const Pagination: React.FC<PaginationProps> = ({ items, setPage, setPerPage, hidePerPage, loading }) => {
+const Pagination: React.FC<PaginationProps> = ({ items, setPage, setPerPage, setPaginatorChangeKey, hidePerPage, loading }) => {
   if (!items) return null;
 
-  const { current_page, last_page, path, per_page } = items;
-
-  const startPage = Math.max(current_page - 2, 1);
-  const endPage = Math.min(startPage + 4, last_page);
-  const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
-
-  const baseUrl = '';
+  const { last_page, per_page } = items;
 
   const handlePerPageChange = async (e: any) => {
 
     const value = e?.value || e?.target.value || undefined;
-    console.log(value)
     setPerPage(value)
+    if (setPaginatorChangeKey)
+      setPaginatorChangeKey((curr) => curr + 1)
   };
 
   const handlePageClick = (data: any) => {
     const selectedPage = data.selected + 1;
     setPage(selectedPage.toString());
+    if (setPaginatorChangeKey)
+      setPaginatorChangeKey((curr) => curr + 1)
   };
 
   const options = [

@@ -47,7 +47,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     const [modelDetails, setModelDetails] = useState({})
     const [htmls, setHtmls] = useState<string[]>([])
     const [query, setQuery] = useState<string>('')
-
+    const [paginatorChangeKey, setPaginatorChangeKey] = useState<number>(0)
 
     useEffect(() => {
         if (tableData) {
@@ -120,6 +120,10 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     }, [checkedItems, currentPageDataLength]);
 
     const [columns, setColumns] = useState(initCols)
+
+    useEffect(() => {
+        if (paginatorChangeKey > 0 && checkedItems.length > 0) setCheckedItems([])
+    }, [paginatorChangeKey])
 
     useEffect(() => {
         subscribe('reloadAutoTable', reloadAutoTable)
@@ -406,7 +410,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
             <div>
                 {
                     (currentPageDataLength >= 0 && tableData) && tableData.per_page &&
-                    <Pagination items={tableData} setPage={setPage} setPerPage={setPerPage} hidePerPage={hidePerPage} loading={loading} />
+                    <Pagination items={tableData} setPage={setPage} setPerPage={setPerPage} setPaginatorChangeKey={setPaginatorChangeKey} hidePerPage={hidePerPage} loading={loading} />
                 }
             </div>
 
