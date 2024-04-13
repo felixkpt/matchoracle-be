@@ -20,97 +20,93 @@ class GameStatsUtility
     }
 
     // Add this new method to calculate and add game statistics
-    function addGameStatistics($results)
+    function addGameStatistics($matchData)
     {
 
-        return $results
-            ->addColumn('stats', function ($matchData) {
+        $home_team_id = $matchData['home_team_id'];
 
-                $home_team_id = $matchData['home_team_id'];
+        $away_team_id = $matchData['away_team_id'];
 
-                $away_team_id = $matchData['away_team_id'];
+        // Calculate the winner
+        $winningSide = GameComposer::winningSide($matchData, true);
+        $ft_hda_target = $winningSide;
 
-                // Calculate the winner
-                $winningSide = GameComposer::winningSide($matchData, true);
-                $ft_hda_target = $winningSide;
+        $winningSide = GameComposer::winningSideHT($matchData, true);
+        $ht_hda_target = $winningSide;
 
-                $winningSide = GameComposer::winningSideHT($matchData, true);
-                $ht_hda_target = $winningSide;
+        // Calculate if both teams scored (bts)
+        $bts = GameComposer::bts($matchData);
 
-                // Calculate if both teams scored (bts)
-                $bts = GameComposer::bts($matchData);
+        $bts_target = $bts ? 1 : 0;
 
-                $bts_target = $bts ? 1 : 0;
+        // Calculate the total number of goals
+        $goals = GameComposer::goals($matchData);
 
-                // Calculate the total number of goals
-                $goals = GameComposer::goals($matchData);
+        $over15_target = ($goals > 1) ? 1 : 0;
+        $over25_target = ($goals > 2) ? 1 : 0;
+        $over35_target = ($goals > 3) ? 1 : 0;
 
-                $over15_target = ($goals > 1) ? 1 : 0;
-                $over25_target = ($goals > 2) ? 1 : 0;
-                $over35_target = ($goals > 3) ? 1 : 0;
+        $cs_target = game_scores($matchData->score);
 
-                $cs_target = game_scores($matchData->score);
+        $referees_ids = array_reduce($matchData->referees()->pluck('referees.id')->toArray(), fn ($p, $c) => $p + $c, 0);
 
-                $referees_ids = array_reduce($matchData->referees()->pluck('referees.id')->toArray(), fn ($p, $c) => $p + $c, 0);
+        // Get home and away team matches and calculate statistics
 
-                // Get home and away team matches and calculate statistics
+        $to_date = Carbon::parse($matchData->utc_date)->subDay()->format('Y-m-d');
 
-                $to_date = Carbon::parse($matchData->utc_date)->subDay()->format('Y-m-d');
+        $teamsStats = $this->teamStats($to_date, $home_team_id, $away_team_id);
+        if ($teamsStats === null) return null;
 
-                $teamsStats = $this->teamStats($to_date, $home_team_id, $away_team_id);
-                if ($teamsStats === null) return null;
+        $teamsStatsRecent = $this->teamStatsCurrentground($to_date, $home_team_id, $away_team_id);
+        if ($teamsStatsRecent === null) return null;
 
-                $teamsStatsRecent = $this->teamStatsCurrentground($to_date, $home_team_id, $away_team_id);
-                if ($teamsStatsRecent === null) return null;
+        $teamsHead2HeadStats = $this->teamsHead2HeadStats($to_date, $home_team_id, $away_team_id, $matchData->id);
 
-                $teamsHead2HeadStats = $this->teamsHead2HeadStats($to_date, $home_team_id, $away_team_id, $matchData->id);
+        $lp_details = $this->teamRepositoryInterface->teamLeagueDetails($matchData->home_team_id, $matchData->id);
+        $team_lp_home_team_details = [
+            'team_lp_home_team_position' => $lp_details['position'],
+            'team_lp_home_team_played_games' => $lp_details['played_games'],
+            'team_lp_home_team_won' => $lp_details['won'],
+            'team_lp_home_team_lost' => $lp_details['lost'],
+            'team_lp_home_team_points' => $lp_details['points'],
+            'team_lp_home_team_goals_for' => $lp_details['goals_for'],
+            'team_lp_home_team_goals_against' => $lp_details['goals_against'],
+            'team_lp_home_team_goal_difference' => $lp_details['goal_difference'],
+        ];
 
-                $lp_details = $this->teamRepositoryInterface->teamLeagueDetails($matchData->home_team_id, $matchData->id);
-                $team_lp_home_team_details = [
-                    'team_lp_home_team_position' => $lp_details['position'],
-                    'team_lp_home_team_played_games' => $lp_details['played_games'],
-                    'team_lp_home_team_won' => $lp_details['won'],
-                    'team_lp_home_team_lost' => $lp_details['lost'],
-                    'team_lp_home_team_points' => $lp_details['points'],
-                    'team_lp_home_team_goals_for' => $lp_details['goals_for'],
-                    'team_lp_home_team_goals_against' => $lp_details['goals_against'],
-                    'team_lp_home_team_goal_difference' => $lp_details['goal_difference'],
-                ];
+        $lp_details = $this->teamRepositoryInterface->teamLeagueDetails($matchData->away_team_id, $matchData->id);
+        $team_lp_away_team_details = [
+            'team_lp_away_team_position' => $lp_details['position'],
+            'team_lp_away_team_played_games' => $lp_details['played_games'],
+            'team_lp_away_team_won' => $lp_details['won'],
+            'team_lp_away_team_lost' => $lp_details['lost'],
+            'team_lp_away_team_points' => $lp_details['points'],
+            'team_lp_away_team_goals_for' => $lp_details['goals_for'],
+            'team_lp_away_team_goals_against' => $lp_details['goals_against'],
+            'team_lp_away_team_goal_difference' => $lp_details['goal_difference'],
+        ];
 
-                $lp_details = $this->teamRepositoryInterface->teamLeagueDetails($matchData->away_team_id, $matchData->id);
-                $team_lp_away_team_details = [
-                    'team_lp_away_team_position' => $lp_details['position'],
-                    'team_lp_away_team_played_games' => $lp_details['played_games'],
-                    'team_lp_away_team_won' => $lp_details['won'],
-                    'team_lp_away_team_lost' => $lp_details['lost'],
-                    'team_lp_away_team_points' => $lp_details['points'],
-                    'team_lp_away_team_goals_for' => $lp_details['goals_for'],
-                    'team_lp_away_team_goals_against' => $lp_details['goals_against'],
-                    'team_lp_away_team_goal_difference' => $lp_details['goal_difference'],
-                ];
+        $match_odds = $this->getMatchOdds($matchData);
 
-                $match_odds = $this->getMatchOdds($matchData);
-
-                return array_merge(
-                    $teamsStats,
-                    $teamsStatsRecent,
-                    $teamsHead2HeadStats,
-                    [
-                        'has_results' => GameComposer::hasResults($matchData),
-                        'ft_hda_target' => $ft_hda_target,
-                        'ht_hda_target' => $ht_hda_target,
-                        'over15_target' => $over15_target,
-                        'over25_target' => $over25_target,
-                        'over35_target' => $over35_target,
-                        'bts_target' => $bts_target,
-                        'cs_target' => $cs_target,
-                        'referees_ids' => $referees_ids,
-                    ],
-                    $team_lp_home_team_details,
-                    $team_lp_away_team_details,
-                    $match_odds,
-                );
-            });
+        return array_merge(
+            $teamsStats,
+            $teamsStatsRecent,
+            $teamsHead2HeadStats,
+            [
+                'has_results' => GameComposer::hasResults($matchData),
+                'ft_hda_target' => $ft_hda_target,
+                'ht_hda_target' => $ht_hda_target,
+                'over15_target' => $over15_target,
+                'over25_target' => $over25_target,
+                'over35_target' => $over35_target,
+                'bts_target' => $bts_target,
+                'cs_target' => $cs_target,
+                'referees_ids' => $referees_ids,
+            ],
+            $team_lp_home_team_details,
+            $team_lp_away_team_details,
+            $match_odds,
+        );
     }
 
     private function teamStats($to_date, $home_team_id, $away_team_id)

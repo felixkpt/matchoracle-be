@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Teams;
 
+use App\Http\Controllers\CommonMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Team\TeamRepositoryInterface;
 use App\Services\Validations\Team\TeamValidationInterface;
@@ -9,11 +10,13 @@ use Illuminate\Http\Request;
 
 class TeamsController extends Controller
 {
+    use CommonMethods;
 
     function __construct(
         private TeamRepositoryInterface $teamRepositoryInterface,
         private TeamValidationInterface $teamValidationInterface,
     ) {
+        $this->repo = $teamRepositoryInterface;
     }
 
     function index($competition_id = null)

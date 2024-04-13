@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Continents;
 
+use App\Http\Controllers\CommonMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Continent\ContinentRepositoryInterface;
 use App\Services\Validations\Continent\ContinentValidationInterface;
@@ -9,11 +10,13 @@ use Illuminate\Http\Request;
 
 class ContinentsController extends Controller
 {
+    use CommonMethods;
 
     function __construct(
         private ContinentRepositoryInterface $continentRepositoryInterface,
         private ContinentValidationInterface $continentValidationInterface,
     ) {
+        $this->repo = $continentRepositoryInterface;
     }
 
     public function index()

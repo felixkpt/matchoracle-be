@@ -35,6 +35,8 @@ class OddsRepository implements OddsRepositoryInterface
             ->when(request()->year && request()->month, fn ($q) => $this->yearMonthFilter($q))
             ->when(request()->year && request()->month && request()->day, fn ($q) => $this->yearMonthDayFilter($q));
 
+        if ($this->applyFiltersOnly) return $odds;
+
         $uri = '/admin/odds/';
         $results = SearchRepo::of($odds, ['id', 'home_team', 'away_team'])
             ->addColumn('Date', fn ($q) => Carbon::parse($q->utc_date)->format('Y-m-d'))

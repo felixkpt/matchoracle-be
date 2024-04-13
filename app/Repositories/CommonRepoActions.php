@@ -4,13 +4,14 @@ namespace App\Repositories;
 
 use App\Models\Status;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 trait CommonRepoActions
 {
+    protected $applyFiltersOnly;
 
     function autoSave($data)
     {
-
         $id = $data['id'] ?? request()->id;
         $data['id'] = $id;
 
@@ -37,21 +38,30 @@ trait CommonRepoActions
 
     function updateStatuses(Request $request)
     {
-        sleep(6);
-        
+        sleep(4);
+
+        $this->applyFiltersOnly = true;
+
+        $filteredModel = method_exists($this, 'index') ? $this->index() : $this->model;
+
         request()->validate(['status_id' => 'required']);
 
         $msg = 'No record was updated.';
-        $builder = $this->model::query()->where('status_id', '!=', request()->status_id);
-        
+        $builder = $filteredModel->where('status_id', '!=', request()->status_id);
+
         $arr = ['status_id' => request()->status_id];
         $ids = $request->ids;
-        if (is_array($ids) && count($ids) > 0) {
-            $builder->whereIn('id', $ids)->update($arr);
-            $msg = count($ids) . ' record statuses updated.';
-        } else if ($ids == 'all') {
-            $builder->update($arr);
-            $msg = 'All records statuses updated.';
+
+        if ($ids) {
+            if ($ids == 'all') {
+                $builder->update($arr);
+                $msg = 'All records statuses updated.';
+            } else {
+                $ids = explode(',', $ids);
+
+                $builder->whereIn('id', $ids)->update($arr);
+                $msg = count($ids) . ' record statuses updated.';
+            }
         }
 
         return response(['message' => $msg]);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Odds;
 
+use App\Http\Controllers\CommonMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Odds\OddsRepositoryInterface;
 use Illuminate\Support\Carbon;
@@ -9,8 +10,11 @@ use Illuminate\Support\Carbon;
 class OddsController extends Controller
 {
 
+    use CommonMethods;
+
     public function __construct(protected OddsRepositoryInterface $oddsRepositoryInterface)
     {
+        $this->repo = $oddsRepositoryInterface;
     }
 
     public function index()

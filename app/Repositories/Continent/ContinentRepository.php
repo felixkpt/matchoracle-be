@@ -21,6 +21,7 @@ class ContinentRepository implements ContinentRepositoryInterface
 
         $continents = $this->model::query();
 
+        if ($this->applyFiltersOnly) return $continents;
 
         $uri = '/admin/continents/';
         $res = SearchRepo::of($continents, ['id', 'name'])

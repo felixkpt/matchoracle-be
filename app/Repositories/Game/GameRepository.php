@@ -42,18 +42,33 @@ class GameRepository implements GameRepositoryInterface
 
         $results_raw = $gameUtilities->applyGameFilters($id);
 
+        if ($this->applyFiltersOnly) return $results_raw;
+
         $results = $gameUtilities->formatGames($results_raw);
 
         if (request()->is_predictor == 1) {
-            $results = (new GameStatsUtility())->addGameStatistics($results);
-            $results = array_reverse($results->get()['data']->toArray());
 
-            // Use array_filter with an arrow function
-            $results = array_values(array_filter($results, fn ($item) => isset($item['stats']) && $item['stats']));
+            $limit = request()->per_page;
 
-            Log::info('RESULTS:: ', $results);
+            // added 25 percent to handle where no stats
+            $results = $results->orderBy('utc_date', 'desc')->get($limit + $limit * .25)['data'];
 
-            return request()->task == 'train' && count($results) < 50 ? [] : $results;
+            $arr = [];
+            foreach ($results as $matchData) {
+                if (count($arr) == $limit) break;
+
+                $stats = (new GameStatsUtility())->addGameStatistics($matchData);
+                if ($stats) {
+                    $matchData->stats = $stats;
+                    $arr[] = $matchData;
+                }
+            }
+
+            $results = array_reverse($arr);
+
+            Log::info('GameRepository:: ', ['compe' => request()->competition_id, 'rest ct' => count($results), 'request' => $limit]);
+
+            return request()->task == 'train' && count($results) < 100 ? [] : $results;
         } else {
 
             if ($id) {

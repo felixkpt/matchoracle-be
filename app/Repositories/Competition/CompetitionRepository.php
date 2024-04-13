@@ -51,6 +51,9 @@ class CompetitionRepository implements CompetitionRepositoryInterface
             ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->when($id, fn ($q) => $q->where('id', $id));
 
+        if ($this->applyFiltersOnly)
+            return $competitions;
+
         $uri = '/admin/competitions/';
         $results = SearchRepo::of($competitions, ['id', 'name', 'code', 'country.name', 'seasons.start_date', 'slug'])
             ->addColumn('season', fn ($q) => $q->currentSeason ? (Carbon::parse($q->currentSeason->start_date)->format('Y') . '/' . Carbon::parse($q->currentSeason->end_date)->format('Y')) : null)
@@ -309,5 +312,4 @@ class CompetitionRepository implements CompetitionRepositoryInterface
             "sources" => $this->model::find($id)->gameSources()->count(),
         ]]);
     }
-
 }
