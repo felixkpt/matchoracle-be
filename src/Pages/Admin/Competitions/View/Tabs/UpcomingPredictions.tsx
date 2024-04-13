@@ -20,7 +20,7 @@ const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason 
     useEffect(() => {
 
         if (competition) {
-            let uri = `admin/competitions/view/${competition.id}/predictions?show_predictions=1&break_preds=1&type=upcoming`
+            let uri = `admin/competitions/view/${competition.id}/predictions?prediction_mode_id=1&break_preds=1&type=upcoming`
             if (useDate) {
                 uri = uri + `${appendFromToDates(useDate, fromToDates)}`
             }

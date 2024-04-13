@@ -182,11 +182,6 @@ const Index = () => {
                 </div>
                 {memoizeMenu}
               </div>
-              <div id='sidenav-footer'>
-                <span className="btn-expand-collapse d-none d-md-flex">
-                  <Icon className='nav-icon' icon={`${isOpen ? 'pajamas:collapse-left' : 'pajamas:collapse-left'}`} />
-                </span>
-              </div>
             </div>
           </div>
         </div>

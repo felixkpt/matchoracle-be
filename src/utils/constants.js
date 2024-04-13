@@ -24,7 +24,9 @@ export const oddsColumns = [
     { key: 'under_25' },
     { key: 'GG' },
     { key: 'NG' },
+    { label: 'Status', key: 'Status' },
     { key: 'Game' },
+
 ]
 
 export const predictionModes = [
