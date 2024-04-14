@@ -90,7 +90,7 @@ const BTSVotesSection = ({ game: initialGame }: Props) => {
     };
 
     return (
-        <div className='vote-section shadow-sm p-2 rounded mb-4 row justify-content-between border noselect'>
+        <div className='vote-section shadow-sm p-2 rounded mb-4 row justify-content-between border no-select'>
             <h6>BTS odds & votes</h6>
             <BTSOddsSection game={game} />
             {

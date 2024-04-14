@@ -34,7 +34,7 @@ const MatchPageHeader = ({ game, homeTeam, awayTeam, homeTeamRecentResults, away
                 <img className="compe-logo" src={competitionLogo(game.competition.logo)} alt="" />
               }
             </div>
-            <div className="d-flex align-items-center gap-4">
+            <div className="d-flex align-items-center justify-content-center">
               <h5 className="text-muted">{game.competition.country.name} - {game.competition.name}</h5>
             </div>
           </NavLink>

@@ -96,7 +96,7 @@ const ResultsVotesSection = ({ game: initialGame }: Props) => {
     };
 
     return (
-        <div className='vote-section shadow-sm p-2 rounded mb-5 row justify-content-between border noselect'>
+        <div className='vote-section shadow-sm p-2 rounded mb-5 row justify-content-between border no-select'>
             <div className="col-12">
                 Fulltime odds & votes
                 <ResultsOddsSection game={game} />

@@ -90,7 +90,7 @@ const OverUnderVotesSection = ({ game: initialGame }: Props) => {
     };
 
     return (
-        <div className='vote-section shadow-sm p-2 rounded mb-4 row justify-content-between border noselect'>
+        <div className='vote-section shadow-sm p-2 rounded mb-4 row justify-content-between border no-select'>
             <h6>Over/Under 25 odds & votes</h6>
             <OverUnderOddsSection game={game} />
 

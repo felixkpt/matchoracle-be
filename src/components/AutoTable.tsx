@@ -4,21 +4,19 @@ import Pagination from './Pagination';
 import { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
-import { publish, subscribe, unsubscribe } from '@/utils/events';
+import { subscribe, unsubscribe } from '@/utils/events';
 import { AutoTableInterface } from '../interfaces/UncategorizedInterfaces';
 import AutoActions from './AutoActions';
-import Str from '@/utils/Str';
-import Select from 'react-select';
 import AutoTableHeader from './AutoTableHeader';
-import SubmitButton from './SubmitButton';
 import Loader from './Loader';
+import StatusesUpdate from './StatusesUpdate';
 
 function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetails, list_sources, tableId, modalSize, customModalId, perPage }: AutoTableInterface) => {
-    const id = tableId ? tableId : 'AutoTable'
+    const localTableId = tableId ? tableId : 'AutoTable'
 
     const {
         tableData,
@@ -32,7 +30,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
         status,
         setStatus,
         fullQueryString,
-    } = useAutoTableEffect(baseUri, tableId, { perPage });
+    } = useAutoTableEffect(baseUri, localTableId, { perPage });
 
     const [statuses, setStatuses] = useState<(string | number)[]>([]);
     const [selectedStatus, setSelectedStatus] = useState<(string)>();
@@ -64,7 +62,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
             const { data, ...others } = tableData
             if (setModelDetails) {
 
-                const rest = { ...others, tableId: id, query }
+                const rest = { ...others, tableId: localTableId, query }
 
                 setModelDetails(rest)
                 setHtmls(rest.htmls)
@@ -108,7 +106,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
         if (currentPageDataLength <= 0 || !tableData) return;
 
         const timed = setTimeout(() => {
-            const checkboxTableItems = document.querySelectorAll(`#${tableId} .checkbox-table-item`)?.length
+            const checkboxTableItems = document.querySelectorAll(`#${localTableId} .checkbox-table-item`)?.length
             if (checkboxTableItems) {
                 setVisibleItemsCounts(checkboxTableItems)
                 if (checkedItems?.length !== checkboxTableItems) setCheckedAllItems(false);
@@ -156,7 +154,6 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
             }
         }
     }
-
 
     const navigate = useNavigate()
 
@@ -230,50 +227,27 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     function handleStatus(e: any) {
         const val = e.target.checked
         setStatus(val)
-        localStorage.setItem(`app.${tableId}.status`, JSON.stringify(val))
+        localStorage.setItem(`app.${localTableId}.status`, JSON.stringify(val))
     }
 
     return (
-        <div id={id} className={`autotable shadow p-1 rounded my-3 relative shadow-md sm:rounded-lg`}>
+        <div id={localTableId} className={`autotable shadow p-1 rounded my-3 relative shadow-md sm:rounded-lg`}>
             <div className={`card`}>
                 <div className="card-header">
                     <div className="row align-items-center justify-content-end align-items-center text-muted">
                         <div className='col-12 col-xl-9 cursor-default'>
-                            <div className="d-flex align-items-center justify-content-start gap-3">
-                                {
-                                    checkedAllItems ?
-                                        <div className='d-inline bg-light p-1 rounded'><Icon icon={`prime:bookmark`} className='me-2' /><span>All {tableData?.total} records selected</span></div>
-                                        :
-                                        checkedItems.length > 0 &&
-                                        <>
-                                            {
-                                                checkedItems.length === visibleItemsCounts && checkedItems?.length !== tableData?.total ?
-                                                    <div className='d-inline bg-light p-1 rounded'><Icon icon={`prime:bookmark`} className='me-2' /><span>You have selected {visibleItemsCounts} items, <span className='text-info cursor-pointer' onClick={() => setCheckedAllItems(true)}>click here</span> to include all {tableData?.total} records.</span></div>
-                                                    :
-                                                    <div className='d-inline bg-light p-1 rounded'><Icon icon={`prime:bookmark`} className='me-2' /><span>{checkedItems.length} records selected</span></div>
-                                            }
-                                        </>
-                                }
-                                {
-                                    checkedItems.length > 0 &&
-                                    <form key={0} method='post' id='statusesUpdate' action-url={moduleUri + `update-status?${fullQueryString}`} onSubmit={(e) => publish('ajaxPost', e)}>
-                                        <input type="hidden" name='_method' value='patch' />
-                                        <input type="hidden" name='ids' value={checkedAllItems ? 'all' : checkedItems} />
-                                        <div style={{ minWidth: '160px' }} className='d-flex align-items-center gap-2'>
-                                            Status update:
-                                            <Select
-                                                name='status_id'
-                                                options={statuses}
-                                                value={selectedStatus}
-                                                onChange={setSelectedStatus}
-                                                getOptionValue={(option: any) => `${option['id']}`}
-                                                getOptionLabel={(option: any) => Str.title(`${option['name']}`)}
-                                            />
-                                            <SubmitButton />
-                                        </div>
-                                    </form>
-                                }
-                            </div>
+                            <StatusesUpdate
+                                checkedAllItems={checkedAllItems}
+                                tableData={tableData}
+                                visibleItemsCounts={visibleItemsCounts}
+                                setCheckedAllItems={setCheckedAllItems}
+                                moduleUri={moduleUri}
+                                fullQueryString={fullQueryString}
+                                statuses={statuses}
+                                selectedStatus={selectedStatus}
+                                setSelectedStatus={setSelectedStatus}
+                                checkedItems={checkedItems}
+                            />
                         </div>
                         <div className='col-12 col-xl-3'>
                             <div className="d-flex align-items-center justify-content-end gap-1">
