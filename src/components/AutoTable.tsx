@@ -1,4 +1,5 @@
 import useAutoTableEffect from '@/hooks/useAutoTableEffect';
+import useStatusesUpdateEffect from '@/hooks/useStatusesUpdateEffect';
 import { debounce } from 'lodash';
 import Pagination from './Pagination';
 import { useEffect, useState } from 'react';
@@ -32,30 +33,36 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
         fullQueryString,
     } = useAutoTableEffect(baseUri, localTableId, { perPage });
 
-    const [statuses, setStatuses] = useState<(string | number)[]>([]);
-    const [selectedStatus, setSelectedStatus] = useState<(string)>();
+    const {
+        visibleItemsCounts,
+        checkedAllItems,
+        checkedItems,
+        setCheckedItems,
+        setCheckedAllItems,
+        statuses,
+        setPaginatorChangeKey,
+        handleChecked,
+
+    } = useStatusesUpdateEffect(tableData, localTableId);
+
     const [moduleUri, setModuleUri] = useState<(string)>('');
 
-    const [visibleItemsCounts, setVisibleItemsCounts] = useState<number>(0);
-    const [checkedAllItems, setCheckedAllItems] = useState<boolean>(false);
-
-    const [checkedItems, setCheckedItems] = useState<(string | number)[]>([]);
+    const [tableDataLength, setTableDataLength] = useState(tableData?.total || 0)
     const [currentPageDataLength, setCurrentPageDataLength] = useState<number>(-1);
 
     const [modelDetails, setModelDetails] = useState({})
     const [htmls, setHtmls] = useState<string[]>([])
     const [query, setQuery] = useState<string>('')
-    const [paginatorChangeKey, setPaginatorChangeKey] = useState<number>(0)
 
     useEffect(() => {
         if (tableData) {
 
             if (tableData?.data?.length >= 0) {
+                setTableDataLength(tableData.total);
                 setCurrentPageDataLength(tableData.data.length);
-                setStatuses(tableData.statuses)
-                setSelectedStatus(tableData.statuses[0])
                 setModuleUri(tableData.module_uri)
             } else {
+                setTableDataLength(0);
                 setCurrentPageDataLength(-1);
             }
 
@@ -70,58 +77,16 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                     getModelDetails(rest)
                 }
             }
-        } else setCurrentPageDataLength(-1);
+        } else {
+            setTableDataLength(0)
+            setCurrentPageDataLength(-1)
+        }
     }, [tableData]);
 
     const debouncedSearch = debounce(handleSearch, 400);
     const debouncedSearch2 = debounce(setQuery, 400);
 
-    const handleChecked = (checked: boolean, itemId: string | number | null) => {
-        if (currentPageDataLength <= 0) return;
-
-        if (itemId !== null) {
-            if (checked) {
-                // Add the item ID to checkedItems
-                setCheckedItems((prev) => [...prev, itemId]);
-            } else {
-                // Remove the item ID from checkedItems
-                setCheckedItems((prevCheckedItems) =>
-                    prevCheckedItems.filter((id) => id !== itemId)
-                );
-            }
-        } else {
-            if (checked) {
-                // Check all items
-                const allIds = tableData ? tableData.data.map((row) => row.id) : [];
-                setCheckedItems(allIds);
-            } else {
-                // Uncheck all items
-                setCheckedItems([]);
-            }
-        }
-    };
-
-    useEffect(() => {
-
-        if (currentPageDataLength <= 0 || !tableData) return;
-
-        const timed = setTimeout(() => {
-            const checkboxTableItems = document.querySelectorAll(`#${localTableId} .checkbox-table-item`)?.length
-            if (checkboxTableItems) {
-                setVisibleItemsCounts(checkboxTableItems)
-                if (checkedItems?.length !== checkboxTableItems) setCheckedAllItems(false);
-            }
-        }, 1000);
-
-        return () => clearTimeout(timed)
-
-    }, [checkedItems, currentPageDataLength]);
-
     const [columns, setColumns] = useState(initCols)
-
-    useEffect(() => {
-        if (paginatorChangeKey > 0 && checkedItems.length > 0) setCheckedItems([])
-    }, [paginatorChangeKey])
 
     useEffect(() => {
         subscribe('reloadAutoTable', reloadAutoTable)
@@ -214,7 +179,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
 
         // After a delay, reset opacity to 1
         const opacityTimeout = setTimeout(() => {
-            if (tableData?.total)
+            if (tableDataLength)
                 setCountOpacity(1);
             if (currentPageDataLength == 0)
                 setCountOpacity(1);
@@ -222,7 +187,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
 
         // Clean up the timeout to avoid memory leaks
         return () => clearTimeout(opacityTimeout);
-    }, [tableData?.total]);
+    }, [tableDataLength]);
 
     function handleStatus(e: any) {
         const val = e.target.checked
@@ -238,15 +203,14 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                         <div className='col-12 col-xl-9 cursor-default'>
                             <StatusesUpdate
                                 checkedAllItems={checkedAllItems}
-                                tableData={tableData}
+                                tableDataLength={tableDataLength}
                                 visibleItemsCounts={visibleItemsCounts}
                                 setCheckedAllItems={setCheckedAllItems}
                                 moduleUri={moduleUri}
                                 fullQueryString={fullQueryString}
                                 statuses={statuses}
-                                selectedStatus={selectedStatus}
-                                setSelectedStatus={setSelectedStatus}
                                 checkedItems={checkedItems}
+                                tableId={localTableId}
                             />
                         </div>
                         <div className='col-12 col-xl-3'>
@@ -254,7 +218,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                                 <div>
                                     <div className='d-flex align-items-center justify-content-end gap-1'>
                                         {!loading && <small title='Click to reload' className='cursor-pointer rounded px-1' onClick={reloadAutoTable}><Icon icon="mdi:reload" /></small>}
-                                        <small className="autotable-record-counts" style={{ opacity: countOpacity }}>{tableData?.total.toLocaleString() || 0} {`${tableData?.total == 1 ? 'record' : 'records'}`}</small>
+                                        <small className="autotable-record-counts" style={{ opacity: countOpacity }}>{tableDataLength.toLocaleString() || 0} {`${tableDataLength == 1 ? 'record' : 'records'}`}</small>
                                     </div>
                                 </div>
                                 <div className="p-2 align-items-center">
@@ -264,7 +228,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                                             id='active_only'
                                             type='checkbox'
                                             name={`active_only`}
-                                            defaultChecked={status}
+                                            defaultChecked={!!status}
                                             onChange={handleStatus}
                                         />
                                         <label className="form-check-label" htmlFor={`active_only`}>
@@ -322,7 +286,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                                                 <input
                                                     id="checkbox-all-search"
                                                     className="form-check-input" type="checkbox" value=""
-                                                    checked={checkedItems.length ? checkedItems.length === visibleItemsCounts || checkedItems.length == tableData?.total : false}
+                                                    checked={checkedItems.length ? checkedItems.length === visibleItemsCounts || checkedItems.length == tableDataLength : false}
                                                     onChange={(e) => handleChecked(e.target.checked, null)} />
                                                 <span className='cursor-pointer'>All</span>
                                             </label>

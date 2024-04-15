@@ -1,50 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
 import Select from 'react-select';
 import Str from '@/utils/Str';
 import SubmitButton from './SubmitButton';
 import { publish } from '@/utils/events';
+import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces';
 
 interface StatusesUpdateProps {
     checkedAllItems: boolean;
     checkedItems: (string | number)[];
-    tableData: any; // Adjust the type accordingly
+    tableDataLength: number; // Adjust the type accordingly
     visibleItemsCounts: number;
     setCheckedAllItems: React.Dispatch<React.SetStateAction<boolean>>;
     moduleUri: string;
     fullQueryString: string;
-    statuses: any[]; // Adjust the type accordingly
-    selectedStatus: any; // Adjust the type accordingly
-    setSelectedStatus: React.Dispatch<React.SetStateAction<any>>; // Adjust the type accordingly
-    setStatus: React.Dispatch<React.SetStateAction<any>>; // Add setStatus prop
-    localTableId: string; // Add localTableId prop
+    statuses: CollectionItemsInterface[]; // Adjust the type accordingly
+    tableId: string; // Add tableId prop
 }
 
 const StatusesUpdate: React.FC<StatusesUpdateProps> = ({
     checkedAllItems,
     checkedItems,
-    tableData,
+    tableDataLength,
     visibleItemsCounts,
     setCheckedAllItems,
     moduleUri,
     fullQueryString,
     statuses,
-    selectedStatus,
-    setSelectedStatus,
-    setStatus,
-    localTableId,
 }) => {
     
+    const [selectedStatus, setSelectedStatus] = useState<(CollectionItemsInterface)>();
+
+    useEffect(() => {
+        if (statuses.length > 0) {
+            setSelectedStatus(statuses[0])
+        }
+    }, [statuses])
+
     return (
         <div className="d-flex align-items-center justify-content-start gap-3">
             {checkedAllItems ? (
                 <div className='d-inline bg-light p-1 rounded'>
                     <Icon icon={`prime:bookmark`} className='me-2' />
-                    <span>All {tableData?.total} records selected</span>
+                    <span>All {tableDataLength} records selected</span>
                 </div>
             ) : checkedItems.length > 0 ? (
                 <>
-                    {checkedItems.length === visibleItemsCounts && checkedItems?.length !== tableData?.total ? (
+                    {checkedItems.length === visibleItemsCounts && checkedItems?.length !== tableDataLength ? (
                         <div className='d-inline bg-light p-1 rounded'>
                             <Icon icon={`prime:bookmark`} className='me-2' />
                             <span>
@@ -52,7 +54,7 @@ const StatusesUpdate: React.FC<StatusesUpdateProps> = ({
                                 <span className='text-info cursor-pointer' onClick={() => setCheckedAllItems(true)}>
                                     click here
                                 </span>{' '}
-                                to include all {tableData?.total} records.
+                                to include all {tableDataLength} records.
                             </span>
                         </div>
                     ) : (

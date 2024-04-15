@@ -11,9 +11,10 @@ interface PaginationProps {
   setPaginatorChangeKey?: (value: number) => void
   hidePerPage?: boolean
   loading?: boolean
+  breakpoint?: 'md' | 'lg' | 'xl'
 }
 
-const Pagination: React.FC<PaginationProps> = ({ items, setPage, setPerPage, setPaginatorChangeKey, hidePerPage, loading }) => {
+const Pagination: React.FC<PaginationProps> = ({ items, setPage, setPerPage, setPaginatorChangeKey, hidePerPage, loading, breakpoint }) => {
   if (!items) return null;
 
   const { last_page, per_page } = items;
@@ -46,7 +47,7 @@ const Pagination: React.FC<PaginationProps> = ({ items, setPage, setPerPage, set
       <div className='col-12'>{loading && <Loader />}</div>
       <div className='col-12'>
         <div className='row justify-content-center align-items-baseline'>
-          <nav className='col-8 overflow-auto'>
+          <nav className={`col-${breakpoint || 'md'}-8 overflow-auto`}>
             <ReactPaginate
               previousLabel={<Icon icon={'mingcute:arrows-left-line'} />}
               nextLabel={<Icon icon={'mingcute:arrows-right-line'} />}
@@ -64,7 +65,7 @@ const Pagination: React.FC<PaginationProps> = ({ items, setPage, setPerPage, set
           {
             !hidePerPage
             &&
-            <div className="col-md-4 justify-content-end" style={{ maxWidth: '250px' }}>
+            <div className={`col-${breakpoint || 'md'}-4`} style={{ maxWidth: '250px' }}>
               <Select
                 key={0}
                 className="form-control d-flex justify-content-center"

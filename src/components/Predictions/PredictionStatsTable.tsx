@@ -39,7 +39,9 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
           console.log(res)
           const { ft, ht, counts, average_score } = res;
           setFTStats({ ft, counts, average_score });
-          setHTStats({ ht, counts, average_score });
+          
+          const ht_counts = ht.counts
+          setHTStats({ ht, counts:ht_counts, average_score });
         }
       });
     }

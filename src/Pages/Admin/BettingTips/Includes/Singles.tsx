@@ -27,7 +27,7 @@ const Singles = ({ uri, type, odds_name, odds_name_print }: Props) => {
         <div>
             <div className="card">
                 <div className="card-header">
-                    <h5 className="d-flex gap-2 justify-content-between">Singles <span className="text-success">{data?.total || 0} betslips</span></h5>
+                    <h5 className="d-flex gap-2 justify-content-between">Accumulators <span className="text-success">{data?.total || 0} betslips</span></h5>
                 </div>
                 <div className="card-body">
                     {
@@ -37,15 +37,23 @@ const Singles = ({ uri, type, odds_name, odds_name_print }: Props) => {
                                     !loading || data ?
 
                                         <>
-                                            <TipsContent data={data.data} odds_name={odds_name} odds_name_print={odds_name_print} />
-                                            <InvestmentCard investment={data.investment} />
+                                            {
+                                                data.data.map((items: any, key: number) => {
 
+                                                    return (
+                                                        <div key={key}>
+                                                            <TipsContent data={items} odds_name={odds_name} odds_name_print={odds_name_print} />
+                                                        </div>
+                                                    )
+                                                })
+                                            }
+                                            <InvestmentCard investment={data.investment} />
                                         </>
                                         :
                                         <Loader />
 
                                 }
-                                <Pagination items={data} setPage={setPage} setPerPage={setPerPage} loading={loading} />
+                                <Pagination items={data} setPage={setPage} setPerPage={setPerPage} loading={loading} breakpoint='lg' />
                             </div>
                             :
                             <>
@@ -59,6 +67,7 @@ const Singles = ({ uri, type, odds_name, odds_name_print }: Props) => {
 
                     }
                 </div>
+
             </div>
 
         </div>

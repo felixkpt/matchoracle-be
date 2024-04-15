@@ -23,9 +23,9 @@ const useAutoTableEffect = (
     const [reload, setReload] = useState<number>(0);
     const [hidePerPage, setHidePerPage] = useState<boolean>(false);
     const [fullQueryString, setFullQueryString] = useState<string>(baseUri);
-    const { id } = useParams<hany>();
+    const { id } = useParams<string>();
 
-    const [status, setStatus] = useState<number | undefined>(() => {
+    const [status, setStatus] = useState<number>(() => {
         const stored_state = localStorage.getItem(`app.${tableId}.status`);
         let show = 0; // default to 0 (false)
         if (stored_state) {

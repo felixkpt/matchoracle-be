@@ -7,16 +7,23 @@ type Props = {
     data: any
     odds_name: string
     odds_name_print: string
-    odds?: number
-    outcome?: string
-    final_bankroll?: string
 }
 
 function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
-const TipsContent = ({ data, odds_name, odds_name_print, odds, outcome, final_bankroll }: Props) => {
+const TipsContent = ({ data }: Props) => {
+
+    const betslip = data.betslip
+    const odds = data.odds
+    const odds_name = data.odds_name
+    const odds_name_print = data.odds_name_print
+    const stake = data.stake
+    const outcome = data.outcome
+    const final_bankroll = data.final_bankroll
+    const bankroll_deposits = data.bankroll_deposits
+
     return (
         <div>
             <div className="row border border-0 border-bottom border-dark p-2 bg-body-secondary rounded">
@@ -25,7 +32,7 @@ const TipsContent = ({ data, odds_name, odds_name_print, odds, outcome, final_ba
                 <div className="col-3 border-dark">Outcome</div>
             </div>
             {
-                data.map((game: GameInterface) => {
+                betslip.map((game: GameInterface) => {
 
                     return (
                         <div key={game.id} className="row border border-0 border-bottom border-dark">
@@ -68,27 +75,35 @@ const TipsContent = ({ data, odds_name, odds_name_print, odds, outcome, final_ba
 
             {
                 odds &&
-                <div className='col-12 d-flex justify-content-end mt-1 mb-3'>
-                    <div className='d-flex align-items-center justify-content-between gap-2 shadow p-1 rounded'>
-                        <div>Total odds <strong className='text-success'>{odds}</strong></div>
-                        <div>|</div>
-                        <div className='d-flex align-items-center justify-content-between gap-2'>
-                            {
-                                outcome == 'W' ?
-                                    <strong className='text-success'>Won</strong>
-                                    :
-                                    <>
-                                        {
-                                            outcome == 'L' ?
-                                                <strong className='text-danger'>Lost</strong>
-                                                :
-                                                <strong className='text-primart'>Unsettled</strong>
-                                        }
-                                    </>
-                            }
-                            <div>|</div>
-                            <div>
+                <div className='col-12 mt-2 mb-4'>
+                    <div className='shadow p-1 rounded row align-items-center text-muted'>
+                        <div className="col-lg-7">
+                            <div className="d-flex gap-1">
+                                <div>Total odds <strong className='text-success'>{odds}</strong></div>
+                                <div>Stake <strong className='text-success'>{stake}</strong></div>
+                                <div>|</div>
+                                <div className='d-flex align-items-center justify-content-between gap-2'>
+                                    {
+                                        outcome == 'W' ?
+                                            <strong className='text-success'>Won</strong>
+                                            :
+                                            <>
+                                                {
+                                                    outcome == 'L' ?
+                                                        <strong className='text-danger'>Lost</strong>
+                                                        :
+                                                        <strong className='text-primart'>Unsettled</strong>
+                                                }
+                                            </>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div className='col-lg-5'>
+                            <div className='d-flex gap-1'>
                                 <small>Bankroll: {final_bankroll}</small>
+                                <span>|</span>
+                                <small>Deposits: {bankroll_deposits}</small>
                             </div>
                         </div>
                     </div>

@@ -39,10 +39,9 @@ const Multiples = ({ uri, type, odds_name, odds_name_print }: Props) => {
                                         <>
                                             {
                                                 data.data.map((items: any, key: number) => {
-
                                                     return (
                                                         <div key={key}>
-                                                            <TipsContent data={items.betslip} odds_name={odds_name} odds_name_print={odds_name_print} odds={items.odds} outcome={items.outcome} final_bankroll={items.final_bankroll} />
+                                                            <TipsContent data={items} odds_name={odds_name} odds_name_print={odds_name_print} />
                                                         </div>
                                                     )
                                                 })
@@ -53,7 +52,7 @@ const Multiples = ({ uri, type, odds_name, odds_name_print }: Props) => {
                                         <Loader />
 
                                 }
-                                <Pagination items={data} setPage={setPage} setPerPage={setPerPage} loading={loading} />
+                                <Pagination items={data} setPage={setPage} setPerPage={setPerPage} loading={loading} breakpoint='lg' />
                             </div>
                             :
                             <>
