@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Repositories\Game\GameRepositoryInterface;
 use App\Repositories\GamePrediction\GamePredictionRepositoryInterface;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class PredictionsController extends Controller
 {

@@ -68,7 +68,12 @@ class GameRepository implements GameRepositoryInterface
 
             Log::info('GameRepository:: ', ['compe' => request()->competition_id, 'rest ct' => count($results), 'request' => $limit]);
 
-            return request()->task == 'train' && count($results) < 100 ? [] : $results;
+            if (request()->task == 'train') {
+                // if is train/test and results is less than 60% of limit then return empty
+                $results = count($results) < floor($limit * .6) ? [] : $results;
+            }
+
+            return $results;
         } else {
 
             if ($id) {
@@ -98,7 +103,7 @@ class GameRepository implements GameRepositoryInterface
             preg_match_all('/\d+/', $prediction_type->name, $matches);
             $results = $matches[0];
 
-            if (count($results) == 3) {
+            if (count($results) >= 3) {
                 request()->merge([
                     'history_limit_per_match' => $results[0],
                     'current_ground_limit_per_match' => $results[1],
@@ -111,12 +116,27 @@ class GameRepository implements GameRepositoryInterface
     private function updateOrCreatePredictorOptions()
     {
         $name = request()->prediction_type;
+
+        preg_match_all('/\d+/', $name, $matches);
+        $results = $matches[0];
+
+        $description = null;
+        if (count($results) >= 3) {
+            $description =
+                "History limit per match " . $results[0] . ",
+                Current ground limit per match " . $results[1] . ",
+                H2H limit per match " . $results[2] . ",
+                Train/test max limit " . $results[3] ?? 'N/A' . ".
+                ";
+        }
+
         return GamePredictionType::updateOrCreate(
             [
                 'name' => $name,
             ],
             [
                 'name' => $name,
+                'description' => $description
             ]
         );
     }

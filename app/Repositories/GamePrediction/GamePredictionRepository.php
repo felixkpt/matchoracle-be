@@ -36,8 +36,6 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
             request()->type == 'played' ? $q->where('date', '<', $before) : (request()->type == 'upcoming' ? $q->where('date', '>=', Carbon::now()) :  $q);
         };
 
-        Log::info('dsdf', [request()->competition_id,]);
-
         $preds = $this->model
             // ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
             ->when(request()->from_date, fn ($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))

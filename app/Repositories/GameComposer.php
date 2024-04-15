@@ -259,6 +259,25 @@ class GameComposer
         return false;
     }
 
+    public static function hasResultsHT($game)
+    {
+        if (is_object($game) && method_exists($game, 'toArray')) {
+            $game = $game->toArray();
+        }
+
+        $score = $game['score'];
+        if (!$score || !$score['winner']) {
+            return false;
+        }
+
+        $winningSide = self::winningSideHT($game);
+        if ($winningSide >= 0) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static function getScores($game, $teamId, $negate = false)
     {
         if (is_object($game) && method_exists($game, 'toArray')) {

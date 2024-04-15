@@ -194,6 +194,7 @@ class GameUtility
             ->addColumnWhen(request()->break_preds, 'CS', fn ($q) => $this->formatCS(clone $q))
             ->addColumnWhen(request()->break_preds, 'Halftime', fn ($q) => $this->formatHTScores(clone $q))
             ->addColumnWhen(request()->break_preds, 'Fulltime', fn ($q) => $this->formatFTScores(clone $q))
+            ->addColumnWhen(request()->break_preds, 'UTC_date', fn ($q) => '<span class="text-nowrap">'.Carbon::parse($q->utc_date)->format('y-m-d').'</span>')
 
             ->addColumnWhen(!request()->is_predictor, 'current_user_votes', fn ($q) => $this->currentUserVotes($q))
             ->addColumnWhen(!request()->is_predictor, 'Created_by', 'getUser')
@@ -212,7 +213,7 @@ class GameUtility
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Status', 'getStatus')
 
             ->addActionColumnWhen((!request()->is_predictor && !request()->without_response), 'action', $uri, 'native', !!request()->is_predictor)
-            ->htmls(['Status', 'ID', 'Competition', 'Game', 'FT_HDA', 'FT_HDA_PICK', 'BTS', 'Over25', 'CS', 'Halftime', 'Fulltime']);
+            ->htmls(['Status', 'ID', 'Competition', 'Game', 'HT_HDA', 'HT_HDA_PICK', 'FT_HDA', 'FT_HDA_PICK', 'BTS', 'Over25', 'CS', 'Halftime', 'Fulltime', 'UTC_date']);
 
         if (!request()->order_by)
             $results = $results->orderby('utc_date', request()->type == 'upcoming' ? 'asc' : 'desc');

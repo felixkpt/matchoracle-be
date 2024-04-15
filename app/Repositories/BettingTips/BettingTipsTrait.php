@@ -7,14 +7,43 @@ use App\Repositories\GameComposer;
 use App\Utilities\GameUtility;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Str;
 trait BettingTipsTrait
 {
-    private $initial_bankroll = 1000;
+    private $initial_bankroll = 10000;
     private $singles_stake_ratio = 0.1;
     private $multiples_stake_ratio = 0.1;
     private $multiples_combined_min_odds = 5;
+
+    function singles()
+    {
+        $results = $this->getGames();
+
+        $investment = $this->singlesInvestment($results);
+
+        $results = $investment['betslips'];
+        $results = $this->paginate($results, request()->per_page ?? 50);
+
+        unset($investment['betslips']);
+        $results['investment'] = $investment;
+
+        return $results;
+    }
+
+    function multiples()
+    {
+        $results = $this->getGames();
+
+        $investment = $this->multiplesInvestment($results);
+
+        $results = $investment['betslips'];
+        $results = $this->paginate($results, request()->per_page ?? 50);
+
+        unset($investment['betslips']);
+        $results['investment'] = $investment;
+
+        return $results;
+    }
 
     function getGames()
     {
@@ -43,66 +72,102 @@ trait BettingTipsTrait
     private function singlesInvestment($results)
     {
         $initial_bankroll = $this->initial_bankroll;
+        $bankroll_deposits = 1;
         $current_bankroll = $initial_bankroll;
-        $bankroll_topups = 0; // Initialize top-ups counter
-        $stake_ratio = $this->singles_stake_ratio;
-        $results = $results->orderBy('utc_date', 'desc')->get(-1)['data'];
+        $stake = $this->singles_stake_ratio * $initial_bankroll;
+        $min_odds = 1;
+
+        $results = $results->orderBy('utc_date', 'asc')->get(-1)['data'];
 
         $total = $won = $gain = 0;
         $longest_winning_streak = $longest_losing_streak = 0;
         $current_winning_streak = $current_losing_streak = 0;
-        $total_odds = 0;
+        $total_odds = 0; // Variable to store total odds for multiples
 
+        $odds = 1;
+        $outcome = 'W';
         $betslips = [];
+        $betslip = [];
         foreach ($results as $game) {
 
             if ($game['Winner'] == 'POSTPONED') continue;
 
-            // if (!$this->lastPredsStatePassed($game)) continue;
+            $odds = $game['odds'][0]->{$this->odds_name};
 
-            $betslips[] = $game;
+            $betslip[] = $game;
 
-            $total++;
+            if ($game['outcome'] == 'L') $outcome = 'L';
+            else if ($game['outcome'] == 'U' && $outcome != 'L') $outcome = 'U';
 
-            $outcome = $game['outcome'];
+            if ($odds >= $min_odds) {
+                $total++;
 
-            // Calculate stake based on current bankroll
-            $stake = $stake_ratio * $current_bankroll;
-
-            if ($outcome == 'W') {
-
-                $odds = $game['odds'][0]->{$this->odds_name};
-                // Accumulate total odds
-                $total_odds += $odds;
-
-                $gain += ($stake * $odds) - $stake;
-                $won++;
-
-                // Update streaks
-                $current_winning_streak++;
-                $current_losing_streak = 0;
-
-                // Update longest winning streak
-                if ($current_winning_streak > $longest_winning_streak) {
-                    $longest_winning_streak = $current_winning_streak;
+                // Check if the current bankroll is sufficient for the stake
+                if ($current_bankroll - $stake < 0) {
+                    // If not, apply a top-up
+                    $current_bankroll = $initial_bankroll;
+                    $bankroll_deposits++;
                 }
-            } elseif ($outcome == 'L') {
-                // Losing directly affects the current bankroll
-                $current_bankroll -= $stake;
 
-                // Update streaks
-                $current_losing_streak++;
-                $current_winning_streak = 0;
+                if ($outcome == 'W') {
+                    // Accumulate total odds
+                    $total_odds += $odds;
 
-                // Update longest losing streak
-                if ($current_losing_streak > $longest_losing_streak) {
-                    $longest_losing_streak = $current_losing_streak;
+                    $gain += ($stake * $odds) - $stake;
+                    $won++;
+
+                    // Update streaks
+                    $current_winning_streak++;
+                    $current_losing_streak = 0;
+
+                    // Update longest winning streak
+                    if ($current_winning_streak > $longest_winning_streak) {
+                        $longest_winning_streak = $current_winning_streak;
+                    }
+                } elseif ($outcome == 'L') {
+                    // Losing directly affects the current bankroll
+                    $current_bankroll -= $stake;
+
+                    $gain -= $stake;
+
+                    // Update streaks
+                    $current_losing_streak++;
+                    $current_winning_streak = 0;
+
+                    // Update longest losing streak
+                    if ($current_losing_streak > $longest_losing_streak) {
+                        $longest_losing_streak = $current_losing_streak;
+                    }
                 }
+
+                $final_bankroll = $current_bankroll + $gain;
+                $final_bankroll_formatted = number_format($final_bankroll, 2, '.', request()->without_response ? '' : ',');
+                $betslips[] = [
+                    'betslip' => $betslip,
+                    'odds' => number_format($odds, 2, '.', ''),
+                    'stake' => $stake,
+                    'outcome' => $outcome,
+                    'bankroll_deposits' => $bankroll_deposits,
+                    'final_bankroll' => $final_bankroll_formatted,
+                    'odds_name' => $this->odds_name,
+                    'odds_name_print' => $this->formatOutcomeName(),
+                ];
+                // reset
+                $odds = 1;
+                $outcome = 'W';
+                $betslip = [];
             }
         }
 
-        // Calculate average odds for singles
+        // Calculate average odds for multiples
         $average_won_odds = $won > 0 ? number_format($total_odds / $won, 2, '.', '') : 0;
+
+        // Handle the case where all outcomes are wins or losses
+        if ($current_winning_streak === count($results) && $current_winning_streak > $longest_winning_streak) {
+            $longest_winning_streak = $current_winning_streak;
+        } elseif ($current_losing_streak === count($results) && $current_losing_streak > $longest_losing_streak) {
+            $longest_losing_streak = $current_losing_streak;
+        }
 
         $final_bankroll = $initial_bankroll + $gain;
 
@@ -113,25 +178,25 @@ trait BettingTipsTrait
         $final_bankroll_formatted = number_format($final_bankroll, 2, '.', request()->without_response ? '' : ',');
 
         return [
-            'betslips' => $betslips,
+            'betslips' => array_reverse($betslips),
             'initial_bankroll' => $initial_bankroll_formatted,
-            'bankroll_topups' => $bankroll_topups,
+            'bankroll_deposits' => $bankroll_deposits,
             'final_bankroll' => $final_bankroll_formatted,
             'total' => $total,
             'won' => $won,
             'won_percentage' => $won > 0 ? intval($won / $total * 100) : 0,
             'average_won_odds' => $average_won_odds,
             'gain' => $gain,
+            'roi' => $roi,
             'longest_winning_streak' => $longest_winning_streak,
             'longest_losing_streak' => $longest_losing_streak,
-            'roi' => $roi,
         ];
     }
 
     private function multiplesInvestment($results)
     {
         $initial_bankroll = $this->initial_bankroll;
-        $bankroll_topups = 1;
+        $bankroll_deposits = 1;
         $current_bankroll = $initial_bankroll;
         $stake = $this->multiples_stake_ratio * $initial_bankroll;
         $min_odds = $this->multiples_combined_min_odds;
@@ -165,7 +230,7 @@ trait BettingTipsTrait
                 if ($current_bankroll - $stake < 0) {
                     // If not, apply a top-up
                     $current_bankroll = $initial_bankroll;
-                    $bankroll_topups++;
+                    $bankroll_deposits++;
                 }
 
                 if ($outcome == 'W') {
@@ -184,6 +249,9 @@ trait BettingTipsTrait
                         $longest_winning_streak = $current_winning_streak;
                     }
                 } elseif ($outcome == 'L') {
+                    // Losing directly affects the current bankroll
+                    $current_bankroll -= $stake;
+
                     $gain -= $stake;
 
                     // Update streaks
@@ -201,9 +269,12 @@ trait BettingTipsTrait
                 $betslips[] = [
                     'betslip' => $betslip,
                     'odds' => number_format($odds, 2, '.', ''),
+                    'stake' => $stake,
                     'outcome' => $outcome,
-                    'bankroll_topups' => $bankroll_topups,
+                    'bankroll_deposits' => $bankroll_deposits,
                     'final_bankroll' => $final_bankroll_formatted,
+                    'odds_name' => $this->odds_name,
+                    'odds_name_print' => $this->formatOutcomeName(),
                 ];
                 // reset
                 $odds = 1;
@@ -233,7 +304,7 @@ trait BettingTipsTrait
         return [
             'betslips' => array_reverse($betslips),
             'initial_bankroll' => $initial_bankroll_formatted,
-            'bankroll_topups' => $bankroll_topups,
+            'bankroll_deposits' => $bankroll_deposits,
             'final_bankroll' => $final_bankroll_formatted,
             'total' => $total,
             'won' => $won,
@@ -245,7 +316,6 @@ trait BettingTipsTrait
             'longest_losing_streak' => $longest_losing_streak,
         ];
     }
-
 
     private function getOutcome($game, $type)
     {
@@ -355,5 +425,13 @@ trait BettingTipsTrait
             'from' => $paginator->firstItem(),
             'to' => $paginator->lastItem(),
         ];
+    }
+
+    function formatOutcomeName() {
+        $name = $this->outcome;
+        if ($name == 'gg') return 'GG';
+        if ($name == 'ng') return 'NG';
+        
+        return Str::ucfirst(Str::replace('_', ' ', $name));
     }
 }
