@@ -48,8 +48,11 @@ const AjaxPost = () => {
 
             if (button.classList.contains('btn-saving')) return
             button.classList.add('btn-saving', 'cursor-progress')
-            button.querySelector('.submit-btn-loader').classList.remove('d-none')
 
+            const submitBtnLoader = button.querySelector('.submit-btn-loader')
+            if (submitBtnLoader) {
+                submitBtnLoader.classList.remove('d-none')
+            }
         }
 
         let results
@@ -72,7 +75,11 @@ const AjaxPost = () => {
             button.disabled = false
             button.classList.remove('disabled')
             button.classList.remove('btn-saving', 'cursor-progress')
-            button.querySelector('.submit-btn-loader').classList.add('d-none')
+            const submitBtnLoader = button.querySelector('.submit-btn-loader')
+            if (submitBtnLoader) {
+                submitBtnLoader.classList.add('d-none')
+            }
+
         }
 
     };
