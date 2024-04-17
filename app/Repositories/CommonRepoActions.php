@@ -19,7 +19,7 @@ trait CommonRepoActions
             $data['user_id'] = auth()->user()->id;
 
             if (!isset($data['status_id'])) {
-                $data['status_id'] = Status::wherename('active')->first()->id ?? 0;
+                $data['status_id'] = activeStatusId();
             }
         }
 
