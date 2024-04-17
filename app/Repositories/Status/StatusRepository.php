@@ -12,8 +12,6 @@ class StatusRepository implements StatusRepositoryInterface
 {
     use CommonRepoActions;
 
-    private $checked_permissions = [];
-
     function __construct(protected Status $model)
     {
     }

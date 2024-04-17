@@ -3,10 +3,10 @@
 namespace App\Utilities;
 
 use App\Models\Game;
+use App\Models\GameScoreStatus;
 use App\Repositories\GameComposer;
 use App\Repositories\SearchRepo;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class GameUtility
@@ -69,7 +69,7 @@ class GameUtility
         request()->merge(['order_direction' => $order_direction]);
 
         $games = Game::query()
-            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->when(true, fn ($q) => $q->where('status_id', activeStatusId()))
             ->when($team_id, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', $team_id)->orWhere('away_team_id', $team_id)))
             ->when($team_ids, fn ($q) => $this->teamsMatch($q, $team_ids, $playing))
             ->when($currentground, fn ($q) => $currentground == 'home' ? $q->where('home_team_id', $team_id) : ($currentground == 'away' ? $q->where('away_team_id', $team_id) :  $q))
@@ -213,6 +213,7 @@ class GameUtility
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Status', 'getStatus')
 
             ->addActionColumnWhen((!request()->is_predictor && !request()->without_response), 'action', $uri, 'native', !!request()->is_predictor)
+            // ->statuses(GameScoreStatus::select('id', 'name', 'icon', 'class')->get())
             ->htmls(['Status', 'ID', 'Competition', 'Game', 'HT_HDA', 'HT_HDA_PICK', 'FT_HDA', 'FT_HDA_PICK', 'BTS', 'Over25', 'CS', 'Halftime', 'Fulltime', 'UTC_date']);
 
         if (!request()->order_by)

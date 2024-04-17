@@ -11,18 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('competition_abbreviations', function (Blueprint $table) {
+        Schema::create('game_score_statuses', function (Blueprint $table) {
             $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
-            $table->string('name');
-            $table->boolean('is_international')->default(0);
-            $table->unsignedBigInteger('country_id')->nullable();
-            $table->unsignedBigInteger('competition_id')->nullable();
-            $table->unsignedBigInteger('status_id')->default(1);
+            $table->string('name')->unique();
+            $table->string('slug')->nullable()->unique();
+            $table->text('description');
+            $table->string('icon')->nullable();
+            $table->string('class')->nullable();
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
-            // Unique combination of name and country_id
-            $table->unique(['name', 'country_id']);
         });
     }
 
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('competition_abbreviations');
+        Schema::dropIfExists('game_score_statuses');
     }
 };

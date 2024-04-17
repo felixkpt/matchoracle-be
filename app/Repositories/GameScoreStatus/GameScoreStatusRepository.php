@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Repositories\PostStatus;
+namespace App\Repositories\GameScoreStatus;
 
-use App\Models\PostStatus;
+use App\Models\GameScoreStatus;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class PostStatusRepository implements PostStatusRepositoryInterface
+class GameScoreStatusRepository implements GameScoreStatusRepositoryInterface
 {
     use CommonRepoActions;
 
-    function __construct(protected PostStatus $model)
+    function __construct(protected GameScoreStatus $model)
     {
     }
 
@@ -27,7 +27,7 @@ class PostStatusRepository implements PostStatusRepositoryInterface
 
         if ($this->applyFiltersOnly) return $statuses;
 
-        $uri = '/admin/settings/picklists/statuses/post-statuses/';
+        $uri = '/admin/settings/picklists/statuses/game-score-statuses/';
         $statuses = SearchRepo::of($statuses, ['id', 'name'])
             ->addColumn('Created_by', 'getUser')
             ->addColumn('Created_at', 'Created_at')
@@ -50,7 +50,7 @@ class PostStatusRepository implements PostStatusRepositoryInterface
         if ($request->id)
             $action = 'updated';
 
-        return response(['type' => 'success', 'message' => 'PostStatus ' . $action . ' successfully', 'results' => $res]);
+        return response(['type' => 'success', 'message' => 'GameScoreStatus ' . $action . ' successfully', 'results' => $res]);
     }
 
     public function show($id)

@@ -53,6 +53,13 @@ class GameRepository implements GameRepositoryInterface
             // added 25 percent to handle where no stats
             $results = $results->orderBy('utc_date', 'desc')->get($limit + $limit * .25)['data'];
 
+            if (request()->task == 'train') {
+                // if is train/test and results is less than 60% of limit then return empty
+                if ($this->trainTestLimitFails($results, $limit)) {
+                    return [];
+                }
+            }
+
             $arr = [];
             foreach ($results as $matchData) {
                 if (count($arr) == $limit) break;
@@ -66,11 +73,13 @@ class GameRepository implements GameRepositoryInterface
 
             $results = array_reverse($arr);
 
-            Log::info('GameRepository:: ', ['compe' => request()->competition_id, 'rest ct' => count($results), 'request' => $limit]);
+            // Log::info('GameRepository:: ', ['compe' => request()->competition_id, 'rest ct' => count($results), 'request' => $limit]);
 
             if (request()->task == 'train') {
                 // if is train/test and results is less than 60% of limit then return empty
-                $results = count($results) < floor($limit * .6) ? [] : $results;
+                if ($this->trainTestLimitFails($results, $limit)) {
+                    return [];
+                }
             }
 
             return $results;
@@ -94,6 +103,11 @@ class GameRepository implements GameRepositoryInterface
             if (request()->without_response) return $arr;
             return response($arr);
         }
+    }
+
+    private function trainTestLimitFails($results, $limit)
+    {
+        return count($results) < floor($limit * .6);
     }
 
     private function setPredictorOptions()

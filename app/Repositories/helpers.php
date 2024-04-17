@@ -2,6 +2,7 @@
 
 use App\Models\Continent;
 use App\Models\Game;
+use App\Models\GameScoreStatus;
 use App\Models\GameSource;
 use App\Models\Status;
 use Illuminate\Support\Facades\Log;
@@ -128,6 +129,20 @@ if (!function_exists('inActiveStatusId')) {
     function inActiveStatusId()
     {
         return Status::where('name', 'in_active')->first()->id ?? 0;
+    }
+}
+
+if (!function_exists('gameScoresStatus')) {
+    function gameScoresStatus($idOrSlug)
+    {
+        return GameScoreStatus::where(is_numeric($idOrSlug) ? 'id' : 'slug', $idOrSlug)->first()->id ?? 0;
+    }
+}
+
+if (!function_exists('unsettledGameScoreStatuses')) {
+    function unsettledGameScoreStatuses()
+    {
+        return [1100, 1101, 1104];
     }
 }
 

@@ -81,7 +81,7 @@ class MatchHandlerJob implements ShouldQueue
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('games', function ($q) {
-                $this->lastActionFilters($q->where('results_status', '<', 2));
+                $this->lastActionFilters($q->where('game_score_status_id', '<', 2));
             })
             ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
@@ -118,7 +118,7 @@ class MatchHandlerJob implements ShouldQueue
                             });
                     });
 
-                $builder = $this->lastActionFilters($builder->where('results_status', '<', 2));
+                $builder = $this->lastActionFilters($builder->where('game_score_status_id', '<', 2));
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');

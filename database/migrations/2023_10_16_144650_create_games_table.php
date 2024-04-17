@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('competition_id');
             $table->unsignedBigInteger('home_team_id');
             $table->unsignedBigInteger('away_team_id');
-            $table->unsignedBigInteger('season_id');
+            $table->unsignedBigInteger('season_id')->nullable();
             $table->unsignedBigInteger('country_id');
             $table->datetime('utc_date');
             $table->boolean('has_time')->default(false);
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('matchday')->nullable();
             $table->string('stage')->nullable();
             $table->string('group')->nullable();
-            $table->integer('results_status')->default(0);
+            $table->integer('game_score_status_id')->default(0);
             $table->unsignedInteger('priority_number')->default(9999);
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();

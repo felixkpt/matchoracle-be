@@ -229,9 +229,9 @@ class GamePredictionStatsUtility
 
         // Prepare and return stats array
         $arr = [
-            'counts' => $stats['counts'],
 
             'ft' => [
+                'counts' => $stats['ft']['counts'],
                 'home_wins' => $this->calculatePercentageStats($stats['ft']['home_wins']),
                 'draws' => $this->calculatePercentageStats($stats['ft']['draws']),
                 'away_wins' => $this->calculatePercentageStats($stats['ft']['away_wins']),

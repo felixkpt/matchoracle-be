@@ -43,16 +43,4 @@ class ContinentsController extends Controller
         return $this->continentRepositoryInterface->show($id);
     }
 
-    function updateStatus($id)
-    {
-        return $this->continentRepositoryInterface->updateStatus($id);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        return $this->continentRepositoryInterface->destroy($id);
-    }
 }

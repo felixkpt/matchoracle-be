@@ -50,7 +50,7 @@ class Games
             ->whereNotNull($table . '.url')
             ->when($is_competition === true, fn ($q) => $q->where('competition_id', $id))
             ->when($is_competition === false, fn ($q) => $q->where('home_team_id', $id)->orwhere('away_team_id', $id))
-            ->when($ignore_results_status === false, fn ($q) => $q->where('results_status', 0))
+            ->when($ignore_results_status === false, fn ($q) => $q->where('game_score_status_id', gameScoresStatus('scheduled')))
             ->leftjoin('competitions', $table . '.competition_id', 'competitions.id')
             ->leftjoin('countries', 'competitions.country_id', 'countries.id')
             ->select(

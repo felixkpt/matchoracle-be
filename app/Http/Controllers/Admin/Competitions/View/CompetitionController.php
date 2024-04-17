@@ -115,8 +115,8 @@ class CompetitionController extends Controller
 
         $competition = $this->competitionRepositoryInterface->model::findById($id, ['*']);
 
-        $games = $game->where('competition_id', $id)->where('results_status', 0)->get();
-        $recently_fetched_games = $game->where('competition_id', $id)->where('results_status', '>', 0)->get();
+        $games = $game->where('competition_id', $id)->where('game_score_status_id', gameScoresStatus('scheduled'))->get();
+        $recently_fetched_games = $game->where('competition_id', $id)->where('game_score_status_id', '>', 0)->get();
 
         $competition = array_merge($competition->toArray(), ['games' => $games->toArray(), 'recentlyFetchedGames' => $recently_fetched_games->toArray()]);
 

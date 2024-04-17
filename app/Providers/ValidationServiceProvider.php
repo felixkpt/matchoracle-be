@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\Validations\Competition\CompetitionAbbreviation\CompetitionAbbreviationValidation;
+use App\Services\Validations\Competition\CompetitionAbbreviation\CompetitionAbbreviationValidationInterface;
 use App\Services\Validations\Team\Address\AddressValidation;
 use App\Services\Validations\Team\Address\AddressValidationInterface;
 use App\Services\Validations\Team\Coach\CoachValidation;
@@ -14,6 +16,8 @@ use App\Services\Validations\Country\CountryValidation;
 use App\Services\Validations\Country\CountryValidationInterface;
 use App\Services\Validations\Game\GameValidation;
 use App\Services\Validations\Game\GameValidationInterface;
+use App\Services\Validations\GameScoreStatus\GameScoreStatusValidation;
+use App\Services\Validations\GameScoreStatus\GameScoreStatusValidationInterface;
 use App\Services\Validations\GameSource\GameSourceValidation;
 use App\Services\Validations\GameSource\GameSourceValidationInterface;
 use App\Services\Validations\Permission\PermissionValidation;
@@ -55,9 +59,11 @@ class ValidationServiceProvider extends ServiceProvider
         $this->app->bind(GameSourceValidationInterface::class, GameSourceValidation::class);
         $this->app->bind(StatusValidationInterface::class, StatusValidation::class);
         $this->app->bind(PostStatusValidationInterface::class, PostStatusValidation::class);
+        $this->app->bind(GameScoreStatusValidationInterface::class, GameScoreStatusValidation::class);
         $this->app->bind(ContinentValidationInterface::class, ContinentValidation::class);
         $this->app->bind(CountryValidationInterface::class, CountryValidation::class);
         $this->app->bind(CompetitionValidationInterface::class, CompetitionValidation::class);
+        $this->app->bind(CompetitionAbbreviationValidationInterface::class, CompetitionAbbreviationValidation::class);
         $this->app->bind(TeamValidationInterface::class, TeamValidation::class);
         $this->app->bind(AddressValidationInterface::class, AddressValidation::class);
         $this->app->bind(CoachValidationInterface::class, CoachValidation::class);

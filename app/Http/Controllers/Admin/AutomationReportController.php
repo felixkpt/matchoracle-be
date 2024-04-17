@@ -100,9 +100,9 @@ class AutomationReportController extends Controller
             'totals' => $this->getMatchStatsQuery($date)->count(),
             'past' => $this->getMatchStatsQuery($date)->where('utc_date', '<=', now())->count(),
             'upcoming' => $this->getMatchStatsQuery($date)->where('utc_date', '>', now())->count(),
-            'with_full_time_results_only' => $this->getMatchStatsQuery($date)->where('utc_date', '<=', now())->where('results_status', 1)->count(),
-            'with_half_and_time_results' => $this->getMatchStatsQuery($date)->where('utc_date', '<=', now())->where('results_status', 2)->count(),
-            'without_results' => $this->getMatchStatsQuery($date)->where('utc_date', '<=', now())->where('results_status', 0)->count(),
+            'with_full_time_results_only' => $this->getMatchStatsQuery($date)->where('utc_date', '<=', now())->where('game_score_status_id', gameScoresStatus('ft-results-only'))->count(),
+            'with_half_and_time_results' => $this->getMatchStatsQuery($date)->where('utc_date', '<=', now())->where('game_score_status_id', gameScoresStatus('ft-and-ht-results'))->count(),
+            'without_results' => $this->getMatchStatsQuery($date)->where('utc_date', '<=', now())->where('game_score_status_id', gameScoresStatus('scheduled'))->count(),
         ];
     }
 

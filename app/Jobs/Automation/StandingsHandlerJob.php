@@ -74,7 +74,7 @@ class StandingsHandlerJob implements ShouldQueue
                 $query->whereHas('games', function ($subQuery) {
                     $subQuery->where('utc_date', '>=', Carbon::now()->subDays(5))
                         ->where('utc_date', '<', Carbon::now())
-                        ->where('results_status', '>', 0);
+                        ->where('game_score_status_id', gameScoresStatus('scheduled'));
                 });
             })
             ->where('has_standings', true)

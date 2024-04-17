@@ -21,7 +21,7 @@ class Game extends Model
         'matchday',
         'stage',
         'group',
-        'results_status',
+        'game_score_status_id',
         'priority_number',
         'status_id',
         'user_id',

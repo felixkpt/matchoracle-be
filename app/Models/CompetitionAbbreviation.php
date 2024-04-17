@@ -11,7 +11,20 @@ class CompetitionAbbreviation extends Model
 
     protected $fillable = [
         'name',
+        'is_international',
+        'country_id',
         'competition_id',
+        'status_id',
+        'user_id',
     ];
 
+    function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
+    
+    function competition()
+    {
+        return $this->belongsTo(Competition::class);
+    }
 }

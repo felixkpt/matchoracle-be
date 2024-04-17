@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('statuses', function (Blueprint $table) {
             $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
-            $table->string('name');
+            $table->string('name')->unique();
+            $table->string('slug')->nullable()->unique();
             $table->text('description');
             $table->string('icon')->nullable();
             $table->string('class')->nullable();
