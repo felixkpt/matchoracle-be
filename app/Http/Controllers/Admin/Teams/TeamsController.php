@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Teams;
 
-use App\Http\Controllers\CommonMethods;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Team\TeamRepositoryInterface;
 use App\Services\Validations\Team\TeamValidationInterface;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class TeamsController extends Controller
 {
-    use CommonMethods;
+    use CommonControllerMethods;
 
     function __construct(
         private TeamRepositoryInterface $teamRepositoryInterface,

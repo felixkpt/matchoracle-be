@@ -6,6 +6,7 @@ use App\Models\Continent;
 use App\Models\Country;
 use App\Models\Status;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class CountriesSeeder extends Seeder
@@ -15,6 +16,9 @@ class CountriesSeeder extends Seeder
      */
     public function run(): void
     {
+
+        // Country::truncate();
+        // DB::statement('ALTER TABLE countries AUTO_INCREMENT = 1100;');
 
         $countries = [
 
@@ -1940,6 +1944,8 @@ class CountriesSeeder extends Seeder
                 );
             }
 
+            $is_international = $country['name'] == $country['continent'];
+
             Country::updateOrCreate(
                 ['name' => $country['name']],
                 [
@@ -1948,6 +1954,7 @@ class CountriesSeeder extends Seeder
                     'code' => $country['code'],
                     'dial_code' => $country['dial_code'],
                     'flag' => 'assets/images/flags/png100px/' . Str::slug($country['code']) . '.png',
+                    'is_international' => $is_international,
                     'continent_id' => $continent->id ?? 0,
                     'status_id' => activeStatusId()
                 ]

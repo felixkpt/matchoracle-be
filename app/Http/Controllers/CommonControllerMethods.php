@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-trait CommonMethods
+trait CommonControllerMethods
 {
     /**
      * The current subject repository.

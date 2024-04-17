@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Teams\Addresses;
 
-use App\Http\Controllers\CommonMethods;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Address\AddressRepositoryInterface;
 use App\Services\Validations\Team\Address\AddressValidationInterface;
@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class AddressesController extends Controller
 {
 
-    use CommonMethods;
+    use CommonControllerMethods;
 
     function __construct(
         private AddressRepositoryInterface $addressRepositoryInterface,

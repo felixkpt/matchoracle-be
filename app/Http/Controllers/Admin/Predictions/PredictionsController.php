@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Predictions;
 
-use App\Http\Controllers\CommonMethods;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Game\GameRepositoryInterface;
 use App\Repositories\GamePrediction\GamePredictionRepositoryInterface;
@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 class PredictionsController extends Controller
 {
 
-    use CommonMethods;
+    use CommonControllerMethods;
 
     protected $predictionModeId;
 

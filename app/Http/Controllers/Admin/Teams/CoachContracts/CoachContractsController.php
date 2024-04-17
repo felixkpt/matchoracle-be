@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Teams\CoachContracts;
 
-use App\Http\Controllers\CommonMethods;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\CoachContract\CoachContractRepositoryInterface;
 use App\Services\Validations\Team\CoachContract\CoachContractValidationInterface;
@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class CoachContractsController extends Controller
 {
 
-    use CommonMethods;
+    use CommonControllerMethods;
 
     function __construct(
         private CoachContractRepositoryInterface $contractRepositoryInterface,

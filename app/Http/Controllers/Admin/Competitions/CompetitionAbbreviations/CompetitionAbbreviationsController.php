@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Competitions\CompetitionAbbreviations;
 
-use App\Http\Controllers\CommonMethods;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Competition\CompetitionAbbreviation\CompetitionAbbreviationRepositoryInterface;
 use App\Services\Validations\Competition\CompetitionAbbreviation\CompetitionAbbreviationValidationInterface;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class CompetitionAbbreviationsController extends Controller
 {
-    use CommonMethods;
+    use CommonControllerMethods;
 
     function __construct(
         private CompetitionAbbreviationRepositoryInterface $competitionAbreviationRepositoryInterface,

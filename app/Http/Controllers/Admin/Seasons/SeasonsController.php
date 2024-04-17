@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Seasons;
 
-use App\Http\Controllers\CommonMethods;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Season\SeasonRepositoryInterface;
 use Illuminate\Http\Request;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class SeasonsController extends Controller
 {
 
-    use CommonMethods;
+    use CommonControllerMethods;
 
     function __construct(
         private SeasonRepositoryInterface $seasonRepositoryInterface,

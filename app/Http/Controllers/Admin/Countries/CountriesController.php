@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Countries;
 
-use App\Http\Controllers\CommonMethods;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Country\CountryRepositoryInterface;
 use App\Services\Validations\Country\CountryValidationInterface;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class CountriesController extends Controller
 {
-    use CommonMethods;
+    use CommonControllerMethods;
 
     function __construct(
         private CountryRepositoryInterface $countryRepositoryInterface,

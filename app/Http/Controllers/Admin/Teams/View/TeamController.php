@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin\Teams\View;
 
 use App\Http\Controllers\Admin\Predictions\PredictionsController;
 use App\Http\Controllers\Admin\Teams\TeamsController;
-use App\Http\Controllers\CommonMethods;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\SearchRepo;
 use App\Repositories\Team\TeamRepositoryInterface;
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class TeamController extends Controller
 {
-    use CommonMethods;
+    use CommonControllerMethods;
 
     function __construct(
         private TeamRepositoryInterface $teamRepositoryInterface,

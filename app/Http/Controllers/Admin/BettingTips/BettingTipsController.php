@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\BettingTips;
 
-use App\Http\Controllers\CommonMethods;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\BettingTips\BettingTipsRepositoryInterface;
 use Illuminate\Support\Carbon;
@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 class BettingTipsController extends Controller
 {
 
-    use CommonMethods;
+    use CommonControllerMethods;
 
     function __construct(
         private BettingTipsRepositoryInterface $bettingTipsRepositoryInterface,

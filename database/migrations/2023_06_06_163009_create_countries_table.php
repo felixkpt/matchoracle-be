@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('code')->nullable();
             $table->string('dial_code')->nullable();
             $table->string('flag')->nullable();
+            $table->boolean('is_international')->default(0);
             $table->unsignedBigInteger('continent_id')->default(0);
             $table->boolean('has_competitions')->default(0);
             $table->integer('priority_number')->default(9999);

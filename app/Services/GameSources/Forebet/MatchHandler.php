@@ -6,6 +6,7 @@ use App\Models\Competition;
 use App\Models\CompetitionAbbreviation;
 use App\Models\Game;
 use App\Models\GameSourcePrediction;
+use App\Services\Client;
 use App\Services\Common;
 use App\Services\OddsHandler;
 use Illuminate\Support\Carbon;
@@ -36,7 +37,7 @@ class MatchHandler
             ->where('id', $game_id)
             ->firstOrFail();
 
-        if (in_array($game->game_score_status_id, unsettledGameScoreStatuses())) {
+        if (!in_array($game->game_score_status_id, unsettledGameScoreStatuses())) {
             return $this->matchMessage('Update status is satisfied.');
         }
 
@@ -63,10 +64,10 @@ class MatchHandler
     private function handleGame($game, $url)
     {
         // dd($url);
-        // $content = Client::get($url);
-        // if (!$content) return $this->matchMessage('Source inaccessible or not found.', 500);
+        $content = Client::get($url);
+        if (!$content) return $this->matchMessage('Source inaccessible or not found.', 500);
 
-        $content = file_get_contents(storage_path('app/public/saved-matches/Liverpool vs Crystal Palace predictions and stats - 14 Apr 2024.html'));
+        // $content = file_get_contents(storage_path('app/public/saved-matches/Liverpool vs Crystal Palace predictions and stats - 14 Apr 2024.html'));
         // dd($content);
 
         $crawler = new Crawler($content);
@@ -217,7 +218,7 @@ class MatchHandler
             $secondHtml = $html->eq(2); // Get the second element
             $away_team_matches = $secondHtml->filter('div.st_rmain div.st_row');
 
-            $country = $game->competition->country->id ?? null;
+            $country = $game->competition->country ?? null;
 
             $msg = "";
             $saved = $updated = 0;

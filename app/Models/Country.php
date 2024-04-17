@@ -15,6 +15,7 @@ class Country extends Model
         'code',
         'dial_code',
         'continent_id',
+        'is_international',
         'priority_number',
         'has_competitions',
         'flag',

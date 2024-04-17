@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Competitions;
 
-use App\Http\Controllers\CommonMethods;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Competition\CompetitionRepositoryInterface;
 use App\Services\Validations\Competition\CompetitionValidationInterface;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class CompetitionsController extends Controller
 {
-    use CommonMethods;
+    use CommonControllerMethods;
 
     function __construct(
         private CompetitionRepositoryInterface $competitionRepositoryInterface,

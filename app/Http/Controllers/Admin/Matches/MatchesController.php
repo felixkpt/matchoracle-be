@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Matches;
 
-use App\Http\Controllers\CommonMethods;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Game\GameRepositoryInterface;
 use Illuminate\Http\Request;
@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 class MatchesController extends Controller
 {
 
-    use CommonMethods;
+    use CommonControllerMethods;
 
     function __construct(
         private GameRepositoryInterface $gameRepositoryInterface,
