@@ -27,6 +27,14 @@ const Index = () => {
                             key: 'name',
                         },
                         {
+                            label: 'Is Int?',
+                            key: 'Is_intl',
+                        },
+                        {
+                            label: 'Country',
+                            key: 'country.name',
+                        },
+                        {
                             label: 'Competition',
                             key: 'competition.name',
                         },

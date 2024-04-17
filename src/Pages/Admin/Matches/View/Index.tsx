@@ -110,7 +110,7 @@ const Index = () => {
                   <ResultsVotesSection game={game} />
                   <div className="row">
                     <div className="col-12">
-                      <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} perPage={10} withUpcoming={true} />
+                      <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} perPage={30} withUpcoming={true} />
                     </div>
                     <div className="col-12 col-xl-8">
                       <LastMatches game={game} homeTeam={homeTeam} awayTeam={awayTeam} currentground={true} perPage={5} setHomeTeamRecentResults={setHomeTeamRecentResults} setAwayTeamRecentResults={setAwayTeamRecentResults} />
