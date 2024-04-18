@@ -5,7 +5,7 @@ import CompetitionSubHeader from '../Inlcudes/CompetitionSubHeader';
 import GeneralModal from '@/components/Modals/GeneralModal';
 import StandingsTable from '@/components/Teams/StandingsTable';
 import Loader from '@/components/Loader';
-import DefaultMessage from '@/components/DefaultMessage';
+import NoContentMessage from '@/components/NoContentMessage';
 import Str from '@/utils/Str';
 
 const Standings: React.FC<CompetitionTabInterface> = ({ record, seasons, selectedSeason }) => {
@@ -41,7 +41,7 @@ const Standings: React.FC<CompetitionTabInterface> = ({ record, seasons, selecte
                                     detailedCompetition && detailedCompetition.standings.length > 0 ?
                                         <StandingsTable standings={detailedCompetition.standings} />
                                         :
-                                        <DefaultMessage />
+                                        <NoContentMessage />
                                 }
                             </div>
                             :

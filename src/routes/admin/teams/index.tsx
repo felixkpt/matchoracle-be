@@ -1,5 +1,6 @@
 import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
-import Teams from "@/Pages/Admin/Teams/Index";
+import ClubTeams from "@/Pages/Admin/Teams/ClubTeams";
+import NationalTeams from "@/Pages/Admin/Teams/NationalTeams";
 import Team from "@/Pages/Admin/Teams/View/Index";
 import addresses from "@/routes/admin/teams/addresses";
 import coaches from "@/routes/admin/teams/coaches";
@@ -28,15 +29,15 @@ const index = [
     },
     {
         path: '',
-        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={Teams} />,
+        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={ClubTeams} />,
     },
     {
         path: 'club-teams',
-        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={Teams} />,
+        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={ClubTeams} />,
     },
     {
         path: 'national-teams',
-        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={Teams} />,
+        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={NationalTeams} />,
     },
     {
         path: 'view/:id',

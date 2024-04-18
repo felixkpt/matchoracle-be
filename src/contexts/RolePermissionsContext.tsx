@@ -14,6 +14,7 @@ interface RolePermissionsContextType {
     setRoleWasChanged: (val: boolean) => void
     userMenu:RouteCollectionInterface[]
     setUserMenu: (role: RouteCollectionInterface[] | undefined) => void
+    nestedRoutesFolder: string
     loadingMenu: boolean,
     errorsLoadingMenu: any,
 }
@@ -33,7 +34,7 @@ export const RolePermissionsProvider: React.FC = ({ children }) => {
 export const useRolePermissionsContext = () => {
     const context = useContext(RolePermissionsContext);
     if (!context) {
-        throw new Error('useRolePermissionsContext must be used within a RolePermissionsProvider');
+        throw new Error(`useRolePermissionsContext must be used within a RolePermissionsProvider`);
     }
     return context;
 };

@@ -1,8 +1,6 @@
 import { NavLink } from 'react-router-dom'
 
-type Props = {}
-
-const TeamsNav = (props: Props) => {
+const TeamsNav = () => {
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <div className="container-fluid">

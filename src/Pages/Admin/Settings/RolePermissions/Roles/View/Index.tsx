@@ -53,7 +53,7 @@ export default function Index(): JSX.Element {
 
                     role ?
                         <div>
-                            <AutoTabs title={role.name} tabs={tabs} active="permissions" listUrl="/admin/settings/role-permissions/roles" />
+                            <AutoTabs title={`${role.name} role`} tabs={tabs} active="permissions" listUrl="/admin/settings/role-permissions/roles" />
                         </div>
                         :
                         <Error404 />

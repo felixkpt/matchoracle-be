@@ -46,7 +46,9 @@ const useRolePermissions = () => {
             if (routePermissionsResponse) {
                 setRoutePermissions(routePermissionsResponse || []);
             }
-        } catch (error) { }
+        } catch (error) {
+            // Handle error
+        }
 
         setLoadingRoutePermissions(false)
     };
@@ -55,7 +57,6 @@ const useRolePermissions = () => {
 
         if (user) {
 
-            // console.log('Resetting current role && fetchRolesAndDirectPermissions...')
             setCurrentRole(() => {
                 fetchRolesAndDirectPermissions()
                 return undefined
@@ -68,12 +69,9 @@ const useRolePermissions = () => {
 
         if (user && currentRole === undefined && verified && roles.length > 0) {
 
-            // console.log(user)
-
-            // console.log('Setting current role...')
             const defaultRole = user.default_role_id
-                ? roles.find((role) => role.id === user.default_role_id)
-                : null;
+                ? roles.find((role) => String(role.id) === String(user.default_role_id))
+                : null
 
             setCurrentRole(defaultRole || roles[0]);
         }
@@ -82,7 +80,6 @@ const useRolePermissions = () => {
 
     useEffect(() => {
         if (user && currentRole && verified && roles.length > 0) {
-            // console.log('FetchRoutePermissions...')
             fetchRoutePermissions();
         }
 

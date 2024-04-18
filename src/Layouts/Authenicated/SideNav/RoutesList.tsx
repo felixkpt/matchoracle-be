@@ -5,7 +5,8 @@ import Str from '@/utils/Str';
 import { toggleSidebar } from './Index';
 
 function cleanUri(uri: string): string {
-    uri = `/${uri.startsWith('admin') ? '' : 'admin/'}${uri}`;
+   
+    uri = `/${uri}`;
     uri = Str.before(uri, '@');
     return uri;
 }

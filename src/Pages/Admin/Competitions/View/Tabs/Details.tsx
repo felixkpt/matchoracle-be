@@ -6,7 +6,7 @@ import { subscribe, unsubscribe } from '@/utils/events'
 import { useEffect } from 'react'
 import { CompetitionInterface } from '@/interfaces/FootballInterface'
 import AddSource from '@/components/AddSource'
-import DefaultMessage from '@/components/DefaultMessage'
+import NoContentMessage from '@/components/NoContentMessage'
 import PageHeader from '@/components/PageHeader'
 
 type Props = {
@@ -52,7 +52,7 @@ const Details = ({ record, modelDetails }: Props) => {
                                 </GeneralModal>
                             </>
                             :
-                            <DefaultMessage />
+                            <NoContentMessage />
                     }
                 </div>
             </div>

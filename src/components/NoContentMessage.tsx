@@ -3,7 +3,7 @@ type Props = {
     justify?: 'start' | 'center' | 'end'
 }
 
-const DefaultMessage = (props: Props) => {
+const NoContentMessage = (props: Props) => {
     return (
         <div className="position-relative">
             <div className="position-absolute top-50 start-50 translate-middle w-100 p-1">
@@ -15,4 +15,4 @@ const DefaultMessage = (props: Props) => {
     )
 }
 
-export default DefaultMessage
+export default NoContentMessage

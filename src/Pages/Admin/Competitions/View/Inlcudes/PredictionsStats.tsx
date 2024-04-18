@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { ProgressBar } from 'react-bootstrap';
-import DefaultMessage from '@/components/DefaultMessage';
+import NoContentMessage from '@/components/NoContentMessage';
 import Loader from '@/components/Loader';
 import useAxios from '@/hooks/useAxios';
 import { CompetitionInterface, SeasonInterface } from '@/interfaces/FootballInterface';
@@ -91,7 +91,7 @@ const PredictionsStats = ({ competition, selectedSeason, fromToDates, useDate }:
                                     </div>
                                 </div>
                             ) : (
-                                <DefaultMessage />
+                                <NoContentMessage />
                             )}
                         </div>
                     ) : (

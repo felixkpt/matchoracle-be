@@ -27,8 +27,6 @@ const Index = ({ }: Props) => {
         })
     }
 
-    console.log(stats)
-
     return (
         <div className="row mb-4 align-items-start">
             <h5>Statistics & Performace</h5>

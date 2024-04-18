@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { ProgressBar } from 'react-bootstrap';
-import DefaultMessage from '@/components/DefaultMessage';
+import NoContentMessage from '@/components/NoContentMessage';
 import useAxios from '@/hooks/useAxios';
 import { CompetitionInterface, SeasonInterface } from '@/interfaces/FootballInterface';
 import { appendFromToDates } from '@/utils/helpers';
@@ -84,7 +84,7 @@ const Stats = ({ competition, selectedSeason, fromToDates, useDate }: Props) => 
 
                                 </div>
                             ) : (
-                                <DefaultMessage />
+                                <NoContentMessage />
                             )}
                         </div>
                     ) : (
