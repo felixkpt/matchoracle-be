@@ -3,7 +3,7 @@
 namespace App\Services\GameSources\Forebet;
 
 use App\Models\Season;
-use App\Services\Client;
+use App\Services\HttpClient\Client;
 use App\Services\Common;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;

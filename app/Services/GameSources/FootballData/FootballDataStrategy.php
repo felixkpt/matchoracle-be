@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Services\GameSources;
+namespace App\Services\GameSources\FootballData;
 
 use App\Services\GameSources\FootballData\FootballDataInit;
+use App\Services\GameSources\GameSourceStrategyInterface;
 
 class FootballDataStrategy implements GameSourceStrategyInterface
 {

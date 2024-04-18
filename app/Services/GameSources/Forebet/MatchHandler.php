@@ -6,7 +6,7 @@ use App\Models\Competition;
 use App\Models\CompetitionAbbreviation;
 use App\Models\Game;
 use App\Models\GameSourcePrediction;
-use App\Services\Client;
+use App\Services\HttpClient\Client;
 use App\Services\Common;
 use App\Services\OddsHandler;
 use Illuminate\Support\Carbon;

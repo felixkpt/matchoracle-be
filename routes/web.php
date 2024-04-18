@@ -15,8 +15,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-dd(\Felixkpt\Nestedroutes\Providers\NestedRoutesServiceProvider::class);
-
 Route::get('/', function () {
     return view('welcome');
 });

@@ -18,7 +18,7 @@ Route::middleware(array_filter($middleWares))
 
         $middleWares = [];
         $middleWares[] = 'auth:sanctum';
-        $middleWares[] = 'nested_routes_auth';
+        $middleWares[] = 'nestedroutes.auth';
 
         Route::middleware(array_filter($middleWares))
             ->group(function () use ($controller) {
