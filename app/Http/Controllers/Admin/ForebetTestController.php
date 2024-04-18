@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Competition;
+use App\Models\Country;
 use App\Models\Season;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
+use Illuminate\Support\Facades\DB;
 
 class ForebetTestController extends Controller
 {
@@ -24,6 +26,11 @@ class ForebetTestController extends Controller
 
     function index()
     {
+    //    $countries = DB::connection('mysql2')->table('countries')->where('has_competitions', true)->pluck('id');
+       
+    //    Country::query()->whereIn('id', $countries)->update(['has_competitions' => true]);
+
+    //    dd($countries);
 
         request()->merge(['shallow_fetch' => true]);
 

@@ -23,7 +23,7 @@ Route::get('/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{e
         'start_year' => '[0-9]+', 'start_month' => '[0-9]+', 'start_day' => '[0-9]+',
         'end_year' => '[0-9]+', 'end_month' => '[0-9]+', 'end_day' => '[0-9]+'
     ])
-    ->name('date_range'); // Predictions for a specified date range
+    ->name('Predictions date_range'); // Predictions for a specified date range
 
 // Store, update, and delete match routes
 Route::post('/', [$controller, 'store'])->name('store match'); // Store a new match

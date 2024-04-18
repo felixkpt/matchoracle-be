@@ -23,7 +23,7 @@ Route::get('/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{e
         'start_year' => '[0-9]+', 'start_month' => '[0-9]+', 'start_day' => '[0-9]+',
         'end_year' => '[0-9]+', 'end_month' => '[0-9]+', 'end_day' => '[0-9]+'
     ])
-    ->name('date_range'); // Betting tips for a specified date range
+    ->name('Betting tips date_range'); // Betting tips for a specified date range
 
 Route::get('/stats', [$controller, 'stats'])->name('betting tips stats'); // Betting tips stats
 Route::patch('/update-status', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)
