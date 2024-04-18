@@ -41,6 +41,20 @@ export const emitAjaxPostDone = (response: any) => {
 
 export const baseURL = (uri: string) => import.meta.env.VITE_APP_BASE_API + (uri ? uri.replace(/\/+/, '/') : '')
 
+interface Config {
+    name: string;
+    urls: {
+        home: string;
+    };
+}
+
+export const config: Config = {
+    name: import.meta.env.VITE_APP_NAME || 'App name',
+    urls: {
+        home: '/'
+    }
+};
+
 export const environment: 'local' | 'production' = import.meta.env.VITE_APP_ENV || 'local'
 export const tnymce_key: string = import.meta.env.VITE_APP_CRYPO_TINYMCE_KEY || ''
 

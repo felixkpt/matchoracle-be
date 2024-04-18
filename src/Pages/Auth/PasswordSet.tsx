@@ -2,11 +2,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import useAxios from '@/hooks/useAxios';
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
+import Loader from '../../components/Loader';
+import { config } from '../../utils/helpers';
 
 type Props = {}
 
 const PasswordSet = (props: Props) => {
     const { setUser } = useAuth();
+
 
     const navigate = useNavigate();
     const { loading: loadingPost, post } = useAxios()
@@ -23,7 +26,7 @@ const PasswordSet = (props: Props) => {
     }, [token])
 
     async function fetchEmail(token: string) {
-        await getEmail('password/' + token).then((res) => {
+        await getEmail('auth/password/' + token).then((res) => {
             if (res)
                 setEmail(res.email)
         })
@@ -40,12 +43,12 @@ const PasswordSet = (props: Props) => {
             password_confirmation: cpassword.value,
         }
 
-        await post('/password-set', body).then((res) => {
+        await post('/auth/password-set', body).then((res) => {
 
             if (res) {
                 setUser(res);
                 // Redirect the user to the home page
-                navigate('/admin');
+                navigate(config.urls.home);
             }
         })
     }
@@ -84,10 +87,7 @@ const PasswordSet = (props: Props) => {
                             <div>
                                 {
                                     loadingGet ?
-                                        <div className="d-flex align-items-center gap-3">
-                                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                            Loading...
-                                        </div>
+                                        <Loader />
                                         :
                                         <div className='alert alert-danger'>Error while retrieving your information</div>
                                 }

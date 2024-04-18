@@ -63,7 +63,7 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
     useEffect(() => {
 
         const fetchData = () => {
-            get('/user?verify=1');
+            get('/auth/user?verify=1');
         }
 
         if (verified === false) {

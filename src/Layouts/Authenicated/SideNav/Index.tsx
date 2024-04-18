@@ -10,6 +10,8 @@ import { useRolePermissionsContext } from '@/contexts/RolePermissionsContext';
 const Index = () => {
   const { user } = useAuth();
   const { roles, setCurrentRole, currentRole, userMenu, nestedRoutesFolder, loadingMenu: loading } = useRolePermissionsContext();
+
+  console.log(nestedRoutesFolder)
   
   useEffect(() => {
     const expand = document.body.querySelector('.btn-expand-collapse');

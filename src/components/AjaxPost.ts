@@ -40,19 +40,17 @@ const AjaxPost = () => {
         url = baseURL('api/' + url.trim('/'));
 
         const method: HttpVerbsType = (rawForm?.querySelector('input[name="_method"]')?.value || 'post').toLowerCase(); // Get the form's HTTP method
-        const button = rawForm?.querySelector('button[type="submit"]')
+        const submitButton = rawForm?.querySelector('button[type="submit"]')
 
-        if (button) {
-            button.disabled = true
-            button.classList.add('disabled')
+        if (submitButton) {
+            if (submitButton.classList.contains('btn-saving')) return
+            submitButton.classList.add('disabled', 'btn-saving', 'cursor-progress')
 
-            if (button.classList.contains('btn-saving')) return
-            button.classList.add('btn-saving', 'cursor-progress')
-
-            const submitBtnLoader = button.querySelector('.submit-btn-loader')
+            const submitBtnLoader = submitButton.querySelector('.submit-btn-loader')
             if (submitBtnLoader) {
                 submitBtnLoader.classList.remove('d-none')
             }
+
         }
 
         let results
@@ -71,11 +69,11 @@ const AjaxPost = () => {
         publish('ajaxPostDone', { elementId, results })
         setKey(key + 1)
 
-        if (button) {
-            button.disabled = false
-            button.classList.remove('disabled')
-            button.classList.remove('btn-saving', 'cursor-progress')
-            const submitBtnLoader = button.querySelector('.submit-btn-loader')
+        if (submitButton) {
+            submitButton.disabled = false
+            submitButton.classList.remove('disabled')
+            submitButton.classList.remove('btn-saving', 'cursor-progress')
+            const submitBtnLoader = submitButton.querySelector('.submit-btn-loader')
             if (submitBtnLoader) {
                 submitBtnLoader.classList.add('d-none')
             }

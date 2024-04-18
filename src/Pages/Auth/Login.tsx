@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import useAxios from '@/hooks/useAxios';
+import SubmitButton from '../../components/SubmitButton';
 
 export default function Login() {
     const { setUser, csrfToken, redirectTo } = useAuth();
@@ -20,9 +21,19 @@ export default function Login() {
             password: password.value,
         };
 
-        csrfToken();
-        await post('/login', body);
+        const submitButton = e.target.querySelector('button[type="submit"]');
 
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.classList.add('disabled', 'btn-saving', 'cursor-progress');
+        }
+
+        await post('/auth/login', body);
+
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.classList.remove('disabled', 'btn-saving', 'cursor-progress');
+        }
     }
 
     const [tried, setTried] = useState(false);
@@ -37,7 +48,6 @@ export default function Login() {
                 setUser(user);
                 // Redirect the user
                 navigate(redirectTo);
-
             }
         }
     }, [loading, tried]);
@@ -63,7 +73,7 @@ export default function Login() {
                         </div>
                         <div className="d-flex align-items-center justify-content-between mt-4 mb-0">
                             <NavLink className="small" to="/password">Forgot Password?</NavLink>
-                            <button type="submit" className="btn btn-primary main-bg">Login</button>
+                            <SubmitButton className="btn btn-primary main-bg" loading={loading}>Login</SubmitButton>
                         </div>
                     </form>
                 </div>
