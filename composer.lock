@@ -851,12 +851,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/felixkpt/nested-routes.git",
-                "reference": "77ae9027097a46815561a226439938b4d43e8f3c"
+                "reference": "e1b7203b0ca862ccc89863cc8226b5cf99d53f0e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/felixkpt/nested-routes/zipball/77ae9027097a46815561a226439938b4d43e8f3c",
-                "reference": "77ae9027097a46815561a226439938b4d43e8f3c",
+                "url": "https://api.github.com/repos/felixkpt/nested-routes/zipball/e1b7203b0ca862ccc89863cc8226b5cf99d53f0e",
+                "reference": "e1b7203b0ca862ccc89863cc8226b5cf99d53f0e",
                 "shasum": ""
             },
             "require": {
@@ -866,7 +866,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Felixkpt\\NestedRoutes\\": "src/"
+                    "Felixkpt\\Nestedroutes\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -891,7 +891,7 @@
                 "issues": "https://github.com/felixkpt/nested-routes/issues",
                 "source": "https://github.com/felixkpt/nested-routes/tree/main"
             },
-            "time": "2024-04-18T09:06:55+00:00"
+            "time": "2024-04-18T17:51:06+00:00"
         },
         {
             "name": "fruitcake/php-cors",
