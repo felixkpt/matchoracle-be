@@ -172,6 +172,7 @@ return [
         App\Services\Filerepo\FileRepoProvider::class,
         App\Providers\RepositoryServiceProvider::class,
         App\Providers\ValidationServiceProvider::class,
+        Felixkpt\NestedRoutes\Providers\NestedRoutesServiceProvider::class,
 
     ])->toArray(),
 

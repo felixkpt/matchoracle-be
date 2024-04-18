@@ -22,7 +22,7 @@ $prefix = 'api';
 // Middlewares to be passed before accessing any route
 $middleWares = [];
 $middleWares[] = 'api';
-$middleWares[] = 'nested_routes_auth';
+$middleWares[] = 'nestedroutes.auth';
 $middleWares[] = 'auth:sanctum';
 
 Route::middleware(array_filter(array_merge($middleWares, [])))
