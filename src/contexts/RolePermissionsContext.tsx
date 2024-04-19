@@ -14,7 +14,7 @@ interface RolePermissionsContextType {
     setRoleWasChanged: (val: boolean) => void
     userMenu:RouteCollectionInterface[]
     setUserMenu: (role: RouteCollectionInterface[] | undefined) => void
-    nestedRoutesFolder: string
+    expandedRootFolders: []
     loadingMenu: boolean,
     errorsLoadingMenu: any,
 }

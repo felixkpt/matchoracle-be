@@ -45,7 +45,7 @@ const useAutoTableEffect = (
         try {
             const mergedParams = <{ [key: string]: string | undefined }>{ };
             mergedParams['id'] = id || '';
-            mergedParams['q'] = searchTerm;
+            mergedParams['search'] = searchTerm;
             mergedParams['status'] = status ? '1' : '0';
             mergedParams['page'] = page;
             mergedParams['per_page'] = per_page;
@@ -94,8 +94,8 @@ const useAutoTableEffect = (
         setOrderBy(key);
     }
 
-    const handleSearch = (_q: string) => {
-        setSearchTerm(_q);
+    const handleSearch = (_query: string) => {
+        setSearchTerm(_query);
     };
 
     return {

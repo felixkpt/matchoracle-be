@@ -197,7 +197,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
         localStorage.setItem(`app.${localTableId}.status`, JSON.stringify(val))
     }
 
-    function handleResetSearch () {
+    function handleResetSearch() {
 
         setSearchTerm(undefined)
         const btn = document.querySelector('#search-btn') as HTMLInputElement
@@ -205,7 +205,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
             btn.value = ''
         }
 
-}
+    }
 
     return (
         <div id={localTableId} className={`autotable shadow p-1 rounded my-3 relative shadow-md sm:rounded-lg`}>
@@ -260,13 +260,31 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                             <div className="relative">
 
                                 <div className="col-md-12 col-md-offset-3">
-                                    <div className='d-flex'>
-                                        <input type="text" className="form-control" name="q" defaultValue={searchTerm} id="search-btn" onChange={(e: any) => {
-                                            debouncedSearch(e.target.value)
-                                            debouncedSearch2(e.target.value)
-                                        }} placeholder="Search here..." />
-                                        <button className="btn btn-default shadow-sm" type="button" title='Clear search' onClick={handleResetSearch}><Icon icon="mdi:reload"></Icon></button>
+                                    <div className="position-relative">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            name="q"
+                                            defaultValue={searchTerm}
+                                            id="search-btn"
+                                            onChange={(e: any) => {
+                                                debouncedSearch(e.target.value);
+                                                debouncedSearch2(e.target.value);
+                                            }}
+                                            placeholder="Search here..."
+                                        />
+                                        {searchTerm && ( // Render the clear button only if there is a search term
+                                            <button
+                                                className="btn btn-default shadow-sm position-absolute end-0 translate-middle-y top-50"
+                                                type="button"
+                                                title="Clear search"
+                                                onClick={handleResetSearch}
+                                            >
+                                                <Icon icon="fluent-mdl2:cancel" />
+                                            </button>
+                                        )}
                                     </div>
+
                                 </div>
                             </div>
                         }

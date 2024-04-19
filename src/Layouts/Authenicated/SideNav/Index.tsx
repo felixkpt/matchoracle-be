@@ -10,7 +10,7 @@ import Loader from '@/components/Loader';
 
 const Index = () => {
   const { user } = useAuth();
-  const { roles, setCurrentRole, currentRole, userMenu, nestedRoutesFolder, loadingMenu: loading } = useRolePermissionsContext();
+  const { roles, setCurrentRole, currentRole, userMenu, expandedRootFolders, loadingMenu: loading } = useRolePermissionsContext();
 
   useEffect(() => {
     const expand = document.body.querySelector('.btn-expand-collapse');
@@ -53,7 +53,10 @@ const Index = () => {
               const currentId = Str.slug((folder).replace(/^\//, ''));
               const indent = 2;
 
-              if (shouldShowFolder && folder !== nestedRoutesFolder) {
+              // Check if the folder should be expanded
+              const isExpanded = expandedRootFolders.includes(folder);
+
+              if (shouldShowFolder && !isExpanded) {
                 return (
                   <div key={currentId} className='position-relative top-0 first-level'>
                     <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target={`#${currentId}`} aria-expanded="false" aria-controls="collapsePages">
@@ -71,7 +74,7 @@ const Index = () => {
                     </div>
                   </div>
                 );
-              } else if (folder === nestedRoutesFolder) {
+              } else if (shouldShowFolder && isExpanded) {
                 return (
                   <div key={currentId}>
                     <RoutesList routes={routes} />

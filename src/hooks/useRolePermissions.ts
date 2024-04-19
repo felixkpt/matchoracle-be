@@ -4,21 +4,18 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const useRolePermissions = () => {
     const { get } = useAxios();
-    const { user, verified } = useAuth()
+    const { user, verified } = useAuth();
 
     const [roles, setRoles] = useState<RoleInterface[]>([]);
     const [currentRole, setCurrentRole] = useState<RoleInterface | undefined>();
     const [directPermissions, setDirectPermissions] = useState<PermissionInterface[]>([]);
     const [routePermissions, setRoutePermissions] = useState<PermissionInterface[]>([]);
-
-    const [loadingRoutePermissions, setLoadingRoutePermissions] = useState(true)
-    const [loadingMenu, setLoadingMenu] = useState(true)
-
-    const [userMenu, setUserMenu] = useState<RouteCollectionInterface[]>([])
+    const [loadingRoutePermissions, setLoadingRoutePermissions] = useState(false);
+    const [userMenu, setUserMenu] = useState<RouteCollectionInterface[]>([]);
+    const [expandedRootFolders, setExpandedRootFolders] = useState<string>('');
 
     const fetchRolesAndDirectPermissions = async () => {
-
-        if (!user) return false
+        if (!user) return false;
 
         try {
             const rolesPermissions = await get('/admin/settings/role-permissions/roles/get-user-roles-and-direct-permissions');
@@ -33,13 +30,12 @@ const useRolePermissions = () => {
     };
 
     const fetchRoutePermissions = async (roleId = null) => {
+        if (!verified || !currentRole) return false;
 
-        if (!verified || !currentRole) return false
+        // When roleId is given, let us NOT refetch routePermissions if the following condition fails
+        if (roleId && String(currentRole.id) !== roleId) return false;
 
-        // When roleId is give, let us NOT do refetching routePermissions if following condition fails
-        if (roleId && String(currentRole.id) !== roleId) return false
-
-        setLoadingRoutePermissions(true)
+        setLoadingRoutePermissions(true);
 
         try {
             const routePermissionsResponse = await get(`/admin/settings/role-permissions/roles/view/${currentRole.id}/get-user-route-permissions`);
@@ -51,64 +47,49 @@ const useRolePermissions = () => {
             // Handle error
         }
 
-        setLoadingRoutePermissions(false)
+        setLoadingRoutePermissions(false);
     };
 
     function refreshCurrentRole() {
-
         if (user) {
-
             setCurrentRole(() => {
-                fetchRolesAndDirectPermissions()
-                return undefined
+                fetchRolesAndDirectPermissions();
+                return undefined;
             });
-
         }
     }
 
     useEffect(() => {
-
         if (user && currentRole === undefined && verified && roles.length > 0) {
-
-            const defaultRole = user.default_role_id
-                ? roles.find((role) => String(role.id) === String(user.default_role_id))
-                : null
-
+            const defaultRole = user.default_role_id ? roles.find((role) => String(role.id) === String(user.default_role_id)) : null;
             setCurrentRole(defaultRole || roles[0]);
         }
-
-    }, [roles, verified])
+    }, [roles, verified]);
 
     useEffect(() => {
         if (user && currentRole && verified && roles.length > 0) {
             fetchRoutePermissions();
         }
+    }, [roles, currentRole]);
 
-    }, [roles, currentRole])
+    const { data, get: getMenu, loading, errors } = useAxios();
 
-
-    const { data, get: getMenu, loading, errors } = useAxios()
     useEffect(() => {
-
         if (user && currentRole) {
             getMenu('/admin/settings/role-permissions/roles/view/' + currentRole.id + '/get-role-menu/?get-menu=1').then((resp) => {
                 if (resp === undefined) {
-                    setUserMenu([])
+                    setUserMenu([]);
                 }
-            })
-
+            });
         }
-
-    }, [currentRole])
+    }, [currentRole]);
 
     useEffect(() => {
-
         if (!loading && !errors && data) {
-            setUserMenu(data?.menu)
-            setLoadingMenu(false)
+            setUserMenu(data?.menu);
+            setExpandedRootFolders(data?.expanded_root_folders);
         }
-
-    }, [loading])
+    }, [loading]);
 
     return {
         user,
@@ -122,7 +103,8 @@ const useRolePermissions = () => {
         loadingRoutePermissions,
         userMenu,
         setUserMenu,
-        loadingMenu,
+        expandedRootFolders,
+        loadingMenu: loading,
         errorsLoadingMenu: errors,
     };
 };

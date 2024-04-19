@@ -1,4 +1,3 @@
-import Str from '@/utils/Str';
 import { useEffect, useState } from 'react';
 import { useRolePermissionsContext } from '@/contexts/RolePermissionsContext';
 import { convertToLaravelPattern } from '@/utils/helpers';
