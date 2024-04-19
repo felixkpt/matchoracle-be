@@ -4,13 +4,27 @@ import DashMiniCard from './DashMiniCard'
 import DashPastUpcomingCard from './DashPastUpcomingCard'
 import Loader from '@/components/Loader'
 import { DashboardStatsInterface } from '@/interfaces/FootballInterface'
+import { useEffect, useState } from 'react'
+import useAxios from '@/hooks/useAxios'
 
-type Props = {
-    stats: DashboardStatsInterface | null
-}
+const TopMainStats = () => {
 
-const TopMainStats = ({ stats }: Props) => {
+    const { get, loading, errors } = useAxios();
 
+    const [stats, setStats] = useState<DashboardStatsInterface | null>(null);
+
+    useEffect(() => {
+      getStats()
+    }, [])
+  
+    async function getStats() {
+      get(`admin/stats`).then((results: any) => {
+        if (results) {
+          setStats(results)
+        }
+      })
+    }
+  
     const countries = stats?.countries
     const competitions = stats?.competitions
     const odds_enabled_competitions = stats?.odds_enabled_competitions

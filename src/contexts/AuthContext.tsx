@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import CryptoJS from 'crypto-js';
 import { UserInterface } from '@/interfaces/UserInterface';
-import App from '@/utils/App';
+import { config } from '@/utils/helpers';
 
 // Secret key for encryption/decryption
 const secretKey = import.meta.env.VITE_APP_CRYPO_SECRET_KEY;
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const [verified, setVerified] = useState<boolean>(false)
-  const [redirectTo, setRedirectTo] = useState<string>(App.home())
+  const [redirectTo, setRedirectTo] = useState<string>(config.urls.home)
 
   // Set encrypted user data to local storage and update roles state
   const setUser = (newUser: UserInterface) => {

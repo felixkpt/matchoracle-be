@@ -11,7 +11,8 @@ const useRolePermissions = () => {
     const [directPermissions, setDirectPermissions] = useState<PermissionInterface[]>([]);
     const [routePermissions, setRoutePermissions] = useState<PermissionInterface[]>([]);
 
-    const [loadingRoutePermissions, setLoadingRoutePermissions] = useState(false)
+    const [loadingRoutePermissions, setLoadingRoutePermissions] = useState(true)
+    const [loadingMenu, setLoadingMenu] = useState(true)
 
     const [userMenu, setUserMenu] = useState<RouteCollectionInterface[]>([])
 
@@ -104,6 +105,7 @@ const useRolePermissions = () => {
 
         if (!loading && !errors && data) {
             setUserMenu(data?.menu)
+            setLoadingMenu(false)
         }
 
     }, [loading])
@@ -120,7 +122,7 @@ const useRolePermissions = () => {
         loadingRoutePermissions,
         userMenu,
         setUserMenu,
-        loadingMenu: loading,
+        loadingMenu,
         errorsLoadingMenu: errors,
     };
 };
