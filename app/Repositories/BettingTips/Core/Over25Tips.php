@@ -14,10 +14,10 @@ class Over25Tips
     private $odds_max_threshold = 5.0;
 
     private $proba_name = 'over25_proba';
-    private $proba_threshold = 58;
+    private $proba_threshold = 56;
 
     private $proba_name2 = 'ft_away_win_proba';
-    private $proba_threshold2 = 36;
+    private $proba_threshold2 = 40;
 
     function predictionStatisticFilter($q)
     {

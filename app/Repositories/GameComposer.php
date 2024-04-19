@@ -106,7 +106,7 @@ class GameComposer
 
         $homeTeamScore = (int)($scoreData['home_scores_half_time'] ?? 0);
         $awayTeamScore = (int)($scoreData['away_scores_half_time'] ?? 0);
-
+        
         $winner = null;
         if ($homeTeamScore > $awayTeamScore) {
             $winner = 'HOME_TEAM';
@@ -270,7 +270,7 @@ class GameComposer
             return false;
         }
 
-        $winningSide = self::winningSideHT($game);
+        $winningSide = self::winningSideHT($game, true);
         if ($winningSide >= 0) {
             return true;
         }

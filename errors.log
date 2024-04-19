@@ -24,3 +24,18 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /var/www/html/matchoracle-be/public/index.php on line 34" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/auth/login HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/04/19 04:58:57 [error] 1178#1178: *2497 recv() failed (104: Unknown error) while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/admin/competitions/view/1602/matches?type=played&per_page=1200&to_date=2023-10-21&is_predictor=1&order_by=utc_date&order_direction=asc&history_limit_per_match=12&current_ground_limit_per_match=6&h2h_limit_per_match=4&prediction_type=regular_prediction_12_6_4_1200&task=train HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/04/19 22:17:17 [error] 1147#1147: *14799 FastCGI sent in stderr: "PHP message: PHP Fatal error:  Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/symfony/http-foundation/Response.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(662): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be/vendor/laravel/framewor...PHP message: PHP Fatal error:  Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../symfony/error-handler/Error/FatalError.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(244): Composer\Autoload\Cla

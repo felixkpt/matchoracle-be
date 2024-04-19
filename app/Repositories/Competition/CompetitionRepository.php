@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\Teams\TeamsController;
 use App\Models\Competition;
 use App\Models\CompetitionPredictionStatistic;
 use App\Models\CompetitionStatistic;
+use App\Models\Game;
+use App\Models\GamePrediction;
 use App\Models\GameSource;
 use App\Models\Odd;
 use App\Models\Season;
@@ -18,7 +20,6 @@ use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class CompetitionRepository implements CompetitionRepositoryInterface
 {
@@ -82,7 +83,27 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                 $item = $q->lastAction->predictions_last_train ?? null;
                 return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
             })
-            ->addColumn('odds', fn ($q) => Odd::whereHas('game', fn ($qry) => $qry->where('competition_id', $q->id))->count())
+            ->addColumn('Games_counts', function ($q) {
+                $ct = Game::where('competition_id', $q->id)->count();
+                if ($q->games_counts == 0) {
+                    Competition::find($q->id)->update(['games_counts' => $ct]);
+                }
+                return $ct;
+            })
+            ->addColumn('Predictions_counts', function ($q) {
+                $ct = GamePrediction::where('competition_id', $q->id)->where('prediction_type_id', current_prediction_type())->count();
+                if ($q->predictions_counts == 0) {
+                    Competition::find($q->id)->update(['predictions_counts' => $ct]);
+                }
+                return $ct;
+            })
+            ->addColumn('Odds_counts', function ($q) {
+                $ct = Odd::whereHas('game', fn ($qry) => $qry->where('competition_id', $q->id))->count();
+                if ($q->odds_counts == 0) {
+                    Competition::find($q->id)->update(['odds_counts' => $ct]);
+                }
+                return $ct;
+            })
             ->addActionItem(
                 [
                     'title' => 'Add Sources',
@@ -305,10 +326,9 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $dates = $this->model::find($id)->games()->whereDate('utc_date', '>=', $from_date)->whereDate('utc_date', '<=', $to_date)->orderBy('utc_date')->pluck('utc_date')->toArray();
 
-        $dates = array_values(array_unique(array_map(fn($date) => Carbon::parse($date)->format('Y-m-d'), $dates)));
-        
-        return response(['results' => $dates]);
+        $dates = array_values(array_unique(array_map(fn ($date) => Carbon::parse($date)->format('Y-m-d'), $dates)));
 
+        return response(['results' => $dates]);
     }
 
     function tabs($id)

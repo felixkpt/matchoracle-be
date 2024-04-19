@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 trait BettingTipsTrait
 {
-    private $initial_bankroll = 10000;
+    private $initial_bankroll = 1000;
     private $singles_stake_ratio = 0.1;
     private $multiples_stake_ratio = 0.1;
     private $multiples_combined_min_odds = 5;

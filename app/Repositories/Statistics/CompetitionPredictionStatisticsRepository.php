@@ -67,15 +67,14 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
         $prediction_type_id = request()->prediction_type_id;
         $arr = (new GamePredictionStatsUtility())->doStats($games);
 
-        $counts = $arr['counts'];
+        $counts = $arr['ft']['counts'];
         if ($arr && $counts > 0) {
 
             $ftArr = $arr['ft'];
             $htArr = $arr['ht'];
 
             $arr = [
-                'counts' => $counts,
-
+                'ft_counts' => $ftArr['counts'],
                 'ft_home_wins_counts' => $ftArr['home_wins']['counts'],
                 'ft_home_wins_preds' => $ftArr['home_wins']['preds'],
                 'ft_home_wins_preds_true' => $ftArr['home_wins']['preds_true'],
@@ -131,6 +130,7 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
                 'ft_under35_preds_true' => $ftArr['under35']['preds_true'],
                 'ft_under35_preds_true_percentage' => $ftArr['under35']['preds_true_percentage'],
 
+                'ht_counts' => $htArr['counts'],
                 'ht_home_wins_counts' => $htArr['home_wins']['counts'],
                 'ht_home_wins_preds' => $htArr['home_wins']['preds'],
                 'ht_home_wins_preds_true' => $htArr['home_wins']['preds_true'],

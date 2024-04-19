@@ -57,9 +57,11 @@ class GamePredictionStatsUtility
             $this->updateBTSStats($stats, $game);
             $this->updateGoalStats($stats, $game);
 
-            $winningSideHT = GameComposer::winningSideHT($game, true);
-            $this->updateHTCounts($stats, $winningSideHT);
-            $this->updateHTPredictionStats($stats, $game, $winningSideHT);
+            if ($this->isValidGameHT($game)) {
+                $winningSideHT = GameComposer::winningSideHT($game, true);
+                $this->updateHTCounts($stats, $winningSideHT);
+                $this->updateHTPredictionStats($stats, $game, $winningSideHT);
+            }
 
             $batchCounts++;
         }
@@ -72,6 +74,7 @@ class GamePredictionStatsUtility
         $preset = ['counts' => 0, 'preds' => 0, 'preds_true' => 0, 'preds_true_percentage' => 0];
         $stats = [
             'ft' => [
+                'counts' => 0,
                 'home_wins' => $preset,
                 'draws' => $preset,
                 'away_wins' => $preset,
@@ -97,13 +100,20 @@ class GamePredictionStatsUtility
 
     private function isValidGame($game)
     {
-
         $prediction = $game[$this->predictionTypeMode];
         return $prediction && isset($game['score']) && GameComposer::hasResults($game);
     }
 
+    private function isValidGameHT($game)
+    {
+        $prediction = $game[$this->predictionTypeMode];
+        return $prediction && $prediction['ht_hda_pick'] !== null && isset($game['score']) && GameComposer::hasResultsHT($game);
+    }
+
     private function updateFTCounts(&$stats, $winningSide)
     {
+        $stats['ft']['counts'] += 1;
+
         // Update halftime match counts
         if ($winningSide === self::HOME_TEAM) {
             $stats['ft']['home_wins']['counts']++;
@@ -114,7 +124,7 @@ class GamePredictionStatsUtility
         }
     }
 
-    private function updateFTPredictionStats(&$stats, $game, $winningSideHT)
+    private function updateFTPredictionStats(&$stats, $game, $winningSide)
     {
         // Update halftime prediction stats
         $prediction = $game[$this->predictionTypeMode];
@@ -122,13 +132,15 @@ class GamePredictionStatsUtility
             return;
         }
 
-        $this->updatePredictionStat($stats['ft']['home_wins'], $prediction['ht_hda_pick'], $winningSideHT, self::HOME_TEAM);
-        $this->updatePredictionStat($stats['ft']['draws'], $prediction['ht_hda_pick'], $winningSideHT, self::DRAW);
-        $this->updatePredictionStat($stats['ft']['away_wins'], $prediction['ht_hda_pick'], $winningSideHT, self::AWAY_TEAM);
+        $this->updatePredictionStat($stats['ft']['home_wins'], $prediction['ht_hda_pick'], $winningSide, self::HOME_TEAM);
+        $this->updatePredictionStat($stats['ft']['draws'], $prediction['ht_hda_pick'], $winningSide, self::DRAW);
+        $this->updatePredictionStat($stats['ft']['away_wins'], $prediction['ht_hda_pick'], $winningSide, self::AWAY_TEAM);
     }
 
     private function updateHTCounts(&$stats, $winningSideHT)
     {
+        $stats['ht']['counts'] += 1;
+
         // Update halftime match counts
         if ($winningSideHT === self::HOME_TEAM) {
             $stats['ht']['home_wins']['counts']++;
@@ -139,7 +151,7 @@ class GamePredictionStatsUtility
         }
     }
 
-    private function updateHTPredictionStats(&$stats, $game, $winningSideHT)
+    private function updateHTPredictionStats(&$stats, $game, $winningSide)
     {
         // Update halftime prediction stats
         $prediction = $game[$this->predictionTypeMode];
@@ -147,13 +159,9 @@ class GamePredictionStatsUtility
             return;
         }
 
-        if (!GameComposer::hasResultsHT($game)) return;
-
-        $stats['ht']['counts'] = $stats['ht']['counts'] + 1;
-
-        $this->updatePredictionStat($stats['ht']['home_wins'], $prediction['ht_hda_pick'], $winningSideHT, self::HOME_TEAM);
-        $this->updatePredictionStat($stats['ht']['draws'], $prediction['ht_hda_pick'], $winningSideHT, self::DRAW);
-        $this->updatePredictionStat($stats['ht']['away_wins'], $prediction['ht_hda_pick'], $winningSideHT, self::AWAY_TEAM);
+        $this->updatePredictionStat($stats['ht']['home_wins'], $prediction['ht_hda_pick'], $winningSide, self::HOME_TEAM);
+        $this->updatePredictionStat($stats['ht']['draws'], $prediction['ht_hda_pick'], $winningSide, self::DRAW);
+        $this->updatePredictionStat($stats['ht']['away_wins'], $prediction['ht_hda_pick'], $winningSide, self::AWAY_TEAM);
     }
 
     private function updatePredictionStat(&$stat, $prediction, $actual, $outcome)
@@ -221,8 +229,10 @@ class GamePredictionStatsUtility
         $totalPredictions = 0;
 
         foreach ($stats['ft'] as $resultType => $resultStats) {
-            $totalCorrectPredictions += $resultStats['preds_true'];
-            $totalPredictions += $resultStats['preds'];
+            if (isset($resultStats['preds'])) {
+                $totalCorrectPredictions += $resultStats['preds_true'];
+                $totalPredictions += $resultStats['preds'];
+            }
         }
 
         $averageScore = ($totalPredictions === 0) ? 0 : round($totalCorrectPredictions / $totalPredictions * 100);
@@ -245,7 +255,7 @@ class GamePredictionStatsUtility
                 'under35' => $this->calculatePercentageStats($stats['ft']['under35']),
             ],
             'ht' => [
-                'counts' => $stats['ht']['counts'] + 33,
+                'counts' => $stats['ht']['counts'],
                 'home_wins' => $this->calculatePercentageStats($stats['ht']['home_wins']),
                 'draws' => $this->calculatePercentageStats($stats['ht']['draws']),
                 'away_wins' => $this->calculatePercentageStats($stats['ht']['away_wins']),

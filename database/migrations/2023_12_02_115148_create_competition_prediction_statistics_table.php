@@ -21,8 +21,7 @@ return new class extends Migration
             $table->date('date')->nullable();
             $table->integer('matchday')->nullable();
 
-            $table->unsignedBigInteger('counts');
-
+            $table->unsignedBigInteger('ft_counts');
             $table->integer('ft_home_wins_counts');
             $table->integer('ft_home_wins_preds');
             $table->integer('ft_home_wins_preds_true');

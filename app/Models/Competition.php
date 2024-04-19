@@ -21,7 +21,7 @@ class Competition extends Model
     'abbreviation',
     'continent_id',
     'country_id',
-    
+
     'games_per_season',
     'available_seasons',
     'gender',
@@ -31,6 +31,11 @@ class Competition extends Model
     'has_teams',
     'is_odds_enabled',
     'priority_number',
+
+    'games_counts',
+    'predictions_counts',
+    'odds_counts',
+
   ];
 
   protected $systemFillable = [

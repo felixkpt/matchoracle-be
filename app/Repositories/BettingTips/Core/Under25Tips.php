@@ -14,10 +14,10 @@ class Under25Tips
     private $odds_max_threshold = 5.0;
 
     private $proba_name = 'under25_proba';
-    private $proba_threshold = 55;
+    private $proba_threshold = 60;
 
     private $proba_name2 = 'ng_proba';
-    private $proba_threshold2 = 35;
+    private $proba_threshold2 = 45;
 
     function predictionStatisticFilter($q)
     {

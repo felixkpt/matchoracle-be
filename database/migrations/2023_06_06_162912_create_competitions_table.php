@@ -36,6 +36,10 @@ return new class extends Migration
             $table->unsignedBigInteger('stage_id')->default(0);
             $table->enum('gender', [1, 2]);
 
+            $table->unsignedBigInteger('games_counts')->nullable()->default(0);
+            $table->unsignedBigInteger('predictions_counts')->nullable()->default(0);
+            $table->unsignedBigInteger('odds_counts')->nullable()->default(0);
+
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();

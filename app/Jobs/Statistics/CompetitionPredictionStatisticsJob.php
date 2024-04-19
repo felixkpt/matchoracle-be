@@ -61,6 +61,7 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
             $competitions = Competition::query()
                 ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
                 ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
+                ->where('games_counts', '>=', 500)
                 ->when($this->competitionId, function ($query) {
                     $query->where('competitions.id', $this->competitionId);
                 })

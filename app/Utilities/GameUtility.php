@@ -3,10 +3,11 @@
 namespace App\Utilities;
 
 use App\Models\Game;
-use App\Models\GameScoreStatus;
 use App\Repositories\GameComposer;
 use App\Repositories\SearchRepo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * Class GameUtility
@@ -90,7 +91,7 @@ class GameUtility
             ->when(request()->limit, fn ($q) => $q->limit(request()->limit));
 
         $with = ['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'homeTeam', 'awayTeam', 'score', 'votes', 'referees', 'odds'];
-        
+
         if (request()->prediction_mode_id == 1) {
             array_push($with, 'prediction');
             $games = $games->whereHas('prediction');
@@ -169,7 +170,27 @@ class GameUtility
 
         $uri = '/admin/matches/';
 
-        $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name'])
+        $search_builder = null;
+        $joiners = [' vs ', ' v '];
+        if (request()->q && Str::contains(request()->q, $joiners)) {
+            $query = array_values(array_filter(explode($joiners[0], request()->q)));
+            if (count($query) !== 2) {
+                $query = array_values(array_filter(explode($joiners[1], request()->q)));
+            }
+
+            if (count($query) === 2) {
+
+                $search_builder = function ($q) use ($query) {
+                    $q->whereHas('homeTeam', function ($q) use ($query) {
+                        $q->where('name', 'like', '%' . $query[0] . '%');
+                    })->whereHas('awayTeam', function ($q) use ($query) {
+                        $q->where('name', 'like', '%' . $query[1] . '%');
+                    });
+                };
+            }
+        }
+
+        $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name'], $search_builder)
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'ID', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '#' . $q->id . '</a>')
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Competition', fn ($q) => '<a class="autotable-navigate hover-underline text-decoration-underline link-unstyled" data-id="' . $q->competition->id . '" href="/admin/competitions/view/' . $q->competition->id . '">' . '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->competition->logo ? asset($q->competition->logo) : asset('assets/images/competitions/default_logo.png')) . '" /><span class="ms-1">' . $q->competition->name . '</span></a>')
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Game', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . $q->homeTeam->name . ' vs ' . $q->awayTeam->name . '</a>', 'cs')
@@ -194,7 +215,7 @@ class GameUtility
             ->addColumnWhen(request()->break_preds, 'CS', fn ($q) => $this->formatCS(clone $q))
             ->addColumnWhen(request()->break_preds, 'Halftime', fn ($q) => $this->formatHTScores(clone $q))
             ->addColumnWhen(request()->break_preds, 'Fulltime', fn ($q) => $this->formatFTScores(clone $q))
-            ->addColumnWhen(request()->break_preds, 'UTC_date', fn ($q) => '<span class="text-nowrap">'.Carbon::parse($q->utc_date)->format('y-m-d').'</span>')
+            ->addColumnWhen(request()->break_preds, 'UTC_date', fn ($q) => '<span class="text-nowrap">' . Carbon::parse($q->utc_date)->format('y-m-d') . '</span>')
 
             ->addColumnWhen(!request()->is_predictor, 'current_user_votes', fn ($q) => $this->currentUserVotes($q))
             ->addColumnWhen(!request()->is_predictor, 'Created_by', 'getUser')

@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Admin\Settings\RolePermissions\Permissions;
 
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
-use App\Services\NestedRoutes\GetNestedRoutes;
 use Illuminate\Support\Str;
-use App\Models\Role;
+use Felixkpt\Nestedroutes\GetNestedroutes;
 
 class RoutesController extends Controller
 {
@@ -15,7 +14,7 @@ class RoutesController extends Controller
     public function index()
     {
         $prefix = 'admin';
-        $gen = new GetNestedRoutes($prefix, '');
+        $gen = new GetNestedroutes($prefix, '');
         $nestedRoutes = $gen->list($prefix);
 
 

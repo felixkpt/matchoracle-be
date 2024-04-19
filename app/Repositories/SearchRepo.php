@@ -62,7 +62,7 @@ class SearchRepo
      * @param array $searchable The columns to search against.
      * @return SearchRepo The SearchRepo instance.
      */
-    public static function of($builder, $searchable = [])
+    public static function of($builder, $searchable = [], $search_builder = null)
     {
 
         $self = new self;
@@ -117,7 +117,11 @@ class SearchRepo
 
             if ($builder instanceof EloquentBuilder) {
 
-                $builder = $builder->where(function ($q) use ($searchable, $term, $model_table, $strategy) {
+                $builder = $builder->where(function ($q) use ($searchable, $term, $model_table, $strategy, $search_builder) {
+
+                    if ($search_builder) {
+                        return $q->where($search_builder);
+                    }
 
                     foreach ($searchable as $column) {
                         // Log::info('Searching:', ['term' => $term, 'model_table' => $model_table, 'col' => $column]);
@@ -141,18 +145,23 @@ class SearchRepo
                     }
                 });
             } elseif ($builder instanceof QueryBuilder) {
-                foreach ($searchable as $column) {
-                    if (Str::contains($column, '.')) {
-                        [$relation, $column] = explode('.', $column, 2);
 
-                        $relation = Str::camel($relation);
+                if ($search_builder) {
+                    $builder->where($search_builder);
+                } else {
+                    foreach ($searchable as $column) {
+                        if (Str::contains($column, '.')) {
+                            [$relation, $column] = explode('.', $column, 2);
 
-                        $builder->orWhere(function (QueryBuilder $query) use ($column, $term, $strategy) {
-                            $query->where($column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
-                        });
-                    } else {
-                        // Apply search condition on the main table
-                        $builder->orwhere($model_table . '.' . $column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
+                            $relation = Str::camel($relation);
+
+                            $builder->orWhere(function (QueryBuilder $query) use ($column, $term, $strategy) {
+                                $query->where($column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
+                            });
+                        } else {
+                            // Apply search condition on the main table
+                            $builder->orwhere($model_table . '.' . $column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
+                        }
                     }
                 }
             }

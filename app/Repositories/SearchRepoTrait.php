@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Status;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 trait SearchRepoTrait
@@ -72,6 +73,7 @@ trait SearchRepoTrait
             'module_uri' => $this->moduleUri,
             'statuses' => $statuses,
             'htmls' => $this->htmls,
+            'key' => Carbon::now()->unix(),
         ];
         return $arr;
     }

@@ -15,8 +15,8 @@ class CompetitionPredictionStatistic extends Model
         'prediction_type_id',
         'date',
         'matchday',
-        'counts',
 
+        'ft_counts',
         'ft_home_wins_counts',
         'ft_home_wins_preds',
         'ft_home_wins_preds_true',
