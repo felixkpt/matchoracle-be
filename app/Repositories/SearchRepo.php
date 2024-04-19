@@ -2,7 +2,6 @@
 
 namespace App\Repositories;
 
-use App\Models\Status;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +59,7 @@ class SearchRepo
      *
      * @param mixed $builder The builder instance (EloquentBuilder or QueryBuilder).
      * @param array $searchable The columns to search against.
+     * @param callable|null $search_builder A callback function to customize the search query (optional).
      * @return SearchRepo The SearchRepo instance.
      */
     public static function of($builder, $searchable = [], $search_builder = null)
@@ -87,7 +87,7 @@ class SearchRepo
 
 
         // Handle searching logic
-        $term = $request_data['q'] ?? null;
+        $term = $request_data['search'] ?? null;
 
         $search_field = $request_data['search_field'] ?? null;
 
@@ -119,7 +119,7 @@ class SearchRepo
 
                 $builder = $builder->where(function ($q) use ($searchable, $term, $model_table, $strategy, $search_builder) {
 
-                    if ($search_builder) {
+                    if (is_callable($search_builder)) {
                         return $q->where($search_builder);
                     }
 
@@ -146,7 +146,7 @@ class SearchRepo
                 });
             } elseif ($builder instanceof QueryBuilder) {
 
-                if ($search_builder) {
+                if (is_callable($search_builder)) {
                     $builder->where($search_builder);
                 } else {
                     foreach ($searchable as $column) {

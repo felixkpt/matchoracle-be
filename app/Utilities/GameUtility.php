@@ -172,19 +172,19 @@ class GameUtility
 
         $search_builder = null;
         $joiners = [' vs ', ' v '];
-        if (request()->q && Str::contains(request()->q, $joiners)) {
-            $query = array_values(array_filter(explode($joiners[0], request()->q)));
-            if (count($query) !== 2) {
-                $query = array_values(array_filter(explode($joiners[1], request()->q)));
+        if (request()->search && Str::contains(request()->search, $joiners)) {
+            $search = array_values(array_filter(explode($joiners[0], request()->search)));
+            if (count($search) !== 2) {
+                $search = array_values(array_filter(explode($joiners[1], request()->search)));
             }
 
-            if (count($query) === 2) {
+            if (count($search) === 2) {
 
-                $search_builder = function ($q) use ($query) {
-                    $q->whereHas('homeTeam', function ($q) use ($query) {
-                        $q->where('name', 'like', '%' . $query[0] . '%');
-                    })->whereHas('awayTeam', function ($q) use ($query) {
-                        $q->where('name', 'like', '%' . $query[1] . '%');
+                $search_builder = function ($q) use ($search) {
+                    $q->whereHas('homeTeam', function ($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search[0] . '%');
+                    })->whereHas('awayTeam', function ($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search[1] . '%');
                     });
                 };
             }
