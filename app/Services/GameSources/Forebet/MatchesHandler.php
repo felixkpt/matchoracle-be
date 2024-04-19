@@ -68,6 +68,14 @@ class MatchesHandler implements MatchesInterface
             sleep(5);
         }
 
+        if ($saved > 0) {
+            // update the matches counts
+            $gameCount = Game::where('competition_id', $competition->id)->count();
+            $competition->update([
+                'games_counts' => $gameCount,
+            ]);
+        }
+
         if (!$this->has_errors && $season && !$season->is_current && Carbon::parse($season->end_date)->isPast()) {
             $season->update(['fetched_all_matches' => true]);
         }

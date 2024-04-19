@@ -18,12 +18,6 @@ class OddsHandler
         if (count($data['hda_odds']) !== 3)
             return false;
 
-        if ($data['competition'] && !$data['competition']['is_odds_enabled']) {
-            $competition = $data['competition'];
-            $competition->is_odds_enabled = true;
-            $competition->save();
-        }
-
         try {
             DB::beginTransaction();
 
@@ -43,10 +37,10 @@ class OddsHandler
 
                     'under_25_odds' => $data['over_under_odds'][0] ?? null,
                     'over_25_odds' => $data['over_under_odds'][1] ?? null,
-                    
+
                     'gg_odds' => $data['gg_ng_odds'][0] ?? null,
                     'ng_odds' => $data['gg_ng_odds'][1] ?? null,
-                    
+
                     'game_id' => $data['game_id'] ?? null,
                     'source_id' => $data['source_id'] ?? null,
                 ]
@@ -60,6 +54,16 @@ class OddsHandler
         } catch (Exception $e) {
             DB::rollBack();
             Log::info('Odds save failed:', ['err' => $e->getMessage(), 'data' => $data]);
+        }
+
+        if (isset($data['competition']) && $data['competition']) {
+            $competition = $data['competition'];
+            $predictionCount = Odd::whereHas('game', fn ($qry) => $qry->where('competition_id', $competition->id))->count();
+            $competition->update([
+                'is_odds_enabled' => true,
+                'odds_counts' => $predictionCount
+            ]);
+            $competition->save();
         }
     }
 

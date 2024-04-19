@@ -107,6 +107,17 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
             );
         }
 
+        if (count($predictions) > 0) {
+            $competition = Competition::find($competition_id);
+            // update the preds counts
+            $predictionCount = GamePrediction::where('competition_id', $competition->id)
+                ->where('prediction_type_id', current_prediction_type())
+                ->count();
+            $competition->update([
+                'predictions_counts' => $predictionCount,
+            ]);
+        }
+
         return response(['message' => "Games Predictions saved successfully."]);
     }
 
