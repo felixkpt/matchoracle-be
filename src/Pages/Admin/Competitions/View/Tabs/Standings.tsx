@@ -31,12 +31,12 @@ const Standings: React.FC<CompetitionTabInterface> = ({ record, seasons, selecte
                 competition
                 &&
                 <div>
-                    <CompetitionSubHeader title="Standings" actionTitle="Fetch Standings" actionButton="fetchStandings" record={competition} seasons={seasons} selectedSeason={selectedSeason} />
-
-
+                    <div className='shadow-sm'>
+                        <CompetitionSubHeader actionTitle="Fetch Standings" actionButton="fetchStandings" record={competition} seasons={seasons} selectedSeason={selectedSeason} />
+                    </div>
                     {
                         !loading ?
-                            <div key={selectedSeason?.id}>
+                            <div key={selectedSeason?.id} className='mt-3'>
                                 {
                                     detailedCompetition && detailedCompetition.standings.length > 0 ?
                                         <StandingsTable standings={detailedCompetition.standings} />

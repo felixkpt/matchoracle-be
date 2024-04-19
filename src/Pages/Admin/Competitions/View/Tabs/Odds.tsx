@@ -1,5 +1,5 @@
 import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
-import CompetitionHeader from "../Inlcudes/CompetitionSubHeader"
+import CompetitionSubHeader from "../Inlcudes/CompetitionSubHeader"
 import AutoTable from "@/components/AutoTable"
 import { useEffect, useState } from "react"
 import { appendFromToDates } from "@/utils/helpers"
@@ -33,8 +33,9 @@ const Odds: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
             {
                 competition &&
                 <div>
-                    <CompetitionHeader title="Odds" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
-
+                    <div className='shadow-sm'>
+                        <CompetitionSubHeader record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+                    </div>
                     {baseUri &&
                         <AutoTable key={baseUri} columns={oddsColumns} baseUri={baseUri} search={true} tableId={'competitionMatchesTable'} customModalId="teamModal" />
                     }

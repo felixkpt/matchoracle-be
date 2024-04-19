@@ -22,6 +22,7 @@ const renderCategory = (category: string, data: any) => {
 
 const renderNestedCategories = (categories: any) => {
   return Object.entries(categories).map(([subcategory, data]) => {
+    if (subcategory == 'counts') return
     return renderCategory(subcategory, data);
   });
 };
@@ -37,8 +38,10 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
       get(baseUri, { params: { get_prediction_stats: true } }).then((res) => {
         if (res) {
           console.log(res)
-          const { ft, ht, counts, average_score } = res;
-          setFTStats({ ft, counts, average_score });
+          const { ft, ht, average_score } = res;
+
+          const ft_counts = ft.counts
+          setFTStats({ ft, counts:ft_counts, average_score });
           
           const ht_counts = ht.counts
           setHTStats({ ht, counts:ht_counts, average_score });

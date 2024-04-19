@@ -1,5 +1,5 @@
 import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
-import CompetitionHeader from "../Inlcudes/CompetitionSubHeader"
+import CompetitionSubHeader from "../Inlcudes/CompetitionSubHeader"
 import GeneralModal from "@/components/Modals/GeneralModal"
 import AutoTable from "@/components/AutoTable"
 import { useEffect, useState } from "react"
@@ -34,8 +34,9 @@ const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason 
             {
                 competition &&
                 <div>
-                    <CompetitionHeader title="Upcoming Predictions" actionTitle="Do Predictions" actionButton="doPredictions" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
-
+                    <div className='shadow-sm'>
+                        <CompetitionSubHeader actionTitle="Do Predictions" actionButton="doPredictions" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+                    </div>
                     {baseUri &&
                         <AutoTable key={baseUri} columns={predictionsColumns} baseUri={baseUri} search={true} tableId={'competitionUpcomingPredictionsTable'} customModalId="teamModal" />
                     }

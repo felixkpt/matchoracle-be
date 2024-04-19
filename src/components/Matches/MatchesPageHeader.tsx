@@ -30,14 +30,14 @@ const MatchesPageHeader = ({ title, fromToDates, setFromToDates, className }: Pr
     useEffect(() => {
 
         if (fromToDates[0]) {
-            setresetClasses('btn btn-badge border ms-1 bg-success-subtle opacity-1 cursor-pointer')
+            setresetClasses('btn btn-badge border ms-1 bg-success-subtle d-flex cursor-pointer')
         } else {
-            setresetClasses('btn btn-badge border ms-1 bg-success-subtle opacity-0 cursor-default')
+            setresetClasses('btn btn-badge border ms-1 bg-success-subtle d-none cursor-default')
         }
 
     }, [fromToDates])
 
-    const [classNames, setClassNames] = useState('header-title shadow-sm p-2 rounded row justify-content-between')
+    const [classNames, setClassNames] = useState('header-title p-2 rounded row justify-content-between')
 
     useEffect(() => {
 
@@ -55,30 +55,32 @@ const MatchesPageHeader = ({ title, fromToDates, setFromToDates, className }: Pr
     }, [className])
 
     return (
-        <div className={classNames}>
-            <div className="col-md-12 px-0" key={key}>
-                <div className={`row ${title ? 'justify-content-between' : 'justify-content-end'} `}>
-                    {title && <h4 className="col-md-6">{title}</h4>}
-                    {
-                        typeof setFromToDates === 'function' &&
-                        <div className="col-md-6">
-                            <div className="d-flex justify-content-center justify-content-md-end">
-                                <Flatpickr
-                                    value={fromToDates}
-                                    data-mode="range"
-                                    data-date-format="Y-m-d"
-                                    onChange={(selectedDates: Date[]) => handleSetDate(selectedDates)}
-                                    placeholder='--- Pick a date ---'
-                                    className="text-center form-control cursor-pointer"
-                                    data-position="auto center"
-                                />
-                                <button onClick={() => handleSetDate([])}
-                                    className={`${resetClasses ? resetClasses : 'btn btn-badge border ms-1 bg-success-subtle opacity-0'}`}>
-                                    <small>Reset</small>
-                                </button>
+        <div>
+            <div className={classNames}>
+                <div className="col-md-12 px-0" key={key}>
+                    <div className={`row ${title ? 'justify-content-between' : 'justify-content-end'} `}>
+                        {title && <h4 className="col-md-6">{title}</h4>}
+                        {
+                            typeof setFromToDates === 'function' &&
+                            <div className="col-md-6">
+                                <div className="d-flex justify-content-between justify-content-md-end">
+                                    <Flatpickr
+                                        value={fromToDates}
+                                        data-mode="range"
+                                        data-date-format="Y-m-d"
+                                        onChange={(selectedDates: Date[]) => handleSetDate(selectedDates)}
+                                        placeholder='--- Pick a date ---'
+                                        className="flatpickr-input text-center form-control cursor-pointer"
+                                        data-position="auto center"
+                                    />
+                                    <button onClick={() => handleSetDate([])}
+                                        className={`${resetClasses ? resetClasses : 'btn btn-badge border ms-1 bg-success-subtle opacity-0'}`}>
+                                        <small>Reset</small>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    }
+                        }
+                    </div>
                 </div>
             </div>
         </div>

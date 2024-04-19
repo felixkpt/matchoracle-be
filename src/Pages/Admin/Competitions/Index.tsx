@@ -33,7 +33,9 @@ const Index = () => {
         { key: 'standings_fetched' },
         { key: 'p_matches_fetched' },
         { key: 'u_matches_fetched' },
-        { key: 'odds', column:'odds.' },
+        { key: 'Games_counts', label: 'Games' },
+        { key: 'Predictions_counts', label: 'Predictions' },
+        { key: 'Odds_counts', label: 'Odds' },
         { label: 'has_teams', key: 'Has_teams' },
         { label: 'priority_no', key: 'priority_number' },
         {
@@ -160,7 +162,7 @@ const Index = () => {
             <PageHeader title={'Competitions list'} action="button" actionText="Create Competition" actionTargetId="competitionModal" permission='admin/competitions' setRecord={setRecord} />
             <div className="d-flex justify-content-end">
                 <div className={`col-6 col-md-3 form-group d-flex justify-content-end`}>
-                    
+
                 </div>
             </div>
             <div>

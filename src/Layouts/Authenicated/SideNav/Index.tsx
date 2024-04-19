@@ -101,7 +101,7 @@ const Index = () => {
         <div className="nav pt-2">
           <div className='px-1'>
             <div id="menu">
-              <div id='role-switcher'>
+              <div id='role-switcher' title='Switch your role'>
                 <Select
                   className="basic-single text-dark mb-2"
                   classNamePrefix="select"
@@ -109,7 +109,7 @@ const Index = () => {
                   isSearchable={true}
                   name="roles"
                   options={roles}
-                  placeholder='Select/switch your role'
+                  placeholder='Switch your role'
                   getOptionValue={(option: any) => `${option['id']}`}
                   getOptionLabel={(option: any) => `${option['name']}`}
                   onChange={(item: any) => setCurrentRole(item)}

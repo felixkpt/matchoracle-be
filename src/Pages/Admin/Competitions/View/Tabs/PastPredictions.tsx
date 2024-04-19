@@ -1,11 +1,15 @@
-import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
-import CompetitionHeader from "../Inlcudes/CompetitionSubHeader"
+import { CompetitionTabInterface, PredictionModeInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
+import CompetitionSubHeader from "../Inlcudes/CompetitionSubHeader"
 import GeneralModal from "@/components/Modals/GeneralModal"
 import AutoTable from "@/components/AutoTable"
 import { useEffect, useState } from "react"
 import { appendFromToDates } from "@/utils/helpers"
-import { predictionsColumns } from '@/utils/constants';
+import { predictionModes, predictionsColumns } from '@/utils/constants';
 import Str from "@/utils/Str"
+import PredictionStatsTable from "@/components/Predictions/PredictionStatsTable"
+import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces"
+import Select from 'react-select';
+import PredictionsModeSwitcher from "@/components/Predictions/PredictionsModeSwitcher"
 
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
@@ -19,10 +23,18 @@ const PastPredictions: React.FC<Props> = ({ record, seasons, selectedSeason }) =
 
     const [baseUri, setBaseUri] = useState('')
 
+    const [predictionMode, setPredictionMode] = useState<PredictionModeInterface | null>();
+
+    useEffect(() => {
+        if (predictionModes) {
+            setPredictionMode(predictionModes[0])
+        }
+    }, [predictionModes])
+
     useEffect(() => {
 
         if (competition) {
-            let uri = `admin/competitions/view/${competition.id}/predictions?prediction_mode_id=1&break_preds=1&type=past`
+            let uri = `admin/competitions/view/${competition.id}/predictions?break_preds=1&type=past`
             if (useDate) {
                 uri = uri + `${appendFromToDates(useDate, fromToDates)}`
             } else {
@@ -32,15 +44,28 @@ const PastPredictions: React.FC<Props> = ({ record, seasons, selectedSeason }) =
         }
     }, [competition, fromToDates])
 
+    const [modelDetails, setModelDetails] = useState<Omit<CollectionItemsInterface, 'data'>>()
+
     return (
         <div>
             {
                 competition &&
                 <div>
-                    <CompetitionHeader title="Past Predictions" actionTitle="Do Predictions" actionButton="doPredictions" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
-
+                    <div className="row shadow-sm align-items-center">
+                        <div className="col-xl-8">
+                            <CompetitionSubHeader actionTitle="Do Predictions" actionButton="doPredictions" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+                        </div>
+                        <div className="col-xl-4">
+                            <PredictionsModeSwitcher predictionMode={predictionMode} predictionModes={predictionModes} setPredictionMode={setPredictionMode} />
+                        </div>
+                    </div>
                     {baseUri &&
-                        <AutoTable key={baseUri} columns={predictionsColumns} baseUri={baseUri} search={true} tableId={'competitionPastPredictionsTable'} customModalId="teamModal" />
+                        <div>
+                            <AutoTable key={baseUri} columns={predictionsColumns} baseUri={baseUri} search={true}
+                                getModelDetails={setModelDetails}
+                                tableId={'competitionPastPredictionsTable'} customModalId="teamModal" />
+                            <PredictionStatsTable key={modelDetails?.query || 0} baseUri={`${baseUri}&prediction_mode_id=${predictionMode ? predictionMode.id : 1}&q=${modelDetails?.query || ''}`} />
+                        </div>
                     }
                     <GeneralModal title={`Predictions form`} actionUrl={`admin/competitions/view/${competition.id}/predict`} size={'modal-lg'} id={`doPredictions`}>
                         <div className="form-group mb-3">

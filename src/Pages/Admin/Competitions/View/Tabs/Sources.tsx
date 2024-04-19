@@ -3,12 +3,13 @@ import Loader from '@/components/Loader';
 import PageHeader from '@/components/PageHeader';
 import { CompetitionInterface, CompetitionTabInterface, SeasonsListInterface } from '@/interfaces/FootballInterface';
 import { publish } from '@/utils/events';
+import CompetitionSubHeader from '../Inlcudes/CompetitionSubHeader';
 
 interface Props {
   record: Omit<CompetitionInterface, 'seasons', 'selectedSeason', 'setSelectedSeasonts'>;
 }
 
-interface Props extends CompetitionTabInterface, SeasonsListInterface {}
+interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
 const Sources: React.FC<Props> = ({ record }) => {
 
@@ -16,9 +17,11 @@ const Sources: React.FC<Props> = ({ record }) => {
 
   return (
     <div>
-      <PageHeader title='Sources' />
+      <div className='shadow-sm'>
+        <CompetitionSubHeader actionTitle="Fetch Results" actionButton="fetchPastMatches" record={competition} />
+      </div>
 
-      <div className="card">
+      <div className="card mt-3">
         <div className="card-body">
           {
             competition ?

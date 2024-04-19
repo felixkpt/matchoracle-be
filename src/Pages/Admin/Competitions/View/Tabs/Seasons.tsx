@@ -1,9 +1,9 @@
 import { CompetitionTabInterface, SeasonsListInterface } from '@/interfaces/FootballInterface'
-import CompetitionHeader from '../Inlcudes/CompetitionSubHeader';
+import CompetitionSubHeader from '../Inlcudes/CompetitionSubHeader';
 import AutoTable from '@/components/AutoTable';
 import GeneralModal from '@/components/Modals/GeneralModal';
 
-interface Props extends CompetitionTabInterface, SeasonsListInterface {}
+interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
 const Seasons: React.FC<Props> = ({ record, selectedSeason }) => {
 
@@ -29,8 +29,9 @@ const Seasons: React.FC<Props> = ({ record, selectedSeason }) => {
       {
         competition &&
         <div>
-          <CompetitionHeader title="Seasons" actionTitle="Fetch Seasons" actionButton={'fetchSeasons'} record={competition} />
-
+          <div className='shadow-sm'>
+            <CompetitionSubHeader actionTitle="Fetch Seasons" actionButton={'fetchSeasons'} record={competition} />
+          </div>
           <AutoTable key={selectedSeason?.id} columns={columns} baseUri={`admin/seasons?competition_id=${competition.id}`} search={true} tableId={'competitionSeasonsTable'} customModalId="teamModal" />
 
           {

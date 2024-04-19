@@ -35,7 +35,7 @@ const TipsContent = ({ data }: Props) => {
                 betslip.map((game: GameInterface) => {
 
                     return (
-                        <div key={game.id} className="row border border-0 border-bottom border-dark">
+                        <div key={game.id} className="row border border-0 border-bottom border-dark pb-1">
                             <div className="col-12 text-muted">
                                 <small>{FormatDate.toLocaleDateString(game.utc_date)}</small>
                             </div>

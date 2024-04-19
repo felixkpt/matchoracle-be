@@ -19,7 +19,7 @@ const useAutoTableEffect = (
     const [per_page, setPerPage] = useState<string | undefined>(options.perPage || '50');
     const [orderBy, setOrderBy] = useState<string | undefined>(undefined);
     const [orderDirection, setOrderDirection] = useState<string>('desc');
-    const [q, setQuery] = useState<string | undefined>(undefined);
+    const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
     const [reload, setReload] = useState<number>(0);
     const [hidePerPage, setHidePerPage] = useState<boolean>(false);
     const [fullQueryString, setFullQueryString] = useState<string>(baseUri);
@@ -39,13 +39,13 @@ const useAutoTableEffect = (
 
     useEffect(() => {
         fetchData();
-    }, [page, per_page, orderBy, orderDirection, q, reload, status]);
+    }, [page, per_page, orderBy, orderDirection, searchTerm, reload, status]);
 
     async function fetchData() {
         try {
             const mergedParams = <{ [key: string]: string | undefined }>{ };
             mergedParams['id'] = id || '';
-            mergedParams['q'] = q;
+            mergedParams['q'] = searchTerm;
             mergedParams['status'] = status ? '1' : '0';
             mergedParams['page'] = page;
             mergedParams['per_page'] = per_page;
@@ -95,7 +95,7 @@ const useAutoTableEffect = (
     }
 
     const handleSearch = (_q: string) => {
-        setQuery(_q);
+        setSearchTerm(_q);
     };
 
     return {
@@ -109,6 +109,8 @@ const useAutoTableEffect = (
         hidePerPage,
         status,
         setStatus,
+        searchTerm,
+        setSearchTerm,
         fullQueryString,
     };
 };

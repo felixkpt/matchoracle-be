@@ -1,10 +1,10 @@
 import { CompetitionTabInterface, SeasonsListInterface } from '@/interfaces/FootballInterface'
-import CompetitionHeader from '../Inlcudes/CompetitionSubHeader';
 import AutoTable from '@/components/AutoTable';
 import GeneralModal from '@/components/Modals/GeneralModal';
 import { useEffect, useState } from 'react';
 import { appendFromToDates } from '@/utils/helpers';
 import Str from '@/utils/Str';
+import CompetitionSubHeader from '../Inlcudes/CompetitionSubHeader';
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
@@ -48,7 +48,9 @@ const PastMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
       {
         competition &&
         <div>
-          <CompetitionHeader title="Past Matches" actionTitle="Fetch Results" actionButton="fetchPastMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+          <div className='shadow-sm'>
+          <CompetitionSubHeader actionTitle="Fetch Results" actionButton="fetchPastMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+          </div>
 
           {baseUri &&
             <AutoTable key={baseUri} columns={columns} baseUri={baseUri} search={true} tableId={'competitionPastMatchesTable'} customModalId="teamModal" />

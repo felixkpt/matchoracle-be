@@ -473,3 +473,13 @@ p {
 .btn-saving {
   opacity: 0.85;
 }
+
+@media (min-width: 540px) {
+
+  .flatpickr-input,
+  .tips-mode-input {
+    width: 200px !important;
+    text-wrap: nowrap;
+  }
+
+}

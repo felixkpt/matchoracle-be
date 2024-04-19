@@ -8,8 +8,8 @@ import useFromToDates from '@/hooks/useFromToDates';
 import PredictionStatsTable from '@/components/Predictions/PredictionStatsTable';
 import { useEffect, useState } from 'react';
 import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces';
-import { PredictionModeInterface } from '../BettingTips/Index';
-import Select from 'react-select';
+import { PredictionModeInterface } from '@/interfaces/FootballInterface';
+import PredictionsModeSwitcher from '@/components/Predictions/PredictionsModeSwitcher';
 
 const Index = () => {
 
@@ -26,11 +26,6 @@ const Index = () => {
         }
     }, [predictionModes])
 
-
-    const changePredictionMode = (val: any) => {
-        setPredictionMode(val);
-    };
-
     const [modelDetails, setModelDetails] = useState<Omit<CollectionItemsInterface, 'data'>>()
 
     return (
@@ -40,26 +35,10 @@ const Index = () => {
                     <div>
                         <div className="row shadow-sm">
                             <div className="col-xl-9">
-                                <MatchesPageHeader titlde={'Predictions List'} fromToDates={fromToDates} setFromToDates={setFromToDates} className="shadow-none" />
+                                <MatchesPageHeader title={'Predictions List'} fromToDates={fromToDates} setFromToDates={setFromToDates} className="shadow-none" />
                             </div>
                             <div className="col-xl-3">
-                                <div className='d-flex gap-1 align-items-center shadow-sm px-2 rounded'>
-                                    <div className='text-nowrap'>Tips Mode:</div> <Select
-                                        className="form-control border-0"
-                                        classNamePrefix="select"
-                                        defaultValue={predictionMode || null}
-                                        isDisabled={false}
-                                        isLoading={false}
-                                        isClearable={false}
-                                        isSearchable={false}
-                                        placeholder="Select predictions mode"
-                                        name='prediction_mode_id'
-                                        options={predictionModes || []}
-                                        onChange={(v: any) => changePredictionMode(v)}
-                                        getOptionValue={(option: any) => `${option['id']}`}
-                                        getOptionLabel={(option: any) => option['name']}
-                                    />
-                                </div>
+                                <PredictionsModeSwitcher predictionMode={predictionMode} predictionModes={predictionModes} setPredictionMode={setPredictionMode} />
                             </div>
                         </div>
                         {
@@ -70,7 +49,7 @@ const Index = () => {
                                     columns={predictionsColumns}
                                     search={true}
                                     list_sources={list_sources}
-                                    perPage={200}
+                                    perPage={100}
                                     getModelDetails={setModelDetails}
                                     tableId='predictionsTable'
                                 />

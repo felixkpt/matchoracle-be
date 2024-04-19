@@ -18,7 +18,11 @@ const Index = () => {
             {
                 errorsState === 0 ?
                     <div>
-                        <MatchesPageHeader title={'Odds List'} fromToDates={fromToDates} setFromToDates={setFromToDates} />
+                        <div className="row shadow-sm">
+                            <div className="col-xl-12">
+                                <MatchesPageHeader title={'Odds List'} fromToDates={fromToDates} setFromToDates={setFromToDates} className="shadow-none" />
+                            </div>
+                        </div>
                         <AutoTable
                             key={baseUri}
                             baseUri={baseUri}

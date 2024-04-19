@@ -1,6 +1,5 @@
 import AutoTable from "@/components/AutoTable";
 import GeneralModal from "@/components/Modals/GeneralModal";
-import PageHeader from "@/components/PageHeader";
 import useListSources from "@/hooks/apis/useListSources";
 import { DataInterface } from "@/interfaces/UncategorizedInterfaces";
 import { subscribe, unsubscribe } from "@/utils/events";
@@ -10,8 +9,9 @@ import CreateOrUpdateFromSource from "@/components/CreateOrUpdateFromSource";
 import AddSource from "@/components/AddSource";
 import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface";
 import UpdateCoach from "@/components/Teams/UpdateCoach";
+import CompetitionSubHeader from "../Inlcudes/CompetitionSubHeader";
 
-interface Props extends CompetitionTabInterface, SeasonsListInterface {}
+interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
 const Index: React.FC<Props> = ({ record, selectedSeason }) => {
 
@@ -157,8 +157,7 @@ const Index: React.FC<Props> = ({ record, selectedSeason }) => {
     return (
 
         <div>
-            <PageHeader title={'Teams list'} action="button" actionText="Create Team" actionTargetId="teamModal" permission='admin/teams' setRecord={setTeam} />
-            <div>
+           <div className="mt-1">
                 {
                     competition &&
                     <AutoTable columns={columns} baseUri={`admin/competitions/view/${competition.id}/teams/${selectedSeason?.id || ''}`} search={true} getModelDetails={setModelDetails} list_sources={list_sources} tableId={'teamsTable'} customModalId="teamModal" />

@@ -491,3 +491,8 @@ export interface TodayCompetitionStatsInterface extends CompetitionStatsInterfac
 export interface CompetitionPredictionStatsInterface extends CompetitionStatsInterface { }
 
 export interface TodayCompetitionPredictionStatsInterface extends CompetitionStatsInterface { }
+
+export interface PredictionModeInterface {
+    id: string | number
+    name: string
+}

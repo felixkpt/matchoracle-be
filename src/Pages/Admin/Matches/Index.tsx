@@ -4,6 +4,9 @@ import useListSources from '@/hooks/apis/useListSources';
 import useRouteParamValidation from '@/hooks/useRouteParamValidation';
 import MatchesPageHeader from '@/components/Matches/MatchesPageHeader';
 import useFromToDates from '@/hooks/useFromToDates';
+import { useEffect, useState } from 'react';
+import { PredictionModeInterface } from '@/interfaces/FootballInterface';
+import { predictionModes } from '@/utils/constants';
 
 const Index = () => {
 
@@ -25,21 +28,38 @@ const Index = () => {
         { label: 'Action', key: 'action' },
     ]
 
+    const [predictionMode, setPredictionMode] = useState<PredictionModeInterface | null>();
+
+    useEffect(() => {
+        if (predictionModes) {
+            setPredictionMode(predictionModes[0])
+        }
+    }, [predictionModes])
+
     return (
         <div>
             {
                 errorsState === 0 ?
                     <div>
-                        <MatchesPageHeader title={'Matches List'} fromToDates={fromToDates} setFromToDates={setFromToDates} />
-                        <AutoTable
-                            key={baseUri}
-                            baseUri={baseUri}
-                            columns={columns}
-                            search={true}
-                            list_sources={list_sources}
-                            perPage={200}
-                            tableId='matchesTable'
-                        />
+                        <div className="row shadow-sm">
+                            <div className="col-xl-12">
+                                <MatchesPageHeader title={'Matches List'} fromToDates={fromToDates} setFromToDates={setFromToDates} className="shadow-none" />
+                            </div>
+                        </div>
+                        {
+                            predictionMode &&
+                            <div key={(predictionMode ? predictionMode.id : 0) + baseUri}>
+                                <AutoTable
+                                    baseUri={`${baseUri}?matches_mode_id=${predictionMode ? predictionMode.id : 0}`}
+                                    columns={columns}
+                                    search={true}
+                                    list_sources={list_sources}
+                                    perPage={100}
+                                    tableId='matchesTable'
+                                />
+                            </div>
+
+                        }
                     </div>
                     :
                     <div>

@@ -12,13 +12,9 @@ import Under25Tips from './Tabs/Under25Tips';
 import MatchesPageHeader from '@/components/Matches/MatchesPageHeader';
 import useFromToDates from '@/hooks/useFromToDates';
 import { useEffect, useState } from 'react';
-import Select from 'react-select';
 import { predictionModes } from '@/utils/constants';
-
-export interface PredictionModeInterface {
-    id: string | number
-    name: string
-}
+import { PredictionModeInterface } from '@/interfaces/FootballInterface';
+import PredictionsModeSwitcher from '@/components/Predictions/PredictionsModeSwitcher';
 
 const Index = () => {
 
@@ -32,11 +28,6 @@ const Index = () => {
             setPredictionMode(predictionModes[0])
         }
     }, [predictionModes])
-
-
-    const changePredictionMode = (val: any) => {
-        setPredictionMode(val);
-    };
 
     const tabs: TabInterface[] = [
         {
@@ -87,23 +78,7 @@ const Index = () => {
                                 <MatchesPageHeader title={'Betting Tips List'} fromToDates={fromToDates} setFromToDates={setFromToDates} className="shadow-none" />
                             </div>
                             <div className="col-xl-3">
-                                <div className='d-flex gap-1 align-items-center shadow-sm px-2 rounded'>
-                                    <div className='text-nowrap'>Tips Mode:</div> <Select
-                                        className="form-control border-0"
-                                        classNamePrefix="select"
-                                        defaultValue={predictionMode || null}
-                                        isDisabled={false}
-                                        isLoading={false}
-                                        isClearable={false}
-                                        isSearchable={false}
-                                        placeholder="Select tips mode"
-                                        name='prediction_mode_id'
-                                        options={predictionModes || []}
-                                        onChange={(v: any) => changePredictionMode(v)}
-                                        getOptionValue={(option: any) => `${option['id']}`}
-                                        getOptionLabel={(option: any) => option['name']}
-                                    />
-                                </div>
+                                <PredictionsModeSwitcher predictionMode={predictionMode} predictionModes={predictionModes} setPredictionMode={setPredictionMode} />
                             </div>
                         </div>
                         <div className='mt-4' key={predictionMode ? predictionMode.id : 0}>

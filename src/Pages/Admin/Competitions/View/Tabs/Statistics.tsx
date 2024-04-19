@@ -1,5 +1,5 @@
 import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
-import CompetitionHeader from "../Inlcudes/CompetitionSubHeader"
+import CompetitionSubHeader from "../Inlcudes/CompetitionSubHeader"
 import GeneralModal from "@/components/Modals/GeneralModal"
 import { useState } from "react"
 import Composer from "@/utils/Composer"
@@ -24,9 +24,10 @@ const Statistics: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
                 competition
                 &&
                 <div>
-                    <CompetitionHeader title="Statistics" actionTitle="Do Stats" actionButton="doStats" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
-
-                    <div className="card">
+                    <div className='shadow-sm'>
+                        <CompetitionSubHeader actionTitle="Do Stats" actionButton="doStats" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+                    </div>
+                    <div className="card mt-3">
                         <div className="card-header">
                             <h6 className="d-flex gap-2 justify-content-between">
                                 <div>

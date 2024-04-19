@@ -30,6 +30,8 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
         hidePerPage,
         status,
         setStatus,
+        searchTerm,
+        setSearchTerm,
         fullQueryString,
     } = useAutoTableEffect(baseUri, localTableId, { perPage });
 
@@ -195,6 +197,16 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
         localStorage.setItem(`app.${localTableId}.status`, JSON.stringify(val))
     }
 
+    function handleResetSearch () {
+
+        setSearchTerm(undefined)
+        const btn = document.querySelector('#search-btn') as HTMLInputElement
+        if (btn) {
+            btn.value = ''
+        }
+
+}
+
     return (
         <div id={localTableId} className={`autotable shadow p-1 rounded my-3 relative shadow-md sm:rounded-lg`}>
             <div className={`card`}>
@@ -248,26 +260,12 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                             <div className="relative">
 
                                 <div className="col-md-12 col-md-offset-3">
-                                    <div className="input-group">
-                                        <div className="input-group-btn search-panel" data-search="students">
-                                            <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                <span className="search_by">Filter by</span> <span className="caret"></span>
-                                            </button>
-                                            <ul className="dropdown-menu" role="menu">
-                                                <li><a data-search="students">students</a></li>
-                                                <li><a data-search="teachers">teachers</a></li>
-                                                <li><a data-search="rooms">rooms</a></li>
-                                                <li className="divider"></li>
-                                                <li><a data-search="all">all</a></li>
-                                            </ul>
-                                        </div>
-                                        <input type="text" className="form-control" name="q" id="search-btn" onChange={(e: any) => {
+                                    <div className='d-flex'>
+                                        <input type="text" className="form-control" name="q" defaultValue={searchTerm} id="search-btn" onChange={(e: any) => {
                                             debouncedSearch(e.target.value)
                                             debouncedSearch2(e.target.value)
                                         }} placeholder="Search here..." />
-                                        <span className="input-group-btn">
-                                            <button className="btn btn-default" type="button"><span className="glyphicon glyphicon-search"></span></button>
-                                        </span>
+                                        <button className="btn btn-default shadow-sm" type="button" title='Clear search' onClick={handleResetSearch}><Icon icon="mdi:reload"></Icon></button>
                                     </div>
                                 </div>
                             </div>

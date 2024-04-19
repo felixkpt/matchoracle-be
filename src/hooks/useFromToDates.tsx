@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import FormatDate from '@/utils/FormatDate';
 
-const useFromToDates = (base_uri: string) => {
+const useFromToDates = (base_uri?: string, append_date_in_uri?: boolean) => {
     const location = useLocation();
     const navigate = useNavigate();
     const params = useParams();
@@ -11,6 +11,8 @@ const useFromToDates = (base_uri: string) => {
     const [previousUrl, setPreviousUrl] = useState<string | null>(null)
 
     const [fromToDates, setFromToDates] = useState<Array<string | undefined>>([]);
+
+    const dates_in_uri = typeof append_date_in_uri === 'boolean' ? append_date_in_uri : true
 
     useEffect(() => {
 
@@ -50,7 +52,7 @@ const useFromToDates = (base_uri: string) => {
                     combinedDates = `${combinedDates}/to/${fromToDates[1]}`;
                 }
 
-                const newUrl = `${base_uri}${combinedDates}` + (location.search + location.hash);
+                const newUrl = `${base_uri}${dates_in_uri ? combinedDates : ''}` + (location.search + location.hash);
                 navigate(newUrl);
             }
         } else if (fromToDates[0] !== undefined && fromToDates[1] !== undefined) {
@@ -62,7 +64,7 @@ const useFromToDates = (base_uri: string) => {
 
 
 
-    return { fromToDates, setFromToDates, baseUri, previousUrl };
+    return { fromToDates, setFromToDates, baseUri, setBaseUri, previousUrl };
 };
 
 
