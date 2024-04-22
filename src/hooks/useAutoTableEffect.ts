@@ -4,6 +4,7 @@ import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces';
 import queryString from 'query-string';
 import { ParsedQuery } from 'query-string';
 import { useParams } from 'react-router-dom';
+import { config } from '@/utils/helpers';
 
 interface AutoTableOptionsInterface {
     perPage?: string | undefined;
@@ -26,7 +27,7 @@ const useAutoTableEffect = (
     const { id } = useParams<string>();
 
     const [status, setStatus] = useState<number>(() => {
-        const stored_state = localStorage.getItem(`app.${tableId}.status`);
+        const stored_state = localStorage.getItem(`${config.storageName}.${tableId}.status`);
         let show = 0; // default to 0 (false)
         if (stored_state) {
             show = JSON.parse(stored_state) ? 1 : 0;

@@ -1,4 +1,6 @@
-import Footer from '../Authenicated/Footer/Index';
+import ScrollToTop from '@/components/ScrollToTop';
+import NavBar from '../Shared/Navbar/Index';
+import Footer from '../Shared/Footer/Index';
 
 interface Props {
 	Component: React.ComponentType
@@ -6,16 +8,24 @@ interface Props {
 const GuestLayout = ({ Component }: Props) => {
 	return (
 		<>
-			<div id="layoutAuthentication" className='bg-secondary-subtle'>
-				<main>
-					<div className="container">
-						<div className="row justify-content-center">
-							<Component />
+			<ScrollToTop />
+			<>
+				<NavBar guestMode={true} />
+				<div id="layoutWrapper">
+					<div id="mainContent" style={{ paddingLeft: '0' }}>
+						<div className='main-content mb-4'>
+							<main className='main-content-inner container-fluid mt-2 px-3 min-h-100vh'>
+								<div className="container">
+									<div className="row justify-content-center">
+										<Component />
+									</div>
+								</div>
+							</main>
 						</div>
+						<Footer />
 					</div>
-				</main>
-				<Footer />
-			</div>
+				</div>
+			</>
 		</>
 	);
 }

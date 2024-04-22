@@ -5,11 +5,9 @@ type Props = {
     uri: string
 }
 
-const DrawTips = ({ uri }: Props) => {
+const AllTips = ({ uri }: Props) => {
 
-    const type = 'draw_tips'
-    const odds_name = 'draw_odds'
-    const odds_name_print = 'Draw'
+    const type = 'all_tips'
 
     return (
         <div className="mt-3">
@@ -25,4 +23,4 @@ const DrawTips = ({ uri }: Props) => {
     )
 }
 
-export default DrawTips
+export default AllTips

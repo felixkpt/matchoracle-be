@@ -4,13 +4,15 @@ import Register from '@/Pages/Auth/Register';
 import Password from '@/Pages/Auth/Password';
 import Error404 from '@/Pages/ErrorPages/Error404';
 import PasswordSet from '@/Pages/Auth/PasswordSet';
-import AuthenticatedLayout from '@/Layouts/Authenicated/AuthenticatedLayout';
-import GuestLayout from '@/Layouts/Guest/GuestLayout';
+import DefaultLayout from '../../Layouts/Default/DefaultLayout';
+import GuestLayout from '../../Layouts/Guest/GuestLayout';
+import PrivacyPolicy from '@/Pages/PrivacyPolicy';
+import TermsAndConditions from '@/Pages/TermsAndConditions';
 
 const guestRoutes = [
     {
         path: '/',
-        element: <AuthenticatedLayout uri='admin' permission={null} Component={Admin} />,
+        element: <DefaultLayout uri='admin' permission={null} Component={Admin} />,
     },
     {
         path: '/login',
@@ -28,6 +30,14 @@ const guestRoutes = [
         path: '/password-set/:token',
         element: <GuestLayout Component={PasswordSet} />,
 
+    },
+    {
+        path: '/privacy-policy',
+        element: <GuestLayout Component={PrivacyPolicy} />,
+    },
+    {
+        path: '/terms-and-conditions',
+        element: <GuestLayout Component={TermsAndConditions} />,
     },
     {
         path: '*',

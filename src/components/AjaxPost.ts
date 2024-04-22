@@ -33,7 +33,7 @@ const AjaxPost = () => {
             }
         }
 
-        const elementId = rawForm.id || rawForm?.closest('.modal')?.id || null
+        const elementId = rawForm.getAttribute('id') || rawForm?.closest('.modal')?.id || null
 
         // Specify the URL where the post request will be sent
         let url = rawForm?.getAttribute('action-url') || ''; // Get the baseUri from the event detail
@@ -65,7 +65,7 @@ const AjaxPost = () => {
         } else if (method == 'delete') {
             results = await destroy(url, formData, { elementId });
         }
-
+        console.log('shuld pull')
         publish('ajaxPostDone', { elementId, results })
         setKey(key + 1)
 

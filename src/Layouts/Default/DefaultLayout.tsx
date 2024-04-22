@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-import Navbar from './Navbar/Index';
-import Footer from './Footer/Index';
 import useAxios from '@/hooks/useAxios';
 import ScrollToTop from '@/components/ScrollToTop';
 import Error403 from '@/Pages/ErrorPages/Error403';
@@ -12,8 +10,10 @@ import Loader from '@/components/Loader';
 import { useRolePermissionsContext } from '@/contexts/RolePermissionsContext';
 import Error404 from '@/Pages/ErrorPages/Error404';
 import { environment } from '@/utils/helpers';
-import SideNav, { toggleSidebar } from '@/Layouts/Authenicated/SideNav/Index';
+import SideNav, { toggleSidebar } from '@/Layouts/Default/SideNav/Index';
 import { HttpVerbsType } from '@/interfaces/UncategorizedInterfaces';
+import NavBar from '../Shared/Navbar/Index';
+import Footer from '../Shared/Footer/Index';
 
 interface Props {
     uri: string
@@ -132,7 +132,7 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
             <ScrollToTop />
             {user ? (
                 <>
-                    <Navbar />
+                    <NavBar />
                     <div id="layoutWrapper">
                         <div id="sideNav">
                             <SideNav />
@@ -147,7 +147,7 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                             }
                         >
                             <div className='main-content mb-4'>
-                                <main className='main-content-inner container-fluid mt-4 px-4 min-h-100vh'>
+                                <main className='main-content-inner container-fluid mt-2 px-3 min-h-100vh'>
                                     {
                                         isAllowed === true && checked === true ?
                                             <Component />
@@ -164,7 +164,6 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                                     }
                                 </main>
                             </div>
-
                             <Footer />
                         </div>
                     </div>
@@ -177,10 +176,10 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
 
                                 {
                                     loadingUser ?
-                                            <div className="d-flex justify-content-center align-items-center gap-3">
-                                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                Please wait, logging you in...
-                                            </div>
+                                        <div className="d-flex justify-content-center align-items-center gap-3">
+                                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            Please wait, logging you in...
+                                        </div>
                                         :
 
                                         <div className='alert text-center'>

@@ -1,4 +1,4 @@
-import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
+import DefaultLayout from "../../../../Layouts/Default/DefaultLayout";
 import Venues from "@/Pages/Admin/Teams/Venues/Index";
 
 const relativeUri = 'admin/teams/venues/';
@@ -6,7 +6,7 @@ const relativeUri = 'admin/teams/venues/';
 const index = [
     {
         path: '',
-        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={Venues} />,
+        element: <DefaultLayout uri={relativeUri} permission="" Component={Venues} />,
     },
 ]
 

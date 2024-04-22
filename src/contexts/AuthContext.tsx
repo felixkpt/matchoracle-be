@@ -74,7 +74,7 @@ const encryptData = (user: UserInterface) => {
 // Authentication Provider component that wraps the application with authentication capabilities
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Get the stored user data from localStorage
-  const storedUser = localStorage.getItem('user');
+  const storedUser = localStorage.getItem(`${config.storageName}.user`);
 
   // Initialize the 'user' state with the decrypted user data (if available) or null
   const [user, _setUser] = useState<UserInterface | null>(() => {
@@ -96,9 +96,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const setUser = (newUser: UserInterface) => {
     if (newUser) {
       const encryptedUser = encryptData(newUser);
-      localStorage.setItem('user', encryptedUser);
+      localStorage.setItem(`${config.storageName}.user`, encryptedUser);
     } else {
-      localStorage.removeItem('user');
+      localStorage.removeItem(`${config.storageName}.user`);
     }
     _setUser(newUser);
   };
@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Encrypt the updated user object and store it in localStorage
       const encryptedUser = encryptData(updatedUserData);
       if (encryptedUser) {
-        localStorage.setItem('user', encryptedUser);
+        localStorage.setItem(`${config.storageName}.user`, encryptedUser);
         setVerified(true)
         setFileAccessToken(updatedUserData.fileAccessToken); // Set the file access token
 
@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Function to delete user data from localStorage and set the user to null
   const deleteUser = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem(`${config.storageName}.user`);
     _setUser(null);
   };
 

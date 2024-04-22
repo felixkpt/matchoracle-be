@@ -20,14 +20,14 @@ const useListSources = (params?: string) => {
       ] as ListSourceInterface[];
     },
 
-    async rolesList(q?: string) {
-      const res = await get('admin/settings/role-permissions/roles' + prepareParams(q)).then((res) => res.data || [])
+    async rolesList(search?: string) {
+      const res = await get('admin/settings/role-permissions/roles' + prepareParams(search)).then((res) => res.data || [])
       return res || []
 
     },
 
-    async directPermissionsList(q?: string) {
-      const res = await get('admin/settings/role-permissions/permissions' + prepareParams(q)).then((res) => res.data || [])
+    async directPermissionsList(search?: string) {
+      const res = await get('admin/settings/role-permissions/permissions' + prepareParams(search)).then((res) => res.data || [])
       return res || []
 
     },
@@ -36,8 +36,8 @@ const useListSources = (params?: string) => {
 
   const posts = {
 
-    async parentCategoryId(q?: string) {
-      const res = await get('/admin/posts/categories' + prepareParams(q)).then((res) => res.data || [])
+    async parentCategoryId(search?: string) {
+      const res = await get('/admin/posts/categories' + prepareParams(search)).then((res) => res.data || [])
       return res || []
 
     },
@@ -57,45 +57,45 @@ const useListSources = (params?: string) => {
 
   const competitions = {
 
-    async hasCompetitions(q?: string) {
+    async hasCompetitions() {
       return booleanOptions
     },
-    async hasTeams(q?: string) {
+    async hasTeams() {
       return booleanOptions
     },
-    async continentId(q?: string) {
-      const res = await get('/admin/continents' + prepareParams(q)).then((res) => res.data || [])
+    async continentId(search?: string) {
+      const res = await get('/admin/continents' + prepareParams(search)).then((res) => res.data || [])
       return res || []
 
     },
-    async countryId(q?: string) {
-      const res = await get('/admin/countries' + prepareParams(q)).then((res) => res.data || [])
+    async countryId(search?: string) {
+      const res = await get('/admin/countries' + prepareParams(search)).then((res) => res.data || [])
       return res || []
 
     },
-    async nationalityId(q?: string) {
-      const res = await get('/admin/countries' + prepareParams(q)).then((res) => res.data || [])
+    async nationalityId(search?: string) {
+      const res = await get('/admin/countries' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
-    async addressId(q?: string) {
-      const res = await get('/admin/teams/addresses' + prepareParams(q)).then((res) => res.data || [])
+    async addressId(search?: string) {
+      const res = await get('/admin/teams/addresses' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
-    async venueId(q?: string) {
-      const res = await get('/admin/teams/venues' + prepareParams(q)).then((res) => res.data || [])
+    async venueId(search?: string) {
+      const res = await get('/admin/teams/venues' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
-    async coachId(q?: string) {
-      const res = await get('/admin/teams/coaches' + prepareParams(q)).then((res) => res.data || [])
+    async coachId(search?: string) {
+      const res = await get('/admin/teams/coaches' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
-    async competitionId(q?: string) {
+    async competitionId(search?: string) {
       console.log('should trigger this function!')
-      const res = await get('/admin/competitions' + prepareParams(q)).then((res) => res.data || [])
+      const res = await get('/admin/competitions' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
-    async teamId(q?: string) {
-      const res = await get('/admin/teams' + prepareParams(q)).then((res) => res.data || [])
+    async teamId(search: string) {
+      const res = await get('/admin/teams' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
 
@@ -107,13 +107,13 @@ const useListSources = (params?: string) => {
     competitions
   }
 
-  function prepareParams(q: string | undefined) {
+  function prepareParams(search: string | undefined) {
     let query
 
     if (params)
-      query = params + '&q=' + q
+      query = params + '&search=' + search
     else
-      query = '?q=' + q
+      query = '?search=' + search
 
     return query
   }

@@ -30,7 +30,7 @@ const UpdateCoach = ({ record }: Props) => {
 
             const currentValue = team?.coach_contract?.coach;
 
-            const { data: fetchedOptions } = await get(`/admin/teams/coaches?all=1&q=${q}`);
+            const { data: fetchedOptions } = await get(`/admin/teams/coaches?all=1&search=${q}`);
 
             setSelected(fetchedOptions.find((itm: any) => itm.id === currentValue.id));
 

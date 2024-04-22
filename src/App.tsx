@@ -1,5 +1,5 @@
 import './App.css';
-import AuthenticatedLayout from './Layouts/Authenicated/AuthenticatedLayout';
+import AuthenticatedLayout from './Layouts/Default/DefaultLayout';
 import GuestLayout from './Layouts/Guest/GuestLayout';
 
 function App() {

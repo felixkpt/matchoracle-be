@@ -1,17 +1,17 @@
 import Roles from '@/Pages/Admin/Settings/RolePermissions/Roles/Index';
 import Role from '@/Pages/Admin/Settings/RolePermissions/Roles/View/Index';
-import AuthenticatedLayout from '@/Layouts/Authenicated/AuthenticatedLayout';
+import DefaultLayout from '../../../../../Layouts/Default/DefaultLayout';
 
 const relativeUri = 'admin/settings/role-permissions/roles/';
 
 const index = [
     {
         path: '',
-        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={Roles} />,
+        element: <DefaultLayout uri={relativeUri} permission="" Component={Roles} />,
     },
     {
         path: 'view/:id',
-        element: <AuthenticatedLayout uri={relativeUri + 'view/:id'} permission="" Component={Role} />,
+        element: <DefaultLayout uri={relativeUri + 'view/:id'} permission="" Component={Role} />,
     },
 ];
 

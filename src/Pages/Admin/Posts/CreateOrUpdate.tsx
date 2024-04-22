@@ -6,7 +6,7 @@ import useAxios from '@/hooks/useAxios';
 import { publish, subscribe, unsubscribe } from '@/utils/events';
 import PageHeader from '@/components/PageHeader';
 import { baseURL, tnymce_key } from '@/utils/helpers';
-import { toggleSidebar } from '@/Layouts/Authenicated/SideNav/Index';
+import { toggleSidebar } from '../../../Layouts/Default/SideNav/Index';
 import Settings from './Includes/Settings';
 import { PostInterface } from '@/interfaces/PostInterfaces';
 

@@ -8,11 +8,9 @@ import InvestmentCard from "./InvestmentCard"
 type Props = {
     uri: string
     type: string
-    odds_name: string
-    odds_name_print: string
 }
 
-const Singles = ({ uri, type, odds_name, odds_name_print }: Props) => {
+const Singles = ({ uri, type}: Props) => {
 
     const [page, setPage] = useState<number | string>(1);
     const [per_page, setPerPage] = useState<number | string>(35);
@@ -42,7 +40,7 @@ const Singles = ({ uri, type, odds_name, odds_name_print }: Props) => {
 
                                                     return (
                                                         <div key={key}>
-                                                            <TipsContent data={items} odds_name={odds_name} odds_name_print={odds_name_print} />
+                                                            <TipsContent data={items} />
                                                         </div>
                                                     )
                                                 })

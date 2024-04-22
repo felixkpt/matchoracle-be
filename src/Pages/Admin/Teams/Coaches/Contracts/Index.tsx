@@ -18,13 +18,13 @@ const Index = () => {
         </div>
     
         <AutoTable
-          baseUri='/admin/teams/contracts'
+          baseUri='/admin/teams/coaches/contracts'
           columns={[
             {
-              key: 'name',
+              key: 'coach.name',
             },
             {
-              key: 'team',
+              key: 'team.name',
             },
             {
               key: 'start',
@@ -45,7 +45,7 @@ const Index = () => {
         />
       </div>
       {
-        modelDetails && <><AutoModal id={`Contracts`} modelDetails={modelDetails} actionUrl='/admin/teams/contracts' list_sources={list_sources} /></>
+        modelDetails && <><AutoModal id={`Contracts`} modelDetails={modelDetails} actionUrl='/admin/teams/coaches/contracts' list_sources={list_sources} /></>
       }
     </div>
   );

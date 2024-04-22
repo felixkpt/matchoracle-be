@@ -64,7 +64,7 @@ const PastPredictions: React.FC<Props> = ({ record, seasons, selectedSeason }) =
                             <AutoTable key={baseUri} columns={predictionsColumns} baseUri={baseUri} search={true}
                                 getModelDetails={setModelDetails}
                                 tableId={'competitionPastPredictionsTable'} customModalId="teamModal" />
-                            <PredictionStatsTable key={modelDetails?.query || 0} baseUri={`${baseUri}&prediction_mode_id=${predictionMode ? predictionMode.id : 1}&q=${modelDetails?.query || ''}`} />
+                            <PredictionStatsTable key={modelDetails?.query || 0} baseUri={`${baseUri}&prediction_mode_id=${predictionMode ? predictionMode.id : 1}&search=${modelDetails?.query || ''}`} />
                         </div>
                     }
                     <GeneralModal title={`Predictions form`} actionUrl={`admin/competitions/view/${competition.id}/predict`} size={'modal-lg'} id={`doPredictions`}>

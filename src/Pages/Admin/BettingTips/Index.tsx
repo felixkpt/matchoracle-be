@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { predictionModes } from '@/utils/constants';
 import { PredictionModeInterface } from '@/interfaces/FootballInterface';
 import PredictionsModeSwitcher from '@/components/Predictions/PredictionsModeSwitcher';
+import AllTips from './Tabs/AllTips';
 
 const Index = () => {
 
@@ -31,6 +32,11 @@ const Index = () => {
 
     const tabs: TabInterface[] = [
         {
+            name: 'All tips',
+            content: <AllTips uri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`} />
+
+        },
+         {
             name: 'Home win tips',
             content: <HomeWinTips uri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`} />
 

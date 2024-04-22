@@ -11,17 +11,17 @@ import bettingtips from './betting-tips';
 import matches from './matches';
 import teams from './teams';
 import odds from './odds';
-import AuthenticatedLayout from '@/Layouts/Authenicated/AuthenticatedLayout';
+import DefaultLayout from '../../Layouts/Default/DefaultLayout';
 import Error404 from '@/Pages/ErrorPages/Error404';
 
 const adminRoutes = [
   {
     path: '',
-    element: <AuthenticatedLayout uri='admin' permission={null} Component={Admin} />,
+    element: <DefaultLayout uri='admin' permission={null} Component={Admin} />,
   },
   {
     path: 'automation-report',
-    element: <AuthenticatedLayout uri='admin/automation-report' permission={null} Component={AutomationReport} />,
+    element: <DefaultLayout uri='admin/automation-report' permission={null} Component={AutomationReport} />,
   },
   {
     path: 'posts',
@@ -68,7 +68,7 @@ const adminRoutes = [
   },
   {
     path: '*',
-    element: <AuthenticatedLayout uri='error-404' permission={null} Component={Error404} />,
+    element: <DefaultLayout uri='error-404' permission={null} Component={Error404} />,
   },
 ];
 

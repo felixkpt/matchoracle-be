@@ -5,8 +5,6 @@ import GameComposer from '@/utils/Composer';
 
 type Props = {
     data: any
-    odds_name: string
-    odds_name_print: string
 }
 
 function __dangerousHtml(html: HTMLElement) {

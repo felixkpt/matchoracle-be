@@ -1,4 +1,4 @@
-import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
+import DefaultLayout from "../../../Layouts/Default/DefaultLayout";
 import Competitions from "@/Pages/Admin/Competitions/Index";
 import Competition from "@/Pages/Admin/Competitions/View/Index";
 import competitionAbbreviations from '@/routes/admin/competitions/competition-abbreviations'
@@ -13,11 +13,11 @@ const index = [
     },
     {
         path: '',
-        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={Competitions} />,
+        element: <DefaultLayout uri={relativeUri} permission="" Component={Competitions} />,
     },
     {
         path: 'view/:id',
-        element: <AuthenticatedLayout uri={relativeUri + 'view/:id'} permission="" Component={Competition} />,
+        element: <DefaultLayout uri={relativeUri + 'view/:id'} permission="" Component={Competition} />,
     },
 ]
 

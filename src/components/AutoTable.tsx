@@ -11,6 +11,7 @@ import AutoActions from './AutoActions';
 import AutoTableHeader from './AutoTableHeader';
 import Loader from './Loader';
 import StatusesUpdate from './StatusesUpdate';
+import { config } from '@/utils/helpers';
 
 function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
@@ -194,7 +195,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     function handleStatus(e: any) {
         const val = e.target.checked
         setStatus(val)
-        localStorage.setItem(`app.${localTableId}.status`, JSON.stringify(val))
+        localStorage.setItem(`${config.storageName}.${localTableId}.status`, JSON.stringify(val))
     }
 
     function handleResetSearch() {

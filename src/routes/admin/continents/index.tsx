@@ -1,4 +1,4 @@
-import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
+import DefaultLayout from "../../../Layouts/Default/DefaultLayout";
 import Continents from "@/Pages/Admin/Continents/Index";
 
 const relativeUri = 'admin/continents/';
@@ -7,7 +7,7 @@ const index = [
 
     {
         path: '',
-        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={Continents} />,
+        element: <DefaultLayout uri={relativeUri} permission="" Component={Continents} />,
     },
 ]
 

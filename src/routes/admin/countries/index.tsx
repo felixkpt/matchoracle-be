@@ -1,4 +1,4 @@
-import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
+import DefaultLayout from "../../../Layouts/Default/DefaultLayout";
 import Countries from "@/Pages/Admin/Countries/Index";
 import Country from "@/Pages/Admin/Countries/View/Index";
 
@@ -8,11 +8,11 @@ const index = [
 
     {
         path: '',
-        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={Countries} />,
+        element: <DefaultLayout uri={relativeUri} permission="" Component={Countries} />,
     },
     {
         path: 'view/:id',
-        element: <AuthenticatedLayout uri={relativeUri} permission="" Component={Country} />,
+        element: <DefaultLayout uri={relativeUri} permission="" Component={Country} />,
     },
 ]
 

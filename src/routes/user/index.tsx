@@ -1,4 +1,4 @@
-import AuthenticatedLayout from "@/Layouts/Authenicated/AuthenticatedLayout";
+import DefaultLayout from "../../Layouts/Default/DefaultLayout";
 import Profile from "@/Pages/User/Profile";
 
 const relativeUri = 'users/user/'
@@ -7,7 +7,7 @@ const index = [
 
     {
         path: 'profile',
-        element: <AuthenticatedLayout uri={relativeUri + 'profile'} permission="" Component={Profile} />,
+        element: <DefaultLayout uri={relativeUri + 'profile'} permission="" Component={Profile} />,
     }
 
 ]
