@@ -111,7 +111,7 @@ class SeasonsHandlerJob implements ShouldQueue
 
             $exists->update($arr);
 
-            if ($fetch_failed_counts) $this->logFailure(new FailedSeasonLog(), $data);
+            if ($fetch_failed_counts || ($data && $data['status'] == 500)) $this->logFailure(new FailedSeasonLog(), $data);
         }
     }
 

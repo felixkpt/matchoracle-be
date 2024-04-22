@@ -171,7 +171,7 @@ class MatchesHandlerJob implements ShouldQueue
 
             $exists->update($arr);
 
-            if ($fetch_failed_counts) $this->logFailure(new FailedMatchesLog(), $data);
+            if ($fetch_failed_counts || ($data && $data['status'] == 500)) $this->logFailure(new FailedMatchesLog(), $data);
         }
     }
 

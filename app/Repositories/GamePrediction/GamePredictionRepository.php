@@ -209,7 +209,7 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
 
             $exists->update($arr);
 
-            // if ($fetch_failed_counts) $this->logFailure(new FailedStandingLog(), $data);
+            // if ($fetch_failed_counts || ($data && $data['status'] == 500)) $this->logFailure(new FailedStandingLog(), $data);
         }
     }
 
