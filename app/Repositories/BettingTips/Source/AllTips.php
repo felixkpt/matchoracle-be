@@ -3,21 +3,198 @@
 namespace App\Repositories\BettingTips\Source;
 
 use App\Repositories\BettingTips\BettingTipsTrait;
+use App\Utilities\GameUtility;
 
 class AllTips
 {
     use BettingTipsTrait;
 
-    private $outcome = 'away_win';
-    private $odds_name = 'away_win_odds';
-    private $odds_min_threshold = 1.3;
-    private $odds_max_threshold = 5.0;
+    function singles()
+    {
+        $allTips = [];
+        $allIds = [];
 
-    private $proba_name = 'ft_away_win_proba';
-    private $proba_threshold = 55;
+        // Get home, draw, and away game IDs separately
+        $modelTips = (new HomeWinTips());
+        $modelIds = $modelTips->singles(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
 
-    private $proba_name2 = 'ng_proba';
-    private $proba_threshold2 = 40;
+        $modelTips = (new DrawTips());
+        $modelIds = $modelTips->singles(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
 
-    
+        $modelTips = (new AwayWinTips());
+        $modelIds = $modelTips->singles(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
+
+        $modelTips = (new Over25Tips());
+        $modelIds = $modelTips->singles(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
+
+        $modelTips = (new Under25Tips());
+        $modelIds = $modelTips->singles(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
+
+        $modelTips = (new GGTips());
+        $modelIds = $modelTips->singles(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
+
+        $modelTips = (new NGTips());
+        $modelIds = $modelTips->singles(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
+
+
+        // Retrieve games using the merged IDs
+        $results = $this->getGames($allTips);
+
+        $investment = $this->singlesInvestment($results, null, null, $allTips);
+
+        $results = $investment['betslips'];
+        $results = $this->paginate($results, request()->per_page ?? 50);
+
+        unset($investment['betslips']);
+        $results['investment'] = $investment;
+
+        return $results;
+    }
+
+    function multiples()
+    {
+        $allTips = [];
+        $allIds = [];
+
+        // Get home, draw, and away game IDs separately
+        $modelTips = (new HomeWinTips());
+        $modelIds = $modelTips->multiples(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
+
+        $modelTips = (new DrawTips());
+        $modelIds = $modelTips->multiples(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
+
+        $modelTips = (new AwayWinTips());
+        $modelIds = $modelTips->multiples(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
+
+        $modelTips = (new Under25Tips());
+        $modelIds = $modelTips->multiples(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
+
+        $modelTips = (new GGTips());
+        $modelIds = $modelTips->multiples(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
+
+        $modelTips = (new NGTips());
+        $modelIds = $modelTips->multiples(true);
+        $odds_name = $modelTips->odds_name;
+        $outcome_name = $modelTips->outcome_name;
+        // allTips mapper
+        $allTips = array_merge($allTips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $modelIds));
+        $allIds = array_merge($allIds, $modelIds);
+        // Merge IDs into request for filtering
+        request()->merge(['exclude_ids' => $allIds]);
+
+        // Retrieve games using the merged IDs
+        $results = $this->getGames($allTips);
+
+        $investment = $this->multiplesInvestment($results, null, null, $allTips);
+
+        $results = $investment['betslips'];
+        $results = $this->paginate($results, request()->per_page ?? 50);
+
+        unset($investment['betslips']);
+        $results['investment'] = $investment;
+
+        return $results;
+    }
+
+    function getGames($allTips)
+    {
+        $include_ids = array_column($allTips, 'id');
+
+        if (count($include_ids) === 0) {
+            $include_ids = [-1];
+        }
+
+        request()->merge(['exclude_ids' => null, 'include_ids' => $include_ids]);
+
+        $gameUtilities = new GameUtility();
+        $results = $gameUtilities->applyGameFilters();
+
+        $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, $allTips));
+
+        return $results;
+    }
 }

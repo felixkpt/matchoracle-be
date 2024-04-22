@@ -8,15 +8,15 @@ class AwayWinTips
 {
     use BettingTipsTrait;
 
-    private $outcome = 'away_win';
-    private $odds_name = 'away_win_odds';
+    public $outcome_name = 'away_win';
+    public $odds_name = 'away_win_odds';
     private $odds_min_threshold = 1.3;
-    private $odds_max_threshold = 5.0;
+    private $odds_max_threshold = 6.0;
 
     private $proba_name = 'ft_away_win_proba';
-    private $proba_threshold = 47;
+    private $proba_threshold = 58;
 
-    private $proba_name2 = 'ng_proba';
-    private $proba_threshold2 = 40;
+    private $proba_name2 = 'over25_proba';
+    private $proba_threshold2 = 55;
 
 }

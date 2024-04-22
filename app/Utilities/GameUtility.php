@@ -96,6 +96,8 @@ class GameUtility
             ->when(request()->year && request()->month, fn ($q) => $this->yearMonthFilter($q))
             ->when(request()->year && request()->month && request()->day, fn ($q) => $this->yearMonthDayFilter($q))
             ->when($id, fn ($q) => $q->where('games.id', $id))
+            ->when(request()->include_ids, fn ($q) => $q->whereIn('games.id', request()->include_ids))
+            ->when(request()->exclude_ids, fn ($q) => $q->whereNotIn('games.id', request()->exclude_ids))
             ->when(request()->limit, fn ($q) => $q->limit(request()->limit));
 
         $with = ['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'homeTeam', 'awayTeam', 'score', 'votes', 'referees', 'odds'];

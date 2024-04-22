@@ -8,14 +8,14 @@ class DrawTips
 {
     use BettingTipsTrait;
 
-    private $outcome = 'draw';
-    private $odds_name = 'draw_odds';
+    public $outcome_name = 'draw';
+    public $odds_name = 'draw_odds';
     private $odds_min_threshold = 1.5;
-    private $odds_max_threshold = 5.0;
+    private $odds_max_threshold = 6.0;
 
     private $proba_name = 'ft_draw_proba';
-    private $proba_threshold = 47;
+    private $proba_threshold = 49;
 
     private $proba_name2 = 'ng_proba';
-    private $proba_threshold2 = 40;
+    private $proba_threshold2 = 50;
 }
