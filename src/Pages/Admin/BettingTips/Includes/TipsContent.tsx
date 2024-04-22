@@ -15,8 +15,6 @@ const TipsContent = ({ data }: Props) => {
 
     const betslip = data.betslip
     const odds = data.odds
-    const odds_name = data.odds_name
-    const odds_name_print = data.odds_name_print
     const stake = data.stake
     const outcome = data.outcome
     const final_bankroll = data.final_bankroll
@@ -30,8 +28,11 @@ const TipsContent = ({ data }: Props) => {
                 <div className="col-3 border-dark">Outcome</div>
             </div>
             {
-                betslip.map((game: GameInterface) => {
-
+                betslip.map((slip: GameInterface) => {
+                    const game = slip.game
+                    const odds_name = slip.odds_name 
+                    const odds_name_print = slip.odds_name_print
+                    
                     return (
                         <div key={game.id} className="row border border-0 border-bottom border-dark pb-1">
                             <div className="col-12 text-muted">

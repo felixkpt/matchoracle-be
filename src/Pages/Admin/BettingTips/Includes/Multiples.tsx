@@ -10,10 +10,10 @@ type Props = {
     type: string
 }
 
-const Multiples = ({ uri, type}: Props) => {
+const Multiples = ({ uri, type }: Props) => {
 
     const [page, setPage] = useState<number | string>(1);
-    const [per_page, setPerPage] = useState<number | string>(5);
+    const [per_page, setPerPage] = useState<number | string>(10);
     const { data, get, loading } = useAxios()
 
     useEffect(() => {
@@ -25,7 +25,7 @@ const Multiples = ({ uri, type}: Props) => {
         <div>
             <div className="card">
                 <div className="card-header">
-                    <h5 className="d-flex gap-2 justify-content-between">Accumulators <span className="text-success">{data?.total || 0} betslips</span></h5>
+                    <h5 className="d-flex gap-2 justify-content-between">Multiples <span className="text-success">{data?.total || 0} betslips</span></h5>
                 </div>
                 <div className="card-body">
                     {
