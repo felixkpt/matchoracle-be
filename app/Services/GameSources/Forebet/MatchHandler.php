@@ -197,7 +197,11 @@ class MatchHandler
         // AOB
         $handled_teams_games = $this->handleTeamsGames($game, $crawler);
 
-        $response = ['message' => $message, 'results' => ['saved_updated' => $saved + $updated, 'handled_teams_games' => $handled_teams_games]];
+        $response = [
+            'message' => $message,
+            'status' => $saved > 0 ? 200 : 201,
+            'results' => ['saved_updated' => $saved + $updated, 'handled_teams_games' => $handled_teams_games]
+        ];
 
         if (request()->without_response) return $response;
 
