@@ -6,7 +6,7 @@ use App\Models\Competition;
 use App\Models\CompetitionAbbreviation;
 use App\Models\Game;
 use App\Models\GameSourcePrediction;
-use App\Services\HttpClient\Client;
+use App\Services\ClientHelper\Client;
 use App\Services\Common;
 use App\Services\OddsHandler;
 use Illuminate\Support\Carbon;
@@ -63,7 +63,6 @@ class MatchHandler
 
     private function handleGame($game, $url)
     {
-        // dd($url);
         $content = Client::get($url);
         if (!$content) return $this->matchMessage('Source inaccessible or not found.', 500);
 
@@ -564,6 +563,7 @@ class MatchHandler
             if ($weather_condition)
                 $arr['weather_condition_id'] = $weather_condition->id;
 
+            // add abbr if not exists
             $this->handleCompetitionAbbreviation($competition);
 
             $msg = 'Game updated successfully, (results status ' . ($results_status > -1 ? ($game_results_status . ' > ' . $results_status) : 'unchanged') . ').';
@@ -578,7 +578,7 @@ class MatchHandler
 
             $game->update($arr);
             // update season fetched_all_single_matches
-            if ($game->season->games()->where('game_score_status_id', unsettledGameScoreStatuses())->count() === 0)
+            if ($game->season->games()->whereIn('game_score_status_id', unsettledGameScoreStatuses())->count() === 0)
                 $game->season->update(['fetched_all_single_matches' => true]);
 
             OddsHandler::updateOrCreate([

@@ -22,4 +22,9 @@ class CoachContract extends Model
     {
         return $this->belongsTo(Coach::class);
     }
+
+    function team()
+    {
+        return $this->belongsTo(Team::class);
+    }
 }

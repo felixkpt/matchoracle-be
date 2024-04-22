@@ -4,7 +4,7 @@ namespace App\Services\GameSources\Forebet;
 
 use App\Models\Competition;
 use App\Models\Country;
-use App\Services\HttpClient\Client;
+use App\Services\ClientHelper\Client;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;

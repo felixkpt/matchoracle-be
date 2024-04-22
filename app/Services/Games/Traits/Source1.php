@@ -4,7 +4,7 @@ namespace App\Services\Games\Traits;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use App\Services\HttpClient\Client;
+use App\Services\ClientHelper\Client;
 use App\Services\Common;
 use Symfony\Component\DomCrawler\Crawler;
 

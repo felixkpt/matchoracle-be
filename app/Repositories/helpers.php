@@ -317,7 +317,7 @@ if (!function_exists('getUriFromUrl')) {
 if (!function_exists('current_prediction_type')) {
     function current_prediction_type()
     {
-        return request()->prediction_type_id ?? request()->current_prediction_type ?? 1108;
+        return request()->prediction_type_id ?? request()->current_prediction_type ?? 1109;
     }
 }
 

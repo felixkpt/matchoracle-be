@@ -20,7 +20,8 @@ class CoachContractRepository implements CoachContractRepositoryInterface
     {
 
         $contracts = $this->model::query()
-            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()));
+            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->with(['coach', 'team']);
 
         if ($this->applyFiltersOnly) return $contracts;
 
@@ -32,7 +33,7 @@ class CoachContractRepository implements CoachContractRepositoryInterface
             ->htmls(['Status', 'Crest'])
             ->addFillable('start', 'start', ['input' => 'input', 'type' => 'date'])
             ->addFillable('until', 'until', ['input' => 'input', 'type' => 'date'])
-            ->orderby('name')
+            ->orderby('created_at', 'desc')
             ->paginate(request()->competition_id ? $contracts->count() : 20);
 
         return response(['results' => $statuses]);

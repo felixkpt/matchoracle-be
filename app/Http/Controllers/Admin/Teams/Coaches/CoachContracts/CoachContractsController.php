@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Teams\CoachContracts;
+namespace App\Http\Controllers\Admin\Teams\Coaches\CoachContracts;
 
 use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;

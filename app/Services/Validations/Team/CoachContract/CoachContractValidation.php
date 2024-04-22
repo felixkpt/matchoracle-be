@@ -19,8 +19,8 @@ class CoachContractValidation implements CoachContractValidationInterface
 
         $validateData = $request->validate(
             [
-                'team_id' => 'required|exists:coaches,name',
-                'coach_id' => 'required|exists:coaches,name',
+                'team_id' => 'required|exists:teams,id',
+                'coach_id' => 'required|exists:coaches,id',
                 'start' => 'required|date',
                 'until' => 'required|date',
             ]

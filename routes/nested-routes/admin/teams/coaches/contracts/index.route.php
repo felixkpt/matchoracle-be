@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\Teams\CoachContracts\CoachContractsController;
+use App\Http\Controllers\Admin\Teams\Coaches\CoachContracts\CoachContractsController;
 use Illuminate\Support\Facades\Route;
 
 $controller = CoachContractsController::class;

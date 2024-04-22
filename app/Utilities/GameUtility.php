@@ -22,17 +22,25 @@ class GameUtility
 
     function __construct()
     {
+        // Determine the prediction type mode based on the request
         $this->predictionTypeMode = request()->prediction_mode_id == 2 ? 'sourcePrediction' : 'prediction';
 
+        // Configure execution settings
         $this->configureExecutionSettings();
     }
 
+    /**
+     * Configure execution settings such as max execution time and memory limit.
+     */
     private function configureExecutionSettings()
     {
         ini_set('max_execution_time', 60 * 10);
         ini_set('memory_limit', '1024M');
     }
 
+    /**
+     * Apply filters to the games query.
+     */
     function applyGameFilters($id = null)
     {
 
@@ -105,25 +113,36 @@ class GameUtility
         return $games;
     }
 
+    /**
+     * Helper function to order games by type.
+     */
     private function typeOrdering($q, $type, $to_date)
     {
         $to_date = $to_date ?? Carbon::now();
         $type == 'past' ? $q->where('utc_date', '<', $to_date) : ($type == 'upcoming' ? $q->where('utc_date', '>=', Carbon::now()) :  $q);
     }
 
+    /**
+     * Helper function to filter games by year and month.
+     */
     private function yearMonthFilter($q)
     {
         return $q->whereYear('utc_date', request()->year)->whereMonth('utc_date', request()->month);
     }
 
+    /**
+     * Helper function to filter games by year, month, and day.
+     */
     private function yearMonthDayFilter($q)
     {
         return $q->whereYear('utc_date', request()->year)->whereMonth('utc_date', request()->month)->whereDay('utc_date', request()->day);
     }
 
+    /**
+     * Helper function to filter games by team IDs.
+     */
     private function teamsMatch($q, $team_ids, $playing)
     {
-
         return $q->where(function ($q) use ($team_ids, $playing) {
             [$home_team_id, $away_team_id] = $team_ids;
             $arr = [['home_team_id', $home_team_id], ['away_team_id', $away_team_id]];
@@ -137,9 +156,14 @@ class GameUtility
         });
     }
 
+    /**
+     * Format retrieved games.
+     *
+     * @param mixed $games The games to format.
+     * @return mixed The formatted games.
+     */
     function formatGames($games)
     {
-
         $homeWinVotes = function ($q) {
             return $q->votes->where('winner', 'home')->count();
         };
@@ -181,10 +205,10 @@ class GameUtility
             if (count($search) === 2) {
 
                 $search_builder = function ($q) use ($search) {
-                    $q->whereHas('homeTeam', function ($q) use ($search) {
-                        $q->where('name', 'like', '%' . $search[0] . '%');
-                    })->whereHas('awayTeam', function ($q) use ($search) {
-                        $q->where('name', 'like', '%' . $search[1] . '%');
+                    $q->where(function ($q) use ($search) {
+                        $this->searchBuilderHelper($q, $search)('homeTeam', 'awayTeam');
+                    })->orWhere(function ($q) use ($search) {
+                        $this->searchBuilderHelper($q, $search)('awayTeam', 'homeTeam');
                     });
                 };
             }
@@ -243,6 +267,23 @@ class GameUtility
         return $results;
     }
 
+    /**
+     * Helper function to build search queries.
+     */
+    private function searchBuilderHelper($q, $search)
+    {
+        return function ($team1, $team2) use ($q, $search) {
+            $q->whereHas($team1, function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search[0] . '%');
+            })->whereHas($team2, function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search[1] . '%');
+            });
+        };
+    }
+
+    /**
+     * Helper function to retrieve current user votes for a game.
+     */
     private function currentUserVotes($q)
     {
         return $q->votes->where(function ($q) {

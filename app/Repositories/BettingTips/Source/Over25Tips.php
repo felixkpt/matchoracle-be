@@ -19,31 +19,5 @@ class Over25Tips
     private $proba_name2 = 'ft_away_win_proba';
     private $proba_threshold2 = 45;
 
-    function singles()
-    {
-        $results = $this->getGames();
-
-        $investment = $this->singlesInvestment($results);
-
-        $results = $results->paginate(request()->per_page ?? 50);
-
-        $results['investment'] = $investment;
-
-        return $results;
-    }
-
-    function multiples()
-    {
-        $results = $this->getGames();
-
-        $investment = $this->multiplesInvestment($results);
-
-        $results = $investment['betslips'];
-        $results = $this->paginate($results, request()->per_page ?? 50);
-
-        unset($investment['betslips']);
-        $results['investment'] = $investment;
-
-        return $results;
-    }
+    
 }

@@ -248,7 +248,7 @@ class UserRepository implements UserRepositoryInterface
 
         return response()->json([
             'status' => true,
-            'message' => 'User Logged In Successfully',
+            'message' => 'Logged In Successfully',
             'results' => $user,
         ], 200);
     }

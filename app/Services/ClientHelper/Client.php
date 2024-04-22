@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\ClientHelper;
 
 use Exception;
 use Illuminate\Support\Facades\File;

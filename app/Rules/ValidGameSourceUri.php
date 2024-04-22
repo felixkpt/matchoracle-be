@@ -2,7 +2,7 @@
 
 namespace App\Rules;
 
-use App\Services\HttpClient\Client;
+use App\Services\ClientHelper\Client;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 

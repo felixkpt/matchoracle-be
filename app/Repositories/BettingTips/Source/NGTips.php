@@ -18,32 +18,4 @@ class NGTips
 
     private $proba_name2 = 'under25_proba';
     private $proba_threshold2 = 55;
-
-    function singles()
-    {
-        $results = $this->getGames();
-
-        $investment = $this->singlesInvestment($results);
-
-        $results = $results->paginate(request()->per_page ?? 50);
-
-        $results['investment'] = $investment;
-
-        return $results;
-    }
-
-    function multiples()
-    {
-        $results = $this->getGames();
-
-        $investment = $this->multiplesInvestment($results);
-
-        $results = $investment['betslips'];
-        $results = $this->paginate($results, request()->per_page ?? 50);
-
-        unset($investment['betslips']);
-        $results['investment'] = $investment;
-
-        return $results;
-    }
 }

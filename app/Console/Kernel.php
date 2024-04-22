@@ -27,15 +27,15 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:matches-handler --task=fixtures')->everyTenMinutes();
 
         // Match commands
-        // $schedule->command('app:match-handler --task=historical_results')->everyFifteenMinutes();
-        // $schedule->command('app:match-handler --task=recent_results')->everyThirtyMinutes();
-        // $schedule->command('app:match-handler --task=shallow_fixtures')->everyThirtyMinutes();
-        // $schedule->command('app:match-handler --task=fixtures')->everyThirtyMinutes();
+        $schedule->command('app:match-handler --task=historical_results')->everyFifteenMinutes();
+        $schedule->command('app:match-handler --task=recent_results')->everyThirtyMinutes();
+        $schedule->command('app:match-handler --task=shallow_fixtures')->everyThirtyMinutes();
+        $schedule->command('app:match-handler --task=fixtures')->everyThirtyMinutes();
 
         // Statistics commands
-        // $schedule->command('app:competition-statistics')->hourly();
-        $schedule->command('app:competition-prediction-statistics')->hourly();
-        $schedule->command('app:betting-tips-statistics')->hourly();
+        $schedule->command('app:competition-statistics')->everyThreeHours();
+        $schedule->command('app:competition-prediction-statistics')->everyThreeHours();
+        $schedule->command('app:betting-tips-statistics')->everyThreeHours();
     }
 
     /**

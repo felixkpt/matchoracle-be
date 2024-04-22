@@ -6,6 +6,7 @@ class TipsListForCore
 {
 
     public array $tipClasses = [
+        'all_tips' => AllTips::class,
         'home_win_tips' => HomeWinTips::class,
         'away_win_tips' => AwayWinTips::class,
         'draw_tips' => DrawTips::class,
