@@ -48,7 +48,15 @@ class SeasonRepository implements SeasonRepositoryInterface
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Created_by', 'getUser')
             ->addColumn('Status', 'getStatus')
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn(
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->htmls(['Status'])
             ->orderby('start_date', 'desc');
 

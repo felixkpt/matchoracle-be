@@ -35,7 +35,15 @@ class CountryRepository implements CountryRepositoryInterface
             ->addColumn('Status', 'getStatus')
             ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->flag ? asset($q->flag) : asset('storage/football/defaultflag.png')) . '" />')
             ->addColumn('has_competitions', fn ($q) =>  $q->has_competitions ? 'Yes' : 'No')
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn(
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->htmls(['Status', 'Flag'])
             ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
             ->addFillable('has_competitions', 'has_competitions', ['input' => 'select'])

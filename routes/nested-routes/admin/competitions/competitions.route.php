@@ -8,4 +8,4 @@ Route::get('/', [$controller, 'index'])->name('List');
 Route::get('/country/{id}', [$controller, 'countryCompetitions'])->name('Country competitions');
 Route::post('/', [$controller, 'store'])->name('store');
 Route::put('/', [$controller, 'update'])->name('update');
-Route::patch('/update-status', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)
+Route::patch('/update-statuses', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)

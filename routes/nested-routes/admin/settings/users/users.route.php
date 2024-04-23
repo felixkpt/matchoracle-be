@@ -13,4 +13,4 @@ Route::get('/emailsSearch', [$controller, 'searchUserEmails']);
 Route::get('/export', [$controller, 'exportUsers']);
 
 Route::delete('/delete/{user}', [$controller, 'destroyUser']);
-Route::patch('/update-status', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)
+Route::patch('/update-statuses', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)

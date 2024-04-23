@@ -259,8 +259,15 @@ class GameUtility
             )
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Status', 'getStatus')
 
-            ->addActionColumnWhen((!request()->is_predictor && !request()->without_response), 'action', $uri, 'native', !!request()->is_predictor)
-            // ->statuses(GameScoreStatus::select('id', 'name', 'icon', 'class')->get())
+            ->addActionColumnWhen((!request()->is_predictor && !request()->without_response),
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->htmls(['Status', 'ID', 'Competition', 'Game', 'HT_HDA', 'HT_HDA_PICK', 'FT_HDA', 'FT_HDA_PICK', 'BTS', 'Over25', 'CS', 'Halftime', 'Fulltime', 'UTC_date']);
 
         if (!request()->order_by)

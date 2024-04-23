@@ -31,7 +31,15 @@ class AddressRepository implements AddressRepositoryInterface
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn(
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->htmls(['Status'])
             ->orderby('name')
             ->paginate(request()->competition_id ? $teams->count() : 20);
@@ -79,7 +87,15 @@ class AddressRepository implements AddressRepositoryInterface
         $statuses = SearchRepo::of($team, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn(
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->htmls(['Status'])
             ->first();
 
@@ -162,10 +178,26 @@ class AddressRepository implements AddressRepositoryInterface
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')
             ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn(
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->htmls(['Status', 'Crest'])
             ->orderby('priority_number')
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn(
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->paginate();
         return response(['results' => $res]);
     }

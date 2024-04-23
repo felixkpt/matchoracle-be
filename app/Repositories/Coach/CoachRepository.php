@@ -30,7 +30,15 @@ class CoachRepository implements CoachRepositoryInterface
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')
             ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn(
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->htmls(['Status', 'Crest'])
             ->addFillable('date_of_birth', 'date_of_birth', ['input' => 'input', 'type' => 'date'])
             ->orderby('name')
@@ -67,7 +75,15 @@ class CoachRepository implements CoachRepositoryInterface
                 'Status update'
             )
             ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn(
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->htmls(['Status', 'Crest'])
             ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
             ->orderby('priority_number')

@@ -111,7 +111,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                 ],
                 'Update status'
             )
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn('action', $uri, ['view' => 'native'])
             ->htmls(['Status', 'Logo'])
             ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
             ->addFillable('has_teams', 'has_teams', ['input' => 'select'])

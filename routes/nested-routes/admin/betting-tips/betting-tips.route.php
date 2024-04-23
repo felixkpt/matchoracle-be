@@ -26,4 +26,4 @@ Route::get('/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{e
     ->name('Betting tips date_range'); // Betting tips for a specified date range
 
 Route::get('/stats', [$controller, 'stats'])->name('betting tips stats'); // Betting tips stats
-Route::patch('/update-status', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)
+Route::patch('/update-statuses', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)

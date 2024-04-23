@@ -52,7 +52,15 @@ class TeamRepository implements TeamRepositoryInterface
                 ],
                 'Update status'
             )
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn(
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->addFillable('website', 'website', ['input' => 'input', 'type' => 'url'])
             ->addFillable('tla', 'tla', ['input' => 'input', 'type' => 'text', 'capitalize' => true])
             ->addFillable('founded', 'founded', ['input' => 'input', 'type' => 'number'])
@@ -305,10 +313,26 @@ class TeamRepository implements TeamRepositoryInterface
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')
             ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn(
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->htmls(['Status', 'Crest'])
             ->orderby('priority_number')
-            ->addActionColumn('action', $uri, 'native')
+            ->addActionColumn(
+                'action',
+                $uri,
+                [
+                    'view'  => 'native',
+                    'edit'  => 'modal',
+                    'hide'  => null
+                ]
+            )
             ->paginate();
         return response(['results' => $res]);
     }

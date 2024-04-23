@@ -239,26 +239,48 @@ trait SearchRepoTrait
         return $this;
     }
 
-    function action($q, $uri, $view = 'modal', $edit = 'modal')
+    function action($q, $options)
     {
+
+        $uri = $options['uri'];
+
+        $view = $options['view'] ?? 'modal';
+        $edit = $options['edit'] ?? 'modal';
 
         $uri = preg_replace('#/+#', '/', $uri . '/');
 
         $str = '';
         foreach ($this->actionItems as $item) {
+            // get method 
             if ($item['action']['title'] === 'view') {
-                $use = $view === 'native' ? $item['action']['title'] : $item['action']['use'];
-                $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . $item['title'] . '</a></li>';
-            } else if ($item['action']['title'] === 'edit') {
-                $use = $edit === 'native' ? $item['action']['title'] : $item['action']['use'];
-                $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/' . $item['action']['title'] . '">' . $item['title'] . '</a></li>';
-            } else {
-                $use = $item['action']['use'];
-                $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '/' . $item['action']['title'] . '">' . $item['title'] . '</a></li>';
+                $resolvedUri = $uri . 'view/' . $q->id . '/';
+
+                if (checkPermission($uri . 'view/{id}', 'get')) {
+                    $use = $view === 'native' ? $item['action']['title'] : $item['action']['use'];
+                    $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $resolvedUri . '">' . $item['title'] . '</a></li>';
+                }
+            }
+            // put method 
+            else if ($item['action']['title'] === 'edit') {
+                $resolvedUri = $uri . 'view/' . $q->id . '/edit';
+
+                if (checkPermission($uri . 'view/{id}', 'put')) {
+                    $use = $edit === 'native' ? $item['action']['title'] : $item['action']['use'];
+                    $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $resolvedUri . $item['action']['title'] . '">' . $item['title'] . '</a></li>';
+                }
+            }
+            // assumed post method 
+            else {
+                $resolvedUri = $uri . 'view/' . $q->id . '/#action';
+
+                if (checkPermission($uri . 'view/{id}', 'post')) {
+                    $use = $item['action']['use'];
+                    $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $resolvedUri . $item['action']['title'] . '">' . $item['title'] . '</a></li>';
+                }
             }
         }
 
-        return $this->dropdown($str);
+        return strlen($str) ? $this->dropdown($str) : '-';
     }
 
     private function dropdown($str)

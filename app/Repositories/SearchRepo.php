@@ -264,13 +264,13 @@ class SearchRepo
      * @param \Closure $callback The callback function to generate the column value.
      * @return $this The SearchRepo instance.
      */
-    public function addActionColumn($column, $uri, $view = 'modal', $edit = 'modal', $hide = null)
+    public function addActionColumn($column, $uri, $options = [])
     {
         if (!$this->moduleUri) {
             $this->moduleUri = $uri;
         }
 
-        $this->addedColumns[$column] = ['method' => 'action', 'parameters' => [$uri, $view, $edit, $hide]];
+        $this->addedColumns[$column] = ['method' => 'action', 'options' => array_merge($options, ['uri' => $uri])];
 
         return $this;
     }
@@ -285,10 +285,10 @@ class SearchRepo
      * @param string|null $hide The hide parameter for the action column.
      * @return $this The SearchRepo instance.
      */
-    public function addActionColumnWhen($condition, $column, $uri, $view = 'modal', $edit = 'modal', $hide = null)
+    public function addActionColumnWhen($condition, $column, $uri, $options = [])
     {
         if ($condition) {
-            $this->addActionColumn($column, $uri, $view, $edit, $hide);
+            $this->addActionColumn($column, $uri, $options);
         }
 
         return $this;
@@ -386,8 +386,8 @@ class SearchRepo
             // Loop through added custom columns and add them to the stdClass object
             foreach ($this->addedColumns as $column => $callback) {
                 if (is_array($callback) && isset($callback['method'])) {
-                    // If the callback is an array with a 'method', call the method with parameters
-                    $item->$column = $this->action($item, ...$callback['parameters']);
+                    // If the callback is an array with a 'method', call the method with options
+                    $item->$column = $this->action($item, $callback['options']);
                 } else {
                     // If the callback is a closure, call the closure
                     $item->$column = $callback($item);
@@ -439,8 +439,7 @@ class SearchRepo
             foreach ($this->addedColumns as $column => $callback) {
 
                 if (is_array($callback) && isset($callback['method'])) {
-
-                    $item->$column = $this->action($item, ...$callback['parameters']);
+                    $item->$column = $this->action($item, $callback['options']);
                 } else
                     $item->$column = $callback($item);
             }

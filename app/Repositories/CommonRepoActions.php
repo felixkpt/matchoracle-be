@@ -57,7 +57,7 @@ trait CommonRepoActions
                 $builder->update($arr);
                 $msg = 'All records statuses updated.';
             } else {
-                $ids = explode(',', $ids);
+                $ids = json_decode($ids);
 
                 $builder->whereIn('id', $ids)->update($arr);
                 $msg = count($ids) . ' records statuses updated.';
