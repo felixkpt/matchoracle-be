@@ -3,7 +3,7 @@ import React, { createContext, useContext } from 'react';
 
 interface RolePermissionsContextType {
     roles: RoleInterface[];
-    directPermissions: PermissionInterface;
+    directPermissions: PermissionInterface[];
     routePermissions: PermissionInterface[];
     refreshCurrentRole: () => void;
     fetchRoutePermissions: (roleId?: string, source?: string) => void;

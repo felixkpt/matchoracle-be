@@ -5,8 +5,25 @@ import PrepareStatusUpdateModal from '@/components/PrepareStatusUpdateModal';
 import PrepareViewModal from '@/components/PrepareViewModal';
 import { config } from '../../../utils/helpers';
 import { NavLink } from 'react-router-dom';
+import { useEffect } from 'react';
+import { toggleSidebar } from '@/Layouts/Default/SideNav/Index';
 
 export default function Footer() {
+
+    // useEffect to add event listener for sidebar toggle
+    useEffect(() => {
+        const sidebarToggle = document.body.querySelector('#sidebarToggle');
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+
+        return () => {
+            if (sidebarToggle) {
+                sidebarToggle.removeEventListener('click', toggleSidebar);
+            }
+        };
+    }, []);
 
     return (
         <>

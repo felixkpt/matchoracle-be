@@ -11,9 +11,9 @@ import { useRolePermissionsContext } from '@/contexts/RolePermissionsContext';
 import Error404 from '@/Pages/ErrorPages/Error404';
 import { environment } from '@/utils/helpers';
 import SideNav, { toggleSidebar } from '@/Layouts/Default/SideNav/Index';
-import { HttpVerbsType } from '@/interfaces/UncategorizedInterfaces';
 import NavBar from '../Shared/Navbar/Index';
 import Footer from '../Shared/Footer/Index';
+import { HttpVerbsType } from '@/interfaces/UncategorizedInterfaces';
 
 interface Props {
     uri: string
@@ -25,28 +25,22 @@ interface Props {
 const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
 
     const [reloadKey, setReloadKey] = useState<number>(0);
-
     const { updateUser, deleteUser, verified, setRedirectTo } = useAuth();
     const navigate = useNavigate();
-
-    // Initialize useAxios with the desired endpoint for fetching user data
     const { data, loading: loadingUser, get } = useAxios();
-
     const { loadingRoutePermissions, currentRole, refreshCurrentRole, setCurrentRole, fetchRoutePermissions, routePermissions } = useRolePermissionsContext();
+    const { userCan } = usePermissions();
+    const allowedRoutes = ['error-404', 'login'];
+    const [isAllowed, setIsAllowed] = useState(false);
+    const [checked, setChecked] = useState(false);
+    const [tried, setTried] = useState(false);
+    const [previousUrl, setPreviousUrl] = useState<string | null>(null);
 
-    const { userCan } = usePermissions()
-
-    const allowedRoutes = ['error-404', 'login']
-
-    const [isAllowed, setIsAllowed] = useState(false)
-    const [checked, setChecked] = useState(false)
-
+    // useEffect to check permission and loading state
     useEffect(() => {
-        // Prioritize permission is given (this refers to direct permission)
-        const testPermission = permission || uri
+        const testPermission = permission || uri;
 
         if (testPermission && loadingRoutePermissions === false) {
-
             if (!allowedRoutes.includes(testPermission)) {
                 const isAllowed = userCan(testPermission, method || 'get');
                 setIsAllowed(isAllowed);
@@ -55,83 +49,64 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
             setTimeout(function () {
                 setChecked(true);
             }, 700);
-
         }
+    }, [verified, loadingRoutePermissions, permission, routePermissions]);
 
-    }, [verified, loadingRoutePermissions, Component, permission, routePermissions])
-
+    // useEffect to fetch user data and refresh current role
     useEffect(() => {
-
         const fetchData = () => {
             get('/auth/user?verify=1');
         }
 
         if (verified === false) {
-            setCurrentRole(undefined)
+            setCurrentRole(undefined);
             fetchData();
         }
-
     }, [verified]);
 
     useEffect(() => {
         if (currentRole === undefined) {
-            refreshCurrentRole()
+            refreshCurrentRole();
         }
-    }, [currentRole])
+    }, [currentRole]);
 
-    const [tried, setTried] = useState(false);
-
+    // useEffect to update user data or delete user on loading state change
     useEffect(() => {
-        if (tried === false && loadingUser === true) setTried(true);
+        if (tried === false && loadingUser === true) {
+            setTried(true);
+        }
 
         if (loadingUser === false && tried === true) {
             const user = data;
             if (user) {
                 updateUser(user);
             } else {
-                deleteUser()
+                deleteUser();
             }
         }
     }, [loadingUser, tried]);
 
-    const [previousUrl, setPreviousUrl] = useState<string | null>(null)
-
+    // useEffect to update previous URL
     useEffect(() => {
-
         if (previousUrl !== location.pathname) {
-            setPreviousUrl(location.pathname)
+            setPreviousUrl(location.pathname);
         }
-
     }, [location.pathname]);
 
+    // useEffect to fetch route permissions on reloadKey change
     useEffect(() => {
         if (reloadKey > 0) {
-            fetchRoutePermissions()
+            fetchRoutePermissions();
         }
+    }, [reloadKey]);
 
-    }, [reloadKey])
-
-    useEffect(() => {
-        const sidebarToggle = document.body.querySelector('#sidebarToggle');
-
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', toggleSidebar);
-        }
-
-        return () => {
-            if (sidebarToggle) {
-                sidebarToggle.removeEventListener('click', toggleSidebar);
-            }
-        };
-    }, []);
-
+    // useEffect to redirect to login if not allowed and loadingUser is false
     useEffect(() => {
         if (!loadingUser && !isAllowed && checked) {
-            setRedirectTo(location.pathname)
+            setRedirectTo(location.pathname);
             navigate('/login');
-
         }
-    }, [loadingUser, isAllowed, checked])
+    }, [loadingUser, isAllowed, checked]);
 
     return (
         <div key={reloadKey}>
@@ -144,12 +119,10 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                     </div>
                     <div id="mainContent"
                         onClick={(e: any) => {
-
                             if (window.innerWidth < 992) {
                                 toggleSidebar(e, 'hide')
                             }
-                        }
-                        }
+                        }}
                     >
                         <div className='main-content mb-4'>
                             <main className='main-content-inner container-fluid mt-2 px-3 min-h-100vh'>
@@ -173,11 +146,10 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                     </div>
                 </div>
             </>
-            <div className='container-fluid mt-4 px-4 min-h-100vh v'>
+            <div className='container-fluid mt-4 px-4'>
                 <div className="position-absolute top-50 start-50 translate-middle w-100">
                     <div className="row justify-content-center">
                         <div className="col-5">
-
                             {
                                 loadingUser && !isAllowed ?
                                     <div className="d-flex justify-content-center align-items-center gap-3">
@@ -189,14 +161,11 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                                         {
                                             !isAllowed &&
                                             <div className='alert text-center'>
-                                                <p>Unknown server error occured.</p>
+                                                <p>Unknown server error occurred.</p>
                                                 <a href={location.pathname} className="link_404 rounded">Reload</a>
-
                                             </div>
-
                                         }
                                     </>
-
                             }
                         </div>
                     </div>

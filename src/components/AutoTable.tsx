@@ -12,6 +12,7 @@ import AutoTableHeader from './AutoTableHeader';
 import Loader from './Loader';
 import StatusesUpdate from './StatusesUpdate';
 import { config } from '@/utils/helpers';
+import usePermissions from '@/hooks/usePermissions';
 
 function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
@@ -56,6 +57,8 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     const [modelDetails, setModelDetails] = useState({})
     const [htmls, setHtmls] = useState<string[]>([])
     const [query, setQuery] = useState<string>('')
+
+    const { userCan } = usePermissions()
 
     useEffect(() => {
         if (tableData) {
@@ -208,12 +211,15 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
 
     }
 
+    const canUpdateStatuses = userCan(`${baseUri}/update-statuses`, `patch`)
+
     return (
         <div id={localTableId} className={`autotable shadow p-1 rounded my-3 relative shadow-md sm:rounded-lg`}>
             <div className={`card`}>
                 <div className="card-header">
                     <div className="row align-items-center justify-content-end align-items-center text-muted">
-                        <div className='col-12 col-xl-9 cursor-default'>
+                        {
+                            canUpdateStatuses &&
                             <StatusesUpdate
                                 checkedAllItems={checkedAllItems}
                                 tableDataLength={tableDataLength}
@@ -225,6 +231,8 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                                 checkedItems={checkedItems}
                                 tableId={localTableId}
                             />
+                        }
+                        <div className={`col-12 ${canUpdateStatuses ? 'col-xl-9 ' : ''}cursor-default`}>
                         </div>
                         <div className='col-12 col-xl-3'>
                             <div className="d-flex align-items-center justify-content-end gap-1">
