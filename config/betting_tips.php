@@ -1,5 +1,12 @@
 <?php
 return [
+    'investment' => [
+        'initial_bankroll' => 1000,
+        'singles_stake_ratio' => 0.1,
+        'multiples_stake_ratio' => 0.1,
+        'multiples_combined_min_odds' => 5,
+    ],
+
     // Core tips
     'App\Repositories\BettingTips\Core\HomeWinTips' => [
         'outcome_name' => 'home_win',

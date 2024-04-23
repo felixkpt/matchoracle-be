@@ -8,6 +8,11 @@ class AllTips
 {
     use BettingTipsTrait;
 
+    function __construct()
+    {
+        $this->setTipsProperties(self::class);
+    }
+
     /**
      * Fetch and process singles betting tips.
      *
