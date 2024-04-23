@@ -1,15 +1,27 @@
 <?php
 
 return [
-  'folder' => env('NESTED_ROUTES_FOLDER', 'nested-routes'),
-  'permissions' => [
-      'ignored_folders' => [
-          0 => 'auth',
-          1 => 'client',
-      ],
-  ],
-  'rename_main_folders' => [
-      'admin' => env('ADMIN_FOLDER_NAME', 'dashboard'),
-  ],
-];
 
+    /*
+    |--------------------------------------------------------------------------
+    | Nested Routes config
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the nested routes behavior.
+    |
+    */
+    'folder' => 'nested-routes',
+    'prefix' => 'api',
+    'middleWares' => ['api', 'nesteroutes.auth'],
+    'permissions' => [
+        'ignored_folders' => env('permissions_ignored_folders', [
+            'auth',
+            'client',
+        ]),
+    ],
+
+    'rename_main_folders' => [
+        'admin' => 'dashboard'
+    ]
+
+];

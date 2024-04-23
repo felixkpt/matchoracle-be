@@ -31,7 +31,7 @@ interface RoleRepositoryInterface extends CommonRepoActionsInterface
      */
     public function getRoleMenu($id);
 
-    function getUserRoutePermissions($id);
+    function getRoleRoutePermissions($id);
 
     function addUser($id);
 }

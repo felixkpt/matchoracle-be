@@ -22,6 +22,7 @@ class RoleRepository implements RoleRepositoryInterface
     use RoleHelpers;
 
     private $checked_permissions = [];
+    private $guestRoleId = '1101';
 
     function __construct(protected Role $model)
     {
@@ -30,10 +31,7 @@ class RoleRepository implements RoleRepositoryInterface
     public function index()
     {
 
-        $roles = $this->model::query()
-            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()));
-
-        if ($this->applyFiltersOnly) return $roles;
+        $roles = $this->model::query();
 
         if (request()->all == '1')
             return response(['results' => $roles->get()]);
@@ -66,10 +64,17 @@ class RoleRepository implements RoleRepositoryInterface
 
     function getUserRolesAndDirectPermissions()
     {
-        $user = User::find(auth()->user()->id);
-        $roles = $user->roles()->select('id', 'name')->get();
+        $id = auth()->user()->id ?? 0;
 
-        $direct_permissions = $user->getPermissionNames();
+        $roles = Role::query()->where('id', $this->guestRoleId)->get();
+        $direct_permissions = null;
+        if ($id) {
+
+            $user = User::find($id);
+            $roles = $user->roles()->select('id', 'name')->get();
+
+            $direct_permissions = $user->getPermissionNames();
+        }
 
         return response(['results' => compact('roles', 'direct_permissions')]);
     }
@@ -91,8 +96,10 @@ class RoleRepository implements RoleRepositoryInterface
      * @return Response
      */
     function storeRolePermissions(Request $request, $id)
-    {
-        // return response()->json(Permission::query()->select('name', 'guard_name', 'parent_folder', 'uri', 'title', 'icon', 'hidden', 'position')->get()->toArray());
+    {  
+        //  Log::info('RRR', Role::find($id)->permissions->select('name', 'guard_name', 'parent_folder', 'uri', 'title', 'icon', 'hidden', 'is_public', 'position')->toArray());
+        
+        // return response()->json(Permission::query()->select('name', 'guard_name', 'parent_folder', 'uri', 'title', 'icon', 'hidden', 'is_public', 'position')->get()->toArray());
 
         $start = Carbon::now();
 
@@ -185,6 +192,10 @@ class RoleRepository implements RoleRepositoryInterface
     public function getRoleMenu($id)
     {
         // a user can have more than 1 roles
+        if ($id == 0) {
+            $id = $this->guestRoleId;
+        }
+
         $role = $this->model::find($id);
         if (!$role) {
             return response()->json(['message' => 'Role not found!!'], 404);
@@ -192,8 +203,10 @@ class RoleRepository implements RoleRepositoryInterface
 
         // save user's default_role_id
         $user = User::find(auth()->id());
-        $user->default_role_id = $id;
-        $user->save();
+        if ($user) {
+            $user->default_role_id = $id;
+            $user->save();
+        }
 
         // Get JSON from storage
         $filePath = '/system/roles/' . Str::slug($role->name) . '_menu.json';
@@ -204,15 +217,17 @@ class RoleRepository implements RoleRepositoryInterface
 
         $jsonContent = file_get_contents(Storage::path($filePath));
 
-        return response()->json(['results' => ['roles' => $role, 'menu' => json_decode($jsonContent), 'expanded_root_folders' => ['dashboard']]]);
+        return response()->json(['results' => ['roles' => $role, 'menu' => json_decode($jsonContent), 'expanded_root_folders' => [config('nestedroutes.folder'), 'dashboard']]]);
     }
 
-    function getUserRoutePermissions($id)
+    function getRoleRoutePermissions($id)
     {
-        $role = $this->model::findOrFail($id);
-        $user = User::find(auth()->user()->id);
+        $user = User::find(auth()->user()->id ?? 0);
 
-        if (!$user->hasRole($role)) return response(['message' => "User doesnt have the {$role->id} role."], 404);
+        $role = $this->model::findOrFail($id);
+        if ((!$user && $id != $this->guestRoleId) || ($user && !$user->hasRole($role))) {
+            return response(['message' => "User doesnt have the {$role->id} role."], 404);
+        }
 
         // Get all permissions associated with user's roles
         $route_permissions = $role->permissions->pluck('uri');

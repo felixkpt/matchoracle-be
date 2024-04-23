@@ -255,7 +255,7 @@ class MatchHandler
     {
         $chosen_crawler = $crawler;
 
-        if (!$chosen_crawler) return null;
+        if (!$chosen_crawler) return [];
 
         // Now $chosen_crawler contains the desired crawler
         $matches = [];
@@ -357,7 +357,6 @@ class MatchHandler
         if ($playing == 'away') {
             $team = $game->homeTeam;
         }
-
 
         // echo "Team: {$team->name}<br>";
 

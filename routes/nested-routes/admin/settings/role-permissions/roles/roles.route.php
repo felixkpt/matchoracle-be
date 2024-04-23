@@ -7,4 +7,3 @@ $controller = RolesController::class;
 Route::get('/', [$controller, 'index'])->name('List Roles');
 Route::post('/', [$controller, 'store'])->name('Add/Save Role')->hidden();
 Route::get('/get-user-roles-and-direct-permissions', [$controller, 'getUserRolesAndDirectPermissions'])->everyone(true)->hidden(true);
-Route::patch('/update-status', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)

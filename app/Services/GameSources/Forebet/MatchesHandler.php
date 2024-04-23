@@ -47,7 +47,7 @@ class MatchesHandler implements MatchesInterface
             $links = $this->getMatchesLinks($url);
 
         // if is not array then there could be an error that has occured
-        if (!is_array($links)) return $links;
+        if (!is_array($links)) return $this->matchMessage('Links should be array.', 500);
 
         $links = array_unique(array_merge([$uri], $links));
 
@@ -82,7 +82,7 @@ class MatchesHandler implements MatchesInterface
 
         $message = implode(', ', $messages);
 
-        $response = ['message' => $message, 'results' => ['saved_updated' => $saved + $updated]];
+        $response = ['message' => $message, 'results' => ['saved_updated' => $saved + $updated], 'status' => 200];
 
         if (request()->without_response) return $response;
 

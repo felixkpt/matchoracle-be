@@ -56,9 +56,9 @@ class RoleController extends Controller
         return $this->roleRepositoryInterface->getRoleMenu($id);
     }
 
-    function getUserRoutePermissions($id)
+    function getRoleRoutePermissions($id)
     {
-        return $this->roleRepositoryInterface->getUserRoutePermissions($id);
+        return $this->roleRepositoryInterface->getRoleRoutePermissions($id);
     }
 
     function addUser($id)
@@ -66,10 +66,5 @@ class RoleController extends Controller
         $this->roleValidationInterface->addUser();
 
         return $this->roleRepositoryInterface->addUser($id);
-    }
-
-    function updateStatus($id)
-    {
-        return $this->roleRepositoryInterface->updateStatus($id);
     }
 }

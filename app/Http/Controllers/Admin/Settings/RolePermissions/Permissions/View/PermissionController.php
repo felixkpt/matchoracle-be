@@ -26,17 +26,4 @@ class PermissionController extends Controller
         $request->merge(['id' => $id]);
         return app(PermissionsController::class)->store($request);
     }
-
-    function updateStatus($id)
-    {
-        return $this->permissionRepositoryInterface->updateStatus($id);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        return $this->permissionRepositoryInterface->destroy($id);
-    }
 }

@@ -17,6 +17,7 @@ trait RoleHelpers
         $title = $nestedRoute['title'];
         $icon = $nestedRoute['icon'];
         $hidden = $nestedRoute['hidden'];
+        $is_public = $nestedRoute['is_public'];
         $position = $nestedRoute['position'] ?? 999999;
         $children = $nestedRoute['children'];
         $routes = $nestedRoute['routes'];
@@ -32,6 +33,7 @@ trait RoleHelpers
                 'title' => $title,
                 'icon' => $icon,
                 'hidden' => $hidden,
+                'is_public' => $is_public,
                 'parent_folder' => $parent_folder,
                 'position' => $position,
                 'guard_name' => $guard_name,
@@ -61,6 +63,7 @@ trait RoleHelpers
             $title = $route['title'];
             $icon = $route['icon'];
             $slug = Str::slug(Str::replace('/', ' ', $uri), '.');
+            $is_public = $route['is_public'];
 
             $permissions[] = Permission::updateOrCreate(
                 ['name' => $slug],
@@ -70,6 +73,7 @@ trait RoleHelpers
                     'uri' => $uri,
                     'title' => $title,
                     'icon' => $icon,
+                    'is_public' => $is_public,
                     'guard_name' => $guard_name,
                     'user_id' => auth()->id() ?? 0,
                     'updated_at' => Carbon::now(),
