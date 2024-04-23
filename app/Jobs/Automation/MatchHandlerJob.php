@@ -14,6 +14,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class MatchHandlerJob implements ShouldQueue
 {
@@ -243,7 +244,10 @@ class MatchHandlerJob implements ShouldQueue
 
             $exists->update($arr);
 
-            if ($data && $data['status'] == 500) $this->logFailure(new FailedMatchLog(), $data);
+            if ($data && $data['status'] == 500) {
+                Log::info('MatchHandlerJob failer:', $data);
+                $this->logFailure(new FailedMatchLog(), $data);
+            }
         }
     }
 

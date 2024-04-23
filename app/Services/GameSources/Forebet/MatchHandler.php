@@ -229,14 +229,18 @@ class MatchHandler
             $saved2 = $updated2 = 0;
             if ($home_team_matches->count() > 0) {
                 $matches = $this->filterMatches($home_team_matches, $country);
-                [$saved, $updated, $msg] = $this->saveGames($matches);
-                $this->deactivateGames($game, $matches, 'home');
+                if (count($matches) > 0) {
+                    [$saved, $updated, $msg] = $this->saveGames($matches);
+                    $this->deactivateGames($game, $matches, 'home');
+                }
             }
 
             if ($away_team_matches->count() > 0) {
                 $matches = $this->filterMatches($away_team_matches, $country);
-                [$saved2, $updated2, $msg2] = $this->saveGames($matches);
-                $this->deactivateGames($game, $matches, 'away');
+                if (count($matches) > 0) {
+                    [$saved2, $updated2, $msg2] = $this->saveGames($matches);
+                    $this->deactivateGames($game, $matches, 'away');
+                }
             }
 
             $savedTotal = $saved + $saved2;

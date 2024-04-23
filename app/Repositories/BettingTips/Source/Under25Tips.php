@@ -8,14 +8,20 @@ class Under25Tips
 {
     use BettingTipsTrait;
 
-    public $outcome_name = 'under_25';
-    public $odds_name = 'under_25_odds';
-    private $odds_min_threshold = 1.3;
-    private $odds_max_threshold = 6.0;
+    function __construct()
+    {
+        $this->setTipsProperties(self::class);
+    }
 
-    private $proba_name = 'under25_proba';
-    private $proba_threshold = 70;
-
-    private $proba_name2 = 'ft_home_win_proba';
-    private $proba_threshold2 = 40;
+    /**
+     * Filter method for prediction statistics.
+     *
+     * @param object $q The query builder object.
+     * @return void
+     */
+    function predictionStatisticFilter($q)
+    {
+        // Apply filter based on the percentage of true predictions for the specific outcome
+        $q->where('ft_under25_preds_true_percentage', '>=', 58);
+    }
 }

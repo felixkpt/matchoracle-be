@@ -16,6 +16,37 @@ trait BettingTipsTrait
     private $multiples_stake_ratio = 0.1;
     private $multiples_combined_min_odds = 5;
 
+    // Define the outcome name
+    public $outcome_name = 'outcome_name_placeholder';
+
+    // Define the odds name
+    public $odds_name = 'odds_name_placeholder';
+
+    // Define thresholds for minimum and maximum odds
+    private $odds_min_threshold = 1.3;
+    private $odds_max_threshold = 6.0;
+
+    // Define the name and threshold for the first probability used in prediction
+    private $proba_name = 'proba_name_placeholder';
+    private $proba_threshold = 58;
+
+    // Define the name and threshold for the second probability used in prediction
+    private $proba_name2 = 'proba_name2_placeholder';
+    private $proba_threshold2 = 55;
+
+    protected function setTipsProperties($tipsClassName)
+    {
+        $config = config("betting_tips.$tipsClassName");
+
+        if ($config) {
+            foreach ($config as $propertyName => $propertyValue) {
+                if (property_exists($this, $propertyName)) {
+                    $this->$propertyName = $propertyValue;
+                }
+            }
+        }
+    }
+
     function singles($isAllTips = false)
     {
         $results = $this->getGames($this->outcome_name, $isAllTips);
@@ -71,6 +102,22 @@ trait BettingTipsTrait
         if (!$isAllTips) {
             $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, $outcome_name));
         }
+
+        return $results;
+    }
+
+    function getAllGames($all_tips)
+    {
+        $include_ids = array_column($all_tips, 'id');
+        if (count($include_ids) === 0) {
+            $include_ids = [-1];
+        }
+
+        request()->merge(['exclude_ids' => null, 'include_ids' => $include_ids]);
+
+        $gameUtilities = new GameUtility();
+        $results = $gameUtilities->applyGameFilters();
+        $results = $gameUtilities->formatGames($results)->addColumn('outcome', fn ($q) => $this->getOutcome($q, $all_tips));
 
         return $results;
     }
@@ -319,7 +366,7 @@ trait BettingTipsTrait
                 $gain = 0;
             }
         }
-  
+
         // Calculate average odds for multiples
         $average_won_odds = $won > 0 ? number_format($total_odds / $won, 2, '.', '') : 0;
 
@@ -394,6 +441,18 @@ trait BettingTipsTrait
                 return 'U'; // Unknown outcome
         }
     }
+
+    function fetchAllTips($typeTips, &$all_tips, &$all_ids, $isSingles)
+    {
+        $typeIds = $isSingles ? $typeTips->singles(true) : $typeTips->multiples(true);
+        $odds_name = $typeTips->odds_name;
+        $outcome_name = $typeTips->outcome_name;
+
+        $all_tips = array_merge($all_tips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $typeIds));
+        $all_ids = array_merge($all_ids, $typeIds);
+        request()->merge(['exclude_ids' => $all_ids]);
+    }
+
 
     private function calculateStreaks($outcomes)
     {

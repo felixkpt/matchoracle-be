@@ -8,19 +8,20 @@ class GGTips
 {
     use BettingTipsTrait;
 
-    public $outcome_name = 'gg';
-    public $odds_name = 'gg_odds';
-    private $odds_min_threshold = 1.3;
-    private $odds_max_threshold = 6.0;
+    function __construct()
+    {
+        $this->setTipsProperties(self::class);
+    }
 
-    private $proba_name = 'gg_proba';
-    private $proba_threshold = 56;
-
-    private $proba_name2 = 'ft_home_win_proba';
-    private $proba_threshold2 = 40;
-
+    /**
+     * Filter method for prediction statistics.
+     *
+     * @param object $q The query builder object.
+     * @return void
+     */
     function predictionStatisticFilter($q)
     {
+        // Apply filter based on the percentage of true predictions for the specific outcome
         $q->where('ft_gg_preds_true_percentage', '>=', 50);
     }
 }
