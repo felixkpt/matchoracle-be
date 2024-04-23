@@ -1,6 +1,8 @@
 import Str from '@/utils/Str';
 import debounce from 'lodash/debounce';
 import CheckboxTreeManager from './CheckboxTreeManager';
+import { RouteCollectionInterface } from '@/interfaces/RolePermissionsInterfaces';
+import { PermissionInterface } from '@/interfaces/RolePermissionsInterfaces';
 interface Props {
     child: RouteCollectionInterface;
     permissions: PermissionInterface[];
@@ -66,7 +68,6 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
     const parentFolder = (folder).replace(/^\//, '');
 
     const parentChecked = !!found(parentFolder, permissions)
-
 
     // Function to handle toggling checkboxes for parent routes
     function handleToggleCheck(parentId: string, action: boolean | null = null) {
@@ -265,6 +266,11 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                             />
                             Hidden
                         </label>
+                        <input
+                            type='hidden'
+                            className='folder-is_public'
+                            value={`false`}
+                        />
                     </div>
                 </div>
             </div>
@@ -324,6 +330,11 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                                                             className='folder-hidden'
                                                             value={route.hidden.toString()}
                                                         />
+                                                        <input
+                                                            type='hidden'
+                                                            className='folder-is_public'
+                                                            value={route.is_public.toString()}
+                                                        />
                                                     </label>
                                                 </td>
                                                 <td className='col-6 align-text-start' title={route.uri_methods}>
@@ -346,6 +357,13 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                                                                 className='d-none folder-hidden'
                                                             />
                                                             {route.hidden ? 'True' : 'False'}
+                                                        </label>
+                                                        <label>
+                                                            <input
+                                                                type='hidden'
+                                                                value={route.is_public.toString()}
+                                                                className='d-nonen folder-is_public'
+                                                            />
                                                         </label>
                                                     </div>
                                                 </td>

@@ -63,9 +63,7 @@ const Permissions: React.FC<Props> = ({ role }) => {
 
         const { folderPermissions, menu, allFolders } = checked;
 
-        var k = folderPermissions
-
-        const savePromises = k.map(async (current_folder: any) => {
+        const savePromises = folderPermissions.map(async (current_folder: any) => {
             const { folder } = current_folder;
 
             return saveData(`${roleUri}/save-permissions?folder=` + folder, {

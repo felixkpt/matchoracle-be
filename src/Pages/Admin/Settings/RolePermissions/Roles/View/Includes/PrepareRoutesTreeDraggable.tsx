@@ -71,12 +71,14 @@ function constructMenu(topLevelFolders: HTMLElement[], isMenu = false) {
       const titleElement = container.querySelector('.folder-title') as HTMLInputElement | null;
       const iconElement = container.querySelector('input.folder-icon') as HTMLInputElement | null;
       const hiddenElement = container.querySelector('input.folder-hidden') as HTMLInputElement | null;
+      const isPublicElement = container.querySelector('input.folder-is_public') as HTMLInputElement | null;
 
       if (titleElement && iconElement && hiddenElement) {
         const title = titleElement.value;
         const icon = iconElement.value;
         const children = constructMenuRecursively(container, isMenu, counter);
         const hidden = hiddenElement.checked;
+        const is_public = isPublicElement.value === 'true' ? true : false;
 
         let unchecked: string[] = []
         if (isMenu == false) {
@@ -93,6 +95,7 @@ function constructMenu(topLevelFolders: HTMLElement[], isMenu = false) {
             title,
             icon,
             hidden,
+            is_public,
             children: newChildren,
             position: nestedRoutes.length + 1,
             unchecked,
@@ -161,17 +164,20 @@ function constructMenuRecursively(folderElement: Element | null, isMenu: boolean
         const titleElement = container.querySelector('.folder-title') as HTMLInputElement | null;
         const iconElement = container.querySelector('input.folder-icon') as HTMLInputElement | null;
         const hiddenElement = container.querySelector('input.folder-hidden') as HTMLInputElement | null;
+        const isPublicElement = container.querySelector('input.folder-is_public') as HTMLInputElement | null;
 
-        if (titleElement && iconElement && hiddenElement) {
+        if (titleElement && iconElement && hiddenElement && isPublicElement) {
           const title = titleElement.value;
           const icon = iconElement.value;
           const hidden = hiddenElement.checked;
+          const is_public = isPublicElement.value === 'true' ? true : false;
 
           nestedRoutes.push({
             folder: input.value,
             title,
             icon,
             hidden,
+            is_public,
             children,
             routes: getRoutes(container, isMenu),
           });
@@ -198,9 +204,10 @@ function getRoutes(container: any, isMenu = false) {
       const title = route.querySelector('input.route-title').value
       const icon = route.querySelector('input.folder-icon').value
       const hidden = route.querySelector('input.folder-hidden').value === 'true' ? true : false
+      const is_public = route.querySelector('input.folder-is_public').value === 'true' ? true : false
 
       if (isMenu === false || hidden === false && isResolvableURI(uri))
-        items.push({ uri, title, icon })
+        items.push({ uri, title, icon, is_public })
     }
   }
 

@@ -26,7 +26,7 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
 
     const [reloadKey, setReloadKey] = useState<number>(0);
 
-    const { user, updateUser, deleteUser, verified, setRedirectTo } = useAuth();
+    const { updateUser, deleteUser, verified, setRedirectTo } = useAuth();
     const navigate = useNavigate();
 
     // Initialize useAxios with the desired endpoint for fetching user data
@@ -36,16 +36,16 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
 
     const { userCan } = usePermissions()
 
-    const allowedRoutes = ['error-404']
+    const allowedRoutes = ['error-404', 'login']
 
-    const [isAllowed, setIsAllowed] = useState(true)
+    const [isAllowed, setIsAllowed] = useState(false)
     const [checked, setChecked] = useState(false)
 
     useEffect(() => {
         // Prioritize permission is given (this refers to direct permission)
         const testPermission = permission || uri
 
-        if (verified === true && testPermission && loadingRoutePermissions === false) {
+        if (testPermission && loadingRoutePermissions === false) {
 
             if (!allowedRoutes.includes(testPermission)) {
                 const isAllowed = userCan(testPermission, method || 'get');
@@ -90,8 +90,6 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                 updateUser(user);
             } else {
                 deleteUser()
-                setRedirectTo(location.pathname)
-                navigate('/login');
             }
         }
     }, [loadingUser, tried]);
@@ -127,72 +125,83 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
         };
     }, []);
 
+    useEffect(() => {
+        if (!loadingUser && !isAllowed && checked) {
+            setRedirectTo(location.pathname)
+            navigate('/login');
+
+        }
+    }, [loadingUser, isAllowed, checked])
+
     return (
         <div key={reloadKey}>
             <ScrollToTop />
-            {user ? (
-                <>
-                    <NavBar />
-                    <div id="layoutWrapper">
-                        <div id="sideNav">
-                            <SideNav />
-                        </div>
-                        <div id="mainContent"
-                            onClick={(e: any) => {
-
-                                if (window.innerWidth < 992) {
-                                    toggleSidebar(e, 'hide')
-                                }
-                            }
-                            }
-                        >
-                            <div className='main-content mb-4'>
-                                <main className='main-content-inner container-fluid mt-2 px-3 min-h-100vh'>
-                                    {
-                                        isAllowed === true && checked === true ?
-                                            <Component />
-                                            :
-                                            <>
-                                                {
-                                                    loadingRoutePermissions === false && checked === true ? (
-                                                        environment === 'local' ? <Error403 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} /> : <Error404 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} />
-                                                    ) : (
-                                                        <Loader message='Granting you page access...' position='static' />
-                                                    )
-                                                }
-                                            </>
-                                    }
-                                </main>
-                            </div>
-                            <Footer />
-                        </div>
+            <>
+                <NavBar />
+                <div id="layoutWrapper">
+                    <div id="sideNav">
+                        <SideNav />
                     </div>
-                </>
-            ) :
-                <div className='container-fluid mt-4 px-4 min-h-100vh v'>
-                    <div className="position-absolute top-50 start-50 translate-middle w-100">
-                        <div className="row justify-content-center">
-                            <div className="col-5">
+                    <div id="mainContent"
+                        onClick={(e: any) => {
 
+                            if (window.innerWidth < 992) {
+                                toggleSidebar(e, 'hide')
+                            }
+                        }
+                        }
+                    >
+                        <div className='main-content mb-4'>
+                            <main className='main-content-inner container-fluid mt-2 px-3 min-h-100vh'>
                                 {
-                                    loadingUser ?
-                                        <div className="d-flex justify-content-center align-items-center gap-3">
-                                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                            Please wait, logging you in...
-                                        </div>
+                                    isAllowed === true && checked === true ?
+                                        <Component />
                                         :
-
-                                        <div className='alert text-center'>
-                                            <p>Unknown server error occured.</p>
-                                            <a href={location.pathname} className="link_404 rounded">Reload</a>
-
-                                        </div>
+                                        <>
+                                            {
+                                                loadingRoutePermissions === false && checked === true ? (
+                                                    environment === 'local' ? <Error403 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} /> : <Error404 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} />
+                                                ) : (
+                                                    <Loader message='Granting you page access...' position='static' />
+                                                )
+                                            }
+                                        </>
                                 }
-                            </div>
+                            </main>
+                        </div>
+                        <Footer />
+                    </div>
+                </div>
+            </>
+            <div className='container-fluid mt-4 px-4 min-h-100vh v'>
+                <div className="position-absolute top-50 start-50 translate-middle w-100">
+                    <div className="row justify-content-center">
+                        <div className="col-5">
+
+                            {
+                                loadingUser && !isAllowed ?
+                                    <div className="d-flex justify-content-center align-items-center gap-3">
+                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Please wait, logging you in...
+                                    </div>
+                                    :
+                                    <>
+                                        {
+                                            !isAllowed &&
+                                            <div className='alert text-center'>
+                                                <p>Unknown server error occured.</p>
+                                                <a href={location.pathname} className="link_404 rounded">Reload</a>
+
+                                            </div>
+
+                                        }
+                                    </>
+
+                            }
                         </div>
                     </div>
                 </div>
-            }
+            </div>
         </div>
     );
 };

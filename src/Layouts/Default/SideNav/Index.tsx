@@ -11,7 +11,7 @@ import Loader from '@/components/Loader';
 const Index = () => {
   const { user } = useAuth();
   const { roles, setCurrentRole, currentRole, userMenu, expandedRootFolders, loadingMenu: loading } = useRolePermissionsContext();
-
+  
   useEffect(() => {
     const expand = document.body.querySelector('.btn-expand-collapse');
     if (expand) {
@@ -45,7 +45,7 @@ const Index = () => {
   const memoizeMenu = useMemo(() => {
     return (
       <>
-        {user && Array.isArray(userMenu) && userMenu.length > 0 ? (
+        {Array.isArray(userMenu) && userMenu.length > 0 ? (
           <ul className="list-unstyled nested-routes main">
             {userMenu.map((child: RouteCollectionInterface) => {
               const { routes, children, icon, folder } = child;
@@ -98,6 +98,20 @@ const Index = () => {
     );
   }, [user, userMenu, loading]);
 
+  useEffect(() => {
+    const sidebarToggle = document.body.querySelector('#sidebarToggle');
+
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener('click', toggleSidebar);
+    }
+
+    return () => {
+      if (sidebarToggle) {
+        sidebarToggle.removeEventListener('click', toggleSidebar);
+      }
+    };
+  }, []);
+
   return (
     <nav className="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
       <div className="sb-sidenav-menu shadow">
@@ -105,7 +119,9 @@ const Index = () => {
           <div className='px-1'>
             <div id="menu">
               <div id='role-switcher' title='Switch your role'>
-                <Select
+                {
+                 user && roles.length > 0 &&
+                  <Select
                   className="basic-single text-dark mb-2"
                   classNamePrefix="select"
                   value={currentRole || []}
@@ -117,6 +133,7 @@ const Index = () => {
                   getOptionLabel={(option: any) => `${option['name']}`}
                   onChange={(item: any) => setCurrentRole(item)}
                 />
+                }
               </div>
               {memoizeMenu}
             </div>
@@ -128,6 +145,8 @@ const Index = () => {
 }
 
 export const toggleSidebar = (event?: Event, action: string | undefined = undefined, forceClose = false) => {
+  if (window.innerWidth >= 992) return
+
   if (action && action === 'hide') {
     if (document.body.classList.contains('sb-sidenav-toggled')) {
       document.body.classList.remove('sb-sidenav-toggled');

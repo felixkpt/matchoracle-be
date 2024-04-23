@@ -77,7 +77,7 @@ const AddUser = ({ role }: Pick<Props, 'role'>) => {
     const { get } = useAxios()
 
     const loadOptions = async (q: string) => {
-        const { data } = await get(`/admin/settings/users?role_id=${role.id}&negate=1&all=1&search=${q}`);
+        const { data } = await get(`/admin/settings/users?role_id=${role.id}&negate=1&all=1&q=${q}`);
 
         return data ?? []
     }
