@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Traits\ExcludeSystemFillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

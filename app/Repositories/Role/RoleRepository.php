@@ -22,10 +22,11 @@ class RoleRepository implements RoleRepositoryInterface
     use RoleHelpers;
 
     private $checked_permissions = [];
-    private $guestRoleId = '1101';
+    private $guestRoleId;
 
     function __construct(protected Role $model)
     {
+        $this->guestRoleId = config('nestedroutes.guestRoleId') ?? 0;
     }
 
     public function index()
@@ -96,9 +97,9 @@ class RoleRepository implements RoleRepositoryInterface
      * @return Response
      */
     function storeRolePermissions(Request $request, $id)
-    {  
+    {
         //  Log::info('RRR', Role::find($id)->permissions->select('name', 'guard_name', 'parent_folder', 'uri', 'title', 'icon', 'hidden', 'is_public', 'position')->toArray());
-        
+
         // return response()->json(Permission::query()->select('name', 'guard_name', 'parent_folder', 'uri', 'title', 'icon', 'hidden', 'is_public', 'position')->get()->toArray());
 
         $start = Carbon::now();
