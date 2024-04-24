@@ -1,9 +1,9 @@
 <?php
 return [
     'investment' => [
-        'initial_bankroll' => 1000,
-        'singles_stake_ratio' => 0.1,
-        'multiples_stake_ratio' => 0.1,
+        'initial_bankroll' => 10000,
+        'singles_stake_ratio' => 0.1, // 10% to 20% of bankroll is ideal
+        'multiples_stake_ratio' => 0.1, // 10% to 20% of bankroll is ideal
         'multiples_combined_min_odds' => 5,
     ],
 

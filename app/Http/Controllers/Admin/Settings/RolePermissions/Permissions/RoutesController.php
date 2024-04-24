@@ -13,19 +13,10 @@ class RoutesController extends Controller
 
     public function index()
     {
-        $prefix = 'admin';
-        $gen = new GetNestedroutes($prefix, '');
-        $nestedRoutes = $gen->list($prefix);
-
-
-        // $role = Role::find(1);
-
-        // $existing = Role::with(['permissions' => function ($q) {
-        //     $q->where('name', 'not like', 'admin%');
-        // }])->find($role->id);
+        $gen = new GetNestedroutes();
+        $nestedRoutes = $gen->list();
 
         // dd($existing->permissions->pluck('id'));
-
 
         return response(['results' => $nestedRoutes]);
     }

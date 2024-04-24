@@ -16,16 +16,16 @@ trait CalculateInvestment
 
     function multiplesInvestment($results, $odds_name = null, $outcome_name = null, $all_tips = null)
     {
-        return $this->calculateInvestment($results, $this->multiples_stake_ratio, $odds_name, $outcome_name, $all_tips);
+        return $this->calculateInvestment($results, $this->multiples_stake_ratio, $odds_name, $outcome_name, $all_tips, false);
     }
 
-    private function calculateInvestment($results, $stake_ratio, $odds_name, $outcome_name, $all_tips)
+    private function calculateInvestment($results, $stake_ratio, $odds_name, $outcome_name, $all_tips, $is_singles = true)
     {
         $initial_bankroll = $this->initial_bankroll;
         $bankroll_deposits = 1;
         $current_bankroll = $initial_bankroll;
         $stake = $stake_ratio * $initial_bankroll;
-        $min_odds = $stake_ratio === $this->singles_stake_ratio ? 1 : $this->multiples_combined_min_odds;
+        $min_odds = $is_singles ? 1 : $this->multiples_combined_min_odds;
 
         $results = $results->orderBy('utc_date', 'asc')->get(-1)['data'];
 
