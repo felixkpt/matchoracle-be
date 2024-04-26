@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios';
 import { clearErrors, showErrors } from '@/utils/validation-errors';
 import { useAuth } from '@/contexts/AuthContext';
 import { publish } from '@/utils/events';
@@ -12,9 +12,11 @@ interface AxiosResponseWithData<T> extends AxiosResponse {
 const useAxios = <T = any>() => {
 
     axios.defaults.baseURL = baseURL('api');
+    const frontendUrl = window.location.origin
 
     const [data, setData] = useState<T | null>(null);
     const [loading, setLoading] = useState(false);
+    const [fetched, setFetched] = useState(false);
     const [errors, setErrors] = useState(null);
 
     // Create an Axios instance with a request interceptor
@@ -26,14 +28,21 @@ const useAxios = <T = any>() => {
     // Request interceptor to add Authorization header if user is authenticated
     axiosInstance.interceptors.request.use(
         (config) => {
-            if (user) {
-                config.headers = {
-                    ...config.headers,
-                    Authorization: `Bearer ${user.token}`,
-                    // 'Content-Type': 'application/json',
-                    // 'Accept': '*',
-                };
+            // Ensure config.headers is of type AxiosRequestHeaders
+            if (!config.headers) {
+                config.headers = {} as AxiosRequestHeaders; // Initialize as an empty object
             }
+
+            // Add X-Frontend-URL header
+            config.headers['X-Frontend-URL'] = frontendUrl;
+
+            // Optionally add other headers here
+
+            if (user) {
+                // Add Authorization header if user is authenticated
+                config.headers['Authorization'] = `Bearer ${user.token}`;
+            }
+
             return config;
         },
         (error) => {
@@ -109,14 +118,15 @@ const useAxios = <T = any>() => {
 
         } finally {
             setLoading(false);
+            setFetched(true);
         }
     };
 
     const get = (url: string, config = {}) => fetchData({ method: 'GET', url, ...config });
     const post = (url: string, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config });
-    const put = (url: string, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config, _method: 'put' });
+    const put = (url: string, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config, _method: 'patch' });
     const patch = (url: string, data = {}, config = {}) => fetchData({ method: 'POST', url, data, ...config, _method: 'patch' });
-    const destroy = (url: string, data = {}, config = {}) => fetchData({ method: 'DELETE', url, ...config });
+    const destroy = (url: string, data = {}, config = {}) => fetchData({ method: 'DELETE', url, data, ...config });
     const getFile = async (url: string, config = {}, placeholder: string | null = null) => {
 
         if (!url && placeholder) return placeholder
@@ -136,14 +146,14 @@ const useAxios = <T = any>() => {
             // Error handling code...
         } finally {
             setLoading(false);
+            setFetched(true);
         }
 
         return ''
 
     };
 
-
-    return { data, loading, errors, get, post, put, patch, destroy, getFile };
+    return { data, loading, fetched, errors, get, post, put, patch, destroy, getFile };
 };
 
 export default useAxios;

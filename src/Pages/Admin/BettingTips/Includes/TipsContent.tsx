@@ -30,9 +30,9 @@ const TipsContent = ({ data }: Props) => {
             {
                 betslip.map((slip: GameInterface) => {
                     const game = slip.game
-                    const odds_name = slip.odds_name 
+                    const odds_name = slip.odds_name
                     const odds_name_print = slip.odds_name_print
-                    
+
                     return (
                         <div key={game.id} className="row border border-0 border-bottom border-dark pb-1">
                             <div className="col-12 text-muted">
@@ -57,8 +57,8 @@ const TipsContent = ({ data }: Props) => {
                             </div>
                             <div className="col-6 col-md-4 d-flex align-items-center">{odds_name_print} @ {game.odds[0][odds_name]}</div>
                             <div className="col-6 col-md-3 d-flex align-items-center">
-                                <div className="d-flex align-items-center w-100">
-                                    <div className="col-6">
+                                <div className="scores-outcome d-flex align-items-center justify-content-center w-100">
+                                    <div className="score">
                                         {__dangerousHtml(game.Fulltime)}
                                     </div>
                                     <div>
@@ -74,13 +74,14 @@ const TipsContent = ({ data }: Props) => {
 
             {
                 odds &&
-                <div className='col-12 mt-2 mb-4'>
+                <div className='col-12 mt-2 mb-4 investment-summary'>
                     <div className='shadow p-1 rounded row align-items-center text-muted'>
-                        <div className="col-lg-7">
-                            <div className="d-flex gap-1">
-                                <div>Total odds <strong className='text-success'>{odds}</strong></div>
-                                <div>Stake <strong className='text-success'>{stake}</strong></div>
-                                <div>|</div>
+                        <div className="stake-details">
+                            <div className="d-flex gap-1 justify-content-between">
+                                <div className="d-flex gap-3">
+                                    <small>Total odds <strong className='text-success'>{odds}</strong></small>
+                                    <small>Stake <strong className='text-success'>{stake}</strong></small>
+                                </div>
                                 <div className='d-flex align-items-center justify-content-between gap-2'>
                                     {
                                         outcome == 'W' ?
@@ -98,8 +99,8 @@ const TipsContent = ({ data }: Props) => {
                                 </div>
                             </div>
                         </div>
-                        <div className='col-lg-5'>
-                            <div className='d-flex gap-1'>
+                        <div className='brankroll-details'>
+                            <div className='d-flex gap-1 align-items-center justify-content-between'>
                                 <small>Bankroll: {final_bankroll}</small>
                                 <span>|</span>
                                 <small>Deposits: {bankroll_deposits}</small>
