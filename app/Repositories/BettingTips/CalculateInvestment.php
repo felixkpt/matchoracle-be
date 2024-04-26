@@ -4,6 +4,7 @@ namespace App\Repositories\BettingTips;
 
 use App\Models\Game;
 use App\Repositories\GameComposer;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 trait CalculateInvestment
@@ -30,6 +31,9 @@ trait CalculateInvestment
         $results = $results->orderBy('utc_date', 'asc')->get(-1)['data'];
 
         $total = $won = $gain = 0;
+        $weekly_report = [];
+        $curr_week = null;
+
         $longest_winning_streak = $longest_losing_streak = 0;
         $current_winning_streak = $current_losing_streak = 0;
         $total_odds = 0; // Variable to store total odds for multiples
@@ -39,6 +43,7 @@ trait CalculateInvestment
         $betslips = [];
         $betslip = [];
         $final_bankroll = $current_bankroll;
+        $bankroll_was_deposited = true;
         foreach ($results as $game) {
 
             if (is_array($all_tips) && isset($game['id'])) {
@@ -71,6 +76,7 @@ trait CalculateInvestment
                     // If not, apply a top-up
                     $current_bankroll = $initial_bankroll;
                     $bankroll_deposits++;
+                    $bankroll_was_deposited = true;
                 }
 
                 if ($outcome == 'W') {
@@ -101,6 +107,14 @@ trait CalculateInvestment
                     }
                 }
 
+                if (!$curr_week || Carbon::parse($game['utc_date'])->diffInDays(Carbon::parse($curr_week)) > 7) {
+                    $curr_week = Carbon::parse($game['utc_date'])->format('Y-m-d');
+                    $weekly_report[$curr_week] = ['bankroll_deposits' => $bankroll_was_deposited ? 1 : 0, 'betslip_counts' => 1, 'tip_counts' => count($betslip), 'gains' => round($gain)];
+                } else {
+                    $report = $weekly_report[$curr_week];
+                    $weekly_report[$curr_week] = ['bankroll_deposits' => $report['bankroll_deposits'] + $bankroll_was_deposited ? 1 : 0, 'betslip_counts' => $report['betslip_counts'] + 1, 'tip_counts' => $report['tip_counts'] + count($betslip), 'gains' => $report['gains'] + round($gain)];
+                }
+
                 $current_bankroll += $gain;
                 $final_bankroll = $current_bankroll;
                 $final_bankroll_formatted = number_format($final_bankroll, 2, '.', request()->without_response ? '' : ',');
@@ -118,6 +132,7 @@ trait CalculateInvestment
                 $outcome = 'W';
                 $betslip = [];
                 $gain = 0;
+                $bankroll_was_deposited = false;
             }
         }
 
@@ -151,6 +166,7 @@ trait CalculateInvestment
             'roi' => $roi,
             'longest_winning_streak' => $longest_winning_streak,
             'longest_losing_streak' => $longest_losing_streak,
+            'weekly_report' => $weekly_report,
         ];
     }
 

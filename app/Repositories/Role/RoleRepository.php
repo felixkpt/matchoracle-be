@@ -131,7 +131,7 @@ class RoleRepository implements RoleRepositoryInterface
                 $q->where('parent_folder', '=', $parent_folder);
             }])->find($id)->permissions->pluck('id')->toArray();
 
-            Log::info("Existing for folder:", ['parent_folder' => $parent_folder, 'permissions' => $existing]);
+            // Log::info("Existing for folder:", ['parent_folder' => $parent_folder, 'permissions' => $existing]);
 
             $role->permissions()->detach($existing);
 
@@ -166,7 +166,7 @@ class RoleRepository implements RoleRepositoryInterface
 
         // 1. Remove permissions for parent folders not in the list of saved folders (probably the current role does not need the folders anymore)
         $permissionsToRemove = $role->permissions()->whereNotIn('parent_folder', $saved_folders)->pluck('id')->toArray();
-        Log::info('permissionsToRemove', ['permissionsToRemove' => $permissionsToRemove]);
+        // Log::info('permissionsToRemove', ['permissionsToRemove' => $permissionsToRemove]);
         $role->permissions()->detach($permissionsToRemove);
 
         // 2. Delete permissions for parent folders not in all_folders (probably the folders were renamed or deleted)

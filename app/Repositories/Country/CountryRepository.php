@@ -5,10 +5,7 @@ namespace App\Repositories\Country;
 use App\Models\Country;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class CountryRepository implements CountryRepositoryInterface
 {

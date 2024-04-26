@@ -166,7 +166,7 @@ trait FormatPredictionTrait
 
         $class = 'border-start text-dark';
 
-        return '<div class="border-4 p-1 text-nowrap ' . $class . ' d-inline-block text-center results-icon-md">' . $q->half_time . '</div>';
+        return '<div class="scores-sec border-4 p-1 text-nowrap ' . $class . ' d-inline-block text-center results-icon-md">' . $q->half_time . '</div>';
     }
 
     protected function formatFTScores($q)
@@ -174,6 +174,6 @@ trait FormatPredictionTrait
 
         $class = 'border-start text-dark';
 
-        return '<div class="border-4 p-1 text-nowrap ' . $class . ' d-inline-block text-center results-icon-md">' . $q->full_time . '</div>';
+        return '<div class="scores-sec border-4 p-1 text-nowrap ' . $class . ' d-inline-block text-center results-icon-md">' . $q->full_time . '</div>';
     }
 }
