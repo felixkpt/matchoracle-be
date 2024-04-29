@@ -41,3 +41,45 @@ Stack trace:
 #4 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(244): Composer\Autoload\Cla
 2024/04/20 12:47:00 [error] 1199#1199: *2008 recv() failed (104: Unknown error) while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/admin/competitions/view/1276/matches?type=played&per_page=1000&to_date=2023-10-23&is_predictor=1&order_by=utc_date&order_direction=asc&history_limit_per_match=12&current_ground_limit_per_match=6&h2h_limit_per_match=4&prediction_type=regular_prediction_12_6_4_1000&task=train HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
 2024/04/21 02:55:34 [error] 1173#1173: *2960 recv() failed (104: Unknown error) while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/admin/competitions/view/1363/matches?type=played&per_page=1000&to_date=2023-10-23&is_predictor=1&order_by=utc_date&order_direction=asc&history_limit_per_match=12&current_ground_limit_per_match=6&h2h_limit_per_match=4&prediction_type=regular_prediction_12_6_4_1000&task=train HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/04/29 09:21:30 [error] 1137#1137: *10294 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected token "," in /var/www/html/matchoracle-be/app/Repositories/BettingTips/CalculateInvestment.php:233
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#1 /var/www/html/matchoracle-be/app/Repositories/BettingTips/BettingTipsTrait.php(9): Composer\Autoload\ClassLoader->loadClass()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/BettingTips/Core/Under25Tips.php(7): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#6 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#7 [internal function]: Composer\Autoload\ClassLoader->loadClass()
+#8 /var/" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/admin/betting-tips/?prediction_mode_id=1&type=under_25_tips&page=1&per_page=21 HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"
+2024/04/29 09:21:30 [error] 1137#1137: *10289 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected token "," in /var/www/html/matchoracle-be/app/Repositories/BettingTips/CalculateInvestment.php:233
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#1 /var/www/html/matchoracle-be/app/Repositories/BettingTips/BettingTipsTrait.php(9): Composer\Autoload\ClassLoader->loadClass()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/BettingTips/Core/Under25Tips.php(7): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#6 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#7 [internal function]: Composer\Autoload\ClassLoader->loadClass()
+#8 /var/" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/admin/betting-tips/?prediction_mode_id=1&type=under_25_tips&page=1&per_page=10&multiples=1 HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"
+2024/04/29 14:14:21 [error] 1137#1137: *10850 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected token "[", expecting variable or "{" or "$" in /var/www/html/matchoracle-be/app/Repositories/BettingTips/CalculateInvestment.php:246
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#1 /var/www/html/matchoracle-be/app/Repositories/BettingTips/BettingTipsTrait.php(9): Composer\Autoload\ClassLoader->loadClass()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/BettingTips/Core/Under25Tips.php(7): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#6 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#7 [internal function]: Composer\Autoload" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/admin/betting-tips/2023/10/24/to/2023/10/31?prediction_mode_id=1&betting_strategy_id=1&type=under_25_tips&page=1&per_page=21 HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"
+2024/04/29 14:14:21 [error] 1137#1137: *10851 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected token "[", expecting variable or "{" or "$" in /var/www/html/matchoracle-be/app/Repositories/BettingTips/CalculateInvestment.php:246
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#1 /var/www/html/matchoracle-be/app/Repositories/BettingTips/BettingTipsTrait.php(9): Composer\Autoload\ClassLoader->loadClass()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/BettingTips/Core/Under25Tips.php(7): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#6 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#7 [internal function]: Composer\Autoload" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/admin/betting-tips/2023/10/24/to/2023/10/31?prediction_mode_id=1&betting_strategy_id=1&type=under_25_tips&page=1&per_page=10&multiples=1 HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"

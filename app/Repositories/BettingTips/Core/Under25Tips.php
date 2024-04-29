@@ -22,6 +22,6 @@ class Under25Tips
     function predictionStatisticFilter($q)
     {
         // Apply filter based on the percentage of true predictions for the specific outcome
-        $q->where('ft_under25_preds_true_percentage', '>=', 58);
+        $q->where('ft_under25_preds_true_percentage', '>=', 50);
     }
 }

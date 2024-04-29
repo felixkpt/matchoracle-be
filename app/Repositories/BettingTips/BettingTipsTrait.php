@@ -2,6 +2,7 @@
 
 namespace App\Repositories\BettingTips;
 
+use App\Models\Game;
 use App\Repositories\GameComposer;
 use App\Utilities\GameUtility;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -35,9 +36,11 @@ trait BettingTipsTrait
 
     protected function setTipsProperties($tipsClassName)
     {
-        $config = config("betting_tips.$tipsClassName");
+        $pred_mode = request()->prediction_mode_id == 1 ? 'core' : 'source';
+        $config = config("betting_tips.$pred_mode");
 
         if ($config) {
+            $config =  $config[$tipsClassName] ?? [];
             foreach ($config as $propertyName => $propertyValue) {
                 // Check if the property exists and is not null
                 if (property_exists($this, $propertyName)) {
@@ -189,6 +192,29 @@ trait BettingTipsTrait
         $all_tips = array_merge($all_tips, array_map(fn ($id) => ['id' => $id, 'odds_name' => $odds_name, 'outcome_name' => $outcome_name], $typeIds));
         $all_ids = array_merge($all_ids, $typeIds);
         request()->merge(['exclude_ids' => $all_ids]);
+    }
+
+
+    private function lastPredsStatePassed($game)
+    {
+        $home_team_prev_games = Game::with(['score'])->where('home_team_id', $game->home_team_id)->where('utc_date', '<', Carbon::today())->whereHas('prediction')->whereHas('score', fn ($q) => $q->whereNotNull('home_scores_full_time'))->take(3)->orderBy('utc_date', 'desc')->get();
+        $away_team_prev_games = Game::with(['score'])->where('away_team_id', $game->away_team_id)->where('utc_date', '<', Carbon::today())->whereHas('prediction')->whereHas('score', fn ($q) => $q->whereNotNull('home_scores_full_time'))->take(3)->orderBy('utc_date', 'desc')->get();
+
+        $home_team_correct_preds = 0;
+        foreach ($home_team_prev_games as $game) {
+            $pred = $game->prediction;
+            $hda = GameComposer::winningSide($game, true);
+            if ($pred->hda == $hda) $home_team_correct_preds++;
+        }
+
+        $away_team_correct_preds = 0;
+        foreach ($away_team_prev_games as $game) {
+            $pred = $game->prediction;
+            $hda = GameComposer::winningSide($game, true);
+            if ($pred->hda == $hda) $away_team_correct_preds++;
+        }
+
+        return $home_team_correct_preds > 0 && $away_team_correct_preds > 0;
     }
 
     private function paginate($results, $perPage)

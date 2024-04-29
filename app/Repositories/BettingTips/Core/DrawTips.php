@@ -22,6 +22,6 @@ class DrawTips
     function predictionStatisticFilter($q)
     {
         // Apply filter based on the percentage of true predictions for the specific outcome
-        $q->where('ft_draws_preds_true_percentage', '>=', 25);
+        $q->where('ft_draws_preds_true_percentage', '>=', 20);
     }
 }
