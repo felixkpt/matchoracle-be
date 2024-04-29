@@ -1,5 +1,3 @@
-import React from 'react'
-
 type Props = {
     investment: any
 }
@@ -31,7 +29,7 @@ const InvestmentCard = ({ investment }: Props) => {
                         <span title='Average Won Odds'>AVG Won Odds <span className="text-success">{investment.average_won_odds}</span></span>
                     </div>
                     <div className='col-lg-4 d-flex'>
-                        <span>Gain <span className="text-success">{investment.gain}</span></span>
+                        <span>Gain <span className="text-success">{investment.total_gains}</span></span>
                     </div>
                     <div className='col-lg-4 d-flex justify-content-lg-end'>
                         <span title='Return On Investment'>ROI <span className="text-success">{investment.roi}%</span></span>

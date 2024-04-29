@@ -238,7 +238,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                             <div className="d-flex align-items-center justify-content-end gap-1">
                                 <div>
                                     <div className='d-flex align-items-center justify-content-end gap-1'>
-                                        {!loading && <small title='Click to reload' className='cursor-pointer rounded px-1' onClick={reloadAutoTable}><Icon icon="mdi:reload" /></small>}
+                                        {!loading && <small title='Click to reload table' className='cursor-pointer rounded px-1' onClick={reloadAutoTable}><Icon icon="mdi:reload" /></small>}
                                         <small className="autotable-record-counts" style={{ opacity: countOpacity }}>{tableDataLength.toLocaleString() || 0} {`${tableDataLength == 1 ? 'record' : 'records'}`}</small>
                                     </div>
                                 </div>

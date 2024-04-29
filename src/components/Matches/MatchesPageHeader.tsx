@@ -63,8 +63,9 @@ const MatchesPageHeader = ({ title, fromToDates, setFromToDates, className }: Pr
                         {
                             typeof setFromToDates === 'function' &&
                             <div className="col-md-6">
-                                <div className="d-flex justify-content-between justify-content-md-end">
+                                <div className="d-flex justify-content-center justify-content-md-end">
                                     <Flatpickr
+                                        data-clear={true}
                                         value={fromToDates}
                                         data-mode="range"
                                         data-date-format="Y-m-d"

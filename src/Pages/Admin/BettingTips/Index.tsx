@@ -1,3 +1,4 @@
+import Select from 'react-select';
 import Error404 from '@/Pages/ErrorPages/Error404';
 import useRouteParamValidation from '@/hooks/useRouteParamValidation';
 import AutoTabs from '@/components/AutoTabs';
@@ -12,8 +13,8 @@ import Under25Tips from './Tabs/Under25Tips';
 import MatchesPageHeader from '@/components/Matches/MatchesPageHeader';
 import useFromToDates from '@/hooks/useFromToDates';
 import { useEffect, useState } from 'react';
-import { predictionModes } from '@/utils/constants';
-import { PredictionModeInterface } from '@/interfaces/FootballInterface';
+import { predictionModes, bettingStrategies } from '@/utils/constants';
+import { BettingStrategyInterface, PredictionModeInterface } from '@/interfaces/FootballInterface';
 import PredictionsModeSwitcher from '@/components/Predictions/PredictionsModeSwitcher';
 import AllTips from './Tabs/AllTips';
 
@@ -24,53 +25,70 @@ const Index = () => {
 
     const [predictionMode, setPredictionMode] = useState<PredictionModeInterface | null>();
 
+    const [bettingStrategy, setBettingStrategy] = useState<BettingStrategyInterface | null>();
+
     useEffect(() => {
-        if (predictionModes) {
+        if (!predictionMode && predictionModes) {
             setPredictionMode(predictionModes[0])
         }
-    }, [predictionModes])
+        if (!bettingStrategy && bettingStrategies) {
+            setBettingStrategy(bettingStrategies[0])
+        }
+
+    }, [predictionModes, bettingStrategies])
+
+
+    const [uri, setUri] = useState<string>('')
+    useEffect(() => {
+
+        if (predictionMode && bettingStrategy) {
+            setUri(`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}&betting_strategy_id=${bettingStrategy ? bettingStrategy.id : 0}`)
+        }
+
+    }, [baseUri, predictionMode, bettingStrategy])
+
 
     const tabs: TabInterface[] = [
         {
             name: 'All tips',
-            content: <AllTips uri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`} />
+            content: <AllTips uri={uri} />
 
         },
-         {
+        {
             name: 'Home win tips',
-            content: <HomeWinTips uri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`} />
+            content: <HomeWinTips uri={uri} />
 
         },
         {
             name: 'Draw tips',
-            content: <DrawTips uri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`} />
+            content: <DrawTips uri={uri} />
 
         },
         {
             name: 'Away win tips',
-            content: <AwayWinTips uri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`} />
+            content: <AwayWinTips uri={uri} />
+
+        },
+        {
+            name: 'Over 25 tips',
+            content: <Over25Tips uri={uri} />
+
+        },
+        {
+            name: 'Under 25 tips',
+            content: <Under25Tips uri={uri} />
 
         },
         {
             label: 'BTS - Yes tips',
             name: 'gg tips',
-            content: <GGTips uri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`} />
+            content: <GGTips uri={uri} />
 
         },
         {
             label: 'BTS - No tips',
             name: 'ng tips',
-            content: <NGTips uri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`} />
-        },
-        {
-            name: 'Over 25 tips',
-            content: <Over25Tips uri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`} />
-
-        },
-        {
-            name: 'Under 25 tips',
-            content: <Under25Tips uri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`} />
-
+            content: <NGTips uri={uri} />
         },
     ]
 
@@ -80,17 +98,37 @@ const Index = () => {
                 errorsState === 0 ?
                     <div>
                         <div className="row shadow-sm">
-                            <div className="col-xl-9">
+                            <div className="col-xl-6">
                                 <MatchesPageHeader title={'Betting Tips List'} fromToDates={fromToDates} setFromToDates={setFromToDates} className="shadow-none" />
                             </div>
                             <div className="col-xl-3">
                                 <PredictionsModeSwitcher predictionMode={predictionMode} predictionModes={predictionModes} setPredictionMode={setPredictionMode} />
                             </div>
+                            <div className="col-xl-3">
+                                <div className='d-flex gap-1 align-items-center justify-content-center shadow-sm px-2 rounded'>
+                                    <div className='text-nowrap'>{'Strategy'}:</div>
+                                    <Select
+                                        className="tips-mode-input form-control border-0"
+                                        classNamePrefix="select"
+                                        defaultValue={predictionMode || null}
+                                        isDisabled={false}
+                                        isLoading={false}
+                                        isClearable={false}
+                                        isSearchable={false}
+                                        placeholder="Select strategy"
+                                        name='strategy_id'
+                                        options={bettingStrategies || []}
+                                        onChange={(v: any) => setBettingStrategy(v)}
+                                        getOptionValue={(option: any) => `${option['id']}`}
+                                        getOptionLabel={(option: any) => option['name']}
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div className='mt-4' key={predictionMode ? predictionMode.id : 0}>
+                        <div className='mt-4' key={uri}>
                             {
-                                baseUri &&
-                                <AutoTabs key={baseUri} tabs={tabs} />
+                                uri != '' &&
+                                <AutoTabs key={uri} tabs={tabs} />
                             }
                         </div>
                     </div>

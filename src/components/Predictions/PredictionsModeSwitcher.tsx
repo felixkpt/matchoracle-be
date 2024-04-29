@@ -9,7 +9,7 @@ type Props = {
 
 const PredictionsModeSwitcher = ({ predictionMode, predictionModes, setPredictionMode, title }: Props) => {
     return (
-        <div className='d-flex gap-1 align-items-center shadow-sm px-2 rounded'>
+        <div className='d-flex gap-1 align-items-center justify-content-center shadow-sm px-2 rounded'>
             <div className='text-nowrap'>{title || 'Tips Mode'}:</div>
             <Select
                 className="tips-mode-input form-control border-0"

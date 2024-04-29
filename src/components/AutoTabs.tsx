@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 import PageHeader from "./PageHeader";
 import { PageHeaderInterface, TabInterface } from "@/interfaces/UncategorizedInterfaces";
 import useAxios from "@/hooks/useAxios";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 // Define the props for the AutoTabs component
 interface Props extends Omit<PageHeaderInterface, 'title'> {
@@ -53,6 +54,7 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
     }
 
   }
+  const [key, setKey] = useState<number>(0)
 
   // Effect to handle popstate event (back/forward navigation)
   useEffect(() => {
@@ -94,7 +96,7 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
 
   // Render the AutoTabs component
   return (
-    <div className="auto-tabs">
+    <div className="auto-tabs" key={key}>
       {
         title &&
         <PageHeader title={`${title} - ${localOpenTab?.label || localOpenTab?.name}`} action={action} actionText={actionText} actionLink={actionLink} permission={permission} method={method} actionTargetId={actionTargetId} listUrl={listUrl} setRecord={setRecord} />
@@ -116,6 +118,11 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
               </NavLink>
             </li>
           ))}
+          <li className="nav-item d-flex align-items-center justify-content-center position-relative" style={{ minWidth: '30px', fontSize: '22px', }}>
+            <div className="shadow-sm position-absolute rounded" style={{top: '3px', left: '5px'}}>
+              <small title='Click to reload current tab' className='cursor-pointer rounded px-1' onClick={() => setKey(curr => curr + 1)}><Icon icon="mdi:reload" /></small>
+            </div>
+          </li>
         </ul>
         <div className="tab-content mt-2">
           <div className="transition-opacity duration-500">{localOpenTab?.content}</div>

@@ -14,6 +14,7 @@ import SideNav, { toggleSidebar } from '@/Layouts/Default/SideNav/Index';
 import NavBar from '../Shared/Navbar/Index';
 import Footer from '../Shared/Footer/Index';
 import { HttpVerbsType } from '@/interfaces/UncategorizedInterfaces';
+import AlertMessage from '../../components/AlertMessage';
 
 interface Props {
     uri: string
@@ -26,8 +27,9 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
 
     const [reloadKey, setReloadKey] = useState<number>(0);
     const { updateUser, deleteUser, verified, setRedirectTo } = useAuth();
+    const { data, loading: loadingUser, get, errors: loadingUserError } = useAxios();
+
     const navigate = useNavigate();
-    const { data, loading: loadingUser, get } = useAxios();
     const { loadingRoutePermissions, currentRole, refreshCurrentRole, setCurrentRole, fetchRoutePermissions, routePermissions } = useRolePermissionsContext();
     const { userCan } = usePermissions();
     const allowedRoutes = ['error-404', 'login'];
@@ -124,19 +126,34 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                             }
                         }}
                     >
-                        <div className='main-content mb-4'>
-                            <main className='main-content-inner container-fluid mt-2 px-3 min-h-100vh'>
+                        <div className='main-content my-2'>
+                            <main className='main-content-inner container-fluid p-3 min-h-100vh'>
                                 {
-                                    isAllowed === true && checked === true ?
-                                        <Component />
+                                    loadingUser && !isAllowed ?
+                                        <><Loader message="Please wait, logging you in..." /></>
                                         :
                                         <>
                                             {
-                                                loadingRoutePermissions === false && checked === true ? (
-                                                    environment === 'local' ? <Error403 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} /> : <Error404 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} />
-                                                ) : (
-                                                    <Loader message='Granting you page access...' position='static' />
-                                                )
+                                                isAllowed === true && checked === true ?
+                                                    <Component />
+                                                    :
+                                                    <>
+                                                        {
+                                                            !loadingUserError || loadingUserError == 'Unauthenticated.' ?
+                                                                <>
+                                                                    {
+                                                                        loadingRoutePermissions === false && checked === true ? (
+                                                                            environment === 'local' ? <Error403 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} /> : <Error404 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} />
+                                                                        ) : (
+                                                                            <Loader message='Granting you page access...' position='static' />
+                                                                        )
+                                                                    }
+                                                                </>
+                                                                :
+                                                                <><AlertMessage message={loadingUserError} /></>
+                                                        }
+
+                                                    </>
                                             }
                                         </>
                                 }
@@ -146,31 +163,6 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                     </div>
                 </div>
             </>
-            <div className='container-fluid mt-4 px-4'>
-                <div className="position-absolute top-50 start-50 translate-middle w-100">
-                    <div className="row justify-content-center">
-                        <div className="col-5">
-                            {
-                                loadingUser && !isAllowed ?
-                                    <div className="d-flex justify-content-center align-items-center gap-3">
-                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                        Please wait, logging you in...
-                                    </div>
-                                    :
-                                    <>
-                                        {
-                                            !isAllowed &&
-                                            <div className='alert text-center'>
-                                                <p>Unknown server error occurred.</p>
-                                                <a href={location.pathname} className="link_404 rounded">Reload</a>
-                                            </div>
-                                        }
-                                    </>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

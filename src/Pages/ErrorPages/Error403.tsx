@@ -8,7 +8,7 @@ interface Props {
 const Error403 = ({ previousUrl, currentUrl, setReloadKey }: Props) => {
 
     return (
-        <div className="d-flex align-items-center h-100vh">
+        <div className="d-flex align-items-center h-100vh justify-content-center">
             <div className="w-100 row justify-content-center">
                 <div className="col-lg-6">
                     <div className="text-center mt-4">

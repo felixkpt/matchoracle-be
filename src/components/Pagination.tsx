@@ -40,6 +40,8 @@ const Pagination: React.FC<PaginationProps> = ({ items, setPage, setPerPage, set
     { value: 100, label: '100 per page' },
     { value: 200, label: '200 per page' },
     { value: 500, label: '500 per page' },
+    { value: 750, label: '750 per page' },
+    { value: 1000, label: '1000 per page' },
   ]
 
   return (

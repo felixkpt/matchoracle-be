@@ -41,3 +41,19 @@ export const predictionModes = [
         name: 'Source',
     },
 ]
+
+export const bettingStrategies = [
+    {
+        id: 1,
+        name: 'Flat',
+    },
+    {
+        id: 2,
+        name: 'Recovery',
+    },
+    {
+        id: 3,
+        name: 'Martingle',
+    },
+
+]

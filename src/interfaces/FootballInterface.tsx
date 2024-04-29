@@ -496,3 +496,7 @@ export interface PredictionModeInterface {
     id: string | number
     name: string
 }
+export interface BettingStrategyInterface {
+    id: string | number
+    name: string
+}

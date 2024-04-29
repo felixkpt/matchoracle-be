@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Pagination from "@/components/Pagination"
 import TipsContent from "./TipsContent"
 import InvestmentCard from "./InvestmentCard"
+import WeeklyGainsChart from "./WeeklyReportData"
 
 type Props = {
     uri: string
@@ -30,27 +31,31 @@ const Singles = ({ uri, type }: Props) => {
                 <div className="card-body">
                     {
                         data ?
-                            <div>
-                                {
-                                    !loading || data ?
+                            <div className="d-flex flex-column gap-2 align-items-between">
+                                <div>
+                                    {
+                                        !loading || data ?
 
-                                        <>
-                                            {
-                                                data.data.map((items: any, key: number) => {
-                                                    return (
-                                                        <div key={key}>
-                                                            <TipsContent data={items} />
-                                                        </div>
-                                                    )
-                                                })
-                                            }
-                                            <InvestmentCard investment={data.investment} />
-                                        </>
-                                        :
-                                        <Loader />
+                                            <>
+                                                {
+                                                    data.data.map((items: any, key: number) => {
+                                                        return (
+                                                            <div key={key}>
+                                                                <TipsContent data={items} />
+                                                            </div>
+                                                        )
+                                                    })
+                                                }
+                                                <InvestmentCard investment={data.investment} />
+                                            </>
+                                            :
+                                            <Loader />
 
-                                }
-                                <Pagination items={data} setPage={setPage} setPerPage={setPerPage} loading={loading} breakpoint='lg' />
+                                    }
+                                    <Pagination items={data} setPage={setPage} setPerPage={setPerPage} loading={loading} breakpoint='lg' />
+
+                                </div>
+                                <WeeklyGainsChart weeklyReport={data.investment.weekly_report} />
                             </div>
                             :
                             <>
@@ -64,9 +69,7 @@ const Singles = ({ uri, type }: Props) => {
 
                     }
                 </div>
-
             </div>
-
         </div>
     )
 }
