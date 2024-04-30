@@ -36,7 +36,7 @@ const PrepareStatusUpdateModal = () => {
 
     useEffect(() => {
 
-        // Add event listener for the custom ajaxPost event
+        // Add event listener for the custom autoPost event
         const prepareEventListener: EventListener = (event) => {
 
             const customEvent = event as CustomEvent<{ [key: string]: any }>;
@@ -66,7 +66,7 @@ const PrepareStatusUpdateModal = () => {
                         </div>
                         <div className="modal-body">
                             <div className="section">
-                                <form method="post" action-url={actionUrl} onSubmit={(e: any) => publish('ajaxPost', e)} >
+                                <form method="post" data-action={actionUrl} onSubmit={(e: any) => publish('autoPost', e)} >
                                     <input type="hidden" name="_method" value="patch" />
                                     <div className='form-group'>
                                         {

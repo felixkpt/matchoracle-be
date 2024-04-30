@@ -1,4 +1,4 @@
-import Admin from '@/Pages/Admin/Dashboard/Index';
+import Admin from '../../Pages/Dashboard/Dashboard/Index';
 import Login from '@/Pages/Auth/Login';
 import Register from '@/Pages/Auth/Register';
 import Password from '@/Pages/Auth/Password';
@@ -12,7 +12,7 @@ import TermsAndConditions from '@/Pages/TermsAndConditions';
 const guestRoutes = [
     {
         path: '/',
-        element: <DefaultLayout uri='admin' permission={null} Component={Admin} />,
+        element: <DefaultLayout uri='dashboard' permission={null} Component={Admin} />,
     },
     {
         path: '/login',

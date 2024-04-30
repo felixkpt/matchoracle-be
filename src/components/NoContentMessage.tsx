@@ -1,12 +1,13 @@
 type Props = {
     message?: string
     justify?: 'start' | 'center' | 'end'
+    fullpage?: boolean
 }
 
 const NoContentMessage = (props: Props) => {
     return (
-        <div className="position-relative">
-            <div className="position-absolute top-50 start-50 translate-middle w-100 p-1">
+        <div className="position-static">
+            <div className={`p-1 ${props.fullpage ? 'position-absolute top-50 start-50 translate-middle w-100' : 'text-center'}`}>
                 <div className={`d-flex align-items-center justify-content-${props.justify || 'center'} gap-3`}>
                     {props.message || 'There\'s nothing here'}
                 </div>

@@ -80,20 +80,23 @@ const useAxios = <T = any>() => {
 
             const axiosError = error as AxiosErrorWithResponse;
 
+            let message = undefined
+            let status = 0
+
             if (axios.isAxiosError(axiosError)) {
 
                 if (axiosError.response !== undefined) {
-                    const status = axiosError.response.status;
+                    status = axiosError.response.status;
 
-                    const msg = axiosError.response?.data?.message || 'An error occurred.'
+                    message = axiosError.response?.data?.message || 'An error occurred.'
                     const errors = axiosError.response?.data?.errors
-                    setErrors(msg, elementId);
+                    setErrors(message, elementId);
 
                     if (status && status !== 200 && status !== 201 && status !== 401 && (!errors || status !== 422)) {
-                        publish('notification', { message: msg, type: 'error', status })
+                        publish('notification', { message, type: 'error', status })
                     }
 
-                    if (status === 401 && msg === 'Unauthenticated.') {
+                    if (status === 401 && message === 'Unauthenticated.') {
                         deleteUser()
                     }
 
@@ -104,22 +107,25 @@ const useAxios = <T = any>() => {
 
 
                 } else {
-                    const msg = 'We are experiencing server connection issues.'
-                    setErrors(msg, elementId);
-                    publish('notification', { message: msg, type: 'error', status: 0 })
+                    message = 'We are experiencing server connection issues.'
+                    setErrors(message, elementId);
+                    publish('notification', { message, type: 'error', status: 0 })
 
                 }
             } else {
-                const msg = error?.message || 'An unexpected error occurred.'
-                setErrors(msg, elementId);
-                publish('notification', { message: msg, type: 'error', status: 0 })
+                message = error?.message || 'An unexpected error occurred.'
+                setErrors(message, elementId);
+                publish('notification', { message, type: 'error', status: 0 })
 
             }
+
+            return {message, status}
 
         } finally {
             setLoading(false);
             setLoaded(true);
         }
+
     };
 
     const get = (url: string, config = {}) => fetchData({ method: 'GET', url, ...config });
@@ -135,7 +141,7 @@ const useAxios = <T = any>() => {
             setLoading(true);
             const response = await axiosInstance({
                 method: 'GET',
-                url: `/admin/file-repo/${url}`,
+                url: `/dashboard/file-repo/${url}`,
                 responseType: 'blob', // This tells Axios to handle the response as a binary blob
                 ...config,
             });

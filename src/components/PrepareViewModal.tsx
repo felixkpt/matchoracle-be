@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { subscribe, unsubscribe } from '@/utils/events'
-import ViewModal from './Modals/ViewModal'
+import ViewModal from './Autos/ViewModal'
 
 const PrepareViewModal = () => {
 
@@ -25,7 +25,7 @@ const PrepareViewModal = () => {
 
     useEffect(() => {
 
-        // Add event listener for the custom ajaxPost event
+        // Add event listener for the custom autoPost event
         const prepareEventListener: EventListener = (event) => {
 
             const customEvent = event as CustomEvent<{ [key: string]: any }>;

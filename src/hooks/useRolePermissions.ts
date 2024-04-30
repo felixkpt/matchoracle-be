@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import useAxios from '@/hooks/useAxios';
 import { useAuth } from '@/contexts/AuthContext';
 import useFetchUserRolesAndDirectPermissions from './useFetchUserRolesAndDirectPermissions';
+import { PermissionInterface, RoleInterface, RouteCollectionInterface } from '../interfaces/RolePermissionsInterfaces';
 
 const useRolePermissions = () => {
     const { get } = useAxios();
@@ -23,7 +24,7 @@ const useRolePermissions = () => {
         setLoadingRoutePermissions(true);
 
         try {
-            const routePermissionsResponse = await get(`/admin/settings/role-permissions/roles/view/${currentRole.id}/get-role-route-permissions`);
+            const routePermissionsResponse = await get(`/dashboard/settings/role-permissions/roles/view/${currentRole.id}/get-role-route-permissions`);
 
             if (routePermissionsResponse) {
                 setRoutePermissions(routePermissionsResponse || []);
@@ -61,7 +62,7 @@ const useRolePermissions = () => {
 
     useEffect(() => {
         if (currentRole) {
-            getMenu('/admin/settings/role-permissions/roles/view/' + currentRole.id + '/get-role-menu/?get-menu=1').then((resp) => {
+            getMenu('/dashboard/settings/role-permissions/roles/view/' + currentRole.id + '/get-role-menu/?get-menu=1').then((resp) => {
                 if (resp === undefined) {
                     setUserMenu([]);
                 }

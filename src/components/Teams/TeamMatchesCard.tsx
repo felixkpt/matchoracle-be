@@ -93,7 +93,7 @@ const TeamMatchesCard = ({ team, teamGames, setTeamRecentResults }: Props) => {
                                     }
 
                                     return (
-                                        <NavLink key={game.id} to={`/admin/matches/view/${game.id}`} className={`text-decoration-none text-dark`}>
+                                        <NavLink key={game.id} to={`/dashboard/matches/view/${game.id}`} className={`text-decoration-none text-dark`}>
                                             <div className='row py-1'>
                                                 <div className="col-3 d-flex flex-column align-items-center border-end border-2 my-1 fs-small"><span>{FormatDate.DDMMYY(game.utc_date)}</span><span>{FormatDate.HHMM(game.utc_date)}</span></div>
                                                 <div className="col-5 d-flex flex-column">

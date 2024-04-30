@@ -40,7 +40,7 @@ const useLoadAssets = <T = any>() => {
       setLoading(true);
       const response = await axiosInstance({
         method: 'GET',
-        url: `/admin/file-repo/${url}`,
+        url: `/dashboard/file-repo/${url}`,
         responseType: 'blob', // This tells Axios to handle the response as a binary blob
         ...config,
       });

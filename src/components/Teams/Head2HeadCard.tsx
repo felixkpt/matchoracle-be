@@ -38,7 +38,7 @@ const Head2HeadCard = ({ game, homeTeam, awayTeam, perPage }: Props) => {
     useEffect(() => {
 
         if (game) {
-            geGames(`admin/matches/view/${game.id}/head2head?type=past&per_page=${perPage || 5}&to_date=${game?.utc_date}&before_to_date=1&playing=${selectedHead2HeadOption?.id || 'all'}&break_preds2=1`).then((res) => {
+            geGames(`dashboard/matches/view/${game.id}/head2head?type=past&per_page=${perPage || 5}&to_date=${game?.utc_date}&before_to_date=1&playing=${selectedHead2HeadOption?.id || 'all'}&break_preds2=1`).then((res) => {
 
                 const { data } = res
                 if (data) {
@@ -99,7 +99,7 @@ const Head2HeadCard = ({ game, homeTeam, awayTeam, perPage }: Props) => {
                                             }
 
                                             return (
-                                                <NavLink key={game.id} to={`/admin/matches/view/${game.id}`} className={`text-decoration-none text-dark`}>
+                                                <NavLink key={game.id} to={`/dashboard/matches/view/${game.id}`} className={`text-decoration-none text-dark`}>
                                                     <div className='row py-1'>
                                                         <div className="col-3 d-flex flex-column align-items-center border-end border-2 my-1 fs-small"><span>{FormatDate.DDMMYY(game.utc_date)}</span><span>{FormatDate.HHMM(game.utc_date)}</span></div>
                                                         <div className="col-6 d-flex flex-column">

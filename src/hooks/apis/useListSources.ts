@@ -21,13 +21,13 @@ const useListSources = (params?: string) => {
     },
 
     async rolesList(search?: string) {
-      const res = await get('admin/settings/role-permissions/roles' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/settings/role-permissions/roles' + prepareParams(search)).then((res) => res.data || [])
       return res || []
 
     },
 
     async directPermissionsList(search?: string) {
-      const res = await get('admin/settings/role-permissions/permissions' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/settings/role-permissions/permissions' + prepareParams(search)).then((res) => res.data || [])
       return res || []
 
     },
@@ -37,7 +37,7 @@ const useListSources = (params?: string) => {
   const posts = {
 
     async parentCategoryId(search?: string) {
-      const res = await get('/admin/posts/categories' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/posts/categories' + prepareParams(search)).then((res) => res.data || [])
       return res || []
 
     },
@@ -64,38 +64,37 @@ const useListSources = (params?: string) => {
       return booleanOptions
     },
     async continentId(search?: string) {
-      const res = await get('/admin/continents' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/continents' + prepareParams(search)).then((res) => res.data || [])
       return res || []
 
     },
     async countryId(search?: string) {
-      const res = await get('/admin/countries' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/countries' + prepareParams(search)).then((res) => res.data || [])
       return res || []
 
     },
     async nationalityId(search?: string) {
-      const res = await get('/admin/countries' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/countries' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
     async addressId(search?: string) {
-      const res = await get('/admin/teams/addresses' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/teams/addresses' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
     async venueId(search?: string) {
-      const res = await get('/admin/teams/venues' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/teams/venues' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
     async coachId(search?: string) {
-      const res = await get('/admin/teams/coaches' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/teams/coaches' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
     async competitionId(search?: string) {
-      console.log('should trigger this function!')
-      const res = await get('/admin/competitions' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/competitions' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
     async teamId(search: string) {
-      const res = await get('/admin/teams' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/teams' + prepareParams(search)).then((res) => res.data || [])
       return res || []
     },
 

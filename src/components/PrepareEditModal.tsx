@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { publish, subscribe, unsubscribe } from '@/utils/events'
-import AutoModal from './AutoModal'
+import AutoModal from './Autos/AutoModal'
 import { ListSourceInterface } from '@/interfaces/UncategorizedInterfaces'
 
 const PrepareEditModal = () => {
 
     const [modelDetails, setModelDetails] = useState({})
     const [record, setRecord] = useState<any>(undefined)
-    const [list_sources, setListSources] = useState<{ [key: string]: () => Promise<ListSourceInterface[]> }>()
+    const [listSources, setListSources] = useState<{ [key: string]: () => Promise<ListSourceInterface[]> }>()
 
     const [actionUrl, setActionUrl] = useState<string>('')
     const [modalSize, setModalSize] = useState(undefined)
@@ -19,7 +19,7 @@ const PrepareEditModal = () => {
             setModelDetails(detail.modelDetails)
             setRecord(detail.record)
             setActionUrl(detail.action)
-            setListSources(detail.list_sources)
+            setListSources(detail.listSources)
 
             if (detail.modalSize) {
                 setModalSize(detail.modalSize)
@@ -36,7 +36,7 @@ const PrepareEditModal = () => {
 
     useEffect(() => {
 
-        // Add event listener for the custom ajaxPost event
+        // Add event listener for the custom autoPost event
         const prepareEventListener: EventListener = (event) => {
 
             const customEvent = event as CustomEvent<{ [key: string]: any }>;
@@ -74,7 +74,7 @@ const PrepareEditModal = () => {
                         modelDetails={modelDetails}
                         record={record}
                         actionUrl={actionUrl}
-                        list_sources={list_sources}
+                        listSources={listSources}
                         id='AutoModalEdit'
                         modalSize={modalSize}
                     />

@@ -74,7 +74,7 @@ const Profile = () => {
 							<div className="card-body">
 								{
 									user ?
-										<form id='profile-update' method='post' action-url={`admin/users/user/profile`} onSubmit={(e: any) => emitAjaxPost(e)} encType='multipart/form-data' className="flex justify-center">
+										<form id='profile-update' method='post' action-url={`dashboard/users/user/profile`} onSubmit={(e: any) => emitAjaxPost(e)} encType='multipart/form-data' className="flex justify-center">
 											<input type="hidden" name="_method" value="patch" />
 											<h6 className="heading-small text-muted mb-4">User information</h6>
 											<div className="pl-lg-4">
@@ -115,7 +115,7 @@ const Profile = () => {
 
 								<hr className="my-4" />
 
-								<form method='post' action-url={`admin/users/user/update-self-password`} onSubmit={(e: any) => emitAjaxPost(e)} className="flex justify-center">
+								<form method='post' action-url={`dashboard/users/user/update-self-password`} onSubmit={(e: any) => emitAjaxPost(e)} className="flex justify-center">
 									<input type="hidden" name="_method" value="patch" />
 									<h6 className="heading-small text-muted mb-4">Password</h6>
 									<div className="pl-lg-4">

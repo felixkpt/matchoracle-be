@@ -10,7 +10,7 @@ const GuestLayout = ({ Component }: Props) => {
 		<>
 			<ScrollToTop />
 			<>
-				<NavBar guestMode={true} />
+				<NavBar sidNavHidden={true} />
 				<div id="layoutWrapper">
 					<div id="mainContent" className='p-4' style={{ marginLeft: '0' }}>
 						<div className='main-content my-2'>

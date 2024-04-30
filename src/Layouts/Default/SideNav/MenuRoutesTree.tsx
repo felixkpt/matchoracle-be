@@ -58,7 +58,7 @@ const renderRoutes = (
 
     function cleanUri(uri) {
 
-      uri = `${uri.startsWith('admin') ? '' : 'admin/'}${uri}`
+      uri = `${uri.startsWith('dashboard') ? '' : 'dashboard/'}${uri}`
 
       uri = Str.before(uri, '@')
 

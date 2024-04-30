@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import guestRoutes from '@/routes/guest/guestRoutes';
-import adminRoutes from '@/routes/admin/adminRoutes';
+import dashboardRoutes from '@/routes/dashboard/dashboardRoutes';
 import userRoutes from '@/routes/user/index';
 
 const router = createBrowserRouter([
@@ -13,8 +13,8 @@ const router = createBrowserRouter([
     children: userRoutes
   },
   {
-    path: 'admin',
-    children: adminRoutes,
+    path: 'dashboard',
+    children: dashboardRoutes,
   },
 ]);
 

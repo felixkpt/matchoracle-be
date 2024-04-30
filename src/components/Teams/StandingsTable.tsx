@@ -58,7 +58,7 @@ const StandingsTable = ({ standings, minimal, homeTeamId, awayTeamId }: Props) =
                   <div className="card-body">
                     <div className="cursor-default striped-section">
                       {standing.standing_table.map((teamStanding: StandingTableInterface) => (
-                        <NavLink key={teamStanding.id} to={`/admin/teams/view/${teamStanding.team.id}`} className={`text-decoration-none text-dark`}>
+                        <NavLink key={teamStanding.id} to={`/dashboard/teams/view/${teamStanding.team.id}`} className={`text-decoration-none text-dark`}>
                           <div className={`team-standing d-flex align-items-center py-1 mb-1 rounded ${(teamStanding.team.id === homeTeamId || teamStanding.team.id === awayTeamId) ? 'bg-warning' : ''}`}>
                             <div className="position col">
                               <div className="p-1 bg-secondary rounded text-white text-center" style={{ width: 40 }}>

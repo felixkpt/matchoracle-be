@@ -66,7 +66,7 @@ const StatusesUpdate: React.FC<StatusesUpdateProps> = ({
                 </>
             ) : null}
             {checkedItems.length > 0 && (
-                <form key={0} method='post' id='statusesUpdate' action-url={moduleUri + `update-statuses?${fullQueryString}`} onSubmit={(e) => publish('ajaxPost', e)}>
+                <form key={0} method='post' id='statusesUpdate' data-action={moduleUri + `update-statuses?${fullQueryString}`} onSubmit={(e) => publish('autoPost', e)}>
                     <input type="hidden" name='_method' value='patch' />
                     <input type="hidden" name='ids' value={checkedAllItems ? 'all' : JSON.stringify(checkedItems)} />
                     <div style={{ minWidth: '160px' }} className='d-flex align-items-center gap-2'>

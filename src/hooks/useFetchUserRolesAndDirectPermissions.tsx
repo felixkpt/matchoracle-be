@@ -9,7 +9,7 @@ const useFetchUserRolesAndDirectPermissions = () => {
     const [refresh, setRefresh] = useState<number>(0);
 
     useEffect(() => {
-        get('/admin/settings/role-permissions/roles/get-user-roles-and-direct-permissions').then((rolesPermissions: any) => {
+        get('/dashboard/settings/role-permissions/roles/get-user-roles-and-direct-permissions').then((rolesPermissions: any) => {
             if (rolesPermissions) {
                 setRoles(rolesPermissions.roles || []);
                 setDirectPermissions(rolesPermissions.direct_permissions || []);

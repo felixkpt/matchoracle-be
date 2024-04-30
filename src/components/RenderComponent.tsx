@@ -10,7 +10,7 @@ const renderComponent = (view, Component) => {
 
 const userCanView = (view: string) => {
 
-  if (view !== 'aadmin')
+  if (view !== 'adashboard')
     return true
   return false
 }

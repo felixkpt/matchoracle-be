@@ -89,7 +89,7 @@ export interface AutoTableInterface {
     reload?: number;
     hideCreate?: boolean
     getModelDetails?: (props: Omit<CollectionItemsInterface, 'data'>) => void
-    list_sources?: { [key: string]: () => Promise<ListSourceInterface[]> }
+    listSources?: { [key: string]: () => Promise<ListSourceInterface[]> }
     tableId?: string
     modalSize?: ModalSizeType
     customModalId?: string
