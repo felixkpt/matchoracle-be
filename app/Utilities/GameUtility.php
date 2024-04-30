@@ -194,7 +194,7 @@ class GameUtility
             return $q->votes->where('bts', 'ng')->count();
         };
 
-        $uri = '/admin/matches/';
+        $uri = '/dashboard/matches/';
 
         $search_builder = null;
         $joiners = [' vs ', ' v '];
@@ -218,7 +218,7 @@ class GameUtility
 
         $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name'], $search_builder)
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'ID', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '#' . $q->id . '</a>')
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Competition', fn ($q) => '<a class="autotable-navigate hover-underline text-decoration-underline link-unstyled" data-id="' . $q->competition->id . '" href="/admin/competitions/view/' . $q->competition->id . '">' . '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->competition->logo ? asset($q->competition->logo) : asset('assets/images/competitions/default_logo.png')) . '" /><span class="ms-1">' . $q->competition->name . '</span></a>')
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Competition', fn ($q) => '<a class="autotable-navigate hover-underline text-decoration-underline link-unstyled" data-id="' . $q->competition->id . '" href="/dashboard/competitions/view/' . $q->competition->id . '">' . '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->competition->logo ? asset($q->competition->logo) : asset('assets/images/competitions/default_logo.png')) . '" /><span class="ms-1">' . $q->competition->name . '</span></a>')
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Game', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . $q->homeTeam->name . ' vs ' . $q->awayTeam->name . '</a>', 'cs')
             ->addColumn('Winner', fn ($q) => $q->score ? GameComposer::winningSide($q) : null)
             ->addColumn('is_future', fn ($q) => Carbon::parse($q->utc_date)->isFuture())

@@ -58,16 +58,16 @@ class UserRepository implements UserRepositoryInterface
         <i class="icon icon-list2 font-20"></i>
         </button>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item autotable-navigate" href="/admin/settings/users/view/' . $user->id . '">View</a></li>
+            <li><a class="dropdown-item autotable-navigate" href="/dashboard/settings/users/view/' . $user->id . '">View</a></li>
             '
                     .
                     (checkPermission('users', 'post') ?
-                        '<li><a class="dropdown-item autotable-edit" data-id="' . $user->id . '" href="/admin/settings/users/view/' . $user->id . '/edit">Edit</a></li>'
+                        '<li><a class="dropdown-item autotable-edit" data-id="' . $user->id . '" href="/dashboard/settings/users/view/' . $user->id . '/edit">Edit</a></li>'
                         :
                         '')
                     .
-                    '<li><a class="dropdown-item autotable-update-status" data-id="' . $user->id . '" href="/admin/settings/users/view/' . $user->id . '/update-status">Status update</a></li>
-            <li><a class="dropdown-item autotable-delete" data-id="' . $user->id . '" href="/admin/settings/users/view/' . $user->id . '">Delete</a></li>
+                    '<li><a class="dropdown-item autotable-update-status" data-id="' . $user->id . '" href="/dashboard/settings/users/view/' . $user->id . '/update-status">Status update</a></li>
+            <li><a class="dropdown-item autotable-delete" data-id="' . $user->id . '" href="/dashboard/settings/users/view/' . $user->id . '">Delete</a></li>
         </ul>
     </div>
     ';

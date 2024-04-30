@@ -14,7 +14,7 @@ class FilesController extends Controller
 {
 
     protected $files_folder;
-    protected $delete_url = "admin/file-repo/tmp/delete";
+    protected $delete_url = "dashboard/file-repo/tmp/delete";
 
     function __construct()
     {

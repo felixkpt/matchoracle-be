@@ -24,7 +24,7 @@ class ContinentRepository implements ContinentRepositoryInterface
 
         if ($this->applyFiltersOnly) return $continents;
 
-        $uri = '/admin/continents/';
+        $uri = '/dashboard/continents/';
         $res = SearchRepo::of($continents, ['id', 'name'])
             ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->flag ? asset($q->flag) : asset('storage/football/defaultflag.png')) . '" />')
             ->addColumn('Created_at', 'Created_at')

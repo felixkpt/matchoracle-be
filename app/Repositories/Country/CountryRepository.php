@@ -26,7 +26,7 @@ class CountryRepository implements CountryRepositoryInterface
 
         if ($this->applyFiltersOnly) return $countries;
 
-        $uri = '/admin/countries/';
+        $uri = '/dashboard/countries/';
         $res = SearchRepo::of($countries, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')
@@ -76,7 +76,7 @@ class CountryRepository implements CountryRepositoryInterface
     {
         $competition = $this->model::query()->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))->where('id', $id);
 
-        $uri = '/admin/countries/';
+        $uri = '/dashboard/countries/';
         $statuses = SearchRepo::of($competition, ['id', 'name', 'slug'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')

@@ -55,16 +55,16 @@ class PostCategoryRepository implements PostCategoryRepositoryInterface
                         <i class="icon icon-list2 font-20"></i>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item autotable-navigate" href="/admin/posts/' . $item->slug . '">View</a></li>
+                            <li><a class="dropdown-item autotable-navigate" href="/dashboard/posts/' . $item->slug . '">View</a></li>
                             '
                     .
                     (checkPermission('postcats.categories', 'post') ?
-                        '<li><a class="dropdown-item autotable-edit" data-id="' . $item->id . '" href="/admin/posts/categories/' . $item->id . '">Edit</a></li>'
+                        '<li><a class="dropdown-item autotable-edit" data-id="' . $item->id . '" href="/dashboard/posts/categories/' . $item->id . '">Edit</a></li>'
                         :
                         '')
                     .
                     '
-                            <li><a class="dropdown-item autotable-update-status" data-id="' . $item->id . '" href="/admin/posts/categories/' . $item->id . '/update-status">Status update</a></li>
+                            <li><a class="dropdown-item autotable-update-status" data-id="' . $item->id . '" href="/dashboard/posts/categories/' . $item->id . '/update-status">Status update</a></li>
                         </ul>
                     </div>
                     ';

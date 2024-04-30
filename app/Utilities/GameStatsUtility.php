@@ -2,7 +2,7 @@
 
 namespace App\Utilities;
 
-use App\Http\Controllers\Admin\Teams\View\TeamController;
+use App\Http\Controllers\Dashboard\Teams\View\TeamController;
 use App\Models\Team;
 use App\Repositories\GameComposer;
 use App\Repositories\Team\TeamRepository;

@@ -137,18 +137,18 @@ trait SearchRepoTrait
             'email' => ['input' => 'input', 'type' => 'email'],
             'password' => ['input' => 'input', 'type' => 'password'],
             'password_confirmation' => ['input' => 'input', 'type' => 'password'],
-            'priority_number' => ['input' => 'input', 'type' => 'number'],
+            'priority' => ['input' => 'input', 'type' => 'number'],
             'priority_no' => ['input' => 'input', 'type' => 'number'],
 
-            'content*' => ['input' => 'textarea', 'type' => null, 'rows' => 10],
-            'description*' => ['input' => 'textarea', 'type' => null], 'rows' => 10,
+            'content*' => ['input' => 'textarea', 'type' => null, 'rows' => 7],
+            'description*' => ['input' => 'textarea', 'type' => null, 'rows' => 7],
 
             'text' => ['input' => 'input', 'type' => 'url'],
 
             '*_id'  => ['input' => 'select', 'type' => null],
-            '*_ids'  => ['input' => 'multiselect', 'type' => null],
-            '*_list'  => ['input' => 'select', 'type' => null],
-            '*_multilist'  => ['input' => 'multiselect', 'type' => null],
+            '*_ids'  => ['input' => 'select', 'type' => 'multi'],
+            '*_list'  => ['input' => 'select', 'type' => 'multi'],
+            '*_multilist'  => ['input' => 'select', 'type' => 'multi'],
             'guard_name' => ['input' => 'select', 'type' => null],
 
             'img' => ['input' => 'input', 'type' => 'file', 'accept' => 'image/*'],
@@ -241,59 +241,6 @@ trait SearchRepoTrait
 
     function action($q, $options)
     {
-
-        $uri = $options['uri'];
-
-        $view = $options['view'] ?? 'modal';
-        $edit = $options['edit'] ?? 'modal';
-
-        $uri = preg_replace('#/+#', '/', $uri . '/');
-
-        $str = '';
-        foreach ($this->actionItems as $item) {
-            // get method 
-            if ($item['action']['title'] === 'view') {
-                $resolvedUri = $uri . 'view/' . $q->id . '/';
-
-                if (checkPermission($uri . 'view/{id}', 'get')) {
-                    $use = $view === 'native' ? $item['action']['title'] : $item['action']['use'];
-                    $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $resolvedUri . '">' . $item['title'] . '</a></li>';
-                }
-            }
-            // put method 
-            else if ($item['action']['title'] === 'edit') {
-                $resolvedUri = $uri . 'view/' . $q->id . '/edit';
-
-                if (checkPermission($uri . 'view/{id}', 'put')) {
-                    $use = $edit === 'native' ? $item['action']['title'] : $item['action']['use'];
-                    $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $resolvedUri . $item['action']['title'] . '">' . $item['title'] . '</a></li>';
-                }
-            }
-            // assumed post method 
-            else {
-                $resolvedUri = $uri . 'view/' . $q->id . '/#action';
-
-                if (checkPermission($uri . 'view/{id}', 'post')) {
-                    $use = $item['action']['use'];
-                    $str .= '<li><a class="dropdown-item autotable-' . ($use === 'modal' ? 'modal-' . $item['action']['modal'] : $item['action']['native']) . '" data-id="' . $q->id . '" href="' . $resolvedUri . $item['action']['title'] . '">' . $item['title'] . '</a></li>';
-                }
-            }
-        }
-
-        return strlen($str) ? $this->dropdown($str) : '-';
-    }
-
-    private function dropdown($str)
-    {
-        return '
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="icon icon-list2 font-20"></i>
-            </button>
-            <ul class="dropdown-menu">
-                ' . $str . '
-            </ul>
-        </div>
-        ';
+        return (new ModelAction($this->actionItems, $q, $options))->action();
     }
 }

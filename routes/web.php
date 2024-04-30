@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\ForebetTestController;
+use App\Http\Controllers\Dashboard\ForebetTestController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 

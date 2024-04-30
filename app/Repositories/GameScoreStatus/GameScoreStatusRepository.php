@@ -27,7 +27,7 @@ class GameScoreStatusRepository implements GameScoreStatusRepositoryInterface
 
         if ($this->applyFiltersOnly) return $statuses;
 
-        $uri = '/admin/settings/picklists/statuses/game-score-statuses/';
+        $uri = '/dashboard/settings/picklists/statuses/game-score-statuses/';
         $statuses = SearchRepo::of($statuses, ['id', 'name'])
             ->addColumn('Created_by', 'getUser')
             ->addColumn('Created_at', 'Created_at')

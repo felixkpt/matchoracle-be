@@ -467,7 +467,7 @@ class SearchRepo
      *
      * @param string $fillable The column name.
      * @param string $before The after function to generate the column value.
-     * @param array $inputTypeInfo The input info.
+     * @param array $inputTypeInfo The input info. eg ->addFillable('skill_ids', 'priority', ['input' => 'multiselect', 'type' => null])
      */
     public function addFillable($field, $before = null, $inputTypeInfo = [])
     {

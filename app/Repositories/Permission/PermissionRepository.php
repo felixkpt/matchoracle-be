@@ -29,7 +29,7 @@ class PermissionRepository implements PermissionRepositoryInterface
 
         $permissions = $this->model::whereNull('uri');
 
-        $uri = '/admin/settings/role-permissions/permissions/';
+        $uri = '/dashboard/settings/role-permissions/permissions/';
         $permissions = SearchRepo::of($permissions, ['name', 'id'])
             ->fillable(['name', 'guard_name'])
             ->addColumn('Created_by', 'getUser')

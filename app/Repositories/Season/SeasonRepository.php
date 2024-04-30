@@ -38,7 +38,7 @@ class SeasonRepository implements SeasonRepositoryInterface
 
         if ($this->applyFiltersOnly) return $seasons;
 
-        $uri = '/admin/seasons/';
+        $uri = '/dashboard/seasons/';
         $results = SearchRepo::of($seasons, ['start_date'])
             ->addColumn('Winner', fn ($q) => $q->winner->name ?? '-')
             ->addColumn('Played', fn ($q) => '-')

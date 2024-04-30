@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Statistics;
 
-use App\Http\Controllers\Admin\BettingTips\BettingTipsController;
+use App\Http\Controllers\Dashboard\BettingTips\BettingTipsController;
 use App\Jobs\Automation\AutomationTrait;
 use App\Models\BettingTipsStatistic;
 use App\Models\BettingTipsStatisticJobLog;

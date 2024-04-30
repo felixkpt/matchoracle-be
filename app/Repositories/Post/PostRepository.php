@@ -34,7 +34,7 @@ class PostRepository implements PostRepositoryInterface
 
         if ($this->applyFiltersOnly) return $posts;
 
-        $uri = '/admin/posts/';
+        $uri = '/dashboard/posts/';
         $res = SearchRepo::of($posts, ['title', 'content_short', 'status', 'user_id'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')

@@ -2,10 +2,10 @@
 
 namespace App\Repositories\Competition;
 
-use App\Http\Controllers\Admin\Odds\OddsController;
-use App\Http\Controllers\Admin\Statistics\CompetitionsPredictionsStatisticsController;
-use App\Http\Controllers\Admin\Statistics\CompetitionsStatisticsController;
-use App\Http\Controllers\Admin\Teams\TeamsController;
+use App\Http\Controllers\Dashboard\Odds\OddsController;
+use App\Http\Controllers\Dashboard\Statistics\CompetitionsPredictionsStatisticsController;
+use App\Http\Controllers\Dashboard\Statistics\CompetitionsStatisticsController;
+use App\Http\Controllers\Dashboard\Teams\TeamsController;
 use App\Models\Competition;
 use App\Models\CompetitionPredictionStatistic;
 use App\Models\CompetitionStatistic;
@@ -57,7 +57,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         if ($this->applyFiltersOnly)
             return $competitions;
 
-        $uri = '/admin/competitions/';
+        $uri = '/dashboard/competitions/';
         $results = SearchRepo::of($competitions, ['id', 'name', 'code', 'country.name', 'seasons.start_date', 'slug'])
             ->addColumn('season', fn ($q) => $q->currentSeason ? (Carbon::parse($q->currentSeason->start_date)->format('Y') . '/' . Carbon::parse($q->currentSeason->end_date)->format('Y')) : null)
             ->addColumn('Created_at', 'Created_at')
@@ -230,7 +230,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $gamesources = GameSource::whereIn('id', $competition->gameSources->pluck('id'));
 
-        $uri = '/admin/countries/';
+        $uri = '/dashboard/countries/';
         $res = SearchRepo::of($gamesources, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')
@@ -247,7 +247,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $seasons = Season::where('competition_id', $id)->with(['competition', 'winner']);
 
-        $uri = '/admin/countries/';
+        $uri = '/dashboard/countries/';
         $res = SearchRepo::of($seasons, ['id', 'name'])
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Status', 'getStatus')

@@ -2,10 +2,10 @@
 
 namespace App\Repositories\Competition\CompetitionAbbreviation;
 
-use App\Http\Controllers\Admin\Odds\OddsController;
-use App\Http\Controllers\Admin\Statistics\CompetitionsPredictionsStatisticsController;
-use App\Http\Controllers\Admin\Statistics\CompetitionsStatisticsController;
-use App\Http\Controllers\Admin\Teams\TeamsController;
+use App\Http\Controllers\Dashboard\Odds\OddsController;
+use App\Http\Controllers\Dashboard\Statistics\CompetitionsPredictionsStatisticsController;
+use App\Http\Controllers\Dashboard\Statistics\CompetitionsStatisticsController;
+use App\Http\Controllers\Dashboard\Teams\TeamsController;
 use App\Models\CompetitionAbbreviation;
 use App\Models\CompetitionPredictionStatistic;
 use App\Models\CompetitionStatistic;
@@ -33,7 +33,7 @@ class CompetitionAbbreviationRepository implements CompetitionAbbreviationReposi
         if (request()->all == '1')
             return response(['results' => $statuses->get()]);
 
-        $uri = '/admin/competitions/competition-abbreviations/';
+        $uri = '/dashboard/competitions/competition-abbreviations/';
         $statuses = SearchRepo::of($statuses, ['id', 'name'])
             ->addColumn('Is_intl', fn ($q) => $q->is_international ? 'Yes' : 'No')
             ->addColumn('Created_at', 'Created_at')

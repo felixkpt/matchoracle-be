@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 $controller = FilesController::class;
 
 // Prefix all generated routes
-$prefix = 'api/admin';
+$prefix = 'api/dashboard';
 
 // Middlewares to be passed before accessing any route
 $middleWares = ['api'];
