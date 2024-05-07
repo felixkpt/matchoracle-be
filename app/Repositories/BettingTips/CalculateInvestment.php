@@ -5,6 +5,7 @@ namespace App\Repositories\BettingTips;
 use App\Models\Game;
 use App\Repositories\GameComposer;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -70,11 +71,41 @@ trait CalculateInvestment
                 }
             }
 
+            $game_odds = clone ($game['odds']);
+            $game_odds = $game_odds[0][$odds_name];
+            unset($game['odds']);
 
-            $odds *= $game['odds'][0]->{$odds_name};
+            $game['odds'] = $game_odds;
+            $game['is_subscribed'] = true;
+
+            $odds *= $game_odds;
 
             if ($game['outcome'] == 'L') $outcome = 'L';
             else if ($game['outcome'] == 'U' && $outcome != 'L') $outcome = 'U';
+
+
+            if ($outcome == 'U' && Carbon::parse($game['utc_date'])->isAfter(now()->subDays(3))) {
+                $game = [
+                    'id' => now()->unix() + rand(1, 10000),
+                    'utc_date' => $game['utc_date'],
+                    'competition' => [
+                        'name' => 'Tornament ?',
+                        'logo' => null,
+                    ],
+                    'home_team' => [
+                        'name' => 'Team A ?',
+                        'logo' => null,
+                    ],
+                    'away_team' => [
+                        'name' => 'Team B ?',
+                        'logo' => null,
+
+                    ],
+                    'outcome' => $game['outcome'],
+                    'odds' => $game['odds'],
+                    'is_subscribed' => false,
+                ];
+            }
 
             $betslip[] = [
                 'game' => $game,

@@ -38,6 +38,8 @@ class GameRepository implements GameRepositoryInterface
             $this->setPredictorOptions();
         }
 
+        $start = microtime(true);
+
         $gameUtilities = new GameUtility();
 
         $results_raw = $gameUtilities->applyGameFilters($id);
@@ -45,6 +47,7 @@ class GameRepository implements GameRepositoryInterface
         if ($this->applyFiltersOnly) return $results_raw;
 
         $results = $gameUtilities->formatGames($results_raw);
+
 
         if (request()->is_predictor == 1) {
 
@@ -99,6 +102,8 @@ class GameRepository implements GameRepositoryInterface
             }
 
             $arr = ['results' => $results];
+
+            Log::critical('Time taken in secs to load matches::' . round((microtime(true) - $start)));
 
             if (request()->without_response) return $arr;
             return response($arr);

@@ -30,8 +30,6 @@ class ModelAction
             $uri = $this->options['create_uri'];
         }
 
-        Log::info('ops', $this->options);
-
         $view = $options['view'] ?? 'modal';
         $edit = $options['edit'] ?? 'modal';
 

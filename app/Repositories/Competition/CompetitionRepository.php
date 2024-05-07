@@ -324,7 +324,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
         $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
 
-        $dates = $this->model::find($id)->games()->whereDate('utc_date', '>=', $from_date)->whereDate('utc_date', '<=', $to_date)->orderBy('utc_date')->pluck('utc_date')->toArray();
+        $dates = $this->model::find($id)->games()->whereDate('utc_date', '>=', $from_date)->whereDate('utc_date', '<=', $to_date)->orderBy('utc_date', 'desc')->pluck('utc_date')->toArray();
 
         $dates = array_values(array_unique(array_map(fn ($date) => Carbon::parse($date)->format('Y-m-d'), $dates)));
 

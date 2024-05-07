@@ -101,6 +101,7 @@ trait BettingTipsTrait
 
     function getGames($outcome_name, $isAllTips = false)
     {
+        // request()->merge(['without_response' => true]);
 
         $gameUtilities = new GameUtility();
         $results = $gameUtilities->applyGameFilters()
@@ -193,7 +194,6 @@ trait BettingTipsTrait
         $all_ids = array_merge($all_ids, $typeIds);
         request()->merge(['exclude_ids' => $all_ids]);
     }
-
 
     private function lastPredsStatePassed($game)
     {
