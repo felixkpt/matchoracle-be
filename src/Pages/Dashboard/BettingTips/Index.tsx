@@ -17,6 +17,7 @@ import { predictionModes, bettingStrategies } from '@/utils/constants';
 import { BettingStrategyInterface, PredictionModeInterface } from '@/interfaces/FootballInterface';
 import PredictionsModeSwitcher from '@/components/Predictions/PredictionsModeSwitcher';
 import AllTips from './Tabs/AllTips';
+import SubscriptionModal from './Includes/SubscriptionModal';
 
 const Index = () => {
 
@@ -46,7 +47,6 @@ const Index = () => {
         }
 
     }, [baseUri, predictionMode, bettingStrategy])
-
 
     const tabs: TabInterface[] = [
         {
@@ -130,6 +130,7 @@ const Index = () => {
                                 uri != '' &&
                                 <AutoTabs key={uri} tabs={tabs} />
                             }
+                            <SubscriptionModal />
                         </div>
                     </div>
                     :
@@ -141,7 +142,7 @@ const Index = () => {
                         }
                     </div>
             }
-        </div>
+        </div >
     );
 };
 

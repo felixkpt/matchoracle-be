@@ -19,7 +19,7 @@ const MatchPageHeader = ({ game, homeTeam, awayTeam, homeTeamRecentResults, away
   const ftRes = Composer.results(game.score)
   const htRes = Composer.results(game.score, 'ht')
   return (
-    <div className='header-title shadow-sm p-2 rounded mb-3 row justify-content-between'>
+    <div className='header-title shadow-sm p-2 rounded mb-3 row justify-content-between cursor-default'>
       <div className="col-6 col-md-3 col-lg-2 order-2 order-md-1 overflow-x-hidden">
         <div className="d-flex flex-column gap-3 align-items-center">
           {RenderTeamLogoAndForm({ team: homeTeam, recentResults: homeTeamRecentResults })}

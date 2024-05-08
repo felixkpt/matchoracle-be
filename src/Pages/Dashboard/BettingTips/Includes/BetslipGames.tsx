@@ -2,6 +2,7 @@ import { GameInterface } from "@/interfaces/FootballInterface";
 import GameComposer from "@/utils/Composer";
 import FormatDate from "@/utils/FormatDate";
 import { competitionLogo, teamLogo } from "@/utils/helpers";
+import { NavLink } from "react-router-dom";
 
 type Props = {
     betslip: [{
@@ -33,13 +34,22 @@ const BetslipGames = ({ betslip }: Props) => {
             {
                 betslip.map((slip) => {
                     const game = slip.game
-                    const odds_name = slip.odds_name
                     const odds_name_print = slip.odds_name_print
 
                     return (
                         <div key={game.id} className="row border border-0 border-bottom border-dark pb-1">
                             <div className="col-12 text-muted">
-                                <small>{FormatDate.toLocaleDateString(game.utc_date)}</small>
+                                <div className="d-flex gap-2 justify-content-between py-1">
+                                    <small>{FormatDate.toLocaleDateString(game.utc_date)}</small>
+                                    {
+                                        game.is_subscribed === false
+                                            ?
+                                            <>
+                                                <button type="button" className="btn btn-link ntn-sm py-0" data-bs-toggle="modal" id={`SubscribeButtonTrigger`} data-bs-target={`#SubscribeModal`}><small>See how to subscribe!</small></button>
+                                            </>
+                                            : null
+                                    }
+                                </div>
                             </div>
                             <div className="col-md-5">
                                 <div className="row">
@@ -58,7 +68,7 @@ const BetslipGames = ({ betslip }: Props) => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-5 col-md-4 d-flex align-items-center">{odds_name_print} @ {game.odds[0][`${odds_name}`]}</div>
+                            <div className="col-5 col-md-4 d-flex align-items-center">{odds_name_print} @ {game.odds}</div>
                             <div className="col-2 d-md-none">
                             </div>
                             <div className="col-5 col-md-3 d-flex align-items-center">

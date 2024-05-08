@@ -99,9 +99,9 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
     <div className="container mt-5 pb-4">
       <div className="card">
         <div className="card-header">
-          <h3 className="mb-4">Prediction Statistics</h3>
+          <h4 className="mb-4">Prediction Statistics</h4>
         </div>
-        <div className="card-body">
+        <div className="card-body overflow-auto">
           {FTStats ? (
             <div>
               <div className='mb-4'>
@@ -127,7 +127,7 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
                 </table>
               </div>
               <div className='mb-4'>
-                <h4>Halftime stats {HTStats ? ' for ' + HTStats.counts + ' games' : ''}</h4>
+                <h5>Halftime stats {HTStats ? ' for ' + HTStats.counts + ' games' : ''}</h5>
                 <table className="table table-bordered table-striped">
                   <thead className="thead-dark">
                     <tr>

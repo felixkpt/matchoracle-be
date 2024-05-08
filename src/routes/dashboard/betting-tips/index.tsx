@@ -1,15 +1,11 @@
-import DefaultLayout from "../../../Layouts/Default/DefaultLayout";
-import BettingTips from "../../../Pages/Dashboard/BettingTips/Index";
-import Stats from "../../../Pages/Dashboard/BettingTips/Stats";
-import BettingTip from "../../../Pages/Dashboard/BettingTips/View/Index";
+import DefaultLayout from "@/Layouts/Default/DefaultLayout";
+import BettingTips from "@/Pages/Dashboard/BettingTips/Index";
+import HowToSubscribe from "@/Pages/Dashboard/BettingTips/HowToSubscribe";
+import Stats from "@/Pages/Dashboard/BettingTips/Stats";
 
 const relativeUri = 'dashboard/betting-tips/';
 
 const routes = [
-    {
-        path: `view/:id`,
-        element: <DefaultLayout uri={`${relativeUri}view/:id`} permission="" Component={BettingTip} />,
-    },
     {
         path: ``,
         element: <DefaultLayout uri={relativeUri} permission="" Component={BettingTips} />,
@@ -45,6 +41,10 @@ const routes = [
     {
         path: `stats`,
         element: <DefaultLayout uri={`${relativeUri}stats`} permission="" Component={Stats} />,
+    },
+    {
+        path: `how-to-subscribe`,
+        element: <DefaultLayout uri={`${relativeUri}`} permission="" Component={HowToSubscribe} />,
     },
 ];
 

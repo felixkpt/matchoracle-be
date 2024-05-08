@@ -224,10 +224,11 @@ export interface GameInterface {
     prediction: PredictionInterface,
     formatted_prediction: PredictionInterface,
     CS: string;
-    odds: OddInterface[]
+    odds: OddInterface[] | number
     Fulltime: HTMLElement
     outcome: 'W' | 'L' | 'U'
     Winner: string
+    is_subscribed: boolean
 
 }
 
@@ -497,6 +498,9 @@ export interface PredictionModeInterface {
     name: string
 }
 export interface BettingStrategyInterface {
-    id: string | number
-    name: string
+    id: string | number;
+    name: string;
+    slogan?: string;
+    amount?: number;
+    advantages: string[];
 }

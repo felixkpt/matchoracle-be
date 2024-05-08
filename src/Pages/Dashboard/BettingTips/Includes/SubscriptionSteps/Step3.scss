@@ -1,0 +1,61 @@
+/* Step3.scss */
+
+.payment-method-container {
+    margin-top: 20px;
+
+    .payment-method {
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        display: block;
+        font-size: 16px;
+        line-height: 1.5;
+
+        /* Hide the default radio button */
+        input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Create a custom radio button */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: #eee;
+            border-radius: 50%;
+
+            /* Style the indicator (dot/circle) */
+            &:after {
+                top: 5px;
+                left: 5px;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: white;
+                content: "";
+                position: absolute;
+                display: none;
+            }
+        }
+
+        /* Show the indicator (dot/circle) when checked */
+        input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* On mouse-over, add a grey background color */
+        &:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the radio button is checked, add a blue background */
+        input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+    }
+}
