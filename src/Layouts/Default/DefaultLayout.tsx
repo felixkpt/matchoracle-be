@@ -21,10 +21,10 @@ interface Props {
 const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
     // uri = 'admin'
 
-    const { reloadKey, loadingUser, isAllowed, checked, loadingUserError, loadingRoutePermissions, previousUrl, setReloadKey } = useRestrictedAccess({ uri, permission, method })
+    const { loadingUser, isAllowed, checked, loadingUserError, loadingRoutePermissions, previousUrl, setReloadKey } = useRestrictedAccess({ uri, permission, method })
 
     return (
-        <div key={reloadKey}>
+        <div>
             <ScrollToTop />
             <>
                 <NavBar hideFrom='lg' />

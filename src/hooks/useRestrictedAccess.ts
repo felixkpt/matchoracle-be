@@ -14,7 +14,7 @@ interface Props {
 const useRestrictedAccess = ({ uri, permission, method }: Props) => {
 
   const [reloadKey, setReloadKey] = useState<number>(0);
-  const { updateUser, deleteUser, verified, setRedirectTo } = useAuth();
+  const { user, updateUser, deleteUser, verified, setRedirectTo } = useAuth();
   const { data: freshUser, loading: loadingUser, get: getUser, loaded: loadedUser, errors: loadingUserError } = useAxios();
 
   const navigate = useNavigate();
@@ -29,15 +29,20 @@ const useRestrictedAccess = ({ uri, permission, method }: Props) => {
 
   // useEffect to check permission and loading state
   useEffect(() => {
+    console.log('....')
+
+    console.log(verified, loadedUser, testPermission, loadingRoutePermissions)
 
     if ((verified || loadedUser) && testPermission && loadingRoutePermissions === false) {
       if (!allowedRoutes.includes(testPermission)) {
+        console.log('TTT', testPermission, method)
         const isAllowed = userCan(testPermission, method || 'get');
+        console.log(isAllowed)
         setIsAllowed(isAllowed);
       }
       setChecked(true);
     }
-  }, [verified, loadingRoutePermissions, permission, routePermissions, loadedUser]);
+  }, [verified, loadingRoutePermissions, permission, routePermissions, loadedUser, reloadKey]);
 
   // useEffect to fetch user data and refresh current role
   useEffect(() => {
@@ -89,13 +94,14 @@ const useRestrictedAccess = ({ uri, permission, method }: Props) => {
 
   // useEffect to redirect to login if not allowed and loadingUser is false
   useEffect(() => {
-    if (loadedUser && !isAllowed && checked) {
+    console.log('loadingUser:', loadingUser, 'loadedUser:', loadedUser, 'isAllowed:', isAllowed, 'checked:', checked, 'user:', user)
+    if (loadedUser && !user && !isAllowed && checked) {
       setRedirectTo(location.pathname);
       navigate('/login');
     }
-  }, [loadingUser, loadedUser, isAllowed, checked]);
+  }, [loadingUser, loadedUser, isAllowed, checked, user]);
 
-  return { reloadKey, loadingUser, isAllowed, checked, loadingUserError, loadingRoutePermissions, previousUrl, setReloadKey }
+  return { loadingUser, isAllowed, checked, loadingUserError, loadingRoutePermissions, previousUrl, setReloadKey }
 }
 
 export default useRestrictedAccess

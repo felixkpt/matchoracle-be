@@ -25,7 +25,7 @@ const usePermissions = () => {
 
             const httpMethod = method.toUpperCase()
             const found = !!routePermissions.find((route) => {
-                return String(route).startsWith(permissionCleaned + '@') && (httpMethod === 'ANY' || String(route).includes('@' + httpMethod))
+                return (String(route).startsWith(permissionCleaned + '@') && (httpMethod === 'ANY' || String(route).includes('@' + httpMethod))) || httpMethod === 'GET' && String(route) === permissionCleaned
 
             });
             return found

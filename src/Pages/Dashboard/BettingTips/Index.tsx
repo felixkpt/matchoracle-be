@@ -27,6 +27,7 @@ const Index = () => {
     const [predictionMode, setPredictionMode] = useState<PredictionModeInterface | null>();
 
     const [bettingStrategy, setBettingStrategy] = useState<BettingStrategyInterface | null>();
+    const [initialBankroll, setInitialBankroll] = useState<number>(0);
 
     useEffect(() => {
         if (!predictionMode && predictionModes) {
@@ -43,10 +44,10 @@ const Index = () => {
     useEffect(() => {
 
         if (predictionMode && bettingStrategy) {
-            setUri(`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}&betting_strategy_id=${bettingStrategy ? bettingStrategy.id : 0}`)
+            setUri(`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}&betting_strategy_id=${bettingStrategy ? bettingStrategy.id : 0}&initial_bankroll=${initialBankroll}`)
         }
 
-    }, [baseUri, predictionMode, bettingStrategy])
+    }, [baseUri, predictionMode, bettingStrategy, initialBankroll])
 
     const tabs: TabInterface[] = [
         {
@@ -102,6 +103,12 @@ const Index = () => {
                                 <MatchesPageHeader title={'Betting Tips List'} fromToDates={fromToDates} setFromToDates={setFromToDates} className="shadow-none" />
                             </div>
                             <div className="col-xl-3">
+                                <div>
+                                    <label>
+                                        Initial bankroll
+                                        <input type="number" min={0} max={1000000} name='initial_bankroll' defaultValue={initialBankroll} onChange={(e) => setInitialBankroll(e.target.value)} />
+                                    </label>
+                                </div>
                                 <PredictionsModeSwitcher predictionMode={predictionMode} predictionModes={predictionModes} setPredictionMode={setPredictionMode} />
                             </div>
                             <div className="col-xl-3">
