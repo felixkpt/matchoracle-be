@@ -59,6 +59,10 @@ trait BettingTipsTrait
                 }
             }
         }
+
+        if (request()->initial_bankroll) {
+            $this->initial_bankroll = (int) request()->initial_bankroll;
+        }
     }
 
     function singles($isAllTips = false)

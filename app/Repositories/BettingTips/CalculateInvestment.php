@@ -2,11 +2,7 @@
 
 namespace App\Repositories\BettingTips;
 
-use App\Models\Game;
-use App\Repositories\GameComposer;
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 trait CalculateInvestment
@@ -334,7 +330,7 @@ trait CalculateInvestment
         $current_losing_streak = $options['current_losing_streak'] ?? null;
         $prev_stake = $options['prev_stake'] ?? null;
         $prev_outcome = $options['prev_outcome'] ?? null;
-        -$initial_stake = $this->stakeRatio * $this->initial_bankroll;
+        $initial_stake = round($this->stakeRatio * $this->initial_bankroll, 2);
 
         $strategy = $this->strategy;
 
