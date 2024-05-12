@@ -115,4 +115,11 @@ class BettingTipsRepository implements BettingTipsRepositoryInterface
 
         return response(['results' => $results]);
     }
+
+    public function subscribe()
+    {
+        $results = [];
+
+        return response(['message' => "Subscription was successfully."]);
+    }
 }

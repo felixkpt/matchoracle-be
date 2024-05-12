@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->unsignedBigInteger('parent_category_id')->default(0);
             $table->string('image')->nullable();
-            $table->unsignedInteger('priority_number')->default(9999);
+            $table->unsignedInteger('position')->default(9999);
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();

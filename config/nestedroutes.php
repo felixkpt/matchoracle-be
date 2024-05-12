@@ -25,4 +25,11 @@ return [
     ],
     'guestRoleId' => 1101,
 
+    'defaultPublicRoutes' => [
+        'dashboard/settings/role-permissions/roles/get-user-roles-and-direct-permissions',
+        'dashboard/settings/role-permissions/roles/view/{id}/get-role-menu',
+        'dashboard/settings/role-permissions/roles/view/{id}/get-role-route-permissions',
+        'file-repo/*',
+    ]
+
 ];

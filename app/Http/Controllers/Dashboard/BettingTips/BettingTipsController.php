@@ -67,4 +67,14 @@ class BettingTipsController extends Controller
     {
         return $this->bettingTipsRepositoryInterface->stats();
     }
+
+    public function show($id)
+    {
+        return $this->bettingTipsRepositoryInterface->show($id);
+    }
+
+    public function subscribe()
+    {
+        return $this->bettingTipsRepositoryInterface->subscribe();
+    }
 }

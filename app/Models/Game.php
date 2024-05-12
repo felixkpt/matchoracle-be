@@ -22,10 +22,12 @@ class Game extends Model
         'stage',
         'group',
         'game_score_status_id',
-        'priority_number',
+        'position',
         'status_id',
         'user_id',
     ];
+
+    protected $connection = 'games-source';
 
     public function lastAction()
     {

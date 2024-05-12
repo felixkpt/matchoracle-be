@@ -30,7 +30,7 @@ class PostCategoryValidation implements PostCategoryValidationInterface
             ],
             'description' => 'nullable|string|max:255',
             'image' => 'required|image',
-            'priority_number' => 'nullable|integer|between:1,99999999',
+            'position' => 'nullable|integer|between:1,99999999',
         ]);
 
         return $validatedData;

@@ -29,7 +29,7 @@ class Competition extends Model
     'has_standings',
     'has_teams',
     'is_odds_enabled',
-    'priority_number',
+    'position',
 
     'games_counts',
     'predictions_counts',

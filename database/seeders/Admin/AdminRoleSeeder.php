@@ -3,10 +3,10 @@
 namespace Database\Seeders\Admin;
 
 use App\Models\Role;
-use App\Models\Status;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class AdminRoleSeeder extends Seeder
@@ -20,20 +20,40 @@ class AdminRoleSeeder extends Seeder
 
         $role_counts = Role::count();
 
-        $role = Role::updateOrCreate(
-            ['name' => 'Super Admin'],
+        $arr = [
             [
                 'name' => 'Super Admin',
                 'guard_name' => 'api',
-                'user_id' => User::first()->id,
-                'status_id' => Status::where('name', 'active')->first()->id ?? 0
+            ],
+            [
+                'name' => 'Guest',
+                'guard_name' => 'api',
             ]
-        );
+        ];
 
-        $user = User::first();
-        $user->assignRole($role);
-        $user->default_role_id = $role->id;
-        $user->save();
+        foreach ($arr as $item) {
+
+            if (Schema::hasColumn('roles', 'user_id')) {
+                $item['user_id'] = User::first()->id;
+            }
+            if (Schema::hasColumn('roles', 'status_id')) {
+                $item['status_id'] = activeStatusId();
+            }
+
+            $role = Role::updateOrCreate(['name' => $item['name']], $item);
+        }
+
+        try {
+            $role = Role::where('name', 'Super Admin')->first();
+            $user = User::first();
+            $user->assignRole($role);
+            if (Schema::hasColumn('users', 'default_role_id')) {
+                $user->default_role_id = $role->id;
+                $user->save();
+            }
+        } catch (Exception $e) {
+            dd('User assignRole error: ', $e->getMessage() . '. Also, please ensure config > auth.php > guards > api key exists.');
+        }
 
         if ($role_counts === 0) {
 

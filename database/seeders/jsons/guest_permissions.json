@@ -1,0 +1,315 @@
+[
+    {
+        "name": "nested.routes",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "nested-routes",
+        "title": "nested-routes",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "about.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "about@GET|@HEAD",
+        "title": "About",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "home.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "home@GET|@HEAD",
+        "title": "Homepage",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "projects.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "projects@GET|@HEAD",
+        "title": "Projects",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "projects.view.id.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "projects/view/{id}@GET|@HEAD",
+        "title": "Show",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "qualifications.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "qualifications@GET|@HEAD",
+        "title": "Qualifications",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "skills.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "skills@GET|@HEAD",
+        "title": "Skills",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "work.experiences.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "work-experiences@GET|@HEAD",
+        "title": "Work  Experiences",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "work.experiences.view.id.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "work-experiences/view/{id}@GET|@HEAD",
+        "title": "Show",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "companies.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "companies@GET|@HEAD",
+        "title": "Companies",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "contact.me.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "contact-me@GET|@HEAD",
+        "title": "Contact  Me",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "contact.me.at.post",
+        "guard_name": "api",
+        "parent_folder": "nested-routes",
+        "uri": "contact-me@POST",
+        "title": "Create  Message",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "dashboard",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard",
+        "title": "dashboard",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings",
+        "title": "dashboard/settings",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.picklists",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/picklists",
+        "title": "dashboard/settings/picklists",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.picklists.get.in.touch",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/picklists/get-in-touch",
+        "title": "dashboard/settings/picklists/get-in-touch",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.picklists.get.in.touch.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/picklists/get-in-touch@GET|@HEAD",
+        "title": "List  Get  In  Touch",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.picklists.skill.categories",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/picklists/skill-categories",
+        "title": "dashboard/settings/picklists/skill-categories",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.picklists.skill.categories.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/picklists/skill-categories@GET|@HEAD",
+        "title": "List  Skill  Categories",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.role.permissions",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/role-permissions",
+        "title": "dashboard/settings/role-permissions",
+        "icon": "fa-solid:users-cog",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.role.permissions.roles",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/role-permissions/roles",
+        "title": "dashboard/settings/role-permissions/roles",
+        "icon": "tdesign:user-list",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.role.permissions.roles.get.user.roles.and.direct.permissions.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/role-permissions/roles/get-user-roles-and-direct-permissions@GET|@HEAD",
+        "title": "Get User Roles And Direct Permissions",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.role.permissions.roles.view",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/role-permissions/roles/view",
+        "title": "dashboard/settings/role-permissions/roles/view",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.role.permissions.roles.view.id.get.role.menu.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/role-permissions/roles/view/{id}/get-role-menu@GET|@HEAD",
+        "title": "Get Role Menu",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.role.permissions.roles.view.id.get.role.route.permissions.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/role-permissions/roles/view/{id}/get-role-route-permissions@GET|@HEAD",
+        "title": "Get Role Route Permissions",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.users",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/users",
+        "title": "dashboard/settings/users",
+        "icon": "mdi:users-add",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.users.view",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/users/view",
+        "title": "dashboard/settings/users/view",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.users.view.update.at.post",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/users/view/update@POST",
+        "title": "User Profile",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.users.view.profile.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/users/view/profile@GET|@HEAD",
+        "title": "Profile Show",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.users.view.profile.at.patch",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/users/view/profile@PATCH",
+        "title": "Profile Update",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "dashboard.settings.users.view.update.self.password.at.patch",
+        "guard_name": "api",
+        "parent_folder": "dashboard",
+        "uri": "dashboard/settings/users/view/update-self-password@PATCH",
+        "title": "Update Self Password",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    }
+]

@@ -44,7 +44,7 @@ class FootballData
             'name' => 'The dev-friendly football API',
             'url' => $url,
             'description' => 'The dev-friendly football API - RESTful. Reliable. Free to use. Easy to integrate.',
-            'priority_number' => 1,
+            'position' => 1,
             'status_id' => activeStatusId(),
             'user_id' => auth()->id() ?? 0,
         ])->id ?? 0;

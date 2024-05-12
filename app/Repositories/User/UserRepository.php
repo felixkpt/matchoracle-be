@@ -232,7 +232,7 @@ class UserRepository implements UserRepositoryInterface
         return response(['type' => 'success', 'message' => 'Password updated Successfully']);
     }
 
-    public function loginUser($userId)
+    public function autoLoginUser($userId)
     {
 
         $user = $this->model::find($userId);

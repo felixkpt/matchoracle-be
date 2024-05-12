@@ -9,7 +9,7 @@ class PostCategory extends Model
 {
     use HasFactory, CommonModelRelationShips, ExcludeSystemFillable;
    
-    protected $fillable = ['parent_category_id', 'name', 'slug', 'description', 'image', 'status_id', 'user_id', 'priority_number'];
+    protected $fillable = ['parent_category_id', 'name', 'slug', 'description', 'image', 'status_id', 'user_id', 'position'];
     protected $systemFillable = [];
 
     function category()

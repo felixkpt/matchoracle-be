@@ -280,4 +280,11 @@ class DashboardController extends Controller
             'today' => PredictionJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
         ];
     }
+
+    private function testimonials($date)
+    {
+    }
+    private function howToSubscribe($date)
+    {
+    }
 }

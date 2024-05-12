@@ -9,5 +9,5 @@ class PostTopic extends Model
 {
     use HasFactory, CommonModelRelationShips;
 
-    protected $fillable = ['category_id', 'name', 'slug', 'description', 'image', 'status_id', 'user_id', 'priority_number'];
+    protected $fillable = ['category_id', 'name', 'slug', 'description', 'image', 'status_id', 'user_id', 'position'];
 }

@@ -15,7 +15,7 @@ class GameSource extends Model
         'description',
         'user_id',
         'status_id',
-        'priority_number',
+        'position',
     ];
 
     protected $systemFillable = [

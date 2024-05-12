@@ -11,16 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('posts', function (Blueprint $table) {
-            $table->bigIncrements('id')->startingValue(1100);
-            $table->uuid('uuid')->unique();
-            $table->unsignedBigInteger('category_id');
-            $table->unsignedBigInteger('topic_id')->nullable();
-            $table->string('title');
-            $table->string('slug')->unique();
-            $table->string('content_short')->nullable();
-            $table->longText('content');
+        Schema::create('betting_strategies', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('slogan');
+            $table->string('description');
+            $table->string('amount');
             $table->string('image')->nullable();
+
             $table->unsignedInteger('position')->default(9999);
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
@@ -33,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('posts');
+        Schema::dropIfExists('betting_strategies');
     }
 };

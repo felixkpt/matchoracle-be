@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard\Settings\RolePermissions\Roles;
 
 use App\Http\Controllers\Controller;
+use App\Models\Sanctum\PersonalAccessToken;
 use App\Repositories\Role\RoleRepositoryInterface;
 use App\Services\Validations\Role\RoleValidationInterface;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ class RolesController extends Controller
         private RoleRepositoryInterface $roleRepositoryInterface,
         private RoleValidationInterface $roleValidationInterface
     ) {
+
+        sanctum_auth();
     }
 
     public function index()

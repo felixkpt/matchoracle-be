@@ -16,7 +16,7 @@ class Country extends Model
         'dial_code',
         'continent_id',
         'is_international',
-        'priority_number',
+        'position',
         'has_competitions',
         'flag',
         'user_id',
@@ -25,7 +25,7 @@ class Country extends Model
 
     function competitions()
     {
-        return $this->hasMany(Competition::class)->orderby('priority_number');
+        return $this->hasMany(Competition::class)->orderby('position');
     }
 
     function continent()

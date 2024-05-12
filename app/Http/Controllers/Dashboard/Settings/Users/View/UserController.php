@@ -38,24 +38,14 @@ class UserController extends Controller
     {
     }
 
-    public function profileUpdate(Request $request)
-    {
-        return $this->userRepositoryInterface->profileUpdate($request);
-    }
-
-    public function updateSelfPassword()
-    {
-        return $this->userRepositoryInterface->updateSelfPassword();
-    }
-
     public function updateOthersPassword()
     {
         return $this->userRepositoryInterface->updateOthersPassword();
     }
 
-    public function loginUser($userId)
+    public function autoLoginUser($userId)
     {
-        return $this->userRepositoryInterface->loginUser($userId);
+        return $this->userRepositoryInterface->autoLoginUser($userId);
     }
 
     public function listAttemptedLogins()
