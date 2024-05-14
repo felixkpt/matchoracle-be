@@ -251,40 +251,15 @@ class DashboardController extends Controller
         return $this->getMatchJobLogsStats($model, $task, $date);
     }
 
-    private function getCompetitionStatisticsStats($date)
-    {
-        $selects = 'SUM(job_run_counts) as total_job_run_count, SUM(competition_run_counts) as total_competition_run_counts, SUM(seasons_run_counts) as total_seasons_run_counts, SUM(games_run_counts) as total_games_run_counts';
-
-        return [
-            'all' => CompetitionStatisticJobLog::selectRaw($selects)->first(),
-            'today' => CompetitionStatisticJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
-        ];
-    }
-
-    private function getCompetitionPredictionStats($date)
-    {
-        $selects = 'SUM(job_run_counts) as total_job_run_count, SUM(competition_run_counts) as total_competition_run_counts, SUM(seasons_run_counts) as total_seasons_run_counts, SUM(games_run_counts) as total_games_run_counts';
-
-        return [
-            'all' => CompetitionPredictionStatisticJobLog::selectRaw($selects)->first(),
-            'today' => CompetitionPredictionStatisticJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
-        ];
-    }
-
-    private function getPredictionJobLogsStats($date)
-    {
-        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(prediction_run_counts) as total_fetch_run_counts, SUM(prediction_success_counts) as total_fetch_success_counts, SUM(prediction_failed_counts) as total_fetch_failed_counts, SUM(predicted_counts) as total_updated_items_counts';
-
-        return [
-            'all' => PredictionJobLog::selectRaw($selects)->first(),
-            'today' => PredictionJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
-        ];
-    }
-
     private function testimonials($date)
     {
     }
+
     private function howToSubscribe($date)
+    {
+    }
+    
+    private function whyUs($date)
     {
     }
 }

@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use App\Services\Validations\BettingStrategy\BettingStrategyValidation;
 use App\Services\Validations\BettingStrategy\BettingStrategyValidationInterface;
+use App\Services\Validations\BettingStrategyProCon\BettingStrategyProConValidation;
+use App\Services\Validations\BettingStrategyProCon\BettingStrategyProConValidationInterface;
+use App\Services\Validations\BettingTips\BettingTipsValidation;
+use App\Services\Validations\BettingTips\BettingTipsValidationInterface;
 use App\Services\Validations\Game\GameValidation;
 use App\Services\Validations\Game\GameValidationInterface;
 use App\Services\Validations\GameScoreStatus\GameScoreStatusValidation;
@@ -42,7 +46,9 @@ class ValidationServiceProvider extends ServiceProvider
         $this->app->bind(PostStatusValidationInterface::class, PostStatusValidation::class);
         $this->app->bind(GameScoreStatusValidationInterface::class, GameScoreStatusValidation::class);
         $this->app->bind(GameValidationInterface::class, GameValidation::class);
+        $this->app->bind(BettingTipsValidationInterface::class, BettingTipsValidation::class);
         $this->app->bind(BettingStrategyValidationInterface::class, BettingStrategyValidation::class);
+        $this->app->bind(BettingStrategyProConValidationInterface::class, BettingStrategyProConValidation::class);
     }
 
     /**

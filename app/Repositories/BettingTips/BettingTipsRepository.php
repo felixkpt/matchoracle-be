@@ -7,6 +7,7 @@ use App\Models\Game;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class BettingTipsRepository implements BettingTipsRepositoryInterface
 {
@@ -116,9 +117,11 @@ class BettingTipsRepository implements BettingTipsRepositoryInterface
         return response(['results' => $results]);
     }
 
-    public function subscribe()
+    public function subscribe($data)
     {
         $results = [];
+
+        Log::info('Data:', $data);
 
         return response(['message' => "Subscription was successfully."]);
     }

@@ -4,7 +4,6 @@ use App\Models\Continent;
 use App\Models\Game;
 use App\Models\GameScoreStatus;
 use App\Models\GameSource;
-use App\Models\Sanctum\PersonalAccessToken;
 use App\Models\Status;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -338,21 +337,6 @@ if (!function_exists('is_connected')) {
         } catch (Exception $e) {
             Log::critical('Internet connectivity issue: ' . $e->getMessage());
             return false;
-        }
-    }
-}
-
-if (!function_exists('sanctum_auth')) {
-    function sanctum_auth()
-    {
-        // Check if the request contains a Sanctum token
-        if ($token = request()->bearerToken()) {
-            // Attempt to find the token in the personal access tokens table
-            $accessToken = PersonalAccessToken::findToken($token);
-            if ($accessToken && $accessToken->tokenable) {
-                // Token is valid, authenticate the user
-                auth()->login($accessToken->tokenable);
-            }
         }
     }
 }

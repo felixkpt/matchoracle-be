@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\BettingStrategy\BettingStrategyRepository;
 use App\Repositories\BettingStrategy\BettingStrategyRepositoryInterface;
+use App\Repositories\BettingStrategyProCon\BettingStrategyProConRepository;
+use App\Repositories\BettingStrategyProCon\BettingStrategyProConRepositoryInterface;
 use App\Repositories\BettingTips\BettingTipsRepository;
 use App\Repositories\BettingTips\BettingTipsRepositoryInterface;
 use App\Repositories\Game\GameRepository;
@@ -55,6 +57,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(CompetitionPredictionStatisticsRepositoryInterface::class, CompetitionPredictionStatisticsRepository::class);
         $this->app->singleton(BettingTipsRepositoryInterface::class, BettingTipsRepository::class);
         $this->app->singleton(BettingStrategyRepositoryInterface::class, BettingStrategyRepository::class);
+        $this->app->singleton(BettingStrategyProConRepositoryInterface::class, BettingStrategyProConRepository::class);
     }
 
     /**

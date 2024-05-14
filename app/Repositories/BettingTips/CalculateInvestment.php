@@ -3,6 +3,7 @@
 namespace App\Repositories\BettingTips;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Str;
 
 trait CalculateInvestment
@@ -327,38 +328,21 @@ trait CalculateInvestment
     function getStake($total_gains, $odds, $options = [])
     {
 
-        $current_losing_streak = $options['current_losing_streak'] ?? null;
-        $prev_stake = $options['prev_stake'] ?? null;
-        $prev_outcome = $options['prev_outcome'] ?? null;
         $initial_stake = round($this->stakeRatio * $this->initial_bankroll, 2);
+
+        $strategies = new BettingStrategies($this->initial_bankroll, $initial_stake, $total_gains, $odds, $options);
 
         $strategy = $this->strategy;
 
-        if ($strategy == 'flat') {
-
-            return $initial_stake;
-        } else if ($strategy == 'recovery') {
-
-            $profit_to_make = $this->initial_bankroll * 0.1;
-
-            $tl = 0;
-            if ($total_gains < 0) {
-                $tl = abs($total_gains);
-            }
-
-            if ($current_losing_streak > 8) {
-                return $initial_stake;
-            } else {
-                $stake = round($profit_to_make + ($tl) / ($odds - 1), 2);
-                return $stake;
-            }
-        } else if ($strategy == 'martingle') {
-
-            if ($prev_outcome == 'L' && $prev_stake) {
-                return $prev_stake * 2;
-            }
-
-            return $initial_stake;
+        switch ($strategy) {
+            case 'flat':
+                return $strategies->flat();
+            case 'recovery':
+                return $strategies->recovery();
+            case 'martingle':
+                return $strategies->martingle();
+            default:
+                throw new Exception("Unknown strategy: {$strategy}");
         }
     }
 }
