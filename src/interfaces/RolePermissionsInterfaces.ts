@@ -29,7 +29,7 @@ interface PermissionInterface {
 interface RouteInterface {
   uri: string;
   methods: string;
-  uri_methods: string;
+  uri_and_methods: string;
   slug: string;
   title: string;
   hidden: boolean;

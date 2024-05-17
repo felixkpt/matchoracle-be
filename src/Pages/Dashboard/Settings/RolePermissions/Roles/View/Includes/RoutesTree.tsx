@@ -3,6 +3,10 @@ import debounce from 'lodash/debounce';
 import CheckboxTreeManager from './CheckboxTreeManager';
 import { RouteCollectionInterface } from '@/interfaces/RolePermissionsInterfaces';
 import { PermissionInterface } from '@/interfaces/RolePermissionsInterfaces';
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import React, { useState } from 'react';
+import { Icon } from '@iconify/react/dist/iconify.js';
+
 interface Props {
     child: RouteCollectionInterface;
     permissions: PermissionInterface[];
@@ -10,6 +14,8 @@ interface Props {
     indent: number
     counter: number
     isInitialRender: boolean
+    hiddenIds: string[]
+    setHiddenIds: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 // Constants used for managing the component behavior
@@ -55,7 +61,7 @@ function getRouteIcon(allPermissions: any[], uri: string) {
 }
 
 // The main RoutesTree component
-const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, indent, counter, isInitialRender }) => {
+const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, indent, counter, isInitialRender, hiddenIds, setHiddenIds }) => {
 
     const { routes, children } = child
 
@@ -84,7 +90,6 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
 
                 const inputs = targetElement.querySelectorAll<HTMLInputElement>(`input[id$="-child-checkbox"]:not([disabled]), input[id$="-parent-checkbox"]`);
                 const unchecked = targetElement.querySelectorAll(`input[type="checkbox"]:not(:checked).${ROUTE_CHECKBOX_CLASS}`).length;
-                const checked = targetElement.querySelectorAll(`input[type="checkbox"]:checked.${ROUTE_CHECKBOX_CLASS}`).length;
 
                 inputs.forEach((input) => {
                     input.indeterminate = false
@@ -149,9 +154,20 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
     }
 
     // Function to handle toggling the display of child routes
-    function handleToggle(key: string) {
-        const target = document.getElementById(`chld-${PARENT_FOLDER_ID_PREFIX}${key}-${PARENT_CHILDREN_CLASS}`);
+    function handleToggle(id: string) {
+        const target = document.getElementById(id);
         target?.classList.toggle('d-none');
+
+        const targetUpdated = document.getElementById(id);
+        const isHidden = targetUpdated?.classList.contains('d-none')
+
+        if (isHidden) {
+            if (!hiddenIds.find((_id) => _id === id)) {
+                setHiddenIds((curr) => [...curr, id])
+            }
+        } else {
+            setHiddenIds(hiddenIds.filter((_id) => _id !== id))
+        }
     }
 
     function handleCheckedSingle(e: Event | null = null) {
@@ -201,11 +217,11 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
     // Function to determine whether a checkbox should be checked or not
     function shouldCheckChildCheckbox(route: RouteInterface, permissions: PermissionInterface[], parentChecked: boolean) {
 
-        const inputId: string = `${Str.uriMethods(route.uri_methods)}-child-checkbox`
+        const inputId: string = `${Str.uriMethods(route.uri_and_methods)}-child-checkbox`
 
         setTimeout(() => {
 
-            const exists = parentChecked === false ? route.checked : route.checked || found(route.uri_methods, permissions)
+            const exists = parentChecked === false ? route.checked : route.checked || found(route.uri_and_methods, permissions)
 
             if (exists) {
                 const checkbox = document.getElementById(inputId) as HTMLInputElement
@@ -225,6 +241,42 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
         }, 200);
 
     }
+
+    // React state to track order of items
+    const [itemList, setItemList] = useState(children);
+
+    // Function to update list on drop
+    const handleDrop = (droppedItem: any) => {
+
+        // Ignore drop outside droppable container
+        if (!droppedItem.destination) return;
+        const updatedList = [...itemList];
+        // Remove dragged item
+        const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
+        // Add dropped item
+        updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
+        // Update State
+        setItemList(updatedList);
+        isInitialRender = true
+    };
+
+    // React state to track order of items
+    const [routesList, setRoutesList] = useState(routes);
+
+    // Function to update list on drop
+    const handleDropRoutes = (droppedItem: any) => {
+
+        // Ignore drop outside droppable container
+        if (!droppedItem.destination) return;
+        const updatedList = [...routesList];
+        // Remove dragged item
+        const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
+        // Add dropped item
+        updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
+        // Update State
+        setRoutesList(updatedList);
+        isInitialRender = true
+    };
 
     let filname: string | null = null
     let echo: string | null = null
@@ -248,8 +300,8 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                             value={folder}
                         />
                     </label>
-                    <label className='toggler text-base flex-grow-1 border flex-grow-1 py-2 ps-1 pe-0 rounded' onClick={() => handleToggle(currentId)}>
-                        <h5>{Str.title(child.folder || '--')}</h5>
+                    <label className="toggler text-base flex-grow-1 border flex-grow-1 py-2 ps-1 pe-0 rounded" onClick={() => handleToggle(`chld-${PARENT_FOLDER_ID_PREFIX}${currentId}-${PARENT_CHILDREN_CLASS}`)}>
+                        <h5>{Str.title(Str.afterLast(child.folder, '/') || '--')}</h5>
                     </label>
                 </div>
                 <div className='bg-light col-5 d-flex rounded gap-1'>
@@ -275,120 +327,167 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                 </div>
             </div>
             <div>
-                {
-                    routes.length > 0 &&
-                    <div id={`chld-${PARENT_FOLDER_ID_PREFIX}${currentId}-parent-children`} className={`parent-children my-1 ms-3 shadow px-1 py-2`}>
-                        <table className='routes-table table table-responsive shadow-sm table-striped table-hover'>
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th className='align-text-start'>Route name</th>
-                                    <th className='align-text-start'>Methods</th>
-                                    <th className='align-text-start'>Icon/Hidden</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                {routes.map((route, i) => {
-
-                                    if (echo && route.filename == echo)
-                                        echo = null
-
-                                    if (filname === null || filname != route.filename) {
-                                        filname = route.filename
-                                        echo = filname
-                                    }
-
-                                    return (
-                                        <>
-                                            {
-                                                echo &&
-                                                <tr>
-                                                    <td colSpan={4} className='col-12 fst-italic'>--- {echo && echo} ---</td>
-                                                </tr>
-                                            }
-                                            <tr className='link routes-parent route-section' key={`${i}+${folder}_${route.slug}`} style={{ opacity: route.checked ? 0.5 : 1 }}>
-                                                <td className='col-1 border border-right cursor-pointer'>
-                                                    <label className="form-check-label py-1 px-3 d-flex gap-2 rounded w-100 cursor-pointer" title={route.uri_methods}>
-                                                        <input
-                                                            type='checkbox'
-                                                            value={route.uri_methods}
-                                                            id={`${Str.uriMethods(route.uri_methods)}-child-checkbox`}
-                                                            className={`${ROUTE_CHECKBOX_CLASS} form-check-input me-2`}
-                                                            onChange={(e) => debouncedHandleCheckedSingle(e, currentId, true, true)}
-                                                            defaultChecked=
-                                                            {(isInitialRender && permissions && shouldCheckChildCheckbox(route, permissions, parentChecked)) || false}
-                                                            disabled={route.checked}
-                                                        />
-                                                        <input
-                                                            type='hidden'
-                                                            className='route-title'
-                                                            value={route.title}
-                                                        />
-                                                        <input
-                                                            type='hidden'
-                                                            className='folder-hidden'
-                                                            value={route.hidden.toString()}
-                                                        />
-                                                        <input
-                                                            type='hidden'
-                                                            className='folder-is_public'
-                                                            value={route.is_public.toString()}
-                                                        />
-                                                    </label>
-                                                </td>
-                                                <td className='col-6 align-text-start' title={route.uri_methods}>
-                                                    {route.title}
-                                                </td>
-                                                <td className='col-3 align-text-start' title={route.methods || 'GET'}>
-                                                    <span className="d-inline-block text-truncate" style={{ maxWidth: '170px' }}>
-                                                        {route.methods || 'GET'}
-                                                    </span>
-                                                </td>
-                                                <td className='col-2 align-text-start'>
-                                                    <div className='bg-light col-4 d-flex justify-content-between rounded gap-1'>
-                                                        <label>
-                                                            <input placeholder='Icon' defaultValue={getRouteIcon(allPermissions, route.uri_methods)} style={{ width: '100px' }} type="text" className='folder-icon ms-1 border border-secondary rounded' />
-                                                        </label>
-                                                        <label className='form-check-label d-flex align-items-center cursor-pointer'>
-                                                            <input
-                                                                type='checkbox'
-                                                                defaultChecked={route.hidden}
-                                                                className='d-none folder-hidden'
-                                                            />
-                                                            {route.hidden ? 'True' : 'False'}
-                                                        </label>
-                                                        <label>
-                                                            <input
-                                                                type='hidden'
-                                                                value={route.is_public.toString()}
-                                                                className='d-nonen folder-is_public'
-                                                            />
-                                                        </label>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </>
-                                    )
-                                })
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-
-                <>
+                <div id={`chld-${PARENT_FOLDER_ID_PREFIX}${currentId}-${PARENT_CHILDREN_CLASS}`} className={`${PARENT_CHILDREN_CLASS} my-1 ms-2 shadow-sm px-1 py-2 ${hiddenIds.includes(`chld-${PARENT_FOLDER_ID_PREFIX}${currentId}-${PARENT_CHILDREN_CLASS}`) ? 'd-none' : ''}`}>
                     {
-                        children.length > 0 &&
-                        <div className={`has-dropdown ps-${indent}`}>
-                            <div className={`list-unstyled dropdown COUNTER${counter}`}>
-                                {
-                                    children.map((child) => <RoutesTree key={child.folder} indent={indent} child={child} permissions={permissions} allPermissions={allPermissions} counter={counter} isInitialRender={isInitialRender} />)
-                                }
-                            </div>
-                        </div>
+                        routesList.length > 0 &&
+                        <DragDropContext onDragEnd={handleDropRoutes}>
+                            <Droppable droppableId={currentId}>
+                                {(provided: any) => (
+
+                                    <table className='routes-table table table-responsive shadow-sm table-striped table-hover'
+                                        {...provided.droppableProps}
+                                        ref={provided.innerRef}>
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th className='align-text-start'>Route name</th>
+                                                <th className='align-text-start'>Methods</th>
+                                                <th className='align-text-start'>Icon/Hidden</th>
+                                            </tr>
+                                        </thead>
+                                        <>
+
+                                            {routesList.map((route, i) => {
+
+                                                return (
+                                                    <Draggable key={currentId + i} draggableId={currentId + i} index={i}>
+                                                        {(provided: any) => {
+
+                                                            if (echo && route.filename == echo) {
+                                                                echo = null
+                                                            }
+
+                                                            if (filname === null || filname != route.filename) {
+                                                                filname = route.filename
+                                                                echo = filname
+                                                            }
+
+                                                            return (
+                                                                <tbody key={`${i}+${folder}_${route.slug}`}
+                                                                    ref={provided.innerRef}
+                                                                    {...provided.dragHandleProps}
+                                                                    {...provided.draggableProps}>
+                                                                    {
+                                                                        echo &&
+                                                                        <tr>
+                                                                            <td colSpan={4} className='col-12 fst-italic'>--- {echo} ---</td>
+                                                                        </tr>
+                                                                    }
+                                                                    <tr className='link routes-parent route-section' style={{ opacity: route.checked ? 0.5 : 1 }}>
+                                                                        <td className='col-1 border border-right cursor-pointer'>
+                                                                            <label className="form-check-label py-1 px-3 d-flex gap-2 rounded w-100 cursor-pointer" title={route.uri_and_methods}>
+                                                                                <input
+                                                                                    type='checkbox'
+                                                                                    value={route.uri_and_methods}
+                                                                                    id={`${Str.uriMethods(route.uri_and_methods)}-child-checkbox`}
+                                                                                    className={`${ROUTE_CHECKBOX_CLASS} form-check-input me-2`}
+                                                                                    onChange={(e) => debouncedHandleCheckedSingle(e, currentId, true, true)}
+                                                                                    defaultChecked=
+                                                                                    {(permissions.length && shouldCheckChildCheckbox(route, permissions, parentChecked)) || false}
+                                                                                    disabled={route.checked}
+                                                                                />
+                                                                                <input
+                                                                                    type='hidden'
+                                                                                    className='route-title'
+                                                                                    value={route.title}
+                                                                                />
+                                                                                <input
+                                                                                    type='hidden'
+                                                                                    className='folder-hidden'
+                                                                                    value={route.hidden.toString()}
+                                                                                />
+                                                                                <input
+                                                                                    type='hidden'
+                                                                                    className='folder-is_public'
+                                                                                    value={route.is_public.toString()}
+                                                                                />
+                                                                            </label>
+                                                                        </td>
+                                                                        <td className='col-6 align-text-start' title={route.uri_and_methods}>
+                                                                            {route.title}
+                                                                        </td>
+                                                                        <td className='col-3 align-text-start' title={route.methods || 'GET'}>
+                                                                            <span className="d-inline-block text-truncate" style={{ maxWidth: '170px' }}>
+                                                                                {route.methods || 'GET'}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className='col-2 align-text-start'>
+                                                                            <div className='bg-light col-4 d-flex justify-content-between rounded gap-1'>
+                                                                                <label>
+                                                                                    <input placeholder='Icon' defaultValue={getRouteIcon(allPermissions, route.uri_and_methods)} style={{ width: '100px' }} type="text" className='folder-icon ms-1 border border-secondary rounded' />
+                                                                                </label>
+                                                                                <label className='form-check-label d-flex align-items-center cursor-pointer'>
+                                                                                    <input
+                                                                                        type='checkbox'
+                                                                                        defaultChecked={route.hidden}
+                                                                                        className='d-none folder-hidden'
+                                                                                    />
+                                                                                    {route.hidden ? 'True' : 'False'}
+                                                                                </label>
+                                                                                <label>
+                                                                                    <input
+                                                                                        type='hidden'
+                                                                                        value={route.is_public.toString()}
+                                                                                        className='d-nonen folder-is_public'
+                                                                                    />
+                                                                                </label>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            )
+                                                        }
+                                                        }
+                                                    </Draggable>
+                                                )
+                                            })
+                                            }
+                                        </>
+                                    </table>
+                                )}
+                            </Droppable>
+                        </DragDropContext>
                     }
-                </>
+
+                    <>
+                        {
+                            itemList.length > 0 &&
+                            <div className={`has-dropdown ps-${indent}`}>
+                                <DragDropContext onDragEnd={handleDrop}>
+                                    <Droppable droppableId={currentId}>
+                                        {(provided: any) => (
+                                            <div className={`list-unstyled dropdown COUNTER${counter}`}
+                                                {...provided.droppableProps}
+                                                ref={provided.innerRef}>
+                                                {
+                                                    itemList.map((child, i: number) => {
+                                                        return <Draggable key={currentId + i} draggableId={currentId + i} index={i}>
+                                                            {(provided: any) => (
+                                                                <div
+                                                                    className="item-container ps-1 my-1 rounded text-dark d-flex gap-2 align-items-center border draggable"
+                                                                    ref={provided.innerRef}
+                                                                    {...provided.dragHandleProps}
+                                                                    {...provided.draggableProps}
+                                                                >
+                                                                    <Icon icon="carbon:drag-vertical"></Icon>
+                                                                    <div className='col tree-section'>
+                                                                        <RoutesTree key={child.folder} indent={indent} child={child} permissions={permissions} allPermissions={allPermissions} counter={counter} isInitialRender={isInitialRender} hiddenIds={hiddenIds} setHiddenIds={setHiddenIds} />
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </Draggable>
+
+                                                    })
+
+                                                }
+                                            </div>
+                                        )}
+                                    </Droppable>
+                                </DragDropContext>
+                            </div>
+                        }
+                    </>
+                </div>
             </div>
         </div>
     )

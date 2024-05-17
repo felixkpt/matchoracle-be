@@ -7,7 +7,6 @@ import countries from './countries';
 import competitions from './competitions';
 import seasons from './seasons';
 import predictions from './predictions';
-import bettingtips from './betting-tips';
 import matches from './matches';
 import teams from './teams';
 import odds from './odds';
@@ -50,10 +49,6 @@ const dashboardRoutes = [
   {
     path: 'predictions',
     children: predictions,
-  },
-  {
-    path: 'betting-tips',
-    children: bettingtips,
   },
   {
     path: 'seasons',

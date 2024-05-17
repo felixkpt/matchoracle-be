@@ -3,6 +3,7 @@ import Str from "@/utils/Str"
 import { useEffect, useState } from "react";
 import RoutesTree from "./RoutesTree";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import SubmitButton from "@/components/SubmitButton";
 
 // Define the Props interface for the RoutesTree component
 interface Props {
@@ -26,10 +27,10 @@ const ROUTE_CHECKBOX_CLASS = 'routecheckbox';
 
 function constructMenus() {
   let topLevelFolders: HTMLElement[] = Array.from(
-    document.querySelectorAll(`div.${MAIN_CONTAINER_CLASS}.main-tree.tab-pane > div`)
+    document.querySelectorAll(`div.${MAIN_CONTAINER_CLASS}.main-tree.tab-pane > div > div > div.parent-folder`)
   );
 
-  const selector = 'div.draggable [id^="v-pills-"][id$="-tab"]';
+  const selector = 'div.draggable-main [id^="v-pills-"][id$="-tab"]';
   const elements = document.querySelectorAll(selector);
 
   const orderArray: string[] = [];
@@ -60,11 +61,10 @@ function constructMenus() {
 function constructMenu(topLevelFolders: HTMLElement[], isMenu = false) {
   const nestedRoutes = [];
 
-  let index = 0; // Initialize the index
   const counter = 0
   for (const container of topLevelFolders) {
+
     const input = container.querySelector(`input[id$="-parent-checkbox"]`) as HTMLInputElement;
-    index++
 
     if (input && (input.checked || input.indeterminate)) {
 
@@ -78,14 +78,14 @@ function constructMenu(topLevelFolders: HTMLElement[], isMenu = false) {
         const icon = iconElement.value;
         const children = constructMenuRecursively(container, isMenu, counter);
         const hidden = hiddenElement.checked;
-        const is_public = isPublicElement.value === 'true' ? true : false;
+        const is_public = isPublicElement?.value === 'true' ? true : false;
 
         let unchecked: string[] = []
         if (isMenu == false) {
           unchecked = getUncheckedCheckboxValues(container);
         }
 
-        let newChildren = removeRoutelessNodes(children)
+        const newChildren = removeRoutelessNodes(children)
 
         // Check if there's at least one route
         const routes = getRoutes(container, isMenu);
@@ -150,7 +150,7 @@ function getUncheckedCheckboxValues(container: HTMLElement): string[] {
 function constructMenuRecursively(folderElement: Element | null, isMenu: boolean, counter: number): any[] {
   counter += 1;
 
-  const childrenContainers = folderElement?.querySelectorAll(`.COUNTER${counter}>div[id^="${PARENT_FOLDER_ID_PREFIX}"]`);
+  const childrenContainers = folderElement?.querySelectorAll(`.COUNTER${counter}>div>div>div[id^="${PARENT_FOLDER_ID_PREFIX}"]`);
 
   const nestedRoutes = [];
 
@@ -178,6 +178,7 @@ function constructMenuRecursively(folderElement: Element | null, isMenu: boolean
             icon,
             hidden,
             is_public,
+            position: nestedRoutes.length + 1,
             children,
             routes: getRoutes(container, isMenu),
           });
@@ -195,7 +196,9 @@ function getRoutes(container: any, isMenu = false) {
   const routes = container.querySelectorAll(`#chld-${id}-parent-children>.routes-table .route-section`)
 
   const items = []
+  let i = 0
   for (const route of routes) {
+    i++
 
     const input = route.querySelector('input[type="checkbox"]')
 
@@ -207,7 +210,9 @@ function getRoutes(container: any, isMenu = false) {
       const is_public = route.querySelector('input.folder-is_public').value === 'true' ? true : false
 
       if (isMenu === false || hidden === false && isResolvableURI(uri))
-        items.push({ uri, title, icon, is_public })
+        items.push({
+          uri, title, icon, is_public, position: i + 1,
+        })
     }
   }
 
@@ -242,7 +247,7 @@ const PrepareRoutesTreeDraggable: React.FC<Props> = ({ routes, permissions, allP
   const handleDrop = (droppedItem: any) => {
     // Ignore drop outside droppable container
     if (!droppedItem.destination) return;
-    var updatedList = [...itemList];
+    const updatedList = [...itemList];
     // Remove dragged item
     const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
     // Add dropped item
@@ -305,6 +310,8 @@ const PrepareRoutesTreeDraggable: React.FC<Props> = ({ routes, permissions, allP
 
   }, [isInitialRender, routes, saving])
 
+  const [hiddenIds, setHiddenIds] = useState<string[]>([]);
+
   return (
     <div>
       <form
@@ -316,7 +323,7 @@ const PrepareRoutesTreeDraggable: React.FC<Props> = ({ routes, permissions, allP
         className="w-100"
       >
         <div className='d-flex justify-content-end mt-2'>
-          <button type="submit" className="btn btn-primary text-white" disabled={saving}>{saving ? 'Saving checked...' : 'Save checked'}</button>
+          <SubmitButton loading={saving}>Save Checked</SubmitButton>
         </div>
         <div className="d-flex align-items-start mt-1">
           <div className="nav flex-column nav-pills me-3 position-relative" id="v-pills-tab" role="tablist" aria-orientation="vertical">
@@ -336,12 +343,10 @@ const PrepareRoutesTreeDraggable: React.FC<Props> = ({ routes, permissions, allP
 
                         const folderCheckState = foldersCheckState.find(item => item.parentId === currentId)
 
-                        // console.log(foldersCheckState)
-
                         return <Draggable key={currentId} draggableId={currentId} index={i}>
                           {(provided: any) => (
                             <div
-                              className="item-container ps-1 my-1 rounded text-dark d-flex gap-2 align-items-center border draggable"
+                              className="item-container ps-1 my-1 rounded text-dark d-flex gap-2 align-items-center border draggable draggable-main"
                               ref={provided.innerRef}
                               {...provided.dragHandleProps}
                               {...provided.draggableProps}
@@ -386,7 +391,7 @@ const PrepareRoutesTreeDraggable: React.FC<Props> = ({ routes, permissions, allP
           </div>
 
           <div className="w-100">
-            <div className={`tab-content overflow-auto`} id="v-pills-tabContent">
+            <div className={`tab-content`} id="v-pills-tabContent">
               {
                 routes.map((child, j) => {
 
@@ -394,7 +399,11 @@ const PrepareRoutesTreeDraggable: React.FC<Props> = ({ routes, permissions, allP
                   const currentId = Str.slug((folder).replace(/^\//, ''));
 
                   return <div key={`${currentId}`} className={`tab-pane fade ${j === 0 ? 'show active' : ''} ${MAIN_CONTAINER_CLASS} main-tree COUNTER0`} id={`v-pills-${currentId}`} role="tabpanel" aria-labelledby={`v-pills-${currentId}-tab`}>
-                    <RoutesTree child={child} permissions={permissions} allPermissions={allPermissions} indent={0} counter={0} isInitialRender={isInitialRender} />
+                    <div>
+                      <div className='col tree-section'>
+                        <RoutesTree child={child} permissions={permissions} allPermissions={allPermissions} indent={0} counter={0} isInitialRender={isInitialRender} hiddenIds={hiddenIds} setHiddenIds={setHiddenIds} />
+                      </div>
+                    </div>
                   </div>
                 }
                 )

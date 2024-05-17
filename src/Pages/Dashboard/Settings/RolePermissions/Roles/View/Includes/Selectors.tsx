@@ -17,7 +17,7 @@ const Selectors = ({routes, handleSubmit, constructMenus}: Props) => {
           className="w-100"
         >
           <div className='d-flex justify-content-end'>
-            <button type="submit" className="btn btn-primary text-white" disabled={saving}>{saving ? 'Saving checked...' : 'Save checked'}</button>
+            <button type="submit" className="btn bg-success text-white" disabled={saving}>{saving ? 'Saving checked...' : 'Save checked'}</button>
           </div>
 
           <div className={`tab-content overflow-auto`} id="v-pills-tabContent">

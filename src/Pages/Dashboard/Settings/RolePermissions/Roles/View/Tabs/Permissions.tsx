@@ -112,10 +112,10 @@ const Permissions: React.FC<Props> = ({ role }) => {
                 <div className="row">
                     <div className='col-sm-12'>
                         <div className='card mt-2'>
-                            <div className='card-body'>
                                 <div className="card-header">
                                     <h4>Permissions</h4>
                                 </div>
+                            <div className='card-body overflow-auto'>
                                 {/* let us wait 4 roles, routes & permissions */}
                                 {
                                     routes && permissions && allPermissions ?
