@@ -4,11 +4,9 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Competition;
-use App\Models\Country;
 use App\Models\Season;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
-use Illuminate\Support\Facades\DB;
 
 class ForebetTestController extends Controller
 {
@@ -34,14 +32,14 @@ class ForebetTestController extends Controller
 
         request()->merge(['shallow_fetch' => true]);
 
-        $competition_id = 1330;
+        $competition_id = 1329;
         // return $this->fetchSeasons($competition_id);
 
-        // $competition = Competition::find($competition_id);
-        // $season = Season::where('competition_id', $competition->id)->where('is_current', false)->first();
+        $competition = Competition::find($competition_id);
+        $season = Season::where('competition_id', $competition->id)->where('is_current', false)->first();
         // $season = Season::where('competition_id', $competition->id)->whereYear('start_date', '2016')->first();
 
-        // return $this->fetchStandings($competition->id, $season->id);
+        return $this->fetchStandings($competition->id, $season->id);
         // return $this->fetchMatches($competition->id, $season->id, false);
         return $this->fetchMatch(215626);
     }

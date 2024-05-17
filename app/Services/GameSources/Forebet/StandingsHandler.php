@@ -221,6 +221,7 @@ class StandingsHandler
 
     private function handleFetchStandings($competition, $season, $table, $stage = null, $group = null, $type = null)
     {
+
         $standings = $table->filter('tr')->each(function ($crawler) {
 
             if ($crawler->count() > 0) {
@@ -303,7 +304,7 @@ class StandingsHandler
         $winner = null;
         foreach ($standingData as $tableData) {
 
-            if (!isset($tableData[1])) continue;
+            if (!isset($tableData[1]) || !is_array($tableData[1])) continue;
 
             $teamData = $tableData[1];
 
