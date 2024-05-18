@@ -1,7 +1,6 @@
 import Admin from '../../Pages/Dashboard/Dashboard/Index';
 import AutomationReport from '../../Pages/Dashboard/Dashboard/AutomationReport/Index';
 import settings from './settings';
-import posts from './posts';
 import continents from './continents';
 import countries from './countries';
 import competitions from './competitions';
@@ -21,10 +20,6 @@ const dashboardRoutes = [
   {
     path: 'automation-report',
     element: <DefaultLayout uri='dashboard/automation-report' permission={null} Component={AutomationReport} />,
-  },
-  {
-    path: 'posts',
-    children: posts,
   },
   {
     path: 'competitions',

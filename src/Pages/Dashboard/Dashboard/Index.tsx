@@ -6,9 +6,7 @@ const Index = () => {
 
   return (
     <div>
-      <div className="page-container">
-        <div className="main-content">
-          <div className="doc-index page-wrapper">
+      <div className="doc-index page-wrapper">
             <h2 className="page-title">{config.name} Dashboard</h2>
             <div className="container-fluid">
               <div className="row">
@@ -25,8 +23,6 @@ const Index = () => {
               <AdvancedDashboardStats />
             </div>
           </div>
-        </div>
-      </div>
     </div>
   )
 }

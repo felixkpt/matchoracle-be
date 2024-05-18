@@ -19,9 +19,9 @@ interface Props {
 }
 
 const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
-    // uri = 'admin'
+    // uri = 'admin/admin'
 
-    const { loadingUser, isAllowed, checked, loadingUserError, loadingRoutePermissions, previousUrl, setReloadKey } = useRestrictedAccess({ uri, permission, method })
+    const { loadingUser, loadingUserError, isAllowed, checkedAccess, loadingRoutePermissions, previousUrl, setReloadKey } = useRestrictedAccess({ uri, permission, method })
 
     return (
         <div>
@@ -33,21 +33,21 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                         <SideNav />
                     </div>
                     <div id="mainContent" onClick={() => publish('hideSideNav', 'hide')}>
-                        <div className='main-content my-2'>
-                            <main className='main-content-inner container-fluid p-3 min-h-100vh position-relative'>
+                        <div className='main-content my-2 d-flex flex-column justify-content-between align-items-between'>
+                            <main className='main-content-inner container-fluid p-3 position-relative min-h-100vh'>
                                 {
                                     loadingUser && !isAllowed ?
                                         <div style={{ fontSize: '20px' }}>
                                             <Loader position="absolute" height="100vh" message='Please wait, logging you in...' />
                                         </div>
                                         :
-                                        isAllowed === true && checked === true ?
+                                        isAllowed === true && checkedAccess === true ?
                                             <Component />
                                             :
                                             (
                                                 !loadingUserError || loadingUserError == 'Unauthenticated.' ?
                                                     (
-                                                        loadingRoutePermissions === false && checked === true ?
+                                                        loadingRoutePermissions === false && checkedAccess === true ?
                                                             (
                                                                 environment === 'local' ?
                                                                     <Error403 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={setReloadKey} />

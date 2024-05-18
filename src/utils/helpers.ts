@@ -48,6 +48,7 @@ interface Config {
     release: string;
     urls: {
         home: string;
+        rolePermissions: string
     };
     storageName: string;
 }
@@ -57,7 +58,8 @@ export const config: Config = {
     version: 'v1.0',
     release: String(new Date().getFullYear()),
     urls: {
-        home: import.meta.env.VITE_APP_HOME || '/'
+        home: import.meta.env.VITE_APP_HOME || '/',
+        rolePermissions: import.meta.env.VITE_APP_ROLE_PERMISSION_PREFIX || '/auth'
     },
     storageName: Str.slug(import.meta.env.VITE_APP_NAME || 'App name')
 };

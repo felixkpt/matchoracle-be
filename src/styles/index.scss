@@ -67,25 +67,9 @@ a:focus {
   width: 90% !important;
 }
 
-.main-content {
-
-  padding: 0 0.5rem;
-}
-
-.main-content-inner {
-  padding: 0.5rem;
-  box-shadow: 0 0.1rem 0.6rem rgba(0, 0.15, 0, 0.15) !important;
-  border-radius: 0.5rem;
-}
-
 .page-title {
   margin-top: .2rem;
   margin-bottom: 1.5rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  ;
-  border: 1px solid var(--bs-gray-300);
-  box-shadow: 0 0.1rem 1.1rem rgba(0, 0.15, 0, 0.15) !important;
 }
 
 .view-list {
@@ -419,7 +403,7 @@ p {
   }
 
   li.active a {
-    background-color: #0366d6;
+    background-color: var(--bs-primary);
     border-color: transparent;
     color: white;
     min-width: 32px;
@@ -542,4 +526,28 @@ p {
 
 .scores-sec {
   min-width: 40px;
+}
+
+.card-primary {
+  border-color: var(--bs-gray-700) !important;
+
+  .card-header {
+    background: var(--bs-gray-700);
+    color: var(--bs-gray-100);
+  }
+
+  .card-text {
+    color: var(--bs-gray-700) !important;
+  }
+
+  &.card-primary-hover:hover {
+    cursor: default;
+    background: var(--bs-gray-700);
+    color: var(--bs-gray-100);
+
+    .card-text {
+      color: var(--bs-gray-100)!important;
+    }
+
+  }
 }

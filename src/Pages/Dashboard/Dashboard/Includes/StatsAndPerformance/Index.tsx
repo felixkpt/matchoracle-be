@@ -1,11 +1,11 @@
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { NavLink } from 'react-router-dom'
 import DetailedMatchesInfo from '../DetailedMatchesInfo'
-import Loader from '@/components/Loader'
 import { DashboardStatsInterface } from '@/interfaces/FootballInterface'
 import useAxios from '@/hooks/useAxios'
 import { useEffect, useState } from 'react'
 import BettingTipsStats from './BettingTipsStats'
+import NoContentMessage from '@/components/NoContentMessage'
 
 type Props = {
 }
@@ -36,34 +36,34 @@ const Index = ({ }: Props) => {
                         <div className="row">
                             <div className="col-lg-6 mb-4">
                                 <NavLink to={`/dashboard/matches`} className={'link-unstyled'}>
-                                    <div className="card shadow">
-                                        <div className="card-header bg-secondary text-white">
+                                    <div className="card card-primary">
+                                        <div className="card-header">
                                             <h5 className='d-flex align-items-center gap-1'>
                                                 <Icon width={'2rem'} icon={`${'game-icons:soccer-kick'}`} />
                                                 <span>Matches detailed info</span>
                                             </h5>
                                         </div>
                                         <div className="card-body text-center">
-                                            {
-                                                stats?.advanced_matches ?
-                                                    <DetailedMatchesInfo stats={stats.advanced_matches} />
-                                                    :
-                                                    <Loader />
-                                            }
+                                            <DetailedMatchesInfo
+                                                loading={loading}
+                                                errors={errors}
+                                                stats={stats?.advanced_matches}
+                                            />
                                         </div>
                                     </div>
                                 </NavLink>
                             </div>
                             <div className="col-lg-6 mb-4">
                                 <NavLink to={`/dashboard/settings/system/predictions-performance`} className={'link-unstyled'}>
-                                    <div className="card shadow">
-                                        <div className="card-header bg-secondary text-white">
+                                    <div className="card card-primary">
+                                        <div className="card-header">
                                             <h5 className='d-flex align-items-center gap-1'>
                                                 <Icon width={'2rem'} icon={`${'mdi:chart-line-variant'}`} />
                                                 <span>Predictions performace overview</span>
                                             </h5>
                                         </div>
                                         <div className="card-body text-center">
+                                            <NoContentMessage />
                                         </div>
                                     </div>
                                 </NavLink>
@@ -74,15 +74,12 @@ const Index = ({ }: Props) => {
                 </div>
             </div>
             <div className="col-xxl-4">
-                {
-                    stats?.betting_tips_statistics ?
-                        <BettingTipsStats stats={stats.betting_tips_statistics} />
-                        :
-                        <Loader />
-                }
-
+                <BettingTipsStats
+                    loading={loading}
+                    errors={errors}
+                    stats={stats?.betting_tips_statistics}
+                />
             </div>
-
         </div>
     )
 }

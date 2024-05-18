@@ -5,9 +5,9 @@ import Str from '@/utils/Str';
 
 const Index = () => {
   // begin component common config
-  const pluralName = 'Statuses'
-  const singularName = 'Status'
-  const uri = '/dashboard/settings/picklists/statuses/default'
+  const pluralName = 'Competition Prediction Logs'
+  const singularName = 'Competition Prediction Log'
+  const uri = '/dashboard/competitions/prediction-logs'
   const componentId = Str.slug(pluralName)
   const [modelDetails, setModelDetails] = useState({})
   const search = true
@@ -17,16 +17,24 @@ const Index = () => {
       key: 'id',
     },
     {
-      label: 'Status Name',
-      key: 'name',
+      label: 'Competition',
+      key: 'competition.name',
     },
     {
-      label: 'Icon',
-      key: 'Icon',
+      label: 'Date',
+      key: 'date',
     },
     {
-      label: 'Class',
-      key: 'class',
+      key: 'total_games',
+    },
+    {
+      key: 'predictable_games',
+    },
+    {
+      key: 'predicted_games',
+    },
+    {
+      key: 'unpredicted_games',
     },
     { key: 'Created_by' },
     {
@@ -44,9 +52,6 @@ const Index = () => {
     <div>
       <h3>{pluralName} List</h3>
       <div>
-        <div className='d-flex justify-content-end'>
-          <button type="button" className="btn btn-info text-white" data-bs-toggle="modal" data-bs-target={`#${componentId}Modal`}>Create {singularName}</button>
-        </div>
         <AutoTable
           baseUri={uri}
           columns={columns}

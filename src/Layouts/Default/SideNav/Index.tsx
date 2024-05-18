@@ -6,7 +6,7 @@ import MenuTree from './MenuTree';
 import RoutesList from './RoutesList';
 import Select from 'react-select';
 import { useRolePermissionsContext } from '@/contexts/RolePermissionsContext';
-import Loader from '@/components/Loader';
+import MenuLoader from './MenuLoader';
 
 const Index = () => {
   const { user } = useAuth();
@@ -86,14 +86,7 @@ const Index = () => {
               }
             })}
           </ul>
-        ) : (
-          <div className='ps-2 pt-3'>
-            {!currentRole || loading ?
-              <Loader justify='start' />
-              : `No menus associated with role.`
-            }
-          </div>
-        )}
+        ) : <MenuLoader currentRole={currentRole} loading={loading} user={user} />}
       </>
     );
   }, [user, userMenu, loading]);

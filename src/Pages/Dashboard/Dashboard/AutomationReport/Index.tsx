@@ -122,7 +122,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard stats={stats?.matches_job_logs ? stats.matches_job_logs.historical_results : null} jobMessage="Matches" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.historical_results : null} jobMessage="Matches" />
                                 </div>
                             </NavLink>
                         </div>
@@ -137,7 +137,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard stats={stats?.matches_job_logs ? stats.matches_job_logs.recent_results : null} jobMessage="Matches" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.recent_results : null} jobMessage="Matches" />
                                 </div>
                             </NavLink>
                         </div>
@@ -152,7 +152,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard stats={stats?.matches_job_logs ? stats.matches_job_logs.shallow_fixtures : null} jobMessage="Matches" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.shallow_fixtures : null} jobMessage="Matches" />
                                 </div>
                             </NavLink>
                         </div>
@@ -167,7 +167,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard stats={stats?.matches_job_logs ? stats.matches_job_logs.fixtures : null} jobMessage="Matches" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.fixtures : null} jobMessage="Matches" />
                                 </div>
                             </NavLink>
                         </div>
@@ -186,7 +186,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard stats={stats?.match_job_logs ? stats.match_job_logs.historical_results : null} jobMessage="Match" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.historical_results : null} jobMessage="Match" />
                                 </div>
                             </NavLink>
                         </div>
@@ -201,7 +201,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard stats={stats?.match_job_logs ? stats.match_job_logs.recent_results : null} jobMessage="Match" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.recent_results : null} jobMessage="Match" />
                                 </div>
                             </NavLink>
                         </div>
@@ -216,7 +216,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard stats={stats?.match_job_logs ? stats.match_job_logs.shallow_fixtures : null} jobMessage="Match" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.shallow_fixtures : null} jobMessage="Match" />
                                 </div>
                             </NavLink>
                         </div>
@@ -231,7 +231,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard stats={stats?.match_job_logs ? stats.match_job_logs.fixtures : null} jobMessage="Match" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.fixtures : null} jobMessage="Match" />
                                 </div>
                             </NavLink>
                         </div>
@@ -252,12 +252,7 @@ const Index = () => {
                                             </h5>
                                         </div>
                                         <div className="card-body text-center">
-                                            {
-                                                stats?.competition_statistics_logs ?
-                                                    <CompetitionStatsCard stats={stats.competition_statistics_logs} />
-                                                    :
-                                                    <Loader />
-                                            }
+                                            <CompetitionStatsCard loading={loading} errors={errors} stats={stats?.competition_statistics_logs} />
                                         </div>
                                     </NavLink>
                                 </div>
@@ -268,16 +263,11 @@ const Index = () => {
                                         <div className="card-header bg-secondary text-white">
                                             <h5 className='d-flex align-items-center gap-1'>
                                                 <Icon width={'2rem'} icon={`${'mdi:soccer-field'}`} />
-                                                <span>Competition Prediction Stats Job</span>
+                                                <span>Compe Preds Stats Job</span>
                                             </h5>
                                         </div>
                                         <div className="card-body text-center">
-                                            {
-                                                stats?.competition_prediction_statistics_logs ?
-                                                    <CompetitionStatsCard stats={stats.competition_prediction_statistics_logs} />
-                                                    :
-                                                    <Loader />
-                                            }
+                                            <CompetitionStatsCard loading={loading} errors={errors} stats={stats?.competition_prediction_statistics_logs} />
                                         </div>
                                     </NavLink>
                                 </div>
@@ -292,12 +282,7 @@ const Index = () => {
                                             </h5>
                                         </div>
                                         <div className="card-body text-center">
-                                            {
-                                                stats?.betting_tips_statistics_logs ?
-                                                    <BettingTipsCard stats={stats.betting_tips_statistics_logs} />
-                                                    :
-                                                    <Loader />
-                                            }
+                                            <BettingTipsCard loading={loading} errors={errors} stats={stats?.betting_tips_statistics_logs} />
                                         </div>
                                     </NavLink>
                                 </div>
@@ -307,7 +292,7 @@ const Index = () => {
                 </div>
             </div>
             <div className='col-12 col-xxl-2'>
-                
+
                 <p>
                     Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nihil, libero molestias quam culpa nam neque maxime consectetur et. Ducimus quidem tempora quam alias sit modi vel velit, odit commodi autem dolorem magni eveniet facilis quas corrupti at ipsa obcaecati? Eaque dolore ipsa ipsam provident, repudiandae dolor incidunt veritatis reiciendis ad animi qui doloribus voluptatem, veniam voluptate necessitatibus vitae fuga iusto nesciunt, assumenda sapiente facere est fugiat consectetur. Atque cumque dicta odit reprehenderit nisi cum ipsa itaque voluptatum voluptatibus accusantium fugit perspiciatis et sequi voluptate fuga laborum repellat ducimus aspernatur ratione iste minima, deserunt doloribus, nulla natus. Quam ex, asperiores aliquid, pariatur mollitia eaque deleniti fugit, minima optio vel sed nemo laborum unde aut saepe neque laboriosam sint debitis? Nesciunt sed non exercitationem vitae minus, perspiciatis ducimus recusandae corporis ipsum nemo ullam fugiat esse vero eius maxime consequatur blanditiis quidem dolore natus nihil, inventore molestiae aut! Iste enim, quidem iure inventore asperiores reprehenderit qui, autem, perferendis dolore eos voluptate vero tenetur obcaecati ratione facere illum voluptas assumenda harum. Illo, cum deleniti. Itaque, voluptate voluptatum? Placeat, nobis officia tenetur error quia expedita rerum corrupti quibusdam sed omnis minus fugit, quidem, accusantium mollitia repudiandae necessitatibus debitis! Possimus id commodi, unde sint ratione error dolorum labore explicabo itaque ex cupiditate dolores, dicta porro eius expedita! Nisi, esse vel, neque dicta commodi nobis deleniti laudantium ex repudiandae temporibus molestiae ipsum voluptatum dignissimos molestias distinctio ducimus sit laborum quo corporis tempore architecto nostrum! Alias animi placeat consectetur odio ab impedit? Perferendis, architecto sequi. Fugiat rerum aliquam laborum iste quisquam temporibus consectetur culpa corporis quos quae fuga incidunt, excepturi quo nemo eos molestiae possimus hic quaerat? Obcaecati ipsum soluta natus aut quos impedit, omnis beatae laudantium aspernatur, doloribus id fuga! Modi accusantium eveniet tempora quisquam hic doloremque commodi similique quasi. Ducimus eveniet iste, repudiandae iusto inventore provident optio esse magnam fugiat quos! Eligendi quisquam quo rem saepe numquam sint quos a voluptatibus. Incidunt quis tenetur similique rem vero voluptatibus quidem, pariatur optio. Totam ad aliquid neque excepturi iusto tempora fuga reprehenderit ex, iure ullam quasi facilis ipsa voluptatum corrupti? Placeat adipisci nostrum tempore nulla similique unde cum, non inventore. Atque accusantium molestiae nostrum quasi cum, nesciunt assumenda totam. Culpa repellendus reprehenderit non impedit voluptas aperiam vitae iste quaerat, unde temporibus magnam aspernatur omnis? Dolor delectus repellendus nulla voluptas totam corporis, dolore nesciunt sed deserunt dolorem eligendi harum nostrum labore. Quos expedita totam veniam magni ad placeat?
                 </p>

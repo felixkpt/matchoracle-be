@@ -40,8 +40,8 @@ const TopMainStats = () => {
             <div className="row justify-content-center">
                 <div className="col-lg-6 col-xl-4 mb-4">
                     <NavLink to={`/dashboard/countries`} className={'link-unstyled'}>
-                        <div className="card shadow">
-                            <div className="card-header bg-secondary text-white">
+                        <div className="card card-primary">
+                            <div className="card-header">
                                 <h5 className='d-flex align-items-center gap-1'>
                                     <Icon width={'2rem'} icon={`${'gis:search-country'}`} />
                                     <span>Countries</span>
@@ -87,8 +87,8 @@ const TopMainStats = () => {
                 </div>
                 <div className="col-lg-6 col-xl-4 mb-4">
                     <NavLink to={`/dashboard/competitions`} className={'link-unstyled'}>
-                        <div className="card shadow">
-                            <div className="card-header bg-secondary text-white">
+                        <div className="card card-primary">
+                            <div className="card-header">
                                 <h5 className='d-flex align-items-center gap-1'>
                                     <Icon width={'2rem'} icon={`${'twemoji:trophy'}`} />
                                     <span>Competitions</span>
@@ -108,8 +108,8 @@ const TopMainStats = () => {
                 </div>
                 <div className="col-lg-6 col-xl-4 mb-4">
                     <NavLink to={`/dashboard/competitions?tab=oddsenabled`} className={'link-unstyled'}>
-                        <div className="card shadow">
-                            <div className="card-header bg-secondary text-white">
+                        <div className="card card-primary">
+                            <div className="card-header">
                                 <h5 className='d-flex align-items-center gap-1'>
                                     <Icon width={'2rem'} icon={`${'bx:bxs-trophy'}`} />
                                     <span>Odds Enabled Competitions</span>
@@ -130,8 +130,8 @@ const TopMainStats = () => {
                 </div>
                 <div className="col-lg-6 col-xl-4 mb-4">
                     <NavLink to={`/dashboard/teams`} className={'link-unstyled'}>
-                        <div className="card shadow">
-                            <div className="card-header bg-secondary text-white">
+                        <div className="card card-primary">
+                            <div className="card-header">
                                 <h5 className='d-flex align-items-center gap-1'>
                                     <Icon width={'2rem'} icon={`${'material-symbols:event-upcoming-sharp'}`} />
                                     <span>Seasons</span>
@@ -151,8 +151,8 @@ const TopMainStats = () => {
                 </div>
                 <div className="col-lg-6 col-xl-4 mb-4">
                     <NavLink to={`/dashboard/teams`} className={'link-unstyled'}>
-                        <div className="card shadow">
-                            <div className="card-header bg-secondary text-white">
+                        <div className="card card-primary">
+                            <div className="card-header">
                                 <h5 className='d-flex align-items-center gap-1'>
                                     <Icon width={'2rem'} icon={`${'gg:list'}`} />
                                     <span>Standings</span>
@@ -172,8 +172,8 @@ const TopMainStats = () => {
                 </div>
                 <div className="col-lg-6 col-xl-4 mb-4">
                     <NavLink to={`/dashboard/teams`} className={'link-unstyled'}>
-                        <div className="card shadow">
-                            <div className="card-header bg-secondary text-white">
+                        <div className="card card-primary">
+                            <div className="card-header">
                                 <h5 className='d-flex align-items-center gap-1'>
                                     <Icon width={'2rem'} icon={`${'fluent:group-24-filled'}`} />
                                     <span>Teams</span>
@@ -196,8 +196,8 @@ const TopMainStats = () => {
             <div className="row justify-content-center">
                 <div className="col-lg-6 col-xl-4 mb-4">
                     <NavLink to={`/dashboard/matches`} className={'link-unstyled'}>
-                        <div className="card shadow">
-                            <div className="card-header bg-secondary text-white">
+                        <div className="card card-primary">
+                            <div className="card-header">
                                 <h5 className='d-flex align-items-center gap-1'>
                                     <Icon width={'2rem'} icon={`${'game-icons:soccer-kick'}`} />
                                     <span>Matches</span>
@@ -217,8 +217,8 @@ const TopMainStats = () => {
                 </div>
                 <div className="col-lg-6 col-xl-4 mb-4">
                     <NavLink to={`/dashboard/predictions`} className={'link-unstyled'}>
-                        <div className="card shadow">
-                            <div className="card-header bg-secondary text-white">
+                        <div className="card card-primary">
+                            <div className="card-header">
                                 <h5 className='d-flex align-items-center gap-1'>
                                     <Icon width={'2rem'} icon={`${'mdi:soccer-field'}`} />
                                     <span>Predictions</span>
@@ -238,8 +238,8 @@ const TopMainStats = () => {
                 </div>
                 <div className="col-lg-6 col-xl-4 mb-4">
                     <NavLink to={`/dashboard/odds`} className={'link-unstyled'}>
-                        <div className="card shadow">
-                            <div className="card-header bg-secondary text-white">
+                        <div className="card card-primary">
+                            <div className="card-header">
                                 <h5 className='d-flex align-items-center gap-1'>
                                     <Icon width={'2rem'} icon={`${'mdi:soccer-field'}`} />
                                     <span>Odds</span>

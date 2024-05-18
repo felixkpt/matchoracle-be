@@ -22,26 +22,25 @@ const useRestrictedAccess = ({ uri, permission, method }: Props) => {
   const { userCan } = usePermissions();
   const allowedRoutes = ['error-404', 'login'];
   const [isAllowed, setIsAllowed] = useState(false);
-  const [checked, setChecked] = useState(false);
+  const [checkedAccess, setCheckedAccess] = useState(false);
   const [tried, setTried] = useState(false);
+  const [refreshedCurrentRole, setRefreshedCurrentRole] = useState(false);
   const [previousUrl, setPreviousUrl] = useState<string | null>(null);
   const testPermission = permission || uri;
 
   // useEffect to check permission and loading state
   useEffect(() => {
-    console.log('....')
-
-    console.log(verified, loadedUser, testPermission, loadingRoutePermissions)
-
     if ((verified || loadedUser) && testPermission && loadingRoutePermissions === false) {
+
       if (!allowedRoutes.includes(testPermission)) {
-        console.log('TTT', testPermission, method)
+
         const isAllowed = userCan(testPermission, method || 'get');
-        console.log(isAllowed)
         setIsAllowed(isAllowed);
       }
-      setChecked(true);
+
+      setCheckedAccess(true);
     }
+
   }, [verified, loadingRoutePermissions, permission, routePermissions, loadedUser, reloadKey]);
 
   // useEffect to fetch user data and refresh current role
@@ -59,6 +58,7 @@ const useRestrictedAccess = ({ uri, permission, method }: Props) => {
   useEffect(() => {
     if (currentRole === undefined) {
       refreshCurrentRole();
+      setRefreshedCurrentRole(true)
     }
   }, [currentRole]);
 
@@ -87,21 +87,21 @@ const useRestrictedAccess = ({ uri, permission, method }: Props) => {
 
   // useEffect to fetch route permissions on reloadKey change
   useEffect(() => {
-    if (reloadKey > 0) {
+    if (reloadKey > 0 || routePermissions.length === 0) {
       fetchRoutePermissions();
     }
   }, [reloadKey]);
 
   // useEffect to redirect to login if not allowed and loadingUser is false
   useEffect(() => {
-    console.log('loadingUser:', loadingUser, 'loadedUser:', loadedUser, 'isAllowed:', isAllowed, 'checked:', checked, 'user:', user)
-    if (loadedUser && !user && !isAllowed && checked) {
+    console.log('loadingUser:', loadingUser, 'loadedUser:', loadedUser, 'isAllowed:', isAllowed, 'checkedAccess:', checkedAccess, 'user:', user, 'loadingRoutePermissions', loadingRoutePermissions, 'refreshedCurrentRole', refreshedCurrentRole, 'currentRole', currentRole)
+    if (!loadingRoutePermissions && loadedUser && !user && !isAllowed && checkedAccess && refreshedCurrentRole) {
       setRedirectTo(location.pathname);
       navigate('/login');
     }
-  }, [loadingUser, loadedUser, isAllowed, checked, user]);
+  }, [loadingUser, loadedUser, isAllowed, checkedAccess, user, loadingRoutePermissions]);
 
-  return { loadingUser, isAllowed, checked, loadingUserError, loadingRoutePermissions, previousUrl, setReloadKey }
+  return { loadingUser, loadedUser, loadingUserError, checkedAccess, isAllowed, loadingRoutePermissions, previousUrl, setReloadKey }
 }
 
 export default useRestrictedAccess

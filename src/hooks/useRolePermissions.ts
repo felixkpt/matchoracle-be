@@ -3,6 +3,7 @@ import useAxios from '@/hooks/useAxios';
 import { useAuth } from '@/contexts/AuthContext';
 import useFetchUserRolesAndDirectPermissions from './useFetchUserRolesAndDirectPermissions';
 import { PermissionInterface, RoleInterface, RouteCollectionInterface } from '../interfaces/RolePermissionsInterfaces';
+import { config } from '@/utils/helpers';
 
 const useRolePermissions = () => {
     const { get } = useAxios();
@@ -13,10 +14,13 @@ const useRolePermissions = () => {
     const [loadingRoutePermissions, setLoadingRoutePermissions] = useState(true);
     const [userMenu, setUserMenu] = useState<RouteCollectionInterface[]>([]);
     const [expandedRootFolders, setExpandedRootFolders] = useState<string>('');
-    const { roles, directPermissions, setRefresh: fetchRolesAndDirectPermissions } = useFetchUserRolesAndDirectPermissions()
+    const { roles, directPermissions, setRefresh:refreshUserRolesAndDirectPermissions } = useFetchUserRolesAndDirectPermissions()
 
     const fetchRoutePermissions = async (roleId = null) => {
-        if (!currentRole) return false;
+
+        if (!currentRole) {
+            return false
+        }
 
         // When roleId is given, let us NOT refetch routePermissions if the following condition fails
         if (roleId && String(currentRole.id) !== roleId) return false;
@@ -24,9 +28,9 @@ const useRolePermissions = () => {
         setLoadingRoutePermissions(true);
 
         try {
-            const routePermissionsResponse = await get(`/dashboard/settings/role-permissions/roles/view/${currentRole.id}/get-role-route-permissions`);
+            const routePermissionsResponse = await get(config.urls.rolePermissions + `/role-permissions/roles/view/${currentRole.id}/get-role-route-permissions`);
 
-            if (routePermissionsResponse) {
+            if (routePermissionsResponse && !routePermissionsResponse.status) {
                 setRoutePermissions(routePermissionsResponse || []);
             }
         } catch (error) {
@@ -36,13 +40,15 @@ const useRolePermissions = () => {
         setLoadingRoutePermissions(false);
     };
 
-    function refreshCurrentRole() {
+    async function refreshCurrentRole() {
+
         if (user) {
             setCurrentRole(() => {
-                fetchRolesAndDirectPermissions((curr: number) => curr = curr + 1);
+                refreshUserRolesAndDirectPermissions((curr: number) => curr = curr + 1);
                 return undefined;
             });
         }
+        setLoadingRoutePermissions(false)
     }
 
     useEffect(() => {
@@ -50,6 +56,7 @@ const useRolePermissions = () => {
             const defaultRole = user?.default_role_id ? roles.find((role) => String(role.id) === String(user.default_role_id)) : roles[0];
             setCurrentRole(defaultRole || roles[0]);
         }
+
     }, [roles, verified]);
 
     useEffect(() => {
@@ -62,7 +69,7 @@ const useRolePermissions = () => {
 
     useEffect(() => {
         if (currentRole) {
-            getMenu('/dashboard/settings/role-permissions/roles/view/' + currentRole.id + '/get-role-menu/?get-menu=1').then((resp) => {
+            getMenu(config.urls.rolePermissions + '/role-permissions/roles/view/' + currentRole.id + '/get-role-menu/?get-menu=1').then((resp) => {
                 if (resp === undefined) {
                     setUserMenu([]);
                 }

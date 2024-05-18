@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import useAxios from "./useAxios";
+import { config } from "@/utils/helpers";
 
 const useFetchUserRolesAndDirectPermissions = () => {
     const { get } = useAxios();
@@ -9,7 +10,7 @@ const useFetchUserRolesAndDirectPermissions = () => {
     const [refresh, setRefresh] = useState<number>(0);
 
     useEffect(() => {
-        get('/dashboard/settings/role-permissions/roles/get-user-roles-and-direct-permissions').then((rolesPermissions: any) => {
+        get(config.urls.rolePermissions + '/role-permissions/roles/get-user-roles-and-direct-permissions').then((rolesPermissions: any) => {
             if (rolesPermissions) {
                 setRoles(rolesPermissions.roles || []);
                 setDirectPermissions(rolesPermissions.direct_permissions || []);
