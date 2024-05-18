@@ -4,15 +4,17 @@ namespace App\Repositories\GamePrediction;
 
 use App\Jobs\Automation\AutomationTrait;
 use App\Models\Competition;
+use App\Models\CompetitionPredictionLog;
 use App\Models\CompetitionScoreTargetOutcome;
 use App\Models\Game;
 use App\Models\GamePrediction;
-use App\Models\GamePredictionLog;
 use App\Models\GamePredictionType;
 use App\Models\PredictionJobLog;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
+use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class GamePredictionRepository implements GamePredictionRepositoryInterface
@@ -57,54 +59,90 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
         $data = request()->all();
 
         $version = $data['version'];
-        $type = $data['type'];
+        $prediction_type = $data['prediction_type'];
 
-        $prediction_type = GamePredictionType::updateOrCreate([
-            'name' => $type,
-        ]);
+        try {
 
-        $competition_id = $data['competition_id'];
-        $carbon_date = Carbon::parse($data['date']);
-        $date = $carbon_date->format('Y-m-d');
+            DB::beginTransaction();
 
-        if ($carbon_date->subDays(16) > Carbon::today())
-            return response(['message' => "Saving preds skipped, the date {$date} is way far in the future!"]);
+            $prediction_type = GamePredictionType::updateOrCreate([
+                'name' => $prediction_type,
+            ]);
 
-        $predictions = $data['predictions'];
+            $competition_id = $data['competition_id'];
+            $carbon_date = Carbon::parse($data['date']);
+            $date = $carbon_date->format('Y-m-d');
 
-        foreach ($predictions as $game_pred) {
+            if ($carbon_date->subDays(16) > Carbon::today())
+                return response(['message' => "Saving preds skipped, the date {$date} is way far in the future!"]);
 
-            $this->model->updateOrCreate(
+            $predictions = $data['predictions'];
+
+            $commonModelQuery = [
+                ['version', $version],
+                ['prediction_type_id', $prediction_type->id],
+                ['competition_id', $competition_id],
+                ['date', $date],
+            ];
+
+            $this->model->where($commonModelQuery)->delete();
+
+            foreach ($predictions as $game_pred) {
+
+                $this->model->updateOrCreate(
+                    [
+                        'version' => $version,
+                        'prediction_type_id' => $prediction_type->id,
+                        'competition_id' => $competition_id,
+                        'game_id' => $game_pred['id'],
+                    ],
+                    [
+                        'version' => $version,
+                        'prediction_type_id' => $prediction_type->id,
+                        'competition_id' => $competition_id,
+                        'date' => $date,
+                        ...$game_pred
+                    ]
+                );
+            }
+
+            $record = CompetitionPredictionLog::query()->where(
+                [
+                    ['version', $version],
+                    ['prediction_type_id', $prediction_type->id],
+                    ['competition_id', $competition_id],
+                    ['date', $date],
+                ]
+            )->first();
+
+            $predicted_games = $this->model->where($commonModelQuery)->count();
+            $predicted_games = $predicted_games > $record->predictable_games ? $record->predictable_games : $predicted_games;
+
+            $unpredicted_games = $record->predictable_games - $predicted_games;
+            $unpredicted_games = $unpredicted_games < 0 ? 0 : $unpredicted_games;
+
+            CompetitionPredictionLog::updateOrCreate(
                 [
                     'version' => $version,
                     'prediction_type_id' => $prediction_type->id,
                     'competition_id' => $competition_id,
-                    'game_id' => $game_pred['id'],
+                    'date' => $date,
                 ],
                 [
                     'version' => $version,
-                    'type' => $type,
+                    'prediction_type_id' => $prediction_type->id,
                     'competition_id' => $competition_id,
                     'date' => $date,
-                    ...$game_pred
-                ]
-            );
 
-            $predicted_games = $this->model->where('date', $date)->count();
-            $games = Game::whereDate('utc_date', $date);
-            $total_games = $games->count();
-            $unpredicted_games = $total_games - $predicted_games;
-            $unpredicted_games = $unpredicted_games < 0 ? 0 : $unpredicted_games;
-
-            GamePredictionLog::updateOrCreate(
-                ['date' => $date],
-                [
-                    'date' => $date,
-                    'total_games' => $total_games,
                     'predicted_games' => $predicted_games,
                     'unpredicted_games' => $unpredicted_games
                 ]
             );
+
+            DB::commit();
+        } catch (Exception $e) {
+            Log::critical('GamePrediction Saving Error: ' . $e->getMessage());
+            DB::rollBack();
         }
 
         if (count($predictions) > 0) {
@@ -173,7 +211,6 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
             $data
         );
 
-        Log::info('DATA', $data);
         return response(['message' => "Competition Score Target Outcomes saved successfully."]);
     }
 

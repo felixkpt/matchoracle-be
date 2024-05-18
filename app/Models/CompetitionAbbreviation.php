@@ -18,13 +18,14 @@ class CompetitionAbbreviation extends Model
         'user_id',
     ];
 
+    function competition()
+    {
+        return $this->belongsTo(Competition::class);
+    }
+
     function country()
     {
         return $this->belongsTo(Country::class);
     }
     
-    function competition()
-    {
-        return $this->belongsTo(Competition::class);
-    }
 }

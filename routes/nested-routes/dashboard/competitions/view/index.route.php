@@ -35,7 +35,7 @@ Route::get('/{id}/statistics', [$controller, 'statistics']); // View statistics 
 Route::get('/{id}/prediction-statistics', [$controller, 'predictionStatistics']); // View prediction statistics for a competition
 Route::post('/{id}/do-statistics', [$controller, 'doStatistics']); // do stats for a competition
 
-Route::get('/{id}/get-dates-with-games', [$controller, 'getDatesWithGames']); // getDatesWithGames
+Route::get('/{id}/get-dates-with-unpredicted-games', [$controller, 'getDatesWithUnpredictedGames']); // getDatesWithUnpredictedGames
 Route::get('/{id}/tabs', [$controller, 'tabs'])->name('View compe tab counts'); // View tab counts for a competition
 
 

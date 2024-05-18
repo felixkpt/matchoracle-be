@@ -62,14 +62,18 @@ class PredictionsHandlerJob implements ShouldQueue
         $lastFetchColumn = 'predictions_last_done';
 
         // Set delay in minutes based on the task type:
-        // Default case for train
-        $delay = 60 * 24 * 2;
+        // Default case for predict
+        $delay = 60 * 24 * 7;
+
+        $fromDate = Carbon::today()->subDays(150);
+        $toDate = Carbon::today()->addDays(7);
 
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
             ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+            ->where(fn ($query) => $query->whereNotNull('competition_last_actions.predictions_last_train'))
             ->select('competitions.*')
             ->limit(1000)->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
             ->get();
@@ -84,7 +88,7 @@ class PredictionsHandlerJob implements ShouldQueue
 
             $this->doCompetitionRunLogging();
 
-            $command = '/usr/bin/python3 ~/Documents/Dev/python/matchoracle-predictions-v2/main.py predict --competition=' . $competition->id;
+            $command = '/usr/bin/python3 ~/Documents/Dev/python/matchoracle-predictions-v2/main.py predict --competition=' . $competition->id . ' --from-date=' . $fromDate . ' --to-date' . $toDate;
 
             exec($command, $output, $returnCode);
 
@@ -97,6 +101,7 @@ class PredictionsHandlerJob implements ShouldQueue
 
             $data = [];
             if ($returnCode === 0) {
+                $data['status'] = 0;
                 $should_sleep_for_competitions = true;
 
                 echo "Python script ran successfully!\n";

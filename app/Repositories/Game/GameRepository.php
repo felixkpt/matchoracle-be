@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Game;
 
+use App\Models\CompetitionPredictionLog;
 use App\Models\Game;
 use App\Models\GamePredictionType;
 use App\Models\GameVote;
@@ -11,6 +12,7 @@ use App\Services\GameSources\GameSourceStrategy;
 use App\Utilities\GamePredictionStatsUtility;
 use App\Utilities\GameStatsUtility;
 use App\Utilities\GameUtility;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -72,6 +74,10 @@ class GameRepository implements GameRepositoryInterface
                     $matchData->stats = $stats;
                     $arr[] = $matchData;
                 }
+            }
+
+            if (request()->task == 'predict') {
+                $this->updateCompetitionPredLogs($results, $arr);
             }
 
             $results = array_reverse($arr);
@@ -156,6 +162,42 @@ class GameRepository implements GameRepositoryInterface
             [
                 'name' => $name,
                 'description' => $description
+            ]
+        );
+    }
+
+    private function updateCompetitionPredLogs($games, $predictable_games)
+    {
+
+        $total_games = count($games);
+        $predictable_games = count($predictable_games);
+
+        $version = request()->version;
+        $prediction_type = request()->prediction_type;
+
+        $prediction_type = GamePredictionType::updateOrCreate([
+            'name' => $prediction_type,
+        ]);
+        
+        $competition_id = request()->competition_id;
+        $carbon_date = Carbon::parse(request()->date);
+        $date = $carbon_date->format('Y-m-d');
+
+        CompetitionPredictionLog::updateOrCreate(
+            [
+                'version' => $version,
+                'prediction_type_id' => $prediction_type->id,
+                'competition_id' => $competition_id,
+                'date' => $date,
+            ],
+            [
+                'version' => $version,
+                'prediction_type_id' => $prediction_type->id,
+                'competition_id' => $competition_id,
+                'date' => $date,
+
+                'total_games' => $total_games,
+                'predictable_games' => $predictable_games,
             ]
         );
     }

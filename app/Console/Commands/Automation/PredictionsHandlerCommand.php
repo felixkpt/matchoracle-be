@@ -38,5 +38,7 @@ class PredictionsHandlerCommand extends Command
 
         dispatch(new PredictionsHandlerJob($task));
         $this->info('Predictions handler command executed successfully!');
+
+        return 1;
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Country;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CountryRepository implements CountryRepositoryInterface
 {
@@ -23,6 +24,8 @@ class CountryRepository implements CountryRepositoryInterface
             ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->where('has_competitions', true)->where('continent_id', '!=', get_world_id())->with(['continent', 'competitions'])
             ->when($filter, fn ($q) => $q->whereIn('id', $ids));
+
+        Log::info('OFFF', request()->all());
 
         if ($this->applyFiltersOnly) return $countries;
 

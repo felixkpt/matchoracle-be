@@ -4,5 +4,5 @@ use App\Http\Controllers\Dashboard\Settings\Picklists\Statuses\StatusesControlle
 use Illuminate\Support\Facades\Route;
 
 $controller = StatusesController::class;
-Route::get('/', [$controller, 'index'])->name('List Record statuses');
+Route::get('/', [$controller, 'index'])->name('Record statuses List');
 Route::post('/', [$controller, 'store'])->hidden();

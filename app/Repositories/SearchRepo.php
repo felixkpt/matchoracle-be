@@ -132,6 +132,12 @@ class SearchRepo
 
                             $relation = Str::camel($relation);
 
+                            if (Str::contains($column, '.')) {
+                                [$relation2, $column] = explode('.', $column, 2);
+
+                                $relation = $relation . '.' . Str::camel($relation2);
+                            }
+
                             // Apply search condition within the relation
                             $q->orWhereHas($relation, function (EloquentBuilder $query) use ($column, $term, $strategy) {
                                 $query->where($column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");

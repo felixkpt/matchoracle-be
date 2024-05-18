@@ -11,13 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('game_prediction_logs', function (Blueprint $table) {
+        Schema::create('competition_prediction_logs', function (Blueprint $table) {
             $table->bigIncrements('id')->startingValue(1100);
+            $table->unsignedInteger('prediction_type_id');
+            $table->string('version')->default('1.0');
+            $table->unsignedBigInteger('competition_id')->default(0);
             $table->date('date');
+
             $table->unsignedInteger('total_games');
+            $table->unsignedInteger('total_predictable_games');
             $table->unsignedInteger('predicted_games')->default(0);
             $table->unsignedInteger('unpredicted_games')->default(0);
-            
+
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
@@ -29,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('game_prediction_logs');
+        Schema::dropIfExists('competition_prediction_logs');
     }
 };

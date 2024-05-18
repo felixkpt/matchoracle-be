@@ -4,6 +4,6 @@ use App\Http\Controllers\Dashboard\Settings\RolePermissions\Permissions\RoutesCo
 use Illuminate\Support\Facades\Route;
 
 $controller = RoutesController::class;
-Route::get('/', [$controller, 'index'])->name('List Routes')->hidden();
+Route::get('/', [$controller, 'index'])->name('Routes List')->hidden();
 Route::post('/', [$controller, 'store'])->name('Store Route')->hidden();
 Route::patch('/update-statuses', [$controller, 'updateStatuses'])->hidden(); // Update statuses of multiple records (hidden)

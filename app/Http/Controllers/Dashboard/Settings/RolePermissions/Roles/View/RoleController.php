@@ -15,6 +15,7 @@ class RoleController extends Controller
         private RoleRepositoryInterface $roleRepositoryInterface,
         private RoleValidationInterface $roleValidationInterface
     ) {
+        sanctum_auth();
     }
 
     public function show($id)

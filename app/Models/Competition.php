@@ -47,6 +47,11 @@ class Competition extends Model
     return $this->hasOne(CompetitionLastAction::class);
   }
 
+  public function predictionLog()
+  {
+    return $this->hasOne(CompetitionPredictionLog::class);
+  }
+
   function continent()
   {
     return $this->belongsTo(Continent::class);

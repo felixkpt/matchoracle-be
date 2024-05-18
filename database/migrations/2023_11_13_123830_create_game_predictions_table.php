@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('game_predictions', function (Blueprint $table) {
             $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
-            $table->string('version')->default('1.0');
             $table->unsignedInteger('prediction_type_id');
+            $table->string('version')->default('1.0');
             $table->unsignedBigInteger('competition_id')->default(0);
             $table->dateTime('date');
             $table->unsignedBigInteger('game_id');

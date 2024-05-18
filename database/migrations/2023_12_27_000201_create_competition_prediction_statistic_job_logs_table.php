@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('competition_prediction_statistic_job_logs', function (Blueprint $table) {
             $table->bigIncrements('id')->startingValue(1100);
-            $table->string('version')->default('1.0');
             $table->unsignedInteger('prediction_type_id');
+            $table->string('version')->default('1.0');
             $table->date('date');
 
             $table->integer('job_run_counts')->default(0);

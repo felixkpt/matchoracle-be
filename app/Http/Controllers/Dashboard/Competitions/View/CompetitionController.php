@@ -203,9 +203,9 @@ class CompetitionController extends Controller
         return $this->competitionRepositoryInterface->tabs($id);
     }
 
-    function getDatesWithGames($id)
+    function getDatesWithUnpredictedGames($id)
     {
-        return $this->competitionRepositoryInterface->getDatesWithGames($id);
+        return $this->competitionRepositoryInterface->getDatesWithUnpredictedGames($id);
     }
 
     function updateStatus($id)

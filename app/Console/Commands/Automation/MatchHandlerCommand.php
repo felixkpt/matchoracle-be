@@ -40,5 +40,7 @@ class MatchHandlerCommand extends Command
 
         dispatch(new MatchHandlerJob($task, $ignore_date, $match_id));
         $this->info('Match handler command executed successfully!');
+
+        return 1;
     }
 }

@@ -12,6 +12,8 @@ use App\Repositories\Competition\CompetitionAbbreviation\CompetitionAbbreviation
 use App\Repositories\Competition\CompetitionAbbreviation\CompetitionAbbreviationRepositoryInterface;
 use App\Repositories\Competition\CompetitionRepository;
 use App\Repositories\Competition\CompetitionRepositoryInterface;
+use App\Repositories\Competition\PredictionLog\CompetitionPredictionLogRepository;
+use App\Repositories\Competition\PredictionLog\CompetitionPredictionLogRepositoryInterface;
 use App\Repositories\Continent\ContinentRepository;
 use App\Repositories\Continent\ContinentRepositoryInterface;
 use App\Repositories\Country\CountryRepository;
@@ -28,12 +30,6 @@ use App\Repositories\Odds\OddsRepository;
 use App\Repositories\Odds\OddsRepositoryInterface;
 use App\Repositories\Permission\PermissionRepository;
 use App\Repositories\Permission\PermissionRepositoryInterface;
-use App\Repositories\Post\Category\PostCategoryRepository;
-use App\Repositories\Post\Category\PostCategoryRepositoryInterface;
-use App\Repositories\Post\PostRepository;
-use App\Repositories\Post\PostRepositoryInterface;
-use App\Repositories\PostStatus\PostStatusRepository;
-use App\Repositories\PostStatus\PostStatusRepositoryInterface;
 use App\Repositories\Role\RoleRepository;
 use App\Repositories\Role\RoleRepositoryInterface;
 use App\Repositories\Season\SeasonRepository;
@@ -64,11 +60,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->singleton(PermissionRepositoryInterface::class, PermissionRepository::class);
         $this->app->singleton(UserRepositoryInterface::class, UserRepository::class);
-        $this->app->singleton(PostRepositoryInterface::class, PostRepository::class);
-        $this->app->singleton(PostCategoryRepositoryInterface::class, PostCategoryRepository::class);
         $this->app->singleton(GameSourceRepositoryInterface::class, GameSourceRepository::class);
         $this->app->singleton(StatusRepositoryInterface::class, StatusRepository::class);
-        $this->app->singleton(PostStatusRepositoryInterface::class, PostStatusRepository::class);
         $this->app->singleton(GameScoreStatusRepositoryInterface::class, GameScoreStatusRepository::class);
         $this->app->singleton(ContinentRepositoryInterface::class, ContinentRepository::class);
         $this->app->singleton(CountryRepositoryInterface::class, CountryRepository::class);
@@ -85,6 +78,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(CompetitionStatisticsRepositoryInterface::class, CompetitionStatisticsRepository::class);
         $this->app->singleton(CompetitionPredictionStatisticsRepositoryInterface::class, CompetitionPredictionStatisticsRepository::class);
         $this->app->singleton(OddsRepositoryInterface::class, OddsRepository::class);
+        $this->app->singleton(CompetitionPredictionLogRepositoryInterface::class, CompetitionPredictionLogRepository::class);
     }
 
     /**

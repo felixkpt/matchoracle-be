@@ -7,6 +7,7 @@ use App\Http\Controllers\Dashboard\Statistics\CompetitionsPredictionsStatisticsC
 use App\Http\Controllers\Dashboard\Statistics\CompetitionsStatisticsController;
 use App\Http\Controllers\Dashboard\Teams\TeamsController;
 use App\Models\Competition;
+use App\Models\CompetitionPredictionLog;
 use App\Models\CompetitionPredictionStatistic;
 use App\Models\CompetitionStatistic;
 use App\Models\Game;
@@ -20,6 +21,7 @@ use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class CompetitionRepository implements CompetitionRepositoryInterface
 {
@@ -319,14 +321,21 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         return response(['message' => $messages, 'results' => $results]);
     }
 
-    function getDatesWithGames($id)
+    function getDatesWithUnpredictedGames($id)
     {
         $from_date = Carbon::parse(request()->from_date)->format('Y-m-d');
         $to_date = Carbon::parse(request()->to_date)->format('Y-m-d');
 
-        $dates = $this->model::find($id)->games()->whereDate('utc_date', '>=', $from_date)->whereDate('utc_date', '<=', $to_date)->orderBy('utc_date', 'desc')->pluck('utc_date')->toArray();
+        $dates = $this->model::find($id)
+            ->games()->where('status_id', activeStatusId())
+            ->whereDate('utc_date', '>=', $from_date)->whereDate('utc_date', '<=', $to_date)
+            ->orderBy('utc_date', 'desc')->pluck('utc_date')->toArray();
 
         $dates = array_values(array_unique(array_map(fn ($date) => Carbon::parse($date)->format('Y-m-d'), $dates)));
+
+        $predicted_dates = CompetitionPredictionLog::query()->where('competition_id', $id)->whereIn('date', $dates)->whereRaw('predictable_games = predicted_games')->pluck('date')->toArray();
+
+        $dates = array_values(array_diff($dates, $predicted_dates));
 
         return response(['results' => $dates]);
     }
