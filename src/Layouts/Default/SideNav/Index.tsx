@@ -7,11 +7,12 @@ import RoutesList from './RoutesList';
 import Select from 'react-select';
 import { useRolePermissionsContext } from '@/contexts/RolePermissionsContext';
 import MenuLoader from './MenuLoader';
+import { RouteCollectionInterface } from '@/interfaces/RolePermissionsInterfaces';
 
 const Index = () => {
   const { user } = useAuth();
-  const { roles, setCurrentRole, currentRole, userMenu, expandedRootFolders, loadingMenu: loading } = useRolePermissionsContext();
-  
+  const { roles, setCurrentRole, currentRole, userMenu, expandedRootFolders, loadingMenu: loading, refreshedRoutePermissions } = useRolePermissionsContext();
+
   useEffect(() => {
     const expand = document.body.querySelector('.btn-expand-collapse');
     if (expand) {
@@ -86,7 +87,7 @@ const Index = () => {
               }
             })}
           </ul>
-        ) : <MenuLoader currentRole={currentRole} loading={loading} user={user} />}
+        ) : <MenuLoader currentRole={currentRole} loading={loading} refreshedRoutePermissions={refreshedRoutePermissions} />}
       </>
     );
   }, [user, userMenu, loading]);
@@ -113,19 +114,19 @@ const Index = () => {
             <div id="menu">
               <div id='role-switcher' title='Switch your role'>
                 {
-                 user && roles.length > 0 &&
+                  user && roles.length > 0 &&
                   <Select
-                  className="basic-single text-dark mb-2"
-                  classNamePrefix="select"
-                  value={currentRole || []}
-                  isSearchable={true}
-                  name="roles"
-                  options={roles}
-                  placeholder='Switch your role'
-                  getOptionValue={(option: any) => `${option['id']}`}
-                  getOptionLabel={(option: any) => `${option['name']}`}
-                  onChange={(item: any) => setCurrentRole(item)}
-                />
+                    className="basic-single text-dark mb-2"
+                    classNamePrefix="select"
+                    value={currentRole || []}
+                    isSearchable={true}
+                    name="roles"
+                    options={roles}
+                    placeholder='Switch your role'
+                    getOptionValue={(option: any) => `${option['id']}`}
+                    getOptionLabel={(option: any) => `${option['name']}`}
+                    onChange={(item: any) => setCurrentRole(item)}
+                  />
                 }
               </div>
               {memoizeMenu}

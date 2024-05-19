@@ -1,4 +1,4 @@
-interface RoleInterface {
+export interface RoleInterface {
   id: number;
   name: string;
   guard_name: string;
@@ -8,7 +8,7 @@ interface RoleInterface {
   status: number;
 }
 
-interface PermissionInterface {
+export interface PermissionInterface {
   id: number;
   name: string;
   guard_name: string;
@@ -26,7 +26,7 @@ interface PermissionInterface {
   };
 }
 
-interface RouteInterface {
+export interface RouteInterface {
   uri: string;
   methods: string;
   uri_and_methods: string;
@@ -37,7 +37,7 @@ interface RouteInterface {
   checked: boolean; 
   filename: string;
 }
-interface RouteCollectionInterface {
+export interface RouteCollectionInterface {
   folder: string;
   routes: RouteInterface[];
   slug: string;

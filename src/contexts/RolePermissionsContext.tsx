@@ -1,4 +1,5 @@
 import useRolePermissions from '@/hooks/useRolePermissions';
+import { PermissionInterface, RoleInterface, RouteCollectionInterface } from '@/interfaces/RolePermissionsInterfaces';
 import React, { createContext, useContext } from 'react';
 
 interface RolePermissionsContextType {
@@ -6,22 +7,29 @@ interface RolePermissionsContextType {
     directPermissions: PermissionInterface[];
     routePermissions: PermissionInterface[];
     refreshCurrentRole: () => void;
+    refreshedCurrentRole: boolean;
+    setRefreshedCurrentRole: (val: boolean) => React.Dispatch<React.SetStateAction<boolean>>;
+    refreshedRoutePermissions: boolean;
     fetchRoutePermissions: (roleId?: string, source?: string) => void;
     loadingRoutePermissions: boolean
-    currentRole: string
+    currentRole: RoleInterface
     setCurrentRole: (role: RoleInterface | undefined) => void
     roleWasChanged: boolean
     setRoleWasChanged: (val: boolean) => void
-    userMenu:RouteCollectionInterface[]
+    userMenu: RouteCollectionInterface[]
     setUserMenu: (role: RouteCollectionInterface[] | undefined) => void
     expandedRootFolders: []
     loadingMenu: boolean,
-    errorsLoadingMenu: any,
+    errorsLoadingMenu: string | boolean,
 }
 
 const RolePermissionsContext = createContext<RolePermissionsContextType | undefined>(undefined);
 
-export const RolePermissionsProvider: React.FC = ({ children }) => {
+interface Props {
+    children: JSX.Element
+}
+
+export const RolePermissionsProvider: React.FC<Props> = ({ children }) => {
     const rolePermissions = useRolePermissions();
 
     return (

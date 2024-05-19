@@ -1,14 +1,14 @@
 import Loader from '@/components/Loader'
-import { UserInterface } from '@/interfaces/UserInterface'
+import { RoleInterface } from '@/interfaces/RolePermissionsInterfaces'
 
 type Props = {
     currentRole: RoleInterface
     loading: boolean
-    user: UserInterface
+    refreshedRoutePermissions: boolean
 }
 
-const MenuLoader = ({ currentRole, loading, user }: Props) => {
-    console.log(currentRole, loading, user)
+const MenuLoader = ({ currentRole, loading, refreshedRoutePermissions }: Props) => {
+
     return (
         <div className='ps-2 pt-3'>
             {loading ?
@@ -16,9 +16,15 @@ const MenuLoader = ({ currentRole, loading, user }: Props) => {
                 :
                 <>
                     {
-                        !currentRole ?
-                            <>Could not load menu for <span className='text-decoration-underline'>Guest</span></>
-                            : <>Could not load menu for <span className='text-decoration-underline'>{currentRole.name}</span></>
+                        refreshedRoutePermissions ?
+                            <>
+                                {
+                                    !currentRole ?
+                                        <>Could not load menu for <span className='text-decoration-underline'>Guest</span></>
+                                        : <>Could not load menu for <span className='text-decoration-underline'>{currentRole.name}</span></>
+                                }
+                            </>
+                            : null
                     }
                 </>
             }

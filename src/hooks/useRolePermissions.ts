@@ -10,11 +10,13 @@ const useRolePermissions = () => {
     const { user, verified } = useAuth();
 
     const [currentRole, setCurrentRole] = useState<RoleInterface | undefined>();
+    const [refreshedCurrentRole, setRefreshedCurrentRole] = useState<boolean>(false);
+    const [refreshedRoutePermissions, setRefreshedRoutePermissions] = useState<boolean>(false);
     const [routePermissions, setRoutePermissions] = useState<PermissionInterface[]>([]);
     const [loadingRoutePermissions, setLoadingRoutePermissions] = useState(true);
     const [userMenu, setUserMenu] = useState<RouteCollectionInterface[]>([]);
     const [expandedRootFolders, setExpandedRootFolders] = useState<string>('');
-    const { roles, directPermissions, setRefresh:refreshUserRolesAndDirectPermissions } = useFetchUserRolesAndDirectPermissions()
+    const { roles, directPermissions, setRefresh: refreshUserRolesAndDirectPermissions, loaded: loadedUserRolesAndDirectPermissions } = useFetchUserRolesAndDirectPermissions()
 
     const fetchRoutePermissions = async (roleId = null) => {
 
@@ -32,6 +34,7 @@ const useRolePermissions = () => {
 
             if (routePermissionsResponse && !routePermissionsResponse.status) {
                 setRoutePermissions(routePermissionsResponse || []);
+                setRefreshedRoutePermissions(true)
             }
         } catch (error) {
             // Handle error
@@ -49,15 +52,22 @@ const useRolePermissions = () => {
             });
         }
         setLoadingRoutePermissions(false)
+
+        setRefreshedCurrentRole(true)
+
     }
 
     useEffect(() => {
+
         if (roles.length > 0) {
             const defaultRole = user?.default_role_id ? roles.find((role) => String(role.id) === String(user.default_role_id)) : roles[0];
             setCurrentRole(defaultRole || roles[0]);
+            setRefreshedCurrentRole(true)
+        } else {
+            setLoadingRoutePermissions(false)
         }
 
-    }, [roles, verified]);
+    }, [loadedUserRolesAndDirectPermissions, verified, roles]);
 
     useEffect(() => {
         if (currentRole && roles.length > 0) {
@@ -75,6 +85,7 @@ const useRolePermissions = () => {
                 }
             });
         }
+
     }, [currentRole]);
 
     useEffect(() => {
@@ -90,6 +101,9 @@ const useRolePermissions = () => {
         directPermissions,
         routePermissions,
         refreshCurrentRole,
+        refreshedCurrentRole,
+        setRefreshedCurrentRole,
+        refreshedRoutePermissions,
         currentRole,
         setCurrentRole,
         fetchRoutePermissions,

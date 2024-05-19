@@ -10,6 +10,7 @@ import { HttpVerbsType } from '@/interfaces/UncategorizedInterfaces';
 import AlertMessage from '@/components/AlertMessage';
 import { publish } from '@/utils/events';
 import useRestrictedAccess from '@/hooks/useRestrictedAccess';
+import { useEffect } from 'react';
 
 interface Props {
     uri: string
