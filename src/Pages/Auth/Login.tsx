@@ -3,9 +3,15 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import useAxios from '@/hooks/useAxios';
 import SubmitButton from '../../components/SubmitButton';
+import AlertMessage from '@/components/AlertMessage';
 
-export default function Login() {
-    const { setUser, csrfToken, redirectTo } = useAuth();
+interface Props {
+    className?: string
+    isMinimal?: boolean
+}
+export default function Login({ className, isMinimal }: Props) {
+
+    const { setUser, redirectTo, redirectMessage } = useAuth();
     const navigate = useNavigate();
 
     // Initialize useAxios with the desired endpoint for login
@@ -46,18 +52,29 @@ export default function Login() {
 
             if (user) {
                 setUser(user);
-                // Redirect the user
-                navigate(redirectTo);
+
+                if (!isMinimal) {
+                    // Redirect the user
+                    navigate(redirectTo);
+                }
             }
         }
     }, [loading, tried]);
 
     return (
 
-        <div className="col-lg-5">
+        <div className={`${className ? className : 'col-lg-5'}`}>
             <div className="card shadow-lg border-0 rounded-lg mt-5">
                 <div className="card-header"><h3 className="text-center font-weight-light my-4">Login</h3></div>
                 <div className="card-body">
+                    {
+                        redirectMessage ?
+                            <div className="mb-4">
+                                <AlertMessage message={redirectMessage} />
+                            </div>
+                            :
+                            null
+                    }
                     <form onSubmit={handleSubmit}>
                         <div className="form-floating mb-3">
                             <input className="form-control" id="inputEmail" type="email" name='email' placeholder="name@example.com" />
@@ -71,15 +88,24 @@ export default function Login() {
                             <input className="form-check-input" id="inputRememberPassword" type="checkbox" name="remember" value="" />
                             <label className="form-check-label" htmlFor="inputRememberPassword">Remember Password</label>
                         </div>
+
                         <div className="d-flex align-items-center justify-content-between mt-4 mb-0">
-                            <NavLink className="small" to="/password">Forgot Password?</NavLink>
-                            <SubmitButton className="btn btn-primary main-bg" loading={loading}>Login</SubmitButton>
+                            {!isMinimal
+                                ?
+                                <NavLink className="small" to="/password">Forgot Password?</NavLink>
+                                :
+                                null
+                            }
+                            <SubmitButton className="btn bg-success main-bg" loading={loading}>Login</SubmitButton>
                         </div>
                     </form>
                 </div>
-                <div className="card-footer text-center py-3">
-                    <div className="small"><NavLink to="/register">Need an account? Sign up!</NavLink></div>
-                </div>
+                {!isMinimal
+                    ?
+                    <div className="card-footer text-center py-3">
+                        <div className="small"><NavLink to="/register">Need an account? Sign up!</NavLink></div>
+                    </div>
+                    : null}
             </div>
         </div>
 

@@ -7,10 +7,13 @@ import { config } from '@/utils/helpers';
 
 const useRolePermissions = () => {
     const { get } = useAxios();
-    const { user, verified } = useAuth();
+    const { user } = useAuth();
 
+    const [guestMode, setGuestMode] = useState<boolean>(true);
+    const [loadingCurrentRole, setLoadingCurrentRole] = useState(true);
     const [currentRole, setCurrentRole] = useState<RoleInterface | undefined>();
     const [refreshedCurrentRole, setRefreshedCurrentRole] = useState<boolean>(false);
+
     const [refreshedRoutePermissions, setRefreshedRoutePermissions] = useState<boolean>(false);
     const [routePermissions, setRoutePermissions] = useState<PermissionInterface[]>([]);
     const [loadingRoutePermissions, setLoadingRoutePermissions] = useState(true);
@@ -18,7 +21,8 @@ const useRolePermissions = () => {
     const [expandedRootFolders, setExpandedRootFolders] = useState<string>('');
     const { roles, directPermissions, setRefresh: refreshUserRolesAndDirectPermissions, loaded: loadedUserRolesAndDirectPermissions } = useFetchUserRolesAndDirectPermissions()
 
-    const fetchRoutePermissions = async (roleId = null) => {
+
+    const fetchRoutePermissions = async (roleId: number | string | undefined = undefined) => {
 
         if (!currentRole) {
             return false
@@ -34,46 +38,57 @@ const useRolePermissions = () => {
 
             if (routePermissionsResponse && !routePermissionsResponse.status) {
                 setRoutePermissions(routePermissionsResponse || []);
+
                 setRefreshedRoutePermissions(true)
             }
-        } catch (error) {
-            // Handle error
+        } finally {
+            setLoadingRoutePermissions(false);
         }
 
-        setLoadingRoutePermissions(false);
     };
 
     async function refreshCurrentRole() {
 
         if (user) {
+
             setCurrentRole(() => {
                 refreshUserRolesAndDirectPermissions((curr: number) => curr = curr + 1);
                 return undefined;
             });
         }
-        setLoadingRoutePermissions(false)
 
         setRefreshedCurrentRole(true)
+        setLoadingCurrentRole(true)
 
     }
 
     useEffect(() => {
-
-        if (roles.length > 0) {
-            const defaultRole = user?.default_role_id ? roles.find((role) => String(role.id) === String(user.default_role_id)) : roles[0];
-            setCurrentRole(defaultRole || roles[0]);
-            setRefreshedCurrentRole(true)
-        } else {
-            setLoadingRoutePermissions(false)
+        if (user) {
+            setGuestMode(false)
+            refreshUserRolesAndDirectPermissions((curr: number) => curr = curr + 1);
         }
-
-    }, [loadedUserRolesAndDirectPermissions, verified, roles]);
+    }, [user])
 
     useEffect(() => {
-        if (currentRole && roles.length > 0) {
+
+        if (roles.length > 0) {
+            setRefreshedCurrentRole(true)
+
+            const defaultRole = user?.default_role_id ? roles.find((role) => String(role.id) === String(user.default_role_id)) : roles[0];
+            setCurrentRole(defaultRole || roles[0]);
+            setLoadingCurrentRole(false)
+
             fetchRoutePermissions();
         }
-    }, [roles, currentRole]);
+
+        if (roles.length === 0 && loadedUserRolesAndDirectPermissions) {
+            setLoadingRoutePermissions(false)
+            if (!currentRole) {
+                setLoadingCurrentRole(false)
+            }
+        }
+
+    }, [user, roles, currentRole, guestMode]);
 
     const { data, get: getMenu, loading, errors } = useAxios();
 
@@ -96,16 +111,19 @@ const useRolePermissions = () => {
     }, [loading]);
 
     return {
-        user,
-        roles,
-        directPermissions,
-        routePermissions,
+        loadingCurrentRole,
+        currentRole,
+        setCurrentRole,
+        guestMode,
         refreshCurrentRole,
         refreshedCurrentRole,
         setRefreshedCurrentRole,
         refreshedRoutePermissions,
-        currentRole,
-        setCurrentRole,
+
+        user,
+        roles,
+        directPermissions,
+        routePermissions,
         fetchRoutePermissions,
         loadingRoutePermissions,
         userMenu,
@@ -113,6 +131,7 @@ const useRolePermissions = () => {
         expandedRootFolders,
         loadingMenu: loading,
         errorsLoadingMenu: errors,
+        setRefreshedRoutePermissions,
     };
 };
 

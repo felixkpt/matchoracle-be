@@ -19,11 +19,11 @@ const useRestrictedAccess = ({ uri, permission, method }: Props) => {
   const [isAllowed, setIsAllowed] = useState(false);
 
   const [reloadKey, setReloadKey] = useState<number>(0);
-  const { updateUser, deleteUser, setRedirectTo } = useAuth();
+  const { updateUser, deleteUser, setRedirectTo, setRedirectMessage } = useAuth();
   const { data: freshUser, loading: loadingUser, get: getUser, loaded: loadedUser, errors: loadingUserError } = useAxios();
 
   const navigate = useNavigate();
-  const { loadingRoutePermissions, refreshCurrentRole, refreshedRoutePermissions, directPermissions, routePermissions, refreshedCurrentRole, fetchRoutePermissions, currentRole } = useRolePermissionsContext();
+  const { guestMode, refreshedCurrentRole, currentRole, loadingCurrentRole, refreshCurrentRole, loadingRoutePermissions, refreshedRoutePermissions, directPermissions, routePermissions } = useRolePermissionsContext();
 
   const [checkedAccess, setCheckedAccess] = useState(false);
 
@@ -61,7 +61,7 @@ const useRestrictedAccess = ({ uri, permission, method }: Props) => {
   }, [loadedUser]);
 
   useEffect(() => {
-    if (!isAllowed && loadedUser && !freshUser && !loadingRoutePermissions) {
+    if (!isAllowed && loadedUser && !freshUser && guestMode) {
       // is guest...
       setStartCheckingAccess(true)
     }
@@ -77,18 +77,7 @@ const useRestrictedAccess = ({ uri, permission, method }: Props) => {
 
   }, [loadedUser, freshUser])
 
-  // Scenario 4: Ready! refreshCurrentRole if no routePermissions
-  useEffect(() => {
-
-    if (startCheckingAccess && !checkedAccess) {
-      if (routePermissions.length === 0) {
-        refreshCurrentRole()
-      }
-    }
-
-  }, [startCheckingAccess, checkedAccess])
-
-  // Scenario 5: Actual checking of access permission
+  // Scenario 4: Actual checking of access permission
   useEffect(() => {
 
     if (startCheckingAccess) {
@@ -97,38 +86,37 @@ const useRestrictedAccess = ({ uri, permission, method }: Props) => {
         const isAllowed = userCan(testPermission, method || 'get');
         setIsAllowed(isAllowed);
         setCheckedAccess(true);
-      } else {
+      }
+    }
 
-        if (!isAllowed) {
+  }, [startCheckingAccess, checkedAccess, routePermissions, testPermission])
 
-          if ((!freshUser || refreshedRoutePermissions)) {
+  // Scenario 5: Guest / Auth sort
+  useEffect(() => {
 
-            if (routePermissions.length > 0) {
-              const isAllowed = userCan(testPermission, method || 'get');
-              setIsAllowed(isAllowed);
-              setCheckedAccess(true);
-              refreshCurrentRole()
-              // fetchRoutePermissions()
-            } else if (currentRole) {
-              setCheckedAccess(false);
-            }
+    if (startCheckingAccess && !loadingRoutePermissions) {
 
-            if (currentRole && routePermissions.length === 0) {
-              fetchRoutePermissions(currentRole.id)
+      if (!isAllowed && !loadingCurrentRole) {
 
-            } else if (checkedAccess || (!currentRole && !checkedAccess && !loadingRoutePermissions)) {
+        if (currentRole && routePermissions.length > 0) {
+          const isAllowed = userCan(testPermission, method || 'get');
+          setIsAllowed(isAllowed);
+          setCheckedAccess(true);
 
-              if (!freshUser && !loadingRoutePermissions) {
-                navigate('/login');
-              }
-            }
+          if (!isAllowed) {
+            setRedirectMessage(`${currentRole.name} can't access: ${testPermission}`)
+            navigate('/login')
           }
+
+        } else if (!loadingRoutePermissions) {
+          navigate('/login')
         }
+
       }
 
     }
 
-  }, [routePermissions, startCheckingAccess, checkedAccess, refreshedRoutePermissions, freshUser, refreshedCurrentRole, currentRole, loadingRoutePermissions])
+  }, [routePermissions, startCheckingAccess, checkedAccess, refreshedRoutePermissions, freshUser, refreshedCurrentRole, currentRole, loadingRoutePermissions, guestMode, loadingCurrentRole])
 
   // Scenario 6: miscellenious
   // useEffect to update setRedirectTo & previous URL
@@ -141,7 +129,7 @@ const useRestrictedAccess = ({ uri, permission, method }: Props) => {
 
   // useEffect to refreshCurrentRole on reloadKey change
   useEffect(() => {
-    if (reloadKey > 0 || routePermissions.length === 0) {
+    if (reloadKey > 0) {
       refreshCurrentRole();
     }
   }, [reloadKey]);

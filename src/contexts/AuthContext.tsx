@@ -23,6 +23,8 @@ interface AuthenticatedUser {
   setVerified: (val: boolean) => void;
   redirectTo: string
   setRedirectTo: (location: string) => void;
+  redirectMessage: string | undefined
+  setRedirectMessage: (message: string) => void;
   fileAccessToken: string | null
 }
 
@@ -58,6 +60,8 @@ const AuthContent = createContext<AuthenticatedUser>({
   setVerified: () => { },
   redirectTo: '/',
   setRedirectTo: () => { },
+  redirectMessage: undefined,
+  setRedirectMessage: () => { },
   fileAccessToken: null
 
 });
@@ -91,9 +95,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [verified, setVerified] = useState<boolean>(false)
   const [redirectTo, setRedirectTo] = useState<string>(config.urls.home)
+  const [redirectMessage, setRedirectMessage] = useState<string>()
 
   // Set encrypted user data to local storage and update roles state
   const setUser = (newUser: UserInterface) => {
+
+    if (newUser && !newUser.id) return null
+
     if (newUser) {
       const encryptedUser = encryptData(newUser);
       localStorage.setItem(`${config.storageName}.user`, encryptedUser);
@@ -139,7 +147,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Provide the authentication data and functions to the children components
   return (
-    <AuthContent.Provider value={{ user, updateUser, csrfToken, setUser, deleteUser, verified, setVerified, redirectTo, setRedirectTo, fileAccessToken }}>
+    <AuthContent.Provider value={{ user, updateUser, csrfToken, setUser, deleteUser, verified, setVerified, redirectTo, setRedirectTo, setRedirectMessage, redirectMessage, fileAccessToken }}>
       {children}
     </AuthContent.Provider>
   );

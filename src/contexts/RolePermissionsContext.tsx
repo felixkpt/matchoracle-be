@@ -3,17 +3,20 @@ import { PermissionInterface, RoleInterface, RouteCollectionInterface } from '@/
 import React, { createContext, useContext } from 'react';
 
 interface RolePermissionsContextType {
+    guestMode: boolean
+    currentRole: RoleInterface
+    setCurrentRole: (role: RoleInterface | undefined) => void
+    loadingCurrentRole: boolean
+    refreshCurrentRole: () => void;
+    setRefreshedCurrentRole: (val: boolean) => React.Dispatch<React.SetStateAction<boolean>>;
+    refreshedCurrentRole: boolean;
+    
     roles: RoleInterface[];
     directPermissions: PermissionInterface[];
     routePermissions: PermissionInterface[];
-    refreshCurrentRole: () => void;
-    refreshedCurrentRole: boolean;
-    setRefreshedCurrentRole: (val: boolean) => React.Dispatch<React.SetStateAction<boolean>>;
     refreshedRoutePermissions: boolean;
-    fetchRoutePermissions: (roleId?: string, source?: string) => void;
+    fetchRoutePermissions: (roleId?: number | string, source?: string) => void;
     loadingRoutePermissions: boolean
-    currentRole: RoleInterface
-    setCurrentRole: (role: RoleInterface | undefined) => void
     roleWasChanged: boolean
     setRoleWasChanged: (val: boolean) => void
     userMenu: RouteCollectionInterface[]
