@@ -1,11 +1,14 @@
-import AutoTable from '@/components/Autos/AutoTable';
-import PageHeader from '@/components/PageHeader';
+import Str from '@/utils/Str';
+import AutoPage from '@/components/Autos/AutoPage';
 import useListSources from '@/hooks/list-sources/useListSources';
 
 const Seasons = () => {
-
-    const { competitions: listSources } = useListSources()
-
+    // begin component common config
+    const pluralName = 'Seasons'
+    const singularName = 'Season'
+    const uri = '/dashboard/seasons'
+    const componentId = Str.slug(pluralName)
+    const search = true
     const columns = [
         { key: 'competition.name' },
         { key: 'start_date' },
@@ -18,20 +21,10 @@ const Seasons = () => {
         { label: 'Created At', key: 'Created_at' },
         { label: 'Action', key: 'action' },
     ]
+    // end component common config
+    const { competitions: listSources } = useListSources()
 
-    return (
-        <div>
-            <PageHeader title={'Seasons List'} action="button" actionText="Create season" actionTargetId="AutoModal" permission='dashboard.seasons' />
-            <AutoTable
-                baseUri='/dashboard/seasons'
-                columns={columns}
-                search={true}
-                listSources={listSources}
-                tableId='seasonsTable'
-            />
-        </div>
-    );
+    return <AutoPage pluralName={pluralName} singularName={singularName} uri={uri} columns={columns} componentId={componentId} search={search} listSources={listSources} />;
 };
 
 export default Seasons;
-

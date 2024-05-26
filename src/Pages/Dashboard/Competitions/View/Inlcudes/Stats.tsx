@@ -21,8 +21,8 @@ const Stats = ({ competition, selectedSeason, fromToDates, useDate }: Props) => 
 
     const [data, setData] = useState(null)
     useEffect(() => {
-        get(statsUrl).then((res) => {
-            const results = res.data
+        get(statsUrl).then((response) => {
+            const results = response.results
             if (results) {
                 setData(results)
             }

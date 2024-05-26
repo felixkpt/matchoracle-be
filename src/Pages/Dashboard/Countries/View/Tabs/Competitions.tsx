@@ -17,9 +17,9 @@ const Competitions = ({ country }: Props) => {
     useEffect(() => {
 
         if (country)
-            get(`/dashboard/competitions/country/${country.id}`).then((res) => {
-                if (res.data) {
-                    setCompetitions(res.data.data)
+            get(`/dashboard/competitions/country/${country.id}`).then((response) => {
+                if (response.results) {
+                    setCompetitions(response.results.data)
                 }
             })
 

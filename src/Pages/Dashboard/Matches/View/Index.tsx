@@ -41,10 +41,11 @@ const Index = () => {
   }, [id])
 
   async function getGameDetails() {
-    getGame(`dashboard/matches/view/${id}?break_preds=1`).then((res) => {
-      const data = res.data
+    getGame(`dashboard/matches/view/${id}?break_preds=1`).then((response) => {
+      const data = response.results?.data
+
       if (data) {
-        handleSetGame(data.data)
+        handleSetGame(data)
       }
     })
   }
@@ -61,9 +62,10 @@ const Index = () => {
   useEffect(() => {
 
     if (game) {
-      getStandings(`dashboard/competitions/view/${game.competition_id}/standings/${game.season_id}`).then((res) => {
+      getStandings(`dashboard/competitions/view/${game.competition_id}/standings/${game.season_id}`).then((response) => {
 
-        const data = res.data
+        const data = response.results
+
         const { standings } = data
         if (standings) {
           setStandings(standings)

@@ -1,61 +1,47 @@
-import AutoTable from '@/components/Autos/AutoTable';
-import AutoModal from '@/components/Autos/AutoModal';
-import { useState } from 'react';
+import Str from '@/utils/Str';
+import AutoPage from '@/components/Autos/AutoPage';
 
 const Index = () => {
+  // begin component common config
+  const pluralName = 'GameScore Statuses'
+  const singularName = 'GameScore Status'
+  const uri = '/dashboard/settings/picklists/statuses/game-score-statuses'
+  const componentId = Str.slug(pluralName)
+  const search = true
+  const columns = [
+    {
+      label: 'ID',
+      key: 'id',
+    },
+    {
+      label: 'Status Name',
+      key: 'name',
+    },
+    {
+      label: 'Slug',
+      key: 'slug',
+    },
+    {
+      label: 'Icon',
+      key: 'Icon',
+    },
+    {
+      label: 'Class',
+      key: 'class',
+    },
+    { key: 'Created_by' },
+    {
+      label: 'Created At',
+      key: 'Created_at',
+    },
+    {
+      label: 'Action',
+      key: 'action',
+    },
+  ]
+  // end component common config
 
-  const [modelDetails, setModelDetails] = useState({})
-
-  return (
-    <div>
-      <h3>GameScoreStatus List</h3>
-      <div>
-        <div className='d-flex justify-content-end'>
-          <button type="button" className="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#GameScoreStatus">Create status</button>
-        </div>
-        <AutoTable
-          baseUri='/dashboard/settings/picklists/statuses/game-score-statuses'
-          columns={[
-            {
-              label: 'ID',
-              key: 'id',
-            },
-            {
-              label: 'Status Name',
-              key: 'name',
-            },
-            {
-              label: 'Slug',
-              key: 'slug',
-            },
-            {
-              label: 'Icon',
-              key: 'Icon',
-            },
-            {
-              label: 'Class',
-              key: 'class',
-            },
-            { key: 'Created_by' },
-            {
-              label: 'Created At',
-              key: 'Created_at',
-            },
-            {
-              label: 'Action',
-              key: 'action',
-            },
-          ]}
-          getModelDetails={setModelDetails}
-          search={true}
-          tableId='GameScoreStatusTable'
-        />
-      </div>
-      {
-        modelDetails && <><AutoModal id={`GameScoreStatus`} modelDetails={modelDetails} actionUrl='/dashboard/settings/picklists/statuses/game-score-statuses' /></>
-      }
-    </div>
-  );
+  return <AutoPage pluralName={pluralName} singularName={singularName} uri={uri} columns={columns} componentId={componentId} search={search} />;
 };
 
 export default Index;

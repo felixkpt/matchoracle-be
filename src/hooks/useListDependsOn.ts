@@ -7,10 +7,10 @@ const useListDependsOn = () => {
     const { get } = useAxios()
 
     const fetchSelectData = (url: string, setDataFunction?: (data: []) => any) => {
-        get(url).then((results) => {
+        get(url).then((response) => {
             
-            if (!!(results && setDataFunction)) {
-                setDataFunction(results.data);
+            if (!!(response.results && setDataFunction)) {
+                setDataFunction(response.results.data);
             }
         });
     };

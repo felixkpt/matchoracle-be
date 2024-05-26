@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 
 const AutoPost = () => {
 
-    const { results, post, put, destroy, patch } = useAxios();
+    const { response, post, put, destroy, patch } = useAxios();
 
     const [form, setForm] = useState();
     const [key, setKey] = useState(0);
@@ -59,20 +59,20 @@ const AutoPost = () => {
 
         // Make the request
         if (method == 'post') {
-            await post(url, formData, { elementId }).then((res) => {
-                response = res
+            await post(url, formData, { elementId }).then((resp) => {
+                response = resp
             });
         } else if (method == 'put') {
-            await put(url, formData, { elementId }).then((res) => {
-                response = res
+            await put(url, formData, { elementId }).then((resp) => {
+                response = resp
             });
         } else if (method == 'patch') {
-            await patch(url, formData, { elementId }).then((res) => {
-                response = res
+            await patch(url, formData, { elementId }).then((resp) => {
+                response = resp
             });
         } else if (method == 'delete') {
-            await destroy(url, formData, { elementId }).then((res) => {
-                response = res
+            await destroy(url, formData, { elementId }).then((resp) => {
+                response = resp
             });
         }
 
@@ -94,8 +94,8 @@ const AutoPost = () => {
     };
 
     useEffect(() => {
-        setHasData(!!results.data || !!results.message)
-    }, [results])
+        setHasData(!!response.results || !!response.message)
+    }, [response])
 
     useEffect(() => {
 

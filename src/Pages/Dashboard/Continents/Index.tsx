@@ -1,12 +1,13 @@
-import AutoModal from "@/components/Autos/AutoModal";
-import AutoTable from "@/components/Autos/AutoTable";
-import PageHeader from "@/components/PageHeader";
-import { useState } from "react";
+import Str from '@/utils/Str';
+import AutoPage from '@/components/Autos/AutoPage';
 
 const Index = () => {
-
-    const [modelDetails, setModelDetails] = useState({})
-
+    // begin component common config
+    const pluralName = 'Continents'
+    const singularName = 'Continent'
+    const uri = '/dashboard/continents'
+    const componentId = Str.slug(pluralName)
+    const search = true
     const columns = [
         {
             label: 'Flag',
@@ -36,19 +37,10 @@ const Index = () => {
             label: 'Action',
             key: 'action',
         },
-    ];
+    ]
+    // end component common config
 
-    return (
-        <div>
-            <PageHeader title={'Continents list'} action="button" actionText="Create Continent" actionTargetId="AutoModal" permission='dashboard/continents' />
-            <div>
-                <AutoTable columns={columns} baseUri={'dashboard/continents'} search={true} getModelDetails={setModelDetails} />
-            </div>
-            {
-                modelDetails && <><AutoModal modelDetails={modelDetails} actionUrl='/dashboard/continents' /></>
-            }
-        </div>
-    );
+    return <AutoPage pluralName={pluralName} singularName={singularName} uri={uri} columns={columns} componentId={componentId} search={search} />;
 };
 
 export default Index;

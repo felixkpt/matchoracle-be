@@ -81,9 +81,10 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
     if (countsUrl) {
       const tabNames = tabs.map(d => Str.slug(d['name']));
 
-      get(countsUrl + 'tabs', { params: { tabs: tabNames } }).then((res) => {
-        if (res.data) {
-          const items = res.data?.data
+      get(countsUrl, { params: { tabs: tabNames } }).then((response) => {
+        if (response.results) {
+          const items = response.results
+
           for (const key in items) {
             const val = items[key]
             const elm = document.querySelector(`.auto-tabs .${key} .tab-items`)
@@ -94,11 +95,11 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
 
       })
     }
-  }, [countsUrl])
+  }, [countsUrl, key])
 
   // Render the AutoTabs component
   return (
-    <div className="auto-tabs" key={key}>
+    <div className="auto-tabs no-select" key={key}>
       {
         title &&
         <PageHeader title={`${title} - ${localOpenTab?.label || localOpenTab?.name}`} action={action} actionText={actionText} actionLink={actionLink} permission={permission} method={method} actionTargetId={actionTargetId} listUrl={listUrl} setRecord={setRecord} />

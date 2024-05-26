@@ -6,8 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const useGetUserRolesAndPermissions = () => {
     const { user, setUser, updateUser, deleteUser } = useAuth();
-    const { results, loading: loadingUser, get: getUser, loaded: loadedUser, errors: loadingUserError } = useAxios();
-    const freshUser = results?.data
+    const { response, loading: loadingUser, get: getUser, loaded: loadedUser, errors: loadingUserError } = useAxios();
+    const freshUser = response?.results
     const [stateUserId, setStateUserId] = useState<number | undefined>(user?.id)
 
     const [guestMode, setGuestMode] = useState<boolean>(true);
@@ -91,8 +91,8 @@ const useGetUserRolesAndPermissions = () => {
     useEffect(() => {
 
         if (reloadKey > 0) {
-            get(config.urls.rolePermissions + '/role-permissions/roles/get-user-roles-and-permissions?reason=' + reloadKey).then((results) => {
-                const data = results.data
+            get(config.urls.rolePermissions + '/role-permissions/roles/get-user-roles-and-permissions?reason=' + reloadKey).then((response) => {
+                const data = response.results
 
                 if (data) {
                     setRoles(data.roles || []);
@@ -100,7 +100,7 @@ const useGetUserRolesAndPermissions = () => {
 
                     setRoutePermissions(data.route_permissions || []);
                     setDirectPermissions(data.direct_permissions || []);
-                } else if (results.status !== 200) {
+                } else if (response.status !== 200) {
                     setRoles([]);
                     setIsGuestModeSupported(false)
 

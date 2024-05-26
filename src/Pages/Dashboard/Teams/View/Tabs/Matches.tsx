@@ -1,10 +1,7 @@
-import RenderTeamLogoAndForm from "@/Pages/Dashboard/Matches/View/RenderTeamLogoAndForm"
 import TeamMatchesCard from "@/components/Teams/TeamMatchesCard"
 import useAxios from "@/hooks/useAxios"
 import { GameInterface, TeamInterface } from "@/interfaces/FootballInterface"
-import { teamLogo } from "@/utils/helpers"
 import { useEffect, useState } from "react"
-import { NavLink } from "react-router-dom"
 
 type Props = {
   record: TeamInterface | undefined
@@ -23,11 +20,11 @@ const Matches = ({ record }: Props) => {
   useEffect(() => {
 
     if (team) {
-      getTeamGames(`dashboard/teams/view/${team.id}/matches?type=past&with_upcoming=1&before_to_date=1&per_page=15`).then((res) => {
+      getTeamGames(`dashboard/teams/view/${team.id}/matches?type=past&with_upcoming=1&before_to_date=1&per_page=15`).then((response) => {
 
-        const { data: data1 } = res
-        if (data1) {
-          setTeamGames(data1.data)
+        const results = response.results
+        if (results) {
+          setTeamGames(results.data)
         }
       })
     }

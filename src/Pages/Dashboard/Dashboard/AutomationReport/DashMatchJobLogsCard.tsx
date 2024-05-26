@@ -45,13 +45,12 @@ const DashMatchJobLogsCard: React.FC<DashJobLogsMiniCardProps> = ({ loading, err
         total_updated_items_counts = stats.all.total_updated_items_counts || 0;
     }
 
-    console.log('-----><<<<<<', stats,loading)
 
     return (
         <>
             {
                 loading ?
-                    <Loader message='llllllllllll' />
+                    <Loader />
                     :
                     <>
                         {

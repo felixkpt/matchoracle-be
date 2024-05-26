@@ -35,9 +35,9 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
 
   useEffect(() => {
     if (baseUri) {
-      get(baseUri, { params: { get_prediction_stats: true } }).then((res) => {
-        if (res) {
-          const data = res.data
+      get(baseUri, { params: { get_prediction_stats: true } }).then((response) => {
+        if (response.results) {
+          const data = response.results
           const { ft, ht, average_score } = data;
 
           const ft_counts = ft.counts

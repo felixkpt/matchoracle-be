@@ -17,7 +17,7 @@ const CreateOrUpdateFromSource = ({ record, hideClose }: Props) => {
 
     useEffect(() => {
 
-        get('/dashboard/settings/picklists/game-sources?all=1').then((res: any) => res?.data && setGameSources(res.data))
+        get('/dashboard/settings/picklists/game-sources?all=1').then((response) => response.results?.data && setGameSources(response.results.data))
 
     }, [])
 

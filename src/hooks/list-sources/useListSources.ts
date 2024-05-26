@@ -21,13 +21,13 @@ const useListSources = (params?: string) => {
     },
 
     async rolesList(search?: string) {
-      const res = await get('/dashboard/settings/role-permissions/roles' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/settings/role-permissions/roles' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
 
     },
 
     async directPermissionsList(search?: string) {
-      const res = await get('/dashboard/settings/role-permissions/permissions' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/settings/role-permissions/permissions' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
 
     },
@@ -37,7 +37,7 @@ const useListSources = (params?: string) => {
   const posts = {
 
     async parentCategoryId(search?: string) {
-      const res = await get('/dashboard/posts/categories' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/posts/categories' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
 
     },
@@ -64,37 +64,37 @@ const useListSources = (params?: string) => {
       return booleanOptions
     },
     async continentId(search?: string) {
-      const res = await get('/dashboard/continents' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/continents' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
 
     },
     async countryId(search?: string) {
-      const res = await get('/dashboard/countries' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/countries' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
 
     },
     async nationalityId(search?: string) {
-      const res = await get('/dashboard/countries' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/countries' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
     },
     async addressId(search?: string) {
-      const res = await get('/dashboard/teams/addresses' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/teams/addresses' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
     },
     async venueId(search?: string) {
-      const res = await get('/dashboard/teams/venues' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/teams/venues' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
     },
     async coachId(search?: string) {
-      const res = await get('/dashboard/teams/coaches' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/teams/coaches' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
     },
     async competitionId(search?: string) {
-      const res = await get('/dashboard/competitions' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/competitions' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
     },
-    async teamId(search: string) {
-      const res = await get('/dashboard/teams' + prepareParams(search)).then((res) => res.data || [])
+    async teamId(search?: string) {
+      const res = await get('/dashboard/teams' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
     },
 
@@ -102,19 +102,19 @@ const useListSources = (params?: string) => {
 
   const tips = {
     async bettingStrategyId(search?: string) {
-      const res = await get('/dashboard/settings/picklists/betting-strategies' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/settings/picklists/betting-strategies' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
     },
     async subscriptionDurationId(search?: string) {
-      const res = await get('/dashboard/settings/picklists/subscription-duration' + prepareParams(search)).then((res) => res.data || [])
+      const res = await get('/dashboard/settings/picklists/subscription-duration' + prepareParams(search)).then((response) => response.results || [])
       return res.data || []
     },
     async advantagesList(search?: string) {
-      const res = await get('/dashboard/settings/picklists/betting-strategies-pro-cons' + prepareParams(`${search}&type=advantage`)).then((res) => res.data || [])
+      const res = await get('/dashboard/settings/picklists/betting-strategies-pro-cons' + prepareParams(`${search}&type=advantage`)).then((response) => response.results || [])
       return res.data || []
     },
     async disadvantagesList(search?: string) {
-      const res = await get('/dashboard/settings/picklists/betting-strategies-pro-cons' + prepareParams(`${search}&type=disadvantage`)).then((res) => res.data || [])
+      const res = await get('/dashboard/settings/picklists/betting-strategies-pro-cons' + prepareParams(`${search}&type=disadvantage`)).then((response) => response.results || [])
       return res.data || []
     },
   }

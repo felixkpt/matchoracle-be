@@ -29,11 +29,10 @@ const Index = () => {
   }, [id])
 
   function getRecord() {
-    get(`dashboard/teams/view/${id}`).then((res) => {
+    get(`dashboard/teams/view/${id}`).then((response) => {
 
-      if (res) {
-        const { data: results } = res
-        const { data, ...others } = results
+      if (response.results) {
+        const { data, ...others } = response.results
 
         if (data) {
           setRecord(data)

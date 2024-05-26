@@ -43,10 +43,10 @@ const Index = () => {
 
 
   function getUser() {
-    get('dashboard/settings/users/view/' + id).then((results) => {
+    get('dashboard/settings/users/view/' + id).then((response) => {
 
-      if (results.data) {
-        const { data, ...others } = results.data
+      if (response.results) {
+        const { data, ...others } = response.results
         setUser(data)
         setModelDetails(others)
 
@@ -58,8 +58,8 @@ const Index = () => {
   async function loginUser() {
 
     if (user) {
-      await postLogin(`dashboard/settings/users/view/auto-login/${user.id}`).then((results) => {
-        const user = results.data;
+      await postLogin(`dashboard/settings/users/view/auto-login/${user.id}`).then((response) => {
+        const user = response.results;
 
         if (user) {
           setLoggedInUser(user);

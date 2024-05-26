@@ -20,7 +20,7 @@ const useAxios = <T = any>() => {
     axios.defaults.baseURL = baseURL('api');
     const frontendUrl = window.location.origin
 
-    const [results, setResults] = useState<T | ResultsInterface>({
+    const [response, setReponse] = useState<T | ResultsInterface>({
         results: undefined,
         message: undefined,
         status: undefined
@@ -72,36 +72,36 @@ const useAxios = <T = any>() => {
         setLoading(true);
 
         try {
-            const response = await axiosInstance(config);
+            const resp = await axiosInstance(config);
 
             setErrors(null, elementId);
 
-            if (response.data?.message) {
-                publish('notification', { message: response.data.message, type: 'success', status: 200 })
+            if (resp.data?.message) {
+                publish('notification', { message: resp.data.message, type: 'success', status: 200 })
 
-                if (!response.data?.results) {
-                    setResults({
-                        results: undefined, 
-                        message: response.data.message,
-                        status: response.status
+                if (!resp.data?.results) {
+                    setReponse({
+                        results: undefined,
+                        message: resp.data.message,
+                        status: resp.status
                     });
                     return {
                         results: undefined,
-                        message: response.data.message,
-                        status: response.status
+                        message: resp.data.message,
+                        status: resp.status
                     }
                 }
             }
 
-            setResults({
-                results: response.data?.results,
-                message:undefined,
-                status: response.status
+            setReponse({
+                results: resp.data?.results,
+                message: undefined,
+                status: resp.status
             });
 
             return {
-                results: response.data?.results,
-                status: response.status,
+                results: resp.data?.results,
+                status: resp.status,
             }
 
         } catch (error) {
@@ -128,7 +128,7 @@ const useAxios = <T = any>() => {
                         deleteUser()
                     }
 
-                    // Handle validation errors in the response data
+                    // Handle validation errors in the resp data
                     if (axiosError.response?.data.errors) {
                         showErrors(axiosError.response.data, elementId);
                     }
@@ -167,14 +167,14 @@ const useAxios = <T = any>() => {
 
         try {
             setLoading(true);
-            const response = await axiosInstance({
+            const resp = await axiosInstance({
                 method: 'GET',
                 url: `/dashboard/file-repo/${url}`,
-                responseType: 'blob', // This tells Axios to handle the response as a binary blob
+                respType: 'blob', // This tells Axios to handle the resp as a binary blob
                 ...config,
             });
 
-            const file = new Blob([response.data], { type: response.headers['content-type'] });
+            const file = new Blob([resp.data], { type: resp.headers['content-type'] });
             return file;
         } catch (error) {
             // Error handling code...
@@ -187,7 +187,7 @@ const useAxios = <T = any>() => {
 
     };
 
-    return { results, loading, loaded, errors, get, post, put, patch, destroy, getFile };
+    return { response, loading, loaded, errors, get, post, put, patch, destroy, getFile };
 };
 
 export default useAxios;

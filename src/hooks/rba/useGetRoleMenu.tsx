@@ -22,8 +22,8 @@ const useGetRoleMenu = () => {
     useEffect(() => {
 
         if (currentRole) {
-            get(config.urls.rolePermissions + '/role-permissions/roles/view/' + currentRole.id + '/get-role-menu/?get-menu=1').then((results) => {
-                const data = results.data
+            get(config.urls.rolePermissions + '/role-permissions/roles/view/' + currentRole.id + '/get-role-menu/?get-menu=1').then((response) => {
+                const data = response.results
                 if (data === undefined) {
                     setUserMenu([]);
                 } else {

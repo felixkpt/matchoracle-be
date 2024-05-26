@@ -44,9 +44,9 @@ const CompetitionsList: React.FC<Props> = ({ country, competitions }) => {
                 // Set loading state for the current competition
                 handleLoadingTeams(competitionId, true);
 
-                get(`dashboard/teams/competition/${competitionId}`).then((res: any) => {
-                    if (res?.data.data) {
-                        setTeams((curr) => ({ ...curr, [competitionId]: res.data.data }));
+                get(`dashboard/teams/competition/${competitionId}`).then((response) => {
+                    if (response.results) {
+                        setTeams((curr) => ({ ...curr, [competitionId]: response.results.data }));
                     }
                     // Clear loading state for the current competition
                     handleLoadingTeams(competitionId, false);

@@ -22,9 +22,9 @@ export default function Register() {
         // Disable the submit button during the loading state
         if (loading) return;
 
-        await post('/auth/register', body).then((res) => {
-            if (res) {
-                setUser(res);
+        await post('/auth/register', body).then((response) => {
+            if (response.results) {
+                setUser(response.results);
                 navigate("/profile");
             }
         });

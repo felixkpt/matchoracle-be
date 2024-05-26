@@ -22,9 +22,9 @@ const ClubTeams = () => {
             if (!pathname.endsWith('club-teams')) {
                 navigate('/dashboard/teams/club-teams')
             } else {
-                get(`dashboard/countries/where-has-club-teams`).then((res): void => {
-                    if (res) {
-                        setCountries(res.data.data)
+                get(`dashboard/countries/where-has-club-teams`).then((response): void => {
+                    if (response.results) {
+                        setCountries(response.results.data)
                     }
                 })
             }

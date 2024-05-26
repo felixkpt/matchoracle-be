@@ -26,8 +26,8 @@ const PredictionsStats = ({ competition, selectedSeason, fromToDates, useDate }:
 
     const [data, setData] = useState(null)
     useEffect(() => {
-        getPreds(predsStatsUrl).then((res) => {
-            const results = res.data
+        getPreds(predsStatsUrl).then((response) => {
+            const results = response.results
             if (results) {
                 setData(results)
             }

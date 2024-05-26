@@ -1,43 +1,30 @@
-import AutoTable from '@/components/Autos/AutoTable';
-import AutoModal from '@/components/Autos/AutoModal';
-import { useState } from 'react';
+import Str from '@/utils/Str';
+import AutoPage from '@/components/Autos/AutoPage';
 
 const Index = () => {
+  // begin component common config
+  const pluralName = 'Addresses'
+  const singularName = 'Address'
+  const uri = '/dashboard/teams/addresses'
+  const componentId = Str.slug(pluralName)
+  const search = true
+  const columns = [
+    {
+      key: 'name',
+    },
+    {
+      key: 'Created_at',
+    },
+    {
+      key: 'Status',
+    },
+    {
+      key: 'action',
+    },
+  ]
+  // end component common config
 
-  const [modelDetails, setModelDetails] = useState({})
-
-  return (
-    <div>
-      <h3>Addresses List</h3>
-      <div>
-        <div className='d-flex justify-content-end'>
-          <button type="button" className="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#Addresses">Create address</button>
-        </div>
-        <AutoTable
-          baseUri='/dashboard/teams/addresses'
-          columns={[
-            {
-              key: 'name',
-            },
-            {
-              key: 'Created_at',
-            },
-            {
-              key: 'Status',
-            },
-            {
-              key: 'action',
-            },
-          ]}
-          getModelDetails={setModelDetails}
-          search={true}
-        />
-      </div>
-      {
-        modelDetails && <><AutoModal id={`Addresses`} modelDetails={modelDetails} actionUrl='/dashboard/teams/addresses' /></>
-      }
-    </div>
-  );
+  return <AutoPage pluralName={pluralName} singularName={singularName} uri={uri} columns={columns} componentId={componentId} search={search} />;
 };
 
 export default Index;

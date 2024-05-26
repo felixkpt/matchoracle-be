@@ -4,11 +4,9 @@ import { DashboardStatsInterface } from '@/interfaces/FootballInterface'
 import useAxios from '@/hooks/useAxios'
 import { useEffect, useState } from 'react'
 import DashJobLogsCard from '../Includes/DashJobLogsCard'
-import Loader from '@/components/Loader'
 import CompetitionStatsCard from '../Includes/StatisticsJobLogsCards/Competitions'
 import BettingTipsCard from '../Includes/StatisticsJobLogsCards/BettingTips'
 import DashMatchJobLogsCard from './DashMatchJobLogsCard'
-
 
 const Index = () => {
 
@@ -20,9 +18,9 @@ const Index = () => {
     }, [])
 
     async function getStats() {
-        get(`dashboard/automation-report`).then((results: any) => {
-            if (results) {
-                setStats(results)
+        get(`dashboard/automation-report`).then((response) => {
+            if (response.results) {
+                setStats(response.results)
             }
         })
     }

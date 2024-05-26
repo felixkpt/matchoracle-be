@@ -1,8 +1,5 @@
-import AutoTable from '@/components/Autos/AutoTable';
-import AutoModal from '@/components/Autos/AutoModal';
-import { useState } from 'react';
 import Str from '@/utils/Str';
-import AutoPageHeader from '@/components/Autos/AutoPageHeader';
+import AutoPage from '@/components/Autos/AutoPage';
 
 const Index = () => {
   // begin component common config
@@ -10,7 +7,6 @@ const Index = () => {
   const singularName = 'Status'
   const uri = '/dashboard/settings/picklists/statuses/default'
   const componentId = Str.slug(pluralName)
-  const [modelDetails, setModelDetails] = useState({})
   const search = true
   const columns = [
     {
@@ -41,23 +37,7 @@ const Index = () => {
   ]
   // end component common config
 
-  return (
-    <div>
-      <div>
-        <AutoPageHeader pluralName={pluralName} singularName={singularName} componentId={componentId} />
-        <AutoTable
-          baseUri={uri}
-          columns={columns}
-          getModelDetails={setModelDetails}
-          search={search}
-          tableId={`${componentId}Table`}
-        />
-      </div>
-      {
-        modelDetails && <><AutoModal id={`${componentId}Modal`} modelDetails={modelDetails} actionUrl={uri} /></>
-      }
-    </div>
-  );
+  return <AutoPage pluralName={pluralName} singularName={singularName} uri={uri} columns={columns} componentId={componentId} search={search} />;
 };
 
 export default Index;

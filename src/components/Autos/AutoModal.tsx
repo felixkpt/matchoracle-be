@@ -4,7 +4,7 @@ import { CollectionItemsInterface, DataInterface, ListSourceInterface, ModalSize
 import AutoModalBody from './AutoModalBody';
 import Str from '../../utils/Str';
 interface ModalProps {
-    modelDetails?: CollectionItemsInterface | undefined;
+    modelDetails?: Omit<CollectionItemsInterface, 'data'>;
     record?: DataInterface | null | undefined
     modelName?: string;
     fillable?: { [key: string]: { input: string; type: string } };

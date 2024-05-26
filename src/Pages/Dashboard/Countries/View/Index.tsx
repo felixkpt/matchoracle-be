@@ -17,9 +17,9 @@ const Index: React.FC = () => {
   useEffect(() => {
 
     if (id) {
-      get(`dashboard/countries/view/${id}`).then((res) => {
-        if (res.data) {
-          setCountry(res.data.data)
+      get(`dashboard/countries/view/${id}`).then((response) => {
+        if (response.results) {
+          setCountry(response.results.data)
         }
       })
     }

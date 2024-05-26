@@ -16,9 +16,9 @@ const Password = () => {
             email: email.value,
         };
 
-        await post('/auth/password', body).then((res) => {
+        await post('/auth/password', body).then((response) => {
             // If 'sent' is true, redirect the user to the confirmation page
-            if (res) {
+            if (response) {
                 navigate('/reset-password-confirm');
             }
         });

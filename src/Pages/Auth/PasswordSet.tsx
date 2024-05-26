@@ -26,9 +26,9 @@ const PasswordSet = (props: Props) => {
     }, [token])
 
     async function fetchEmail(token: string) {
-        await getEmail('auth/password/' + token).then((res) => {
-            if (res)
-                setEmail(res.email)
+        await getEmail('auth/password/' + token).then((response) => {
+            if (response.results)
+                setEmail(response.results.email)
         })
     }
 
@@ -43,10 +43,10 @@ const PasswordSet = (props: Props) => {
             password_confirmation: cpassword.value,
         }
 
-        await post('/auth/password-set', body).then((res) => {
+        await post('/auth/password-set', body).then((response) => {
 
-            if (res) {
-                setUser(res);
+            if (response.results) {
+                setUser(response.results);
                 // Redirect the user to the home page
                 navigate(config.urls.home);
             }

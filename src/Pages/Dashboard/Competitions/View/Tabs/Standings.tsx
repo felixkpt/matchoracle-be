@@ -17,8 +17,10 @@ const Standings: React.FC<CompetitionTabInterface> = ({ record, seasons, selecte
 
     useEffect(() => {
         if (competition && selectedSeason) {
-            get(`dashboard/competitions/view/${competition.id}/standings/${selectedSeason?.id}`).then((res) => {
-                const data = res.data
+            get(`dashboard/competitions/view/${competition.id}/standings/${selectedSeason?.id}`).then((response) => {
+
+                const data = response.results
+
                 if (data) {
                     setDetailedCompetition(data);
                 }

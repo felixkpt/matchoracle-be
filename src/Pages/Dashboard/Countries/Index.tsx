@@ -1,52 +1,44 @@
-import AutoModal from "@/components/Autos/AutoModal";
-import AutoTable from "@/components/Autos/AutoTable";
-import PageHeader from "@/components/PageHeader";
-import useListSources from "@/hooks/list-sources/useListSources";
-import { useState } from "react";
+import Str from '@/utils/Str';
+import AutoPage from '@/components/Autos/AutoPage';
+import useListSources from '@/hooks/list-sources/useListSources';
 
-const Show = () => {
-  const [modelDetails, setModelDetails] = useState({})
-
-  const { competitions: listSources } = useListSources()
-
-  const columns = [
-    {
-      label: 'Flag',
-      key: 'Flag',
-    },
-    { label: 'Name', key: 'name' },
-    {
-      label: 'Slug',
-      key: 'slug',
-    },
-    { label: 'Continent', key: 'continent.name' },
-    { label: 'Has Competitions', key: 'has_competitions' },
-    { label: 'priority_no', key: 'priority_number' },
-    {
-      label: 'Created At',
-      key: 'Created_at',
-    },
-    {
-      label: 'Status',
-      key: 'Status',
-    },
-    {
-      label: 'Action',
-      key: 'action',
-    },
-  ]
-
-  return (
-    <div>
-      <PageHeader title={'Countries list'} action="button" actionText="Create Country" actionTargetId="AutoModal" permission='dashboard/countries' />
-      <div>
-        <AutoTable columns={columns} baseUri={'/dashboard/countries'} search={true} getModelDetails={setModelDetails} />
-      </div>
+const Index = () => {
+    // begin component common config
+    const pluralName = 'Countries'
+    const singularName = 'Country'
+    const uri = '/dashboard/countries'
+    const componentId = Str.slug(pluralName)
+    const search = true
+    const columns = [
       {
-        modelDetails && <><AutoModal modelDetails={modelDetails} actionUrl='/dashboard/countries' listSources={listSources} /></>
-      }
-    </div>
-  );
+        label: 'Flag',
+        key: 'Flag',
+      },
+      { label: 'Name', key: 'name' },
+      {
+        label: 'Slug',
+        key: 'slug',
+      },
+      { label: 'Continent', key: 'continent.name' },
+      { label: 'Has Competitions', key: 'has_competitions' },
+      { label: 'priority_no', key: 'priority_number' },
+      {
+        label: 'Created At',
+        key: 'Created_at',
+      },
+      {
+        label: 'Status',
+        key: 'Status',
+      },
+      {
+        label: 'Action',
+        key: 'action',
+      },
+    ]
+    // end component common config
+    const { competitions: listSources } = useListSources()
+
+    return <AutoPage pluralName={pluralName} singularName={singularName} uri={uri} columns={columns} componentId={componentId} search={search} listSources={listSources} />;
 };
 
-export default Show;
+export default Index;

@@ -26,9 +26,9 @@ export default function Index(): JSX.Element {
 
     const getRecord = () => {
 
-        get(`dashboard/settings/role-permissions/roles/view/${id}`).then((res) => {
-            if (res.data) {
-                setRole(res.data)
+        get(`dashboard/settings/role-permissions/roles/view/${id}`).then((response) => {
+            if (response.results) {
+                setRole(response.results)
             }
         })
     }

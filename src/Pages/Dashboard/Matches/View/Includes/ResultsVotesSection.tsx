@@ -29,10 +29,9 @@ const ResultsVotesSection = ({ game: initialGame }: Props) => {
             setVotingInProgress(true);
 
             const vote = e.target.getAttribute('data-target')
-            post(`dashboard/matches/view/${game.id}/vote`, { type: 'winner', vote }).then((res) => {
+            post(`dashboard/matches/view/${game.id}/vote`, { type: 'winner', vote }).then((response) => {
 
-                const results = res.data
-                const data = results.data
+                const data = response.results?.data
                 if (data) {
                     setGame(data)
                 }

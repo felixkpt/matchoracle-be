@@ -10,16 +10,16 @@ interface Props {
     guestMode?: boolean
 }
 const NavBar = ({ guestMode }: Props) => {
-    const { user } = useAuth();
+    const { user, deleteUser } = useAuth();
     const { post } = useAxios();
 
     // logout user
     const handleLogout = async (e: any) => {
         e.preventDefault();
 
-        post('/auth/logout').then((res) => {
-            if (res) {
-                localStorage.removeItem(`${config.storageName}.user`);
+        post('/auth/logout').then((response) => {
+            if (response.message) {
+                deleteUser()
                 setTimeout(() => {
                     window.location.href = '/';
                 }, 6000);

@@ -19,9 +19,9 @@ const TopMainStats = () => {
     }, [])
 
     async function getStats() {
-        get(`dashboard/stats`).then((results) => {
-            if (results.data) {
-                setStats(results.data)
+        get(`dashboard/stats`).then((response) => {
+            if (response.results) {
+                setStats(response.results)
             }
         })
     }

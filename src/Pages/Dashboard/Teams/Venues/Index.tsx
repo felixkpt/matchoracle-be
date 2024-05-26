@@ -1,43 +1,30 @@
-import AutoTable from '@/components/Autos/AutoTable';
-import AutoModal from '@/components/Autos/AutoModal';
-import { useState } from 'react';
+import Str from '@/utils/Str';
+import AutoPage from '@/components/Autos/AutoPage';
 
 const Index = () => {
+  // begin component common config
+  const pluralName = 'Venues'
+  const singularName = 'Venue'
+  const uri = '/dashboard/teams/venues'
+  const componentId = Str.slug(pluralName)
+  const search = true
+  const columns = [
+    {
+      key: 'name',
+    },
+    {
+      key: 'Created_at',
+    },
+    {
+      key: 'Status',
+    },
+    {
+      key: 'action',
+    },
+  ]
+  // end component common config
 
-  const [modelDetails, setModelDetails] = useState({})
-
-  return (
-    <div>
-      <h3>Venues List</h3>
-      <div>
-        <div className='d-flex justify-content-end'>
-          <button type="button" className="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#Venues">Create venue</button>
-        </div>
-        <AutoTable
-          baseUri='/dashboard/teams/venues'
-          columns={[
-            {
-              key: 'name',
-            },
-            {
-              key: 'Created_at',
-            },
-            {
-              key: 'Status',
-            },
-            {
-              key: 'action',
-            },
-          ]}
-          getModelDetails={setModelDetails}
-          search={true}
-        />
-      </div>
-      {
-        modelDetails && <><AutoModal id={`Venues`} modelDetails={modelDetails} actionUrl='/dashboard/teams/venues' /></>
-      }
-    </div>
-  );
+  return <AutoPage pluralName={pluralName} singularName={singularName} uri={uri} columns={columns} componentId={componentId} search={search} />;
 };
 
 export default Index;

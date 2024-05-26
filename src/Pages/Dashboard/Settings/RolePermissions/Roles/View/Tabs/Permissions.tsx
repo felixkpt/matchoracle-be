@@ -53,8 +53,8 @@ const Permissions: React.FC<Props> = ({ role }) => {
     }, [role])
 
     function doGetPermissions() {
-        getPermissions(`dashboard/settings/role-permissions/permissions/get-role-permissions/${id}`, { uri: 1 }).then((res) => {
-            setPermissions(res.data)
+        getPermissions(`dashboard/settings/role-permissions/permissions/get-role-permissions/${id}`, { uri: 1 }).then((response) => {
+            setPermissions(response.results)
         });
     }
 

@@ -24,8 +24,8 @@ const useGetRoleRoutePermissions = () => {
         // When roleId is given, let us NOT refetch routePermissions if the following condition fails
         if (roleId && String(currentRole.id) !== roleId) return false;
 
-        get(config.urls.rolePermissions + `/role-permissions/roles/view/${currentRole.id}/get-role-route-permissions?role-id=${currentRole.id}`).then((results) => {
-            const data = results.data
+        get(config.urls.rolePermissions + `/role-permissions/roles/view/${currentRole.id}/get-role-route-permissions?role-id=${currentRole.id}`).then((response) => {
+            const data = response.results
             if (data) {
                 setRoleRoutePermissions(data || []);
                 setRefreshedRoutePermissions(true)

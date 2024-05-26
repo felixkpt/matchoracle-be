@@ -28,9 +28,8 @@ const OverUnderVotesSection = ({ game: initialGame }: Props) => {
             setVotingInProgress(true);
 
             const vote = e.target.getAttribute('data-target')
-            post(`dashboard/matches/view/${game.id}/vote`, { type: 'over_under', vote }).then((res) => {
-                const results = res.data
-                const data = results.data
+            post(`dashboard/matches/view/${game.id}/vote`, { type: 'over_under', vote }).then((response) => {
+                const data = response.results?.data
                 if (data) {
                     setGame(data)
                 }

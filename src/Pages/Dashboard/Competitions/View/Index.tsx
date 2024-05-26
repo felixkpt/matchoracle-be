@@ -35,7 +35,7 @@ const Index = () => {
     const initialDates: Array<Date | string | undefined> = [FormatDate.YYYYMMDD(new Date()), undefined];
     const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>(initialDates);
     const [useDate, setUseDates] = useState(false);
-  
+
     const [modelDetails, setModelDetails] = useState<CollectionItemsInterface>()
 
     useEffect(() => {
@@ -45,9 +45,9 @@ const Index = () => {
     }, [id])
 
     function getRecord() {
-        get(`dashboard/competitions/view/${id}`).then((res) => {
+        get(`dashboard/competitions/view/${id}`).then((response) => {
 
-            const results = res.data
+            const results = response.results
             if (results) {
                 const { data, ...others } = results
                 if (data) {
@@ -144,8 +144,8 @@ const Index = () => {
 
                     record ?
                         <div>
-                            {/* <CompetitionHeader competition={record} currentTab={currentTab} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setFromToDates={setFromToDates} setUseDates={setUseDates} /> */}
-                            <AutoTabs key={selectedSeason && selectedSeason.id} tabs={tabs} setCurrentTabName={setCurrentTabName} listUrl="/dashboard/competitions" countsUrl={`/dashboard/competitions/view/${record.id}/`} />
+                            <CompetitionHeader competition={record} currentTab={currentTab} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+                            <AutoTabs key={selectedSeason && selectedSeason.id} tabs={tabs} setCurrentTabName={setCurrentTabName} listUrl="/dashboard/competitions" countsUrl={`/dashboard/competitions/view/${record.id}/tabs?season_id=${selectedSeason?.id}`} />
                         </div>
                         :
                         <Error404 />

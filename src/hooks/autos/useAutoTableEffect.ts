@@ -35,7 +35,7 @@ const useAutoTableEffect = (
     });
 
     // Initialize useAxios with the desired endpoint for fetching the data
-    const { results, loading, get } = useAxios();
+    const { response, loading, get } = useAxios();
 
     useEffect(() => {
         fetchData();
@@ -86,8 +86,8 @@ const useAutoTableEffect = (
 
     useEffect(() => {
         // Update the tableData state with the fetched data
-        setTableData(results.data);
-    }, [results]);
+        setTableData(response.results);
+    }, [response]);
 
     function handleOrderBy(key: string) {
         if (key === orderBy) setOrderDirection((orderDirection) => (orderDirection === 'asc' ? 'desc' : 'asc'));

@@ -52,7 +52,7 @@ export default function Login({ className, isMinimal }: Props) {
         if (tried === false && loading === true) setTried(true);
 
         if (loading === false && tried === true) {
-            const user = results.data;
+            const user = results.results;
 
             if (user) {
                 setUser(user);
