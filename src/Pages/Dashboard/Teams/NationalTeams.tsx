@@ -12,9 +12,9 @@ const NationalTeams = () => {
     const [countries, setCountries] = useState<CountryInterface[]>()
 
     useEffect(() => {
-        get(`dashboard/countries/where-has-national-teams`).then((res) => {
+        get(`dashboard/countries/where-has-national-teams`).then((res): void => {
             if (res) {
-                setCountries(res.data)
+                setCountries(res.data.data)
             }
         })
 

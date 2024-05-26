@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProgressBar } from 'react-bootstrap';
 import NoContentMessage from '@/components/NoContentMessage';
 import useAxios from '@/hooks/useAxios';
@@ -15,12 +15,18 @@ type Props = {
 };
 
 const Stats = ({ competition, selectedSeason, fromToDates, useDate }: Props) => {
-    const { data, loading, errors, get } = useAxios();
+    const { loading, get } = useAxios();
 
     const statsUrl = `dashboard/competitions/view/${competition.id}/statistics?season_id=${selectedSeason ? selectedSeason?.id : ''}${appendFromToDates(useDate, fromToDates)}`;
 
+    const [data, setData] = useState(null)
     useEffect(() => {
-        get(statsUrl);
+        get(statsUrl).then((res) => {
+            const results = res.data
+            if (results) {
+                setData(results)
+            }
+        });
     }, [statsUrl]);
 
     const renderProgressBar = (label: string, value: number, percentage: number, variant: string) => (
@@ -58,8 +64,8 @@ const Stats = ({ competition, selectedSeason, fromToDates, useDate }: Props) => 
             <div className="card">
                 <div className="card-header">
                     <h5 className="d-flex gap-2 justify-content-between">
-                        <div>Results stats</div>
-                        <div>{`Total matches: ${(data && data.counts) ? data.counts : 0}`}</div>
+                        <div className='text-dark'>Results stats</div>
+                        <div className='text-success'>{`Total matches: ${(data && data.counts) ? data.counts : 0}`}</div>
                     </h5>
                 </div>
                 <div className="card-body">

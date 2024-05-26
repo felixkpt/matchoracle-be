@@ -13,13 +13,14 @@ const Standings: React.FC<CompetitionTabInterface> = ({ record, seasons, selecte
     const competition = record
     const [detailedCompetition, setDetailedCompetition] = useState<CompetitionInterface | null>(null);
 
-    const { get, loading, data } = useAxios();
+    const { get, loading } = useAxios();
 
     useEffect(() => {
         if (competition && selectedSeason) {
             get(`dashboard/competitions/view/${competition.id}/standings/${selectedSeason?.id}`).then((res) => {
-                if (res) {
-                    setDetailedCompetition(res);
+                const data = res.data
+                if (data) {
+                    setDetailedCompetition(data);
                 }
             });
         }

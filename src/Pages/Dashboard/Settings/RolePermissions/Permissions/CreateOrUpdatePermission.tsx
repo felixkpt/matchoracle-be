@@ -17,7 +17,7 @@ type Permission = {
 type Props = {};
 
 const CreateOrUpdatePermission: React.FC<Props> = () => {
-    const { data, loading, get } = useAxios();
+    const { results, loading, get } = useAxios();
 
     const [permission, setPermission] = useState<Permission | undefined>(undefined);
     const [name, setName] = useState('');
@@ -27,10 +27,10 @@ const CreateOrUpdatePermission: React.FC<Props> = () => {
     }, []);
 
     useEffect(() => {
-        if (loading === false && data) {
-            setPermission(data?.permission);
+        if (loading === false && results.data) {
+            setPermission(results.data?.permission);
         }
-    }, [data, loading]);
+    }, [results, loading]);
 
     useEffect(() => {
         if (permission) {

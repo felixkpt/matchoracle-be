@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import useAxios from './useAxios';
+import useAxios from '../useAxios';
 import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces';
-import queryString from 'query-string';
-import { ParsedQuery } from 'query-string';
+import queryString, { ParsedQuery } from 'query-string';
 import { useParams } from 'react-router-dom';
 import { config } from '@/utils/helpers';
 
@@ -36,7 +35,7 @@ const useAutoTableEffect = (
     });
 
     // Initialize useAxios with the desired endpoint for fetching the data
-    const { data, loading, get } = useAxios();
+    const { results, loading, get } = useAxios();
 
     useEffect(() => {
         fetchData();
@@ -44,7 +43,7 @@ const useAutoTableEffect = (
 
     async function fetchData() {
         try {
-            const mergedParams = <{ [key: string]: string | undefined }>{ };
+            const mergedParams = <{ [key: string]: string | undefined }>{};
             mergedParams['id'] = id || '';
             mergedParams['search'] = searchTerm;
             mergedParams['status'] = status ? '1' : '0';
@@ -87,8 +86,8 @@ const useAutoTableEffect = (
 
     useEffect(() => {
         // Update the tableData state with the fetched data
-        setTableData(data);
-    }, [data]);
+        setTableData(results.data);
+    }, [results]);
 
     function handleOrderBy(key: string) {
         if (key === orderBy) setOrderDirection((orderDirection) => (orderDirection === 'asc' ? 'desc' : 'asc'));

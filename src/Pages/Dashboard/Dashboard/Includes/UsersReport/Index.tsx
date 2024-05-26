@@ -3,10 +3,7 @@ import UsersMiniCardSection from './UsersMiniCardSection'
 import { DashboardStatsInterface } from '@/interfaces/FootballInterface'
 import { useEffect, useState } from 'react';
 
-type Props = {
-}
-
-const Index = ({ }: Props) => {
+const Index = () => {
 
     const { get, loading, errors } = useAxios();
     const [stats, setStats] = useState<DashboardStatsInterface | null>(null);
@@ -16,9 +13,9 @@ const Index = ({ }: Props) => {
     }, [])
 
     async function getStats() {
-        get(`dashboard/advanced-stats`).then((results: any) => {
-            if (results) {
-                setStats(results)
+        get(`dashboard/advanced-stats`).then((results) => {
+            if (results.data) {
+                setStats(results.data)
             }
         })
     }

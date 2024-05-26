@@ -5,14 +5,12 @@ import Matches from "./Tabs/Matches"
 import AutoTabs from "@/components/Autos/AutoTabs"
 import { TeamInterface } from "@/interfaces/FootballInterface"
 import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces"
-import { subscribe, unsubscribe } from "@/utils/events"
 import useAxios from "@/hooks/useAxios"
 import TeamHeader from "./Includes/TeamHeader"
 import Loader from "@/components/Loader"
+import useAutoPostDone from "@/hooks/autos/useAutoPostDone"
 
-type Props = {}
-
-const Index = (props: Props) => {
+const Index = () => {
 
   const { id } = useParams()
   const { get, loading } = useAxios()
@@ -20,6 +18,8 @@ const Index = (props: Props) => {
   const [record, setRecord] = useState<TeamInterface>()
   const [modelDetails, setModelDetails] = useState<CollectionItemsInterface>()
   const [currentTab, setCurrentTabName] = useState<string | undefined>()
+
+  const { event } = useAutoPostDone()
 
   useEffect(() => {
 
@@ -32,7 +32,9 @@ const Index = (props: Props) => {
     get(`dashboard/teams/view/${id}`).then((res) => {
 
       if (res) {
-        const { data, ...others } = res
+        const { data: results } = res
+        const { data, ...others } = results
+
         if (data) {
           setRecord(data)
         }
@@ -41,32 +43,22 @@ const Index = (props: Props) => {
     })
   }
 
-  const recordUpdated = (event: CustomEvent<{ [key: string]: any }>) => {
-
-    if (event.detail) {
-      const detail = event.detail;
-      if (detail.elementId === 'addTeamSources') {
-        getRecord()
-      }
-    }
-
-  }
-
   useEffect(() => {
 
-    subscribe('ajaxPostDone', recordUpdated as EventListener)
+    if (event && event.id === 'addTeamSources') {
+      getRecord()
+    }
 
-    return () => unsubscribe('recordUpdated', recordUpdated as EventListener)
-  }, [])
+  }, [event])
 
   const tabs = [
     {
       name: "Matches",
-      content: <Matches record={record} />,
+      component: <Matches record={record} />,
     },
     {
       name: "Details",
-      content: <Details record={record} modelDetails={modelDetails} />,
+      component: <Details record={record} modelDetails={modelDetails} />,
     },
 
   ];

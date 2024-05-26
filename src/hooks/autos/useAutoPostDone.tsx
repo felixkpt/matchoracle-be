@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
-import { subscribe, unsubscribe } from "../utils/events";
+import { subscribe, unsubscribe } from "../../utils/events";
 
-interface EventType {
+
+interface ResultsInterface {
+    data: any,
+    message: string | undefined,
+    status: number | undefined
+}
+interface EventType extends ResultsInterface {
     id: string
-    response: { results: any, message: string, tableId: string }
-    status: 'success' | 'failure'
 }
 
 const useAutoPostDone = () => {
@@ -23,10 +27,11 @@ const useAutoPostDone = () => {
     }, [])
 
     const handleAutoPostDone = (resp: any) => {
+     
         if (resp.detail) {
-            const { elementId, response } = resp.detail;
-            const status = (response?.status == undefined || response?.status == 200 || response?.status == 201) ? 'success' : 'failure'
-            setEvent({ id: elementId, response, status })
+            const elementId = resp.detail?.elementId;
+            const results: ResultsInterface = resp.detail?.results
+            setEvent({ ...results, id: elementId })
         }
     };
 

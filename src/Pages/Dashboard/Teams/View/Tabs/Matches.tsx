@@ -27,7 +27,7 @@ const Matches = ({ record }: Props) => {
 
         const { data: data1 } = res
         if (data1) {
-          setTeamGames(data1)
+          setTeamGames(data1.data)
         }
       })
     }

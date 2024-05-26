@@ -9,8 +9,7 @@ const ResultsOddsSection = ({ game }: Props) => {
     const [odds, setOdds] = useState<OddInterface>()
 
     useEffect(() => {
-
-        if (game.odds[0]) {
+        if (game.odds && game.odds.length > 0) {
             setOdds(game.odds[0])
         }
 

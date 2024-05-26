@@ -67,7 +67,7 @@ const PastMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
               } </label>
               <input type="hidden" name="season_id" key={selectedSeason?.id} value={selectedSeason?.id} />
             </div>
-            <div className={`form-group mb-3${selectedSeason ? (!!selectedSeason.is_current ? '' : ' d-none ') : ''}`}>
+            <div className={`form-group mb-3${selectedSeason ? (selectedSeason.is_current ? '' : ' d-none ') : ''}`}>
               <div className="form-check">
                 <input
                   key={selectedSeason ? selectedSeason.id : ''}

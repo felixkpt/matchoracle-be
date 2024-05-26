@@ -18,56 +18,56 @@ const Index = () => {
     const tabs = [
         {
             name: "Seasons",
-            content: <SeasonsJobLogs />,
+            component: <SeasonsJobLogs />,
         },
         {
             name: "Standings - Historical Results",
-            content: <StandingsHistoricalResults />,
+            component: <StandingsHistoricalResults />,
         },
         {
             name: "Standings - Recent Results",
-            content: <StandingsRecentResults />,
+            component: <StandingsRecentResults />,
         },
         {
             name: "Matches - Historical Results",
-            content: <MatchesHistoricalResults />,
+            component: <MatchesHistoricalResults />,
         },
         {
             name: "Matches - Recent Results",
-            content: <MatchesRecentResults />,
+            component: <MatchesRecentResults />,
         },
         {
             name: "Matches - Shallow Fixtures",
-            content: <MatchesShallowFixtures />,
+            component: <MatchesShallowFixtures />,
         },
         {
             name: "Matches - Fixures",
-            content: <MatchesFixtures />,
+            component: <MatchesFixtures />,
         },
 
         {
             name: "Match - Historical Results",
-            content: <MatchHistoricalResults />,
+            component: <MatchHistoricalResults />,
         },
         {
             name: "Match - Recent Results",
-            content: <MatchRecentResults />,
+            component: <MatchRecentResults />,
         },
         {
             name: "Match - Shallow Fixtures",
-            content: <MatchShallowFixtures />,
+            component: <MatchShallowFixtures />,
         },
         {
             name: "Match - Fixures",
-            content: <MatchFixtures />,
+            component: <MatchFixtures />,
         },
         {
             name: "Train Predictions",
-            content: <TrainPredictionsJobLogs />,
+            component: <TrainPredictionsJobLogs />,
         },
         {
             name: "Predictions",
-            content: <PredictionsJobLogs />,
+            component: <PredictionsJobLogs />,
         },
 
     ];

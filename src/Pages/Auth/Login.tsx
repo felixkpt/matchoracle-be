@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import useAxios from '@/hooks/useAxios';
 import SubmitButton from '../../components/SubmitButton';
 import AlertMessage from '@/components/AlertMessage';
+import { useRoleRoutePermissionsAndMenuContext } from '@/contexts/RoleRoutePermissionsAndMenuContext';
 
 interface Props {
     className?: string
@@ -11,11 +12,14 @@ interface Props {
 }
 export default function Login({ className, isMinimal }: Props) {
 
-    const { setUser, redirectTo, redirectMessage } = useAuth();
+    const { redirectTo, redirectMessage } = useAuth();
+    const { roleAndPermissions } = useRoleRoutePermissionsAndMenuContext()
+    const { setUser } = roleAndPermissions
+
     const navigate = useNavigate();
 
     // Initialize useAxios with the desired endpoint for login
-    const { data, loading, post } = useAxios();
+    const { results, loading, post } = useAxios();
 
     // login user
     const handleSubmit = async (e: any) => {
@@ -48,7 +52,7 @@ export default function Login({ className, isMinimal }: Props) {
         if (tried === false && loading === true) setTried(true);
 
         if (loading === false && tried === true) {
-            const user = data;
+            const user = results.data;
 
             if (user) {
                 setUser(user);

@@ -29,14 +29,14 @@ const BTSVotesSection = ({ game: initialGame }: Props) => {
 
             const vote = e.target.getAttribute('data-target')
             post(`dashboard/matches/view/${game.id}/vote`, { type: 'bts', vote }).then((res) => {
-                if (res) {
-                    setGame(res.data)
+                const results = res.data
+                const data = results.data
+                if (data) {
+                    setGame(data)
                 }
 
             }).finally(() => setVotingInProgress(false))
-
         }
-
     }
 
     useEffect(() => {
@@ -46,8 +46,8 @@ const BTSVotesSection = ({ game: initialGame }: Props) => {
             setTimeout(() => {
                 const totals = game.gg_votes + game.ng_votes
 
-                let gg_votes = (game.gg_votes / totals) * 100 || 50
-                let ng_votes = (game.ng_votes / totals) * 100 || 50
+                const gg_votes = (game.gg_votes / totals) * 100 || 50
+                const ng_votes = (game.ng_votes / totals) * 100 || 50
 
                 setbutton1Width(gg_votes + '%')
                 setbutton2Width(ng_votes + '%')

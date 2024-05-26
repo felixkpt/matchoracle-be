@@ -11,15 +11,15 @@ import Loader from "@/components/Loader";
 const Index: React.FC = () => {
   const { id } = useParams()
   const { get, loading } = useAxios()
-  const [country, setCountry] = useState<CountryInterface>()
+  const [country, setCountry] = useState<CountryInterface | undefined>()
   const [currentTab, setCurrentTabName] = useState<string | undefined>()
 
   useEffect(() => {
 
     if (id) {
-      get(`dashboard/countries/view/${id}`).then((res: any) => {
-        if (res) {
-          setCountry(res.data)
+      get(`dashboard/countries/view/${id}`).then((res) => {
+        if (res.data) {
+          setCountry(res.data.data)
         }
       })
     }
@@ -30,12 +30,12 @@ const Index: React.FC = () => {
     {
       name: "Competitions",
       link: "competitions",
-      content: <Competitions country={country} />,
+      component: <Competitions country={country} />,
     },
     {
       name: "Details",
       link: "details",
-      content: <Details country={country} />,
+      component: <Details country={country} />,
     },
   ];
 

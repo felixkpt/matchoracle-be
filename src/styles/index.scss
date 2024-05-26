@@ -528,6 +528,7 @@ p {
   min-width: 40px;
 }
 
+
 .card-primary {
   border-color: var(--bs-gray-700) !important;
 
@@ -546,8 +547,12 @@ p {
     color: var(--bs-gray-100);
 
     .card-text {
-      color: var(--bs-gray-100)!important;
+      color: var(--bs-gray-100) !important;
     }
 
   }
+}
+
+.automodal .modal-body {
+  overflow-x: auto;
 }

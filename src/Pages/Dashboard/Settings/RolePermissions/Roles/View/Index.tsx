@@ -6,6 +6,7 @@ import useAxios from "@/hooks/useAxios";
 import { useParams } from "react-router-dom";
 import Error404 from "@/Pages/ErrorPages/Error404";
 import Loader from "@/components/Loader";
+import { RoleInterface } from "@/interfaces/RolePermissionsInterfaces";
 
 export default function Index(): JSX.Element {
 
@@ -26,8 +27,8 @@ export default function Index(): JSX.Element {
     const getRecord = () => {
 
         get(`dashboard/settings/role-permissions/roles/view/${id}`).then((res) => {
-            if (res) {
-                setRole(res)
+            if (res.data) {
+                setRole(res.data)
             }
         })
     }
@@ -36,12 +37,12 @@ export default function Index(): JSX.Element {
         {
             name: "Permissions",
             link: "permissions",
-            content: <Permissions role={role} />,
+            component: <Permissions role={role} />,
         },
         {
             name: "Users",
             link: "users",
-            content: <Users role={role} />,
+            component: <Users role={role} />,
         },
     ];
 
@@ -53,7 +54,7 @@ export default function Index(): JSX.Element {
 
                     role ?
                         <div>
-                            <AutoTabs title={`${role.name} role`} tabs={tabs} active="permissions" listUrl="/dashboard/settings/role-permissions/roles" />
+                            <AutoTabs title={`${role.name} role`} tabs={tabs} />
                         </div>
                         :
                         <Error404 />

@@ -1,7 +1,7 @@
 import AutoModal from "@/components/Autos/AutoModal";
 import AutoTable from "@/components/Autos/AutoTable";
 import PageHeader from "@/components/PageHeader";
-import useListSources from "@/hooks/apis/useListSources";
+import useListSources from "@/hooks/list-sources/useListSources";
 import { useState } from "react";
 
 const Show = () => {

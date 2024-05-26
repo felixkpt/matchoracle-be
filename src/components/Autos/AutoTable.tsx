@@ -1,4 +1,4 @@
-import useAutoTableEffect from '@/hooks/useAutoTableEffect';
+import useAutoTableEffect from '@/hooks/autos/useAutoTableEffect';
 import useStatusesUpdateEffect from '@/hooks/useStatusesUpdateEffect';
 import { debounce } from 'lodash';
 import Pagination from '../Pagination';
@@ -11,8 +11,8 @@ import AutoTableHeader from './AutoTableHeader';
 import Loader from '../Loader';
 import StatusesUpdate from '../StatusesUpdate';
 import { config } from '@/utils/helpers';
-import usePermissions from '@/hooks/usePermissions';
-import useAutoPostDone from '../../hooks/useAutoPostDone';
+import usePermissions from '@/hooks/rba/usePermissions';
+import useAutoPostDone from '@/hooks/autos/useAutoPostDone';
 import Str from '../../utils/Str';
 
 function __dangerousHtml(html: HTMLElement) {
@@ -61,7 +61,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     const { userCan } = usePermissions()
     const { event } = useAutoPostDone()
     useEffect(() => {
-        if (event && event.status === 'success' && tableId) {
+        if (event && event.status && [200, 201].includes(event.status) && tableId) {
             const test = Str.replace(tableId, 'Table', '')
             const against = Str.replace(Str.replace(event.id, 'Form', ''), 'Modal', '')
             if (tableId && test === against) {
@@ -321,7 +321,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
 
                                     {columns && columns.map(column => {
                                         return (
-                                            <td key={column.key} scope="col" className="px-6 py-3">{(column.key === 'action' || htmls.includes(column.key) === true) ? __dangerousHtml(row[column.key]) : String(getDynamicValue(row, column.key))}</td>
+                                            <td key={column.key} scope="col" className="px-6 py-3">{(column.key === 'action' || (htmls.includes(column.key) === true || column?.callback)) ? __dangerousHtml(column?.callback ? column.callback(row[column.key], row) : row[column.key]) : String(getDynamicValue(row, column.key))}</td>
                                         )
                                     })}
 

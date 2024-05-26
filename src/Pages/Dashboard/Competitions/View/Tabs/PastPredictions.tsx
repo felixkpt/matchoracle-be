@@ -8,9 +8,7 @@ import { predictionModes, predictionsColumns } from '@/utils/constants';
 import Str from "@/utils/Str"
 import PredictionStatsTable from "@/components/Predictions/PredictionStatsTable"
 import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces"
-import Select from 'react-select';
 import PredictionsModeSwitcher from "@/components/Predictions/PredictionsModeSwitcher"
-
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 

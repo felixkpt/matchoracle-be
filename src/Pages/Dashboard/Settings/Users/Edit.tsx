@@ -17,7 +17,7 @@ type User = {
 type Props = {};
 
 const Create: React.FC<Props> = () => {
-    const { data, loading, get } = useAxios();
+    const { results, loading, get } = useAxios();
 
     const [user, setUser] = useState<User | undefined>(undefined);
     const [roles, setRoles] = useState<Role[]>([]);
@@ -40,11 +40,11 @@ const Create: React.FC<Props> = () => {
     }, []);
 
     useEffect(() => {
-        if (loading === false && data) {
-            setUser(data?.user);
-            setRoles(data?.roles);
+        if (loading === false && results.data) {
+            setUser(results.data?.user);
+            setRoles(results.data?.roles);
         }
-    }, [data, loading]);
+    }, [results.data, loading]);
 
     useEffect(() => {
         if (user) {

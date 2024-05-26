@@ -1,8 +1,7 @@
 import Loader from "@/components/Loader";
-import { useAuth } from "@/contexts/AuthContext";
 import useAxios from "@/hooks/useAxios";
 import { CompetitionInterface, CountryInterface, TeamInterface } from "@/interfaces/FootballInterface";
-import { baseURL, competitionLogo, teamLogo } from "@/utils/helpers";
+import { competitionLogo, teamLogo } from "@/utils/helpers";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -13,7 +12,6 @@ interface Props {
 }
 
 const CompetitionsList: React.FC<Props> = ({ country, competitions }) => {
-    const { fileAccessToken } = useAuth()
 
     const [teams, setTeams] = useState<{ [key: string]: TeamInterface[] }>();
     const [loadingTeams, setLoadingTeams] = useState<{ [key: string]: boolean }>({});
@@ -47,8 +45,8 @@ const CompetitionsList: React.FC<Props> = ({ country, competitions }) => {
                 handleLoadingTeams(competitionId, true);
 
                 get(`dashboard/teams/competition/${competitionId}`).then((res: any) => {
-                    if (res?.data) {
-                        setTeams((curr) => ({ ...curr, [competitionId]: res.data }));
+                    if (res?.data.data) {
+                        setTeams((curr) => ({ ...curr, [competitionId]: res.data.data }));
                     }
                     // Clear loading state for the current competition
                     handleLoadingTeams(competitionId, false);
@@ -61,10 +59,11 @@ const CompetitionsList: React.FC<Props> = ({ country, competitions }) => {
         setLoadingTeams((curr) => ({ ...curr, [competitionId]: state }));
     }
 
+    console.log(competitions)
     return (
         <div>
             <div className="pt-3 accordion" id={`${country.id}TeamsAccordion`}>
-                {competitions.map((competition: CompetitionInterface) => {
+                {competitions.length > 0 && competitions.map((competition: CompetitionInterface) => {
 
                     const teamsLoading = loadingTeams[competition.id];
                     const teamsExist = teams && teams[competition.id] && teams[competition.id].length > 0;

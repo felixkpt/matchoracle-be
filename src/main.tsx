@@ -13,14 +13,14 @@ import './scss/customized-boostrap.scss';
 import 'react-toastify/dist/ReactToastify.css';
 import "flatpickr/dist/themes/material_green.css";
 
-import { RolePermissionsProvider } from "./contexts/RolePermissionsContext";
+import { RoleRoutePermissionsAndMenuProvider } from "./contexts/RoleRoutePermissionsAndMenuContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <ErrorBoundary fallback="There was an error.">
     <AuthProvider>
-      <RolePermissionsProvider>
+      <RoleRoutePermissionsAndMenuProvider>
         <RouterProvider router={router} />
-      </RolePermissionsProvider>
+      </RoleRoutePermissionsAndMenuProvider>
     </AuthProvider>
   </ErrorBoundary>
 );

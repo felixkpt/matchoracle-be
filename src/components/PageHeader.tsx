@@ -1,4 +1,4 @@
-import usePermissions from '@/hooks/usePermissions';
+import usePermissions from '@/hooks/rba/usePermissions';
 import { PageHeaderInterface } from '@/interfaces/UncategorizedInterfaces';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useEffect, useState } from 'react';

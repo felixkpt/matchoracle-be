@@ -1,9 +1,7 @@
 import StatsAndPerformance from "./StatsAndPerformance/Index";
 import UsersReport from "./UsersReport/Index";
 
-type Props = {}
-
-const AdvancedDashboardStats = (props: Props) => {
+const AdvancedDashboardStats = () => {
 
     return (
         <div>

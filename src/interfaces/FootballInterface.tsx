@@ -224,7 +224,7 @@ export interface GameInterface {
     prediction: PredictionInterface,
     formatted_prediction: PredictionInterface,
     CS: string;
-    odds: OddInterface[] | number
+    odds: OddInterface[]
     Fulltime: HTMLElement
     outcome: 'W' | 'L' | 'U'
     Winner: string

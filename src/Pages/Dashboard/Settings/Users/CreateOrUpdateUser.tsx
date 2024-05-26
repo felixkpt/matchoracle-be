@@ -15,8 +15,8 @@ const options = [
 
 const CreateOrUpdateUser: React.FC<Props> = () => {
     const { id } = useParams<{ id: string }>();
-    const { data: user, loading: loadingUser, get: getUser } = useAxios();
-    const { data: roles, loading: loadingRoles, get: getRoles } = useAxios();
+    const { results: user, loading: loadingUser, get: getUser } = useAxios();
+    const { results: roles, loading: loadingRoles, get: getRoles } = useAxios();
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -78,7 +78,7 @@ const CreateOrUpdateUser: React.FC<Props> = () => {
                         <h1 className="text-2xl font-bold mb-4">{'Edit User'}</h1>
                         <form
                             method="post"
-                            action-url={
+                            data-action={
                                 user
                                     ? `/dashboard/setting/users/view/${user.id}`
                                     : '/dashboard/setting/users'

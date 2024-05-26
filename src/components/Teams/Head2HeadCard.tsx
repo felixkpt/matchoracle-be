@@ -40,7 +40,8 @@ const Head2HeadCard = ({ game, homeTeam, awayTeam, perPage }: Props) => {
         if (game) {
             geGames(`dashboard/matches/view/${game.id}/head2head?type=past&per_page=${perPage || 5}&to_date=${game?.utc_date}&before_to_date=1&playing=${selectedHead2HeadOption?.id || 'all'}&break_preds2=1`).then((res) => {
 
-                const { data } = res
+                const results = res.data
+                const { data } = results
                 if (data) {
                     setGames(data)
                 }

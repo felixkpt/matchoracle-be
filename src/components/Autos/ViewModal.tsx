@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import SimpleTable from "./SimpleTable";
+import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces";
 
 type ModalShowProps = {
     record: object | null
-    modelDetails?: any
+    modelDetails?: CollectionItemsInterface
     size?: 'modal-sm' | 'modal-lg' | 'modal-xl'
     id?: string
 }
@@ -59,7 +60,7 @@ const ViewModal: React.FC<ModalShowProps> = ({ record, modelDetails, size, id })
 
     return (
 
-        <div className={`modal fade`} id={id || 'ViewModal'} data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1} aria-labelledby="staticBackdropLabel" aria-hidden={`${isModalOpen ? 'true' : 'false'}`}>
+        <div className={`modal fade automodal`} id={id || 'ViewModal'} data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1} aria-labelledby="staticBackdropLabel" aria-hidden={`${isModalOpen ? 'true' : 'false'}`}>
 
             <div className={`modal-dialog ${computedSize}`}>
                 <div className="modal-content">

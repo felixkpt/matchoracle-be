@@ -11,8 +11,9 @@ import Head2HeadCard from '@/components/Teams/Head2HeadCard'
 import PredictionsSection from './PredictionsSection'
 import InlineAction from '@/components/Modals/InlineAction'
 import { subscribe, unsubscribe } from '@/utils/events'
-import usePermissions from '@/hooks/usePermissions'
+import usePermissions from '@/hooks/rba/usePermissions'
 import Error404 from '@/Pages/ErrorPages/Error404'
+import useAutoPostDone from '@/hooks/autos/useAutoPostDone'
 
 const Index = () => {
 
@@ -41,9 +42,9 @@ const Index = () => {
 
   async function getGameDetails() {
     getGame(`dashboard/matches/view/${id}?break_preds=1`).then((res) => {
-      const { data } = res
+      const data = res.data
       if (data) {
-        handleSetGame(data)
+        handleSetGame(data.data)
       }
     })
   }
@@ -62,8 +63,8 @@ const Index = () => {
     if (game) {
       getStandings(`dashboard/competitions/view/${game.competition_id}/standings/${game.season_id}`).then((res) => {
 
-        const { standings } = res
-
+        const data = res.data
+        const { standings } = data
         if (standings) {
           setStandings(standings)
         }
@@ -71,25 +72,15 @@ const Index = () => {
     }
   }, [game])
 
+  const { event } = useAutoPostDone()
+
   useEffect(() => {
-
-    subscribe('ajaxPostDone', handleAjaxPostDone);
-
-    return () => {
-      unsubscribe('ajaxPostDone', handleAjaxPostDone);
-    };
-
-  }, [id])
-
-  const handleAjaxPostDone = (resp: any) => {
-    if (resp.detail) {
-      const detail = resp.detail;
-      if (detail.elementId === 'update-game' && detail.results) {
-        setKey((c) => c + 1)
-        getGameDetails()
-      }
+    if (event && event.id === 'update-game' && event.data) {
+      setKey((c) => c + 1)
+      getGameDetails()
     }
-  };
+
+  }, [event])
 
   return (
     <div>
@@ -131,7 +122,7 @@ const Index = () => {
               </div>
             </div>
             :
-            <Error404 timeout={1} />
+            <Error404 />
           :
           <Loader />
       }

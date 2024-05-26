@@ -9,15 +9,26 @@ interface AxiosResponseWithData<T> extends AxiosResponse {
     data: T;
 }
 
+interface ResultsInterface {
+    results: any,
+    message: string | undefined,
+    status: number | undefined
+}
+
 const useAxios = <T = any>() => {
 
     axios.defaults.baseURL = baseURL('api');
     const frontendUrl = window.location.origin
 
-    const [data, setData] = useState<T | null>(null);
+    const [results, setResults] = useState<T | ResultsInterface>({
+        results: undefined,
+        message: undefined,
+        status: undefined
+    });
+
     const [loading, setLoading] = useState(false);
     const [loaded, setLoaded] = useState(false);
-    const [errors, setErrors] = useState(null);
+    const [errors, setErrors] = useState(undefined);
 
     // Create an Axios instance with a request interceptor
     const axiosInstance = axios.create();
@@ -58,9 +69,9 @@ const useAxios = <T = any>() => {
         }
 
         clearErrors(elementId)
+        setLoading(true);
 
         try {
-            setLoading(true);
             const response = await axiosInstance(config);
 
             setErrors(null, elementId);
@@ -69,13 +80,30 @@ const useAxios = <T = any>() => {
                 publish('notification', { message: response.data.message, type: 'success', status: 200 })
 
                 if (!response.data?.results) {
-                    setData(response.data.message);
-                    return response.data.message
+                    setResults({
+                        results: undefined, 
+                        message: response.data.message,
+                        status: response.status
+                    });
+                    return {
+                        results: undefined,
+                        message: response.data.message,
+                        status: response.status
+                    }
                 }
             }
 
-            setData(response.data?.results);
-            return response.data?.results
+            setResults({
+                results: response.data?.results,
+                message:undefined,
+                status: response.status
+            });
+
+            return {
+                results: response.data?.results,
+                status: response.status,
+            }
+
         } catch (error) {
 
             const axiosError = error as AxiosErrorWithResponse;
@@ -119,7 +147,7 @@ const useAxios = <T = any>() => {
 
             }
 
-            return {message, status}
+            return { results: undefined, message, status }
 
         } finally {
             setLoading(false);
@@ -159,7 +187,7 @@ const useAxios = <T = any>() => {
 
     };
 
-    return { data, loading, loaded, errors, get, post, put, patch, destroy, getFile };
+    return { results, loading, loaded, errors, get, post, put, patch, destroy, getFile };
 };
 
 export default useAxios;

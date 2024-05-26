@@ -1,13 +1,13 @@
 import DefaultLayout from "../../Layouts/Default/DefaultLayout";
-import Profile from "@/Pages/User/Profile";
+import Index from "@/Pages/User/Index";
 
-const relativeUri = 'users/user/'
+const relativeUri = 'user/'
 
 const index = [
 
     {
-        path: 'profile',
-        element: <DefaultLayout uri={relativeUri + 'profile'} permission="" Component={Profile} />,
+        path: 'account',
+        element: <DefaultLayout uri={relativeUri + 'account'} permission="" Component={Index} />,
     }
 
 ]

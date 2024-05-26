@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 
 const AutoPost = () => {
 
-    const { data, post, put, destroy, patch } = useAxios();
+    const { results, post, put, destroy, patch } = useAxios();
 
     const [form, setForm] = useState();
     const [key, setKey] = useState(0);
@@ -14,7 +14,7 @@ const AutoPost = () => {
 
     const handleEvent = async (event: CustomEvent<{ [key: string]: any }>) => {
         setHasData(false)
-        
+
         const rawForm = event.detail.target
         setForm(rawForm);
 
@@ -76,7 +76,7 @@ const AutoPost = () => {
             });
         }
 
-        publish('autoPostDone', { elementId, response })
+        publish('autoPostDone', { elementId, results: response })
 
         setKey(key + 1)
 
@@ -94,8 +94,8 @@ const AutoPost = () => {
     };
 
     useEffect(() => {
-        setHasData(!!data)
-    }, [data])
+        setHasData(!!results.data || !!results.message)
+    }, [results])
 
     useEffect(() => {
 

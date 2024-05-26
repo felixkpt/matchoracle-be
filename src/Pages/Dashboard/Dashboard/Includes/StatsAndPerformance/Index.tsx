@@ -4,13 +4,10 @@ import DetailedMatchesInfo from '../DetailedMatchesInfo'
 import { DashboardStatsInterface } from '@/interfaces/FootballInterface'
 import useAxios from '@/hooks/useAxios'
 import { useEffect, useState } from 'react'
-import BettingTipsStats from './BettingTipsStats'
 import NoContentMessage from '@/components/NoContentMessage'
 
-type Props = {
-}
 
-const Index = ({ }: Props) => {
+const Index = () => {
 
     const { get, loading, errors } = useAxios();
     const [stats, setStats] = useState<DashboardStatsInterface | null>(null);
@@ -20,9 +17,9 @@ const Index = ({ }: Props) => {
     }, [])
 
     async function getStats() {
-        get(`dashboard/advanced-stats`).then((results: any) => {
-            if (results) {
-                setStats(results)
+        get(`dashboard/advanced-stats`).then((results) => {
+            if (results.data) {
+                setStats(results.data)
             }
         })
     }
@@ -74,11 +71,7 @@ const Index = ({ }: Props) => {
                 </div>
             </div>
             <div className="col-xxl-4">
-                <BettingTipsStats
-                    loading={loading}
-                    errors={errors}
-                    stats={stats?.betting_tips_statistics}
-                />
+               Lorem ipsum dolor sit, amet consectetur adipisicing elit. Itaque iste, dolores et cum officia tempore blanditiis commodi maxime quis at quasi quaerat, nihil doloremque neque necessitatibus dolor nesciunt atque voluptatum?
             </div>
         </div>
     )

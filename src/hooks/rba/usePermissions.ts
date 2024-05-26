@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react';
-import { useRolePermissionsContext } from '@/contexts/RolePermissionsContext';
+import { useRoleRoutePermissionsAndMenuContext } from '@/contexts/RoleRoutePermissionsAndMenuContext';
 import { convertToLaravelPattern } from '@/utils/helpers';
 
 const usePermissions = () => {
-    const { routePermissions, directPermissions } = useRolePermissionsContext();
+    const { roleAndPermissions, roleRoutePermissions } = useRoleRoutePermissionsAndMenuContext();
+    const { directPermissions, } = roleAndPermissions;
+    const { permissions } = roleRoutePermissions;
 
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
 
-        if (routePermissions.length > 0) {
+        if (permissions.length > 0) {
             setLoading(false)
         }
 
-    }, [routePermissions])
+    }, [permissions])
 
     const userCan = (permission: string, method: string) => {
 
@@ -24,7 +26,7 @@ const usePermissions = () => {
             const permissionCleaned = permission.replace(/\/$/, '').replace(/^\//, '')
 
             const httpMethod = method.toUpperCase()
-            const found = !!routePermissions.find((route) => {
+            const found = !!permissions.find((route) => {
                 return (String(route).startsWith(permissionCleaned + '@') && (httpMethod === 'ANY' || String(route).includes('@' + httpMethod))) || httpMethod === 'GET' && String(route) === permissionCleaned
 
             });

@@ -9,17 +9,17 @@ export default function Index(): JSX.Element {
     {
       name: "Roles",
       link: "roles",
-      content: <Roles />,
+      component: <Roles />,
     },
     {
       name: "Permissions",
       link: "permissions",
-      content: <Permissions />,
+      component: <Permissions />,
     },
      {
       name: "Routes",
       link: "routes",
-      content: <Routes />,
+      component: <Routes />,
     },
   ];
 

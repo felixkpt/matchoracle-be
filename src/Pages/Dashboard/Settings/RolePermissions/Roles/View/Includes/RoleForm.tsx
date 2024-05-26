@@ -3,7 +3,7 @@ import useAxios from 'path/to/useAxios'; // Replace 'path/to/useAxios' with the 
 
 const RoleForm = () => {
   const [name, setName] = useState('');
-  const { data, error, loading, fetchData } = useAxios('/roles', 'post', false); // Adjust the API endpoint URL accordingly
+  const { results, error, loading, fetchData } = useAxios(); // Adjust the API endpoint URL accordingly
   // Note: In the above line, we pass 'false' as the third parameter to prevent auto-fetching on mount
 
   const handleSubmit = async (event) => {
@@ -12,7 +12,7 @@ const RoleForm = () => {
       // Create the role
       const roleData = { name }; // Adjust the payload based on your backend API requirements
       await fetchData(roleData);
-      console.log('Role created:', data); // 'data' will contain the response from the API
+      console.log('Role created:', results); // 'data' will contain the response from the API
       // Reset the form
       setName('');
     } catch (error) {

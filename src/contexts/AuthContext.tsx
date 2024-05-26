@@ -1,32 +1,10 @@
 import React, { createContext, useContext, useState } from 'react';
 import CryptoJS from 'crypto-js';
-import { UserInterface } from '@/interfaces/UserInterface';
 import { config } from '@/utils/helpers';
+import { AuthenticatedUser, UserInterface } from '@/interfaces/AuthInterfaces';
 
 // Secret key for encryption/decryption
 const secretKey = import.meta.env.VITE_APP_CRYPO_SECRET_KEY;
-
-// Define a generic interface for the authenticated user object
-interface AuthenticatedUser {
-  // The authenticated user or null if not authenticated
-  user?: UserInterface | null;
-  // Function to update the user object
-  updateUser: (updatedUser: Partial<UserInterface>) => void;
-  // Function to generate CSRF token for guest methods
-  csrfToken: () => Promise<boolean>;
-  // Function to set the user object in the state
-  setUser: (user: UserInterface) => void;
-  // Function to delete user data and reset state
-  deleteUser: () => void;
-  // recenty verified user credentials
-  verified: boolean
-  setVerified: (val: boolean) => void;
-  redirectTo: string
-  setRedirectTo: (location: string) => void;
-  redirectMessage: string | undefined
-  setRedirectMessage: (message: string) => void;
-  fileAccessToken: string | null
-}
 
 // Function to decrypt the user object
 const decryptUser = (encryptedUser: string) => {
@@ -58,7 +36,7 @@ const AuthContent = createContext<AuthenticatedUser>({
   deleteUser: () => { },
   verified: false,
   setVerified: () => { },
-  redirectTo: '/',
+  redirectTo: config.urls.home,
   setRedirectTo: () => { },
   redirectMessage: undefined,
   setRedirectMessage: () => { },
@@ -78,10 +56,12 @@ const encryptData = (user: UserInterface) => {
 // Authentication Provider component that wraps the application with authentication capabilities
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Get the stored user data from localStorage
-  const storedUser = localStorage.getItem(`${config.storageName}.user`);
-
+  
   // Initialize the 'user' state with the decrypted user data (if available) or null
   const [user, _setUser] = useState<UserInterface | null>(() => {
+
+    const storedUser = localStorage.getItem(`${config.storageName}.user`);
+    
     try {
       if (storedUser) {
         const decryptedUser = decryptUser(storedUser);

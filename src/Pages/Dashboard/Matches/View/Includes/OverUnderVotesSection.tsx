@@ -29,14 +29,14 @@ const OverUnderVotesSection = ({ game: initialGame }: Props) => {
 
             const vote = e.target.getAttribute('data-target')
             post(`dashboard/matches/view/${game.id}/vote`, { type: 'over_under', vote }).then((res) => {
-                if (res) {
-                    setGame(res.data)
+                const results = res.data
+                const data = results.data
+                if (data) {
+                    setGame(data)
                 }
 
             }).finally(() => setVotingInProgress(false))
-
         }
-
     }
 
     useEffect(() => {
@@ -46,8 +46,8 @@ const OverUnderVotesSection = ({ game: initialGame }: Props) => {
             setTimeout(() => {
                 const totals = game.over_votes + game.under_votes
 
-                let over_votes = (game.over_votes / totals) * 100 || 50
-                let under_votes = (game.under_votes / totals) * 100 || 50
+                const over_votes = (game.over_votes / totals) * 100 || 50
+                const under_votes = (game.under_votes / totals) * 100 || 50
 
                 setbutton1Width(over_votes + '%')
                 setbutton2Width(under_votes + '%')

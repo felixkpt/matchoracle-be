@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProgressBar } from 'react-bootstrap';
 import NoContentMessage from '@/components/NoContentMessage';
 import Loader from '@/components/Loader';
@@ -15,7 +15,7 @@ type Props = {
 };
 
 const PredictionsStats = ({ competition, selectedSeason, fromToDates, useDate }: Props) => {
-    const { data, loading: loadingPreds, errors: errorsPreds, get: getPreds } = useAxios();
+    const { loading: loadingPreds, get: getPreds } = useAxios();
 
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -24,8 +24,14 @@ const PredictionsStats = ({ competition, selectedSeason, fromToDates, useDate }:
     const predsStatsUrl = `dashboard/competitions/view/${competition.id}/prediction-statistics?season_id=${selectedSeason ? selectedSeason?.id : ''
         }${appendFromToDates(useDate, fromToDates)}&prediction_type_id=${predictionTypeId || ''}`;
 
+    const [data, setData] = useState(null)
     useEffect(() => {
-        getPreds(predsStatsUrl);
+        getPreds(predsStatsUrl).then((res) => {
+            const results = res.data
+            if (results) {
+                setData(results)
+            }
+        });
     }, [predsStatsUrl]);
 
     const renderProgressBar = (label: string, value: number, preds: number, preds_true: number, preds_true_percentage: number) => (
@@ -59,7 +65,7 @@ const PredictionsStats = ({ competition, selectedSeason, fromToDates, useDate }:
             <div className="card">
                 <div className="card-header">
                     <h5 className="d-flex gap-2 justify-content-between">
-                        <div className='text-primary'>Prediction stats</div>
+                        <div className='text-dark'>Prediction stats</div>
                         <div className='text-success'>{`Total matches: ${(data && data.counts) ? data.counts : 0}`}</div>
                     </h5>
                 </div>

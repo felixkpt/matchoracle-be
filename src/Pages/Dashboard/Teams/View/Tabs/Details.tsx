@@ -1,6 +1,6 @@
 import GeneralModal from '@/components/Modals/GeneralModal'
 import SimpleTable from '@/components/Autos/SimpleTable'
-import useListSources from '@/hooks/apis/useListSources'
+import useListSources from '@/hooks/list-sources/useListSources'
 import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces'
 import { subscribe, unsubscribe } from '@/utils/events'
 import { useEffect } from 'react'

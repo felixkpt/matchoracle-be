@@ -37,8 +37,8 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
     if (baseUri) {
       get(baseUri, { params: { get_prediction_stats: true } }).then((res) => {
         if (res) {
-          console.log(res)
-          const { ft, ht, average_score } = res;
+          const data = res.data
+          const { ft, ht, average_score } = data;
 
           const ft_counts = ft.counts
           setFTStats({ ft, counts:ft_counts, average_score });
@@ -51,7 +51,7 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
   }, [baseUri]);
 
   // Function to calculate totals
-  const calculateTotals = (stats: any) => {
+  const calculateTotals = (stats: unknown) => {
     const totals = {
       counts: 0,
       preds: 0,

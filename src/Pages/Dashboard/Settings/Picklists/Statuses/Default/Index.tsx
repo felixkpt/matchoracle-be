@@ -2,6 +2,7 @@ import AutoTable from '@/components/Autos/AutoTable';
 import AutoModal from '@/components/Autos/AutoModal';
 import { useState } from 'react';
 import Str from '@/utils/Str';
+import AutoPageHeader from '@/components/Autos/AutoPageHeader';
 
 const Index = () => {
   // begin component common config
@@ -42,11 +43,8 @@ const Index = () => {
 
   return (
     <div>
-      <h3>{pluralName} List</h3>
       <div>
-        <div className='d-flex justify-content-end'>
-          <button type="button" className="btn btn-info text-white" data-bs-toggle="modal" data-bs-target={`#${componentId}Modal`}>Create {singularName}</button>
-        </div>
+        <AutoPageHeader pluralName={pluralName} singularName={singularName} componentId={componentId} />
         <AutoTable
           baseUri={uri}
           columns={columns}

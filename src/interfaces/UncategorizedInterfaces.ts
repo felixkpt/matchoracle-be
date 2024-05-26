@@ -1,19 +1,8 @@
-import { ReactNode } from "react"
-
-export interface UserInterface {
-    [x: string]: ReactNode;
-    id: number;
-    name: string;
-    email: string;
-    roles: []
-}
-
-
 export interface DataInterface {
     id: string | number
     name?: string
     status: boolean | number | string
-    [key: string]: any
+    [key: string]: unknown
 }
 export interface CollectionItemsInterface {
     current_page: number
@@ -26,17 +15,18 @@ export interface CollectionItemsInterface {
     next_page_url: string
     path: string
     per_page: number
-    prev_page_url: any
+    prev_page_url: string
     to: number
     total: number
     model_name: string
     model_name_plural: string
-    fillable: { [key: string]: any }
+    fillable: { [key: string]: unknown }
     sortable: []
     htmls: []
     query: string
     statuses: []
     module_uri: string
+    tableId?: string
 }
 
 export interface Link {
@@ -49,7 +39,7 @@ export interface GetItemInterface {
     data: DataInterface
     model_name: string
     model_name_plural: string
-    fillable: {}
+    fillable: object
     sortable: []
 }
 
@@ -60,7 +50,7 @@ export interface GetItemsInterface {
 export interface ResponseDataInterface {
     type: string;
     message: string;
-    data: any;
+    data: unknown;
 }
 
 export interface ColumnInterface {
@@ -68,6 +58,7 @@ export interface ColumnInterface {
     key: string
     column?: string
     is_html?: boolean
+    callback?: (key: unknown, record: unknown) => string
 }
 
 interface ActionInterface {
@@ -111,7 +102,7 @@ export interface DocsInterface {
 
 export type ModalSizeType = 'modal-sm' | 'modal-lg' | 'modal-xl';
 
-export type HttpVerbsType = 'POST' | 'post' | 'PUT' | 'put' | 'PATCH' | 'patch' | 'DELETE' | 'delete'
+export type HttpVerbsType = 'GET' | 'get' | 'POST' | 'post' | 'PUT' | 'put' | 'PATCH' | 'patch' | 'DELETE' | 'delete'
 
 export interface PageHeaderInterface {
     title: string;
@@ -122,11 +113,11 @@ export interface PageHeaderInterface {
     method?: string; // Method name
     actionTargetId?: string
     listUrl?: string
-    setRecord?: React.Dispatch<React.SetStateAction<any>>
-};
+    setRecord?: React.Dispatch<React.SetStateAction<unknown>>
+}
 
 export interface TabInterface {
     name: string;
     label?: string;
-    content: JSX.Element;
-};
+    component: JSX.Element;
+}

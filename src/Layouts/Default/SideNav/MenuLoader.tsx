@@ -4,10 +4,11 @@ import { RoleInterface } from '@/interfaces/RolePermissionsInterfaces'
 type Props = {
     currentRole: RoleInterface
     loading: boolean
-    refreshedRoutePermissions: boolean
+    loaded: boolean
+    reload: () => void
 }
 
-const MenuLoader = ({ currentRole, loading, refreshedRoutePermissions }: Props) => {
+const MenuLoader = ({ currentRole, loading, loaded, reload }: Props) => {
 
     return (
         <div className='ps-2 pt-3'>
@@ -16,15 +17,17 @@ const MenuLoader = ({ currentRole, loading, refreshedRoutePermissions }: Props) 
                 :
                 <>
                     {
-                        refreshedRoutePermissions ?
-                            <>
+                        loaded ?
+                            <div className='cursor-default'>
                                 {
                                     !currentRole ?
-                                        <>Could not load menu for <span className='text-decoration-underline'>Guest</span></>
-                                        : <>Could not load menu for <span className='text-decoration-underline'>{currentRole.name}</span></>
+                                        <>Could not load menu for <span className='text-decoration-underline cursor-pointer' title='Click to reload' onClick={() => reload()}>Guest</span></>
+                                        : <>Could not load menu for <span className='text-decoration-underline cursor-pointer' title='Click to reload' onClick={() => reload()}>{currentRole.name}</span></>
                                 }
-                            </>
-                            : null
+                            </div>
+                            :
+                            <Loader justify='start' message='Please wait...' />
+
                     }
                 </>
             }

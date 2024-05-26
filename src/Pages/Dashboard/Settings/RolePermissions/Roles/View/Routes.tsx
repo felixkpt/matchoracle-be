@@ -8,8 +8,7 @@ const Routes = () => {
     const uri = 'dashboard/settings/role-permissions/permissions/routes'
 
     const [routes, setRoutes] = useState<Route[] | null>(null);
-    const { data, get, loading } = useAxios();
-    // const { data: savedData, fetchData: save } = useAxios(uri);
+    const { results, get, loading } = useAxios();
 
 
     useEffect(() => {
@@ -18,16 +17,13 @@ const Routes = () => {
 
     useEffect(() => {
         
-        if (!loading && data) {
-            setRoutes(data)
+        if (!loading && results.data) {
+            setRoutes(results.data)
         }
         
-    }, [data, loading])
+    }, [results, loading])
 
-    async function handleSubmit(checked: any) {
-
-        const res = save({ checked })
-        console.log(res)
+    async function handleSubmit() {
 
     }
 

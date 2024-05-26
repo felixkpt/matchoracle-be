@@ -47,8 +47,9 @@ const Index = () => {
     function getRecord() {
         get(`dashboard/competitions/view/${id}`).then((res) => {
 
-            if (res) {
-                const { data, ...others } = res
+            const results = res.data
+            if (results) {
+                const { data, ...others } = results
                 if (data) {
                     setRecord(data)
 
@@ -91,47 +92,47 @@ const Index = () => {
 
         {
             name: "Standings",
-            content: <Standings record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
+            component: <Standings record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Teams",
-            content: <Teams record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
+            component: <Teams record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Past Matches",
-            content: <PastMatches record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
+            component: <PastMatches record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Upcoming Matches",
-            content: <UpcomingMatches record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
+            component: <UpcomingMatches record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Past Predictions",
-            content: <PastPredictions record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
+            component: <PastPredictions record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Upcoming Predictions",
-            content: <UpcomingPredictions record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
+            component: <UpcomingPredictions record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Odds",
-            content: <Odds record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
+            component: <Odds record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Statistics",
-            content: <Statistics record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
+            component: <Statistics record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Seasons",
-            content: <Seasons record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
+            component: <Seasons record={record} selectedSeason={selectedSeason} mainKey={key} setMainKey={setMainKey} />,
         },
         {
             name: "Details",
-            content: <Details record={record} modelDetails={modelDetails} />,
+            component: <Details record={record} modelDetails={modelDetails} />,
         },
         {
             name: "Sources",
-            content: <Sources record={record} />,
+            component: <Sources record={record} />,
         },
 
     ];
@@ -143,7 +144,7 @@ const Index = () => {
 
                     record ?
                         <div>
-                            <CompetitionHeader competition={record} currentTab={currentTab} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+                            {/* <CompetitionHeader competition={record} currentTab={currentTab} seasons={seasons} selectedSeason={selectedSeason} setSelectedSeason={setSelectedSeason} setFromToDates={setFromToDates} setUseDates={setUseDates} /> */}
                             <AutoTabs key={selectedSeason && selectedSeason.id} tabs={tabs} setCurrentTabName={setCurrentTabName} listUrl="/dashboard/competitions" countsUrl={`/dashboard/competitions/view/${record.id}/`} />
                         </div>
                         :

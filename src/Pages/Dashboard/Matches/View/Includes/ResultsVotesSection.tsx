@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 
 type Props = {
     game: GameInterface;
-};
+}
 
 const ResultsVotesSection = ({ game: initialGame }: Props) => {
 
@@ -17,9 +17,9 @@ const ResultsVotesSection = ({ game: initialGame }: Props) => {
     const [voted, setVoted] = useState(false)
     const [showVotes, setShowVotes] = useState(false)
 
-    const [button1Width, setbutton1Width] = useState<string>('0');
-    const [button2Width, setbutton2Width] = useState<string>('0');
-    const [button3Width, setbutton3Width] = useState<string>('0');
+    const [button1Width, setButton1Width] = useState<string>('0');
+    const [button2Width, setButton2Width] = useState<string>('0');
+    const [button3Width, setButton3Width] = useState<string>('0');
     const [showText, setShowText] = useState(false);
     const [votingInProgress, setVotingInProgress] = useState(false); // State to track voting in progress
 
@@ -30,14 +30,15 @@ const ResultsVotesSection = ({ game: initialGame }: Props) => {
 
             const vote = e.target.getAttribute('data-target')
             post(`dashboard/matches/view/${game.id}/vote`, { type: 'winner', vote }).then((res) => {
-                if (res) {
-                    setGame(res.data)
+
+                const results = res.data
+                const data = results.data
+                if (data) {
+                    setGame(data)
                 }
 
             }).finally(() => setVotingInProgress(false))
-
         }
-
     }
 
     useEffect(() => {
@@ -47,13 +48,13 @@ const ResultsVotesSection = ({ game: initialGame }: Props) => {
             setTimeout(() => {
                 const totals = game.home_win_votes + game.draw_votes + game.away_win_votes
 
-                let home = (game.home_win_votes / totals) * 100 || 33
-                let draw = (game.draw_votes / totals) * 100 || 33
-                let away = (game.away_win_votes / totals) * 100 || 33
+                const home = (game.home_win_votes / totals) * 100 || 33
+                const draw = (game.draw_votes / totals) * 100 || 33
+                const away = (game.away_win_votes / totals) * 100 || 33
 
-                setbutton1Width(home + '%')
-                setbutton2Width(draw + '%')
-                setbutton3Width(away + '%')
+                setButton1Width(home + '%')
+                setButton2Width(draw + '%')
+                setButton3Width(away + '%')
 
             }, 100);
 
@@ -72,9 +73,6 @@ const ResultsVotesSection = ({ game: initialGame }: Props) => {
 
     }, [isFuture, voted, game])
 
-    console.log(game.current_user_votes?.winner)
-
-
     useEffect(() => {
 
         if (isFuture || voted) {
@@ -83,7 +81,7 @@ const ResultsVotesSection = ({ game: initialGame }: Props) => {
 
             return () => {
                 transitionedElement && transitionedElement.removeEventListener('transitionend', handleTransitionEnd);
-            };
+            }
 
         }
 

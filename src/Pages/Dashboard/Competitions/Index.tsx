@@ -1,6 +1,6 @@
 import GeneralModal from "@/components/Modals/GeneralModal";
 import PageHeader from "@/components/PageHeader";
-import useListSources from "@/hooks/apis/useListSources";
+import useListSources from "@/hooks/list-sources/useListSources";
 import { DataInterface } from "@/interfaces/UncategorizedInterfaces";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { useEffect, useState } from "react";
@@ -148,11 +148,11 @@ const Index = () => {
     const tabs = [
         {
             name: "All",
-            content: <All columns={columns} setModelDetails={setModelDetails} />,
+            component: <All columns={columns} setModelDetails={setModelDetails} />,
         },
         {
             name: "OddsEnabled",
-            content: <OddsEnabled columns={columns} setModelDetails={setModelDetails} />,
+            component: <OddsEnabled columns={columns} setModelDetails={setModelDetails} />,
         },
     ]
 

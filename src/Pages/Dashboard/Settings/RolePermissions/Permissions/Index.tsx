@@ -1,58 +1,67 @@
 import AutoTable from '@/components/Autos/AutoTable';
 import AutoModal from '@/components/Autos/AutoModal';
 import { useState } from 'react';
-import PageHeader from '@/components/PageHeader';
-import useListSources from '@/hooks/apis/useListSources';
+import Str from '@/utils/Str';
+import useListSources from '@/hooks/list-sources/useListSources';
+import AutoPageHeader from '@/components/Autos/AutoPageHeader';
 
 const Index = () => {
-
+  // begin component common config
+  const pluralName = 'Permissions'
+  const singularName = 'Permission'
+  const uri = '/dashboard/settings/role-permissions/permissions'
+  const componentId = Str.slug(pluralName)
   const [modelDetails, setModelDetails] = useState({})
+  const search = true
+  const columns = [
+    {
+      label: 'ID',
+      key: 'id',
+    },
+    {
+      label: 'Permission Name',
+      key: 'name',
+    },
+    {
+      label: 'Guard Name',
+      key: 'guard_name',
+    },
+    { key: 'Created_by' },
+    {
+      label: 'Created At',
+      key: 'Created_at',
+    },
+    {
+      label: 'Status',
+      key: 'Status',
+    },
+    {
+      label: 'Action',
+      key: 'action',
+    },
+  ]
+  // end component common config
 
   const { rolePermissions: listSources } = useListSources();
 
   return (
     <div>
-      <PageHeader title={'Permissions List'} action="button" actionText="Create permission" actionTargetId="CreatePermission" permission='/dashboard/settings/role-permissions/permissions' />
-      <AutoTable
-        baseUri='/dashboard/settings/role-permissions/permissions'
-        columns={[
-          {
-            label: 'ID',
-            key: 'id',
-          },
-          {
-            label: 'Permission Name',
-            key: 'name',
-          },
-          {
-            label: 'Guard Name',
-            key: 'guard_name',
-          },
-          { key: 'Created_by' },
-          {
-            label: 'Created At',
-            key: 'Created_at',
-          },
-          {
-            label: 'Status',
-            key: 'Status',
-          },
-          {
-            label: 'Action',
-            key: 'action',
-          },
-        ]}
-        getModelDetails={setModelDetails}
-        search={true}
-        listSources={listSources}
-        tableId='permissionsTable'
-      />
+      <div>
+        <AutoPageHeader pluralName={pluralName} singularName={singularName} componentId={componentId} />
+        <AutoTable
+          baseUri={uri}
+          columns={columns}
+          getModelDetails={setModelDetails}
+          search={search}
+          tableId={`${componentId}Table`}
+          listSources={listSources}
+        />
+      </div>
       {
-        modelDetails && <><AutoModal id={`CreatePermission`} modelDetails={modelDetails} actionUrl='/dashboard/settings/role-permissions/permissions' listSources={listSources} /></>
+        modelDetails && <><AutoModal id={`${componentId}Modal`} modelDetails={modelDetails} actionUrl={uri} listSources={listSources} /></>
       }
     </div>
   );
 };
 
 export default Index;
-
