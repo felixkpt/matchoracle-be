@@ -1,0 +1,73 @@
+FROM php:8.1-fpm
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    locales \
+    zip \
+    jpegoptim optipng pngquant gifsicle \
+    vim \
+    unzip \
+    git \
+    curl \
+    libzip-dev \
+    wget \
+    nginx \
+    git-core \
+    openssl \
+    libssl-dev \
+    npm
+
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Cloud Sql Proxy
+RUN apt-get update \
+  && apt-get install --no-install-recommends -y \
+    wget \
+  ;
+RUN wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy
+RUN chmod +x cloud_sql_proxy
+
+# Install extensions
+RUN docker-php-ext-install pdo_mysql  zip exif pcntl
+RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/
+RUN docker-php-ext-install gd
+
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+RUN mkdir -p /run/nginx
+
+COPY gcp/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# Use the default production configuration
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+# Update Php ini Settings
+RUN sed -E -i -e 's/post_max_size = 2M/post_max_size = 20M/' $PHP_INI_DIR/php.ini\
+&& sed -E -i -e 's/upload_max_filesize = 2M/upload_max_filesize = 20M/' $PHP_INI_DIR/php.ini
+
+# Update memory_limit using sed
+RUN sed -i 's/^\s*memory_limit\s*=.*/memory_limit = 512M/' $PHP_INI_DIR/php.ini
+# Update max_execution_time
+RUN sed -i 's/^\s*max_execution_time\s*=.*/max_execution_time = 120/' $PHP_INI_DIR/php.ini
+
+RUN mkdir -p /app
+
+COPY . /app
+
+COPY gcp/docker/.env_production /app/.env
+
+RUN cd /app && composer update --ignore-platform-req=ext-oci8 && composer install --ignore-platform-req=ext-oci8 --no-dev && php artisan optimize:clear && php artisan storage:link
+
+RUN chown -R www-data: /app
+
+# Change permissions to 775
+RUN chown -R 775 /app/storage /app/bootstrap/cache
+# Change ownership to the web server user (www-data or nginx)
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
+
+CMD sh /app/gcp/docker/startup.sh

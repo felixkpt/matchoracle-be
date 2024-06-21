@@ -5,7 +5,7 @@ namespace App\Repositories\Permission;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 
 class PermissionRepository implements PermissionRepositoryInterface

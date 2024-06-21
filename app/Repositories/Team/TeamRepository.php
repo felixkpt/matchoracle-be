@@ -6,7 +6,7 @@ use App\Models\CoachContract;
 use App\Models\Game;
 use App\Models\Team;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use App\Utilities\GameUtility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -61,9 +61,9 @@ class TeamRepository implements TeamRepositoryInterface
                     'hide'  => null
                 ]
             )
-            ->addFillable('website', 'website', ['input' => 'input', 'type' => 'url'])
-            ->addFillable('tla', 'tla', ['input' => 'input', 'type' => 'text', 'capitalize' => true])
-            ->addFillable('founded', 'founded', ['input' => 'input', 'type' => 'number'])
+            ->addFillable('website', ['input' => 'input', 'type' => 'url'], 'website')
+            ->addFillable('tla', ['input' => 'input', 'type' => 'text', 'capitalize' => true], 'tla')
+            ->addFillable('founded', ['input' => 'input', 'type' => 'number'], 'founded')
             ->htmls(['Status', 'Logo'])
             ->removeFillable(['coach_id'])
             ->orderby('name');

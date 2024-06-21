@@ -4,7 +4,7 @@ namespace App\Repositories\PostStatus;
 
 use App\Models\PostStatus;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 

@@ -4,7 +4,7 @@ namespace App\Repositories\Continent;
 
 use App\Models\Continent;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 
 class ContinentRepository implements ContinentRepositoryInterface

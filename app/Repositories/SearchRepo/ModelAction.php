@@ -1,8 +1,6 @@
 <?php
 
-namespace App\Repositories;
-
-use Illuminate\Support\Facades\Log;
+namespace App\Repositories\SearchRepo;
 
 class ModelAction
 {

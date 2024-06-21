@@ -3,6 +3,7 @@
 use Felixkpt\Nestedroutes\Http\Middleware\NestedroutesAuthMiddleware;
 use Felixkpt\Nestedroutes\RoutesHelper;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
@@ -33,7 +34,7 @@ Route::middleware([NestedroutesAuthMiddleware::class])
         if (file_exists($routes_path)) {
             $route_files = collect(File::allFiles($routes_path))->filter(function ($file) {
                 $filename = $file->getFileName();
-                return !Str::is($filename, 'driver.php') && !Str::is($filename, 'auth.route.php') && Str::endsWith($filename, '.route.php');
+                return !Str::is($filename, 'driver.php') && !Str::is($filename, 'auth.route.php') && Str::endsWith($filename, '.php');
             });
 
             foreach ($route_files as $file) {

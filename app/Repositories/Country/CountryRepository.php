@@ -4,7 +4,7 @@ namespace App\Repositories\Country;
 
 use App\Models\Country;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -25,8 +25,6 @@ class CountryRepository implements CountryRepositoryInterface
             ->where('has_competitions', true)->where('continent_id', '!=', get_world_id())->with(['continent', 'competitions'])
             ->when($filter, fn ($q) => $q->whereIn('id', $ids));
 
-        Log::info('OFFF', request()->all());
-
         if ($this->applyFiltersOnly) return $countries;
 
         $uri = '/dashboard/countries/';
@@ -45,8 +43,8 @@ class CountryRepository implements CountryRepositoryInterface
                 ]
             )
             ->htmls(['Status', 'Flag'])
-            ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
-            ->addFillable('has_competitions', 'has_competitions', ['input' => 'select'])
+            ->addFillable('continent_id', ['input' => 'select'], 'continent_id')
+            ->addFillable('has_competitions', ['input' => 'select'], 'has_competitions')
             ->orderBy('name')
             ->paginate($filter ? $this->model->count() : null);
 
@@ -87,8 +85,8 @@ class CountryRepository implements CountryRepositoryInterface
             ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->emblem ?? asset('storage/football/defaultflag.png')) . '" />')
             ->addActionColumn('action', $uri)
             ->htmls(['Status', 'Flag'])
-            ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
-            ->addFillable('has_competitions', 'has_competitions', ['input' => 'select'])
+            ->addFillable('continent_id', ['input' => 'select'], 'continent_id')
+            ->addFillable('has_competitions', ['input' => 'select'], 'has_competitions')
             ->orderby('priority_number')
             ->first();
 

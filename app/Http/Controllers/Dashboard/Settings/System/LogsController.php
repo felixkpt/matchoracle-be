@@ -9,7 +9,7 @@ use App\Models\MatchJobLog;
 use App\Models\PredictionJobLog;
 use App\Models\StandingJobLog;
 use App\Models\TrainPredictionJobLog;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Support\Carbon;
 
 class LogsController extends Controller

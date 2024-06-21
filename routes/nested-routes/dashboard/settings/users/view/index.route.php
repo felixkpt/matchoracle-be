@@ -9,17 +9,11 @@ Route::get('/{id}/edit', [$controller, 'edit'])->name('users.user.edit')->icon('
 Route::put('/{id}', [$controller, 'update'])->name('users.user.update')->icon('e');
 Route::delete('/{id}', [$controller, 'destroy'])->name('users.destroy')->icon('f');
 
-Route::post('update', [$controller, 'userProfile'])->everyone(true);
-Route::get('profile', [$controller, 'profileShow'])->hidden(true)->everyone(true);
-Route::patch('profile', [$controller, 'profileUpdate'])->hidden(true)->everyone(true);
-
-Route::get('token/{id}', [$controller, 'resendToken']);
-Route::patch('update-self-password', [$controller, 'updateSelfPassword'])->hidden(true)->everyone(true);
-Route::patch('update-others-password', [$controller, 'updateOthersPassword'])->hidden(true);
+Route::post('token/{id}', [$controller, 'resendToken']);
 Route::post('unlock/{id}', [$controller, 'unlockUser']);
 Route::post('activate/{id}', [$controller, 'activate']);
 Route::post('deactivate/{id}', [$controller, 'deactivate']);
-Route::post('login/{id}', [$controller, 'loginUser']);
+Route::post('auto-login/{id}', [$controller, 'autoLoginUser']);
 
 Route::get('/{id}/activity-log', [$controller, 'userActivityLog']);
 Route::get('/{id}/user-activity-log/list', [$controller, 'listUserActivityLogs']);

@@ -4,7 +4,7 @@ namespace App\Repositories\Season;
 
 use App\Models\Season;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Http\Request;
@@ -48,15 +48,7 @@ class SeasonRepository implements SeasonRepositoryInterface
             ->addColumn('Created_at', 'Created_at')
             ->addColumn('Created_by', 'getUser')
             ->addColumn('Status', 'getStatus')
-            ->addActionColumn(
-                'action',
-                $uri,
-                [
-                    'view'  => 'native',
-                    'edit'  => 'modal',
-                    'hide'  => null
-                ]
-            )
+            ->addActionColumn('action', $uri)
             ->htmls(['Status'])
             ->orderby('start_date', 'desc');
 

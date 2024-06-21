@@ -4,7 +4,7 @@ namespace App\Repositories\Coach;
 
 use App\Models\Coach;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -40,7 +40,7 @@ class CoachRepository implements CoachRepositoryInterface
                 ]
             )
             ->htmls(['Status', 'Crest'])
-            ->addFillable('date_of_birth', 'date_of_birth', ['input' => 'input', 'type' => 'date'])
+            ->addFillable('date_of_birth', ['input' => 'input', 'type' => 'date'], 'date_of_birth')
             ->orderby('name')
             ->paginate(request()->competition_id ? $coaches->count() : 20);
 

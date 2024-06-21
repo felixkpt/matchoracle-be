@@ -24,7 +24,11 @@ interface UserRepositoryInterface extends CommonRepoActionsInterface
 
     public function updateOthersPassword();
 
-    public function loginUser($userId);
+    public function resendToken($userId);
 
+    public function autoLoginUser($userId);
+
+    public function loginLogs();
+    
     public function listAttemptedLogins();
 }

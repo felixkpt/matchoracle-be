@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Dashboard\Odds\View;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 

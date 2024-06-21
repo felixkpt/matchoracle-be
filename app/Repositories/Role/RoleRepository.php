@@ -6,13 +6,12 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class RoleRepository implements RoleRepositoryInterface
@@ -63,21 +62,37 @@ class RoleRepository implements RoleRepositoryInterface
         return response(['type' => 'success', 'message' => 'Role ' . $action . ' successfully', 'results' => $res]);
     }
 
-    function getUserRolesAndDirectPermissions()
+
+    function getUserRoles()
     {
         $id = auth()->user()->id ?? 0;
 
-        $roles = Role::query()->where('id', $this->guestRoleId)->get();
-        $direct_permissions = null;
-        if ($id) {
+        $user = User::findorfail($id);
+        $roles = Role::whereIn('id', $user->roles()->pluck('id')->toArray());
 
+        $res = SearchRepo::of($roles)->paginate();
+
+        return response(['results' => $res]);
+    }
+
+    function getUserRolesAndPermissions()
+    {
+        $id = auth()->user()->id ?? 0;
+        $direct_permissions = [];
+
+        if ($id) {
             $user = User::find($id);
             $roles = $user->roles()->select('id', 'name')->get();
-
             $direct_permissions = $user->getPermissionNames();
+        } else {
+            $roles = Role::query()->where('id', $this->guestRoleId)->get();
         }
 
-        return response(['results' => compact('roles', 'direct_permissions')]);
+        request()->merge(['without_response' => true]);
+
+        $route_permissions = [];
+
+        return response(['results' => compact('roles', 'route_permissions', 'direct_permissions')]);
     }
 
     public function show($id)
@@ -187,11 +202,39 @@ class RoleRepository implements RoleRepositoryInterface
         }
     }
 
+    function getRoleRoutePermissions($id)
+    {
+        sleep(0);
+
+        $user = User::find(auth()->user()->id ?? 0);
+        $role = $this->model::find($id);
+
+        $route_permissions = [];
+        if ($role) {
+            if ((!$user && $id != $this->guestRoleId) || ($user && !$user->hasRole($role))) {
+                return response(['message' => "User doesnt have the {$role->id} role."], 404);
+            }
+
+            // save user's default_role_id
+            if ($user) {
+                $user->default_role_id = $id;
+                $user->save();
+            }
+
+            // Get all permissions associated with user's roles
+            $route_permissions = $role->permissions->pluck('uri');
+        }
+
+        return request()->without_response ? $route_permissions : response(['results' => $route_permissions]);
+    }
+
     /**
      * Update the specified resource in storage.
      */
     public function getRoleMenu($id)
     {
+        sleep(0);
+
         // a user can have more than 1 roles
         if ($id == 0) {
             $id = $this->guestRoleId;
@@ -200,13 +243,6 @@ class RoleRepository implements RoleRepositoryInterface
         $role = $this->model::find($id);
         if (!$role) {
             return response()->json(['message' => 'Role not found!!'], 404);
-        }
-
-        // save user's default_role_id
-        $user = User::find(auth()->id());
-        if ($user) {
-            $user->default_role_id = $id;
-            $user->save();
         }
 
         // Get JSON from storage
@@ -218,22 +254,7 @@ class RoleRepository implements RoleRepositoryInterface
 
         $jsonContent = file_get_contents(Storage::path($filePath));
 
-        return response()->json(['results' => ['roles' => $role, 'menu' => json_decode($jsonContent), 'expanded_root_folders' => [config('nestedroutes.folder'), ...config('nestedroutes.expanded_root_folders') ?? []]]]);
-    }
-
-    function getRoleRoutePermissions($id)
-    {
-        $user = User::find(auth()->user()->id ?? 0);
-
-        $role = $this->model::findOrFail($id);
-        if ((!$user && $id != $this->guestRoleId) || ($user && !$user->hasRole($role))) {
-            return response(['message' => "User doesnt have the {$role->id} role."], 404);
-        }
-
-        // Get all permissions associated with user's roles
-        $route_permissions = $role->permissions->pluck('uri');
-
-        return response(['results' => $route_permissions]);
+        return response()->json(['results' => ['roles' => $role, 'menu' => json_decode($jsonContent), 'expanded_root_folders' => [config('nestedroutes.folder'), 'dashboard']]]);
     }
 
     function addUser($id)

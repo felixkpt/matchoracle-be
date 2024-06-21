@@ -6,7 +6,7 @@ use App\Http\Controllers\Dashboard\Predictions\PredictionsController;
 use App\Http\Controllers\Dashboard\Teams\TeamsController;
 use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use App\Repositories\Team\TeamRepositoryInterface;
 use App\Services\Common;
 use App\Services\Games\Games;

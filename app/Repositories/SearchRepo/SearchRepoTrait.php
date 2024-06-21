@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\SearchRepo;
 
 use App\Models\Status;
 use Illuminate\Support\Carbon;
@@ -137,8 +137,8 @@ trait SearchRepoTrait
             'email' => ['input' => 'input', 'type' => 'email'],
             'password' => ['input' => 'input', 'type' => 'password'],
             'password_confirmation' => ['input' => 'input', 'type' => 'password'],
+            'position' => ['input' => 'input', 'type' => 'number'],
             'priority' => ['input' => 'input', 'type' => 'number'],
-            'priority_no' => ['input' => 'input', 'type' => 'number'],
 
             'content*' => ['input' => 'textarea', 'type' => null, 'rows' => 7],
             'description*' => ['input' => 'textarea', 'type' => null, 'rows' => 7],
@@ -188,7 +188,6 @@ trait SearchRepoTrait
 
             if ($matchedType) {
                 $guessed[$field]['input'] = $matchedType['input'];
-
                 // Assign other properties if available
                 foreach (['type', 'min', 'max', 'rows', 'accept'] as $property) {
                     if (isset($matchedType[$property])) {

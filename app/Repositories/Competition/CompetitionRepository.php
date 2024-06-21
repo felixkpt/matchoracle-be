@@ -16,7 +16,7 @@ use App\Models\GameSource;
 use App\Models\Odd;
 use App\Models\Season;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Http\Request;
@@ -115,8 +115,8 @@ class CompetitionRepository implements CompetitionRepositoryInterface
             )
             ->addActionColumn('action', $uri, ['view' => 'native'])
             ->htmls(['Status', 'Logo'])
-            ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
-            ->addFillable('has_teams', 'has_teams', ['input' => 'select'])
+            ->addFillable('continent_id', ['input' => 'select'], 'continent_id')
+            ->addFillable('has_teams', ['input' => 'select'], 'has_teams')
             ->orderby('id');
 
         $results = $single ? $results->first() : $results->paginate();
@@ -342,18 +342,48 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
     function tabs($id)
     {
+        $season_id = request()->season_id;
+
         return response(['results' => [
-            "standings" => $this->model::find($id)->seasons()->whereHas('standings')->count(),
+            "standings" => $this->model::find($id)->seasons()
+                ->when($season_id, fn ($q) => $this->seasonFilter($q, 'id'))
+                ->whereHas('standings')->count(),
+
             "teams" => $this->model::find($id)->teams()->count(),
-            "past-matches" => $this->model::find($id)->games()->where('utc_date', '<=', Carbon::now())->count(),
-            "upcoming-matches" => $this->model::find($id)->games()->where('utc_date', '>=', Carbon::now())->count(),
-            "past-predictions" => $this->model::find($id)->games()->whereHas('prediction')->where('utc_date', '<=', Carbon::now())->count(),
-            "upcoming-predictions" => $this->model::find($id)->games()->whereHas('prediction')->where('utc_date', '>=', Carbon::now())->count(),
-            "odds" => Odd::whereHas('game', fn ($q) => $q->where('competition_id', $id))->count(),
-            "statistics" => CompetitionStatistic::where('competition_id', $id)->count() + CompetitionPredictionStatistic::where('competition_id', $id)->count(),
+
+            "past-matches" => $this->model::find($id)->games()
+                ->when($season_id, fn ($q) => $this->seasonFilter($q))
+                ->where('utc_date', '<=', Carbon::now())->count(),
+            "upcoming-matches" => $this->model::find($id)->games()
+                ->when($season_id, fn ($q) => $this->seasonFilter($q))
+                ->where('utc_date', '>', Carbon::now())->count(),
+            "past-predictions" => $this->model::find($id)->games()
+                ->whereHas('prediction')
+                ->when($season_id, fn ($q) => $this->seasonFilter($q))
+                ->where('utc_date', '<=', Carbon::now())->count(),
+            "upcoming-predictions" => $this->model::find($id)->games()
+                ->when($season_id, fn ($q) => $this->seasonFilter($q))
+                ->whereHas('prediction')->where('utc_date', '>=', Carbon::now())->count(),
+            "odds" => Odd::whereHas(
+                'game',
+                fn ($q) => $q->where('competition_id', $id)
+                    ->when($season_id, fn ($q) => $this->seasonFilter($q))
+            )->count(),
+            "statistics" => CompetitionStatistic::where('competition_id', $id)
+                ->when($season_id, fn ($q) => $this->seasonFilter($q))
+                ->count()
+                +
+                CompetitionPredictionStatistic::where('competition_id', $id)
+                ->when($season_id, fn ($q) => $this->seasonFilter($q))
+                ->count(),
             "seasons" => $this->model::find($id)->seasons()->count(),
             "details" => 1,
             "sources" => $this->model::find($id)->gameSources()->count(),
         ]]);
+    }
+
+    private function seasonFilter($q, $col = 'season_id')
+    {
+        return  $q->where($col, request()->season_id);
     }
 }

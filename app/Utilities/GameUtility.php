@@ -4,7 +4,7 @@ namespace App\Utilities;
 
 use App\Models\Game;
 use App\Repositories\GameComposer;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;

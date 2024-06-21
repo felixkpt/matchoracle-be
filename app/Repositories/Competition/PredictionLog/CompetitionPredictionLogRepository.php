@@ -4,7 +4,7 @@ namespace App\Repositories\Competition\PredictionLog;
 
 use App\Models\CompetitionPredictionLog;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 
 class CompetitionPredictionLogRepository implements CompetitionPredictionLogRepositoryInterface
 {

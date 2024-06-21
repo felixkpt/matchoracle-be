@@ -12,7 +12,7 @@ use App\Models\CompetitionStatistic;
 use App\Models\GameSource;
 use App\Models\Season;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 

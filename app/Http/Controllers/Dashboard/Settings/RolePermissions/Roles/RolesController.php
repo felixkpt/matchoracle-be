@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Dashboard\Settings\RolePermissions\Roles;
 
 use App\Http\Controllers\Controller;
-use App\Models\Sanctum\PersonalAccessToken;
 use App\Repositories\Role\RoleRepositoryInterface;
 use App\Services\Validations\Role\RoleValidationInterface;
 use Illuminate\Http\Request;
@@ -25,6 +24,12 @@ class RolesController extends Controller
         return $this->roleRepositoryInterface->index();
     }
 
+    public function getUserRoles()
+    {
+
+        return $this->roleRepositoryInterface->getUserRoles();
+    }
+
     public function store(Request $request)
     {
         $data = $this->roleValidationInterface->store($request);
@@ -32,9 +37,9 @@ class RolesController extends Controller
         return $this->roleRepositoryInterface->store($request, $data);
     }
 
-    function getUserRolesAndDirectPermissions()
+    function getUserRolesAndPermissions()
     {
-        return $this->roleRepositoryInterface->getUserRolesAndDirectPermissions();
+        return $this->roleRepositoryInterface->getUserRolesAndPermissions();
     }
 
     public function destroy($permissiongroup_id)

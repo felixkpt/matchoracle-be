@@ -5,7 +5,7 @@ namespace App\Repositories\GameSource;
 use App\Models\GameSource;
 use App\Models\Status;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 
 class GameSourceRepository implements GameSourceRepositoryInterface

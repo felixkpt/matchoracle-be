@@ -4,7 +4,7 @@ namespace App\Repositories\Address;
 
 use App\Models\Address;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 

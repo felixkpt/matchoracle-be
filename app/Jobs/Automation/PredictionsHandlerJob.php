@@ -65,9 +65,6 @@ class PredictionsHandlerJob implements ShouldQueue
         // Default case for predict
         $delay = 60 * 24 * 7;
 
-        $fromDate = Carbon::today()->subDays(150);
-        $toDate = Carbon::today()->addDays(7);
-
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
@@ -77,6 +74,12 @@ class PredictionsHandlerJob implements ShouldQueue
             ->select('competitions.*')
             ->limit(1000)->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
             ->get();
+
+        dd($competitions->count());
+
+        // predict for last 6 months plus 7 days from today
+        $fromDate = Carbon::today()->subDays(30 * 6);
+        $toDate = Carbon::today()->addDays(7);
 
         // Loop through each competition to fetch and update matches
         $should_sleep_for_competitions = false;

@@ -4,7 +4,7 @@ namespace App\Repositories\CoachContract;
 
 use App\Models\CoachContract;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 
 class CoachContractRepository implements CoachContractRepositoryInterface
@@ -39,8 +39,8 @@ class CoachContractRepository implements CoachContractRepositoryInterface
                 ]
             )
             ->htmls(['Status', 'Crest'])
-            ->addFillable('start', 'start', ['input' => 'input', 'type' => 'date'])
-            ->addFillable('until', 'until', ['input' => 'input', 'type' => 'date'])
+            ->addFillable('start', ['input' => 'input', 'type' => 'date'], 'start')
+            ->addFillable('until', ['input' => 'input', 'type' => 'date'], 'until')
             ->orderby('created_at', 'desc')
             ->paginate(request()->competition_id ? $contracts->count() : 20);
 

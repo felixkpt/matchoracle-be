@@ -11,7 +11,7 @@ use App\Models\GamePrediction;
 use App\Models\GamePredictionType;
 use App\Models\PredictionJobLog;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;

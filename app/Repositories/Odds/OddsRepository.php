@@ -5,7 +5,7 @@ namespace App\Repositories\Odds;
 use App\Models\Odd;
 use App\Models\Status;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 

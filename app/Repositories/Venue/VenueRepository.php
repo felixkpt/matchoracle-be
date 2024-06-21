@@ -4,7 +4,7 @@ namespace App\Repositories\Venue;
 
 use App\Models\Venue;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo;
+use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -38,8 +38,8 @@ class VenueRepository implements VenueRepositoryInterface
                     'hide'  => null
                 ]
             )
-            ->addFillable('website', 'website', ['input' => 'input', 'type' => 'url'])
-            ->addFillable('founded', 'founded', ['input' => 'input', 'type' => 'number'])
+            ->addFillable('website', ['input' => 'input', 'type' => 'url'], 'website')
+            ->addFillable('founded', ['input' => 'input', 'type' => 'number'], 'founded')
             ->htmls(['Status', 'Crest'])
             ->orderby('name')
             ->paginate(request()->competition_id ? $teams->count() : 20);
