@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { publish, subscribe, unsubscribe } from '@/utils/events'
 import AutoModal from './Autos/AutoModal'
-import { ListSourceInterface } from '@/interfaces/UncategorizedInterfaces'
+import { CollectionItemsInterface, ListSourceInterface } from '@/interfaces/UncategorizedInterfaces'
 
 const PrepareEditModal = () => {
 
-    const [modelDetails, setModelDetails] = useState({})
+    const [modelDetails, setModelDetails] = useState<Omit<CollectionItemsInterface, 'data'>>()
     const [record, setRecord] = useState<any>(undefined)
-    const [listSources, setListSources] = useState<{ [key: string]: () => Promise<ListSourceInterface[]> }>()
+    const [list_sources, setListSources] = useState<{ [key: string]: () => Promise<ListSourceInterface[]> }>()
 
     const [actionUrl, setActionUrl] = useState<string>('')
     const [modalSize, setModalSize] = useState(undefined)
@@ -19,7 +19,7 @@ const PrepareEditModal = () => {
             setModelDetails(detail.modelDetails)
             setRecord(detail.record)
             setActionUrl(detail.action)
-            setListSources(detail.listSources)
+            setListSources(detail.list_sources)
 
             if (detail.modalSize) {
                 setModalSize(detail.modalSize)
@@ -74,7 +74,7 @@ const PrepareEditModal = () => {
                         modelDetails={modelDetails}
                         record={record}
                         actionUrl={actionUrl}
-                        listSources={listSources}
+                        listSources={list_sources}
                         id='AutoModalEdit'
                         modalSize={modalSize}
                     />

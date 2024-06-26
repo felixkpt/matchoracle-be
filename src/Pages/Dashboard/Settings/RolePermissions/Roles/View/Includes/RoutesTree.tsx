@@ -4,17 +4,18 @@ import CheckboxTreeManager from './CheckboxTreeManager';
 import { RouteCollectionInterface } from '@/interfaces/RolePermissionsInterfaces';
 import { PermissionInterface } from '@/interfaces/RolePermissionsInterfaces';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react/dist/iconify.js';
+import { RouteInterface } from '@/interfaces/RolePermissionsInterfaces';
 
 interface Props {
     child: RouteCollectionInterface;
-    permissions: PermissionInterface[];
-    allPermissions: PermissionInterface[];
+    allPermissions?: PermissionInterface[];
+    rolePermissions?: PermissionInterface[];
     indent: number
     counter: number
-    isInitialRender: boolean
-    hiddenIds: string[]
+    isInitialRender?: boolean
+    hiddenIds?: string[]
     setHiddenIds: React.Dispatch<React.SetStateAction<string[]>>
 }
 
@@ -27,11 +28,11 @@ const ROUTE_CHECKBOX_CLASS = 'routecheckbox';
 const checkboxTreeManager = new CheckboxTreeManager(
     PARENT_FOLDER_ID_PREFIX,
     ROUTE_CHECKBOX_CLASS,
-    MAIN_CONTAINER_CLASS
+    MAIN_CONTAINER_CLASS,
 );
 
 // Function to get the hidden for a route based on its permissions
-function getHiddenState(allPermissions: any[], uri: string) {
+function getHiddenState(allPermissions: any[] | undefined, uri: string) {
     let hidden = false
     if (allPermissions) {
 
@@ -46,7 +47,7 @@ function getHiddenState(allPermissions: any[], uri: string) {
 }
 
 // Function to get the icon for a route based on its permissions
-function getRouteIcon(allPermissions: any[], uri: string) {
+function getRouteIcon(allPermissions: any[] | undefined, uri: string) {
     let icon = ''
     if (allPermissions) {
 
@@ -61,7 +62,7 @@ function getRouteIcon(allPermissions: any[], uri: string) {
 }
 
 // The main RoutesTree component
-const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, indent, counter, isInitialRender, hiddenIds, setHiddenIds }) => {
+const RoutesTree: React.FC<Props> = ({ child, rolePermissions, allPermissions, indent, counter, isInitialRender, hiddenIds, setHiddenIds }: Props) => {
 
     const { routes, children } = child
 
@@ -73,85 +74,15 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
 
     const parentFolder = (folder).replace(/^\//, '');
 
-    const parentChecked = !!found(parentFolder, permissions)
+    const parentChecked = !!found(parentFolder, rolePermissions)
 
-    // Function to handle toggling checkboxes for parent routes
-    function handleToggleCheck(parentId: string, action: boolean | null = null) {
+    useEffect(() => {
 
-        const targetElement = document.getElementById(parentId) as HTMLElement; // Narrow the type to HTMLInputElement
-        const targetCheckbox = targetElement.querySelector(`.parent-checkbox`) as HTMLInputElement;
-
-        if (targetCheckbox) {
-
-            // real user clicking on handleToggleCheck
-            if (typeof action !== 'boolean') {
-
-                action = targetCheckbox.checked
-
-                const inputs = targetElement.querySelectorAll<HTMLInputElement>(`input[id$="-child-checkbox"]:not([disabled]), input[id$="-parent-checkbox"]`);
-                const unchecked = targetElement.querySelectorAll(`input[type="checkbox"]:not(:checked).${ROUTE_CHECKBOX_CLASS}`).length;
-
-                inputs.forEach((input) => {
-                    input.indeterminate = false
-                    if (action !== null)
-                        input.checked = action
-                });
-
-                const hasDisabled = !!targetElement.querySelectorAll<HTMLInputElement>(`input[id$="-child-checkbox"]:disabled`).length;
-                targetCheckbox.indeterminate = unchecked !== 0 ? false : hasDisabled
-
-                // Work on children
-                const children = targetElement.querySelectorAll(`div[id^="${PARENT_FOLDER_ID_PREFIX}"]`);
-                children.forEach((child: Element) => {
-                    const targetCheckbox = child.querySelector(`.parent-checkbox`) as HTMLInputElement;
-                    const hasDisabled = !!child.querySelectorAll<HTMLInputElement>(`input[id$="-child-checkbox"]:disabled`).length;
-                    const unchecked = child.querySelectorAll(`input[type="checkbox"]:not(:checked).${ROUTE_CHECKBOX_CLASS}`).length;
-                    const checked = child.querySelectorAll(`input[type="checkbox"]:checked.${ROUTE_CHECKBOX_CLASS}`).length;
-
-                    if (checked === 0) {
-                        targetCheckbox.checked = false;
-                        targetCheckbox.indeterminate = hasDisabled;
-                    } else {
-                        if (unchecked === 0) {
-                            targetCheckbox.checked = true;
-                            targetCheckbox.indeterminate = false;
-                            return
-                        } else {
-                            targetCheckbox.indeterminate = true;
-                        }
-                    }
-
-                })
-
-            } else {
-                // assist programmatic click
-                const checked = targetElement.querySelectorAll(`input[type="checkbox"]:checked.${ROUTE_CHECKBOX_CLASS}`).length;
-                const unchecked = targetElement.querySelectorAll(`input[type="checkbox"]:not(:checked).${ROUTE_CHECKBOX_CLASS}`).length;
-
-                if (checked === 0) {
-                    targetCheckbox.checked = false;
-                    targetCheckbox.indeterminate = false;
-                } else {
-                    if (unchecked === 0) {
-                        targetCheckbox.checked = true;
-                        targetCheckbox.indeterminate = false;
-                    } else {
-                        targetCheckbox.indeterminate = true;
-                    }
-                }
-
-            }
-
-            if (action === true) {
-                // should checkup recursivley -:) <<<---recursion
-                checkboxTreeManager.checkUp(targetElement)
-            }
-            else {
-                // should uncheckup recursivley (:- <<<---recursion
-                checkboxTreeManager.uncheckUp(targetElement)
-            }
+        if (rolePermissions) {
+            checkboxTreeManager.setRolePermissions(rolePermissions)
         }
-    }
+
+    }, [rolePermissions?.length])
 
     // Function to handle toggling the display of child routes
     function handleToggle(id: string) {
@@ -161,12 +92,14 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
         const targetUpdated = document.getElementById(id);
         const isHidden = targetUpdated?.classList.contains('d-none')
 
-        if (isHidden) {
-            if (!hiddenIds.find((_id) => _id === id)) {
-                setHiddenIds((curr) => [...curr, id])
+        if (hiddenIds) {
+            if (isHidden) {
+                if (!hiddenIds.find((_id) => _id === id)) {
+                    setHiddenIds((curr) => [...curr, id])
+                }
+            } else {
+                setHiddenIds(hiddenIds.filter((_id) => _id !== id))
             }
-        } else {
-            setHiddenIds(hiddenIds.filter((_id) => _id !== id))
         }
     }
 
@@ -203,47 +136,19 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
 
         const key = parentElement.id;
 
-        handleToggleCheck(key, action);
+        checkboxTreeManager.handleToggleCheck(key, action);
     }
 
     // Use the debounce function for checkbox checking logic
     const debouncedHandleCheckedSingle = debounce(handleCheckedSingle, 100);
 
     // Function to find a permission based on uriMethods
-    function found(uriMethods: string, permissions: any) {
-        return !!permissions?.find((permission: RouteInterface) => permission.uri === uriMethods);
-    }
-
-    // Function to determine whether a checkbox should be checked or not
-    function shouldCheckChildCheckbox(route: RouteInterface, permissions: PermissionInterface[], parentChecked: boolean) {
-
-        const inputId: string = `${Str.uriMethods(route.uri_and_methods)}-child-checkbox`
-
-        setTimeout(() => {
-
-            const exists = parentChecked === false ? route.checked : route.checked || found(route.uri_and_methods, permissions)
-
-            if (exists) {
-                const checkbox = document.getElementById(inputId) as HTMLInputElement
-
-                if (checkbox) {
-                    checkbox.checked = true
-                    const parentElement = checkbox.closest(`div[id^="${PARENT_FOLDER_ID_PREFIX}"]`)
-                    if (parentElement) {
-                        const key = parentElement.id
-                        handleToggleCheck(key, true)
-                    } else {
-                        console.log('no parent')
-                    }
-                }
-            }
-
-        }, 200);
-
+    function found(uriMethods: string, rolePermissions: any) {
+        return !!rolePermissions?.find((permission: RouteInterface) => permission.uri === uriMethods);
     }
 
     // React state to track order of items
-    const [itemList, setItemList] = useState(children);
+    const [itemList, setItemList] = useState<RouteCollectionInterface[]>(children);
 
     // Function to update list on drop
     const handleDrop = (droppedItem: any) => {
@@ -261,7 +166,7 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
     };
 
     // React state to track order of items
-    const [routesList, setRoutesList] = useState(routes);
+    const [routesList, setRoutesList] = useState<RouteInterface[]>(routes);
 
     // Function to update list on drop
     const handleDropRoutes = (droppedItem: any) => {
@@ -291,7 +196,7 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                             id={`${currentId}-parent-checkbox`}
                             value={parentFolder}
                             className='form-check-input me-2 parent-checkbox'
-                            onChange={() => handleToggleCheck(`${PARENT_FOLDER_ID_PREFIX}${currentId}`)}
+                            onChange={() => checkboxTreeManager.handleToggleCheck(`${PARENT_FOLDER_ID_PREFIX}${currentId}`)}
                             data-counter={counter}
                         />
                         <input
@@ -301,7 +206,7 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                         />
                     </label>
                     <label className="toggler text-base flex-grow-1 border flex-grow-1 py-2 ps-1 pe-0 rounded" onClick={() => handleToggle(`chld-${PARENT_FOLDER_ID_PREFIX}${currentId}-${PARENT_CHILDREN_CLASS}`)}>
-                        <h5>{Str.title(Str.afterLast(child.folder, '/') || '--')}</h5>
+                        <h5>{child ? Str.title(Str.afterLast(child.folder, '/')) : '--'}</h5>
                     </label>
                 </div>
                 <div className='bg-light col-5 d-flex rounded gap-1'>
@@ -327,7 +232,7 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                 </div>
             </div>
             <div>
-                <div id={`chld-${PARENT_FOLDER_ID_PREFIX}${currentId}-${PARENT_CHILDREN_CLASS}`} className={`${PARENT_CHILDREN_CLASS} my-1 ms-2 shadow-sm px-1 py-2 ${hiddenIds.includes(`chld-${PARENT_FOLDER_ID_PREFIX}${currentId}-${PARENT_CHILDREN_CLASS}`) ? 'd-none' : ''}`}>
+                <div id={`chld-${PARENT_FOLDER_ID_PREFIX}${currentId}-${PARENT_CHILDREN_CLASS}`} className={`${PARENT_CHILDREN_CLASS} my-1 ms-2 shadow-sm px-1 py-2 ${hiddenIds ? (hiddenIds.includes(`chld-${PARENT_FOLDER_ID_PREFIX}${currentId}-${PARENT_CHILDREN_CLASS}`) ? 'd-none' : '') : ''}`}>
                     {
                         routesList.length > 0 &&
                         <DragDropContext onDragEnd={handleDropRoutes}>
@@ -362,6 +267,10 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                                                                 echo = filname
                                                             }
 
+                                                            setTimeout(() => {
+                                                                checkboxTreeManager.shouldCheckChildCheckbox(route, parentChecked)
+                                                            }, 250);
+
                                                             return (
                                                                 <tbody key={`${i}+${folder}_${route.slug}`}
                                                                     ref={provided.innerRef}
@@ -381,9 +290,7 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                                                                                     value={route.uri_and_methods}
                                                                                     id={`${Str.uriMethods(route.uri_and_methods)}-child-checkbox`}
                                                                                     className={`${ROUTE_CHECKBOX_CLASS} form-check-input me-2`}
-                                                                                    onChange={(e) => debouncedHandleCheckedSingle(e, currentId, true, true)}
-                                                                                    defaultChecked=
-                                                                                    {(permissions.length && shouldCheckChildCheckbox(route, permissions, parentChecked)) || false}
+                                                                                    onChange={(e: any) => debouncedHandleCheckedSingle(e)}
                                                                                     disabled={route.checked}
                                                                                 />
                                                                                 <input
@@ -471,7 +378,7 @@ const RoutesTree: React.FC<Props> = ({ child, permissions, allPermissions, inden
                                                                 >
                                                                     <Icon icon="carbon:drag-vertical"></Icon>
                                                                     <div className='col tree-section'>
-                                                                        <RoutesTree key={child.folder} indent={indent} child={child} permissions={permissions} allPermissions={allPermissions} counter={counter} isInitialRender={isInitialRender} hiddenIds={hiddenIds} setHiddenIds={setHiddenIds} />
+                                                                        <RoutesTree key={child.folder} indent={indent} child={child} allPermissions={allPermissions} rolePermissions={rolePermissions} counter={counter} isInitialRender={isInitialRender} hiddenIds={hiddenIds} setHiddenIds={setHiddenIds} />
                                                                     </div>
                                                                 </div>
                                                             )}

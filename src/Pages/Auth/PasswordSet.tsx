@@ -1,35 +1,35 @@
 import { useAuth } from '@/contexts/AuthContext';
 import useAxios from '@/hooks/useAxios';
 import { useEffect, useState } from 'react';
-import { NavLink, useNavigate, useParams } from 'react-router-dom'
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import Loader from '../../components/Loader';
 import { config } from '../../utils/helpers';
+import { UserInterface } from '@/interfaces/AuthInterfaces'; // Adjust the import path as necessary
 
-type Props = {}
-
-const PasswordSet = (props: Props) => {
+const PasswordSet = () => {
     const { setUser } = useAuth();
-
-
     const navigate = useNavigate();
-    const { loading: loadingPost, post } = useAxios()
-    const { loading: loadingGet, get: getEmail } = useAxios()
-    const { token } = useParams()
+    const { post } = useAxios<UserInterface>();
+    const { loading: loadingGet, get: getEmail } = useAxios();
+    const { token } = useParams();
 
-    const [email, setEmail] = useState<string>()
+    const [email, setEmail] = useState<string>();
 
     useEffect(() => {
-
-        if (token)
-            fetchEmail(token)
-
-    }, [token])
+        if (token) fetchEmail(token);
+    }, [token]);
 
     async function fetchEmail(token: string) {
-        await getEmail('auth/password/' + token).then((response) => {
-            if (response.results)
-                setEmail(response.results.email)
-        })
+        try {
+            const resp = await getEmail('auth/password/' + token);
+            const results = resp.results
+            if (results) {
+                // console.log(results.)
+                setEmail(results.email)
+            }
+        } catch (error) {
+            console.error('Error fetching email:', error);
+        }
     }
 
     const handleSubmit = async (e: any) => {
@@ -41,17 +41,27 @@ const PasswordSet = (props: Props) => {
             email,
             password: password.value,
             password_confirmation: cpassword.value,
-        }
+        };
 
-        await post('/auth/password-set', body).then((response) => {
-
-            if (response.results) {
-                setUser(response.results);
+        try {
+            const res = await post('/auth/password-set', body);
+            if (res) {
+                // Transform the response to match UserInterface
+                const user: UserInterface = {
+                    id: res.results.id,
+                    name: res.results.name,
+                    email: res.results.email,
+                    roles: res.results.roles,
+                    avatar: res.results.avatar
+                };
+                setUser(user);
                 // Redirect the user to the home page
                 navigate(config.urls.home);
             }
-        })
-    }
+        } catch (error) {
+            console.error('Error setting password:', error);
+        }
+    };
 
     return (
         <div className="col-lg-7">
@@ -92,9 +102,7 @@ const PasswordSet = (props: Props) => {
                                         <div className='alert alert-danger'>Error while retrieving your information</div>
                                 }
                             </div>
-
                     }
-
                 </div>
                 <div className="card-footer text-center py-3">
                     <div className="small"><NavLink to="/login">Have an account? Go to login</NavLink></div>
@@ -104,4 +112,4 @@ const PasswordSet = (props: Props) => {
     )
 }
 
-export default PasswordSet
+export default PasswordSet;

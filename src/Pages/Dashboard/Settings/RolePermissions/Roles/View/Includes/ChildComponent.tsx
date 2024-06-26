@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-const ChildComponent = ({ parentChecked, onChildCheckboxChange }) => {
+type ChildComponentType = {
+  onChildCheckboxChange: (checked: boolean) => void
+}
+const ChildComponent = ({ onChildCheckboxChange }: ChildComponentType) => {
   const [isChecked, setIsChecked] = useState(false);
 
-  const handleChildCheckboxChange = (checked) => {
+  const handleChildCheckboxChange = (checked: boolean) => {
     setIsChecked(checked);
     onChildCheckboxChange(checked);
   };

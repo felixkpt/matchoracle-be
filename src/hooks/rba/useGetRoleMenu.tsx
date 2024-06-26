@@ -8,7 +8,7 @@ const useGetRoleMenu = () => {
     const [currentRole, setCurrentRole] = useState<RoleInterface | undefined>();
 
     const [roleMenu, setUserMenu] = useState<RouteCollectionInterface[]>([]);
-    const [expandedRootFolders, setExpandedRootFolders] = useState<string>('');
+    const [expandedRootFolders, setExpandedRootFolders] = useState<string[]>([]);
     const [reloadKey, setReloadKey] = useState<number>(0);
 
     useEffect(() => {

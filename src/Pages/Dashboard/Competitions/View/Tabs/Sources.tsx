@@ -1,15 +1,12 @@
 import AddSource from '@/components/AddSource';
 import Loader from '@/components/Loader';
-import PageHeader from '@/components/PageHeader';
-import { CompetitionInterface, CompetitionTabInterface, SeasonsListInterface } from '@/interfaces/FootballInterface';
+import { CompetitionInterface } from '@/interfaces/FootballInterface';
 import { publish } from '@/utils/events';
 import CompetitionSubHeader from '../Inlcudes/CompetitionSubHeader';
 
 interface Props {
-  record: Omit<CompetitionInterface, 'seasons', 'selectedSeason', 'setSelectedSeasonts'>;
+  record: CompetitionInterface | undefined
 }
-
-interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
 const Sources: React.FC<Props> = ({ record }) => {
 

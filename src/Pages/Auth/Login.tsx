@@ -19,7 +19,7 @@ export default function Login({ className, isMinimal }: Props) {
     const navigate = useNavigate();
 
     // Initialize useAxios with the desired endpoint for login
-    const { results, loading, post } = useAxios();
+    const { response, loading, post } = useAxios();
 
     // login user
     const handleSubmit = async (e: any) => {
@@ -52,7 +52,7 @@ export default function Login({ className, isMinimal }: Props) {
         if (tried === false && loading === true) setTried(true);
 
         if (loading === false && tried === true) {
-            const user = results.results;
+            const user = response.results;
 
             if (user) {
                 setUser(user);
@@ -100,7 +100,7 @@ export default function Login({ className, isMinimal }: Props) {
                                 :
                                 null
                             }
-                            <SubmitButton className="btn bg-success main-bg" loading={loading}>Login</SubmitButton>
+                            <SubmitButton loading={loading}>Login</SubmitButton>
                         </div>
                     </form>
                 </div>

@@ -8,7 +8,7 @@ export interface PostInterface {
     category_id: string
     topic: any
     topic_id: string
-    priority_number: number
+    priority: number
     created_at: string
     updated_at: string
     status_id: string
@@ -20,7 +20,7 @@ export interface PostCategoryInterface {
     image: string
     category: any
     parent_category_id: string
-    priority_number: number
+    priority: number
     created_at: string
     updated_at: string
     status_id: string

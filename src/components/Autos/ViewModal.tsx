@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import SimpleTable from "./SimpleTable";
-import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces";
+import { ModelDetailsInterface } from "@/interfaces/UncategorizedInterfaces";
 
 type ModalShowProps = {
-    record: object | null
-    modelDetails?: CollectionItemsInterface
+    record: { [key: string]: string }
+    modelDetails: ModelDetailsInterface | undefined
     size?: 'modal-sm' | 'modal-lg' | 'modal-xl'
     id?: string
 }
@@ -51,7 +51,9 @@ const ViewModal: React.FC<ModalShowProps> = ({ record, modelDetails, size, id })
 
     useEffect(() => {
         if (modelDetails) {
-            setModelName(modelDetails?.model_name || null);
+            if (modelDetails?.model_name) {
+                setModelName(modelDetails.model_name || 'Model Title');
+            }
             setExclude(modelDetails?.exclude || []);
             setHtmls(modelDetails?.htmls || []);
         }
@@ -68,7 +70,7 @@ const ViewModal: React.FC<ModalShowProps> = ({ record, modelDetails, size, id })
                         <h5 className="modal-title" id="staticBackdropLabel">View {modelName} #{record && record?.id}</h5>
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div className="modal-body">
+                    <div className="modal-body overflow-auto">
                         {record &&
                             <div className="text-gray-200">
                                 <SimpleTable record={record} exclude={exclude} htmls={htmls} />

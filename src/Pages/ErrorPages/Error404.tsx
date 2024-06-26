@@ -3,10 +3,10 @@ import { NavLink } from 'react-router-dom'
 interface Props {
   previousUrl?: string | null
   currentUrl?: string
-  reload?: () => void
+  setReloadKey?: React.Dispatch<React.SetStateAction<number>>
 }
 
-const Error404 = ({ previousUrl, currentUrl, reload }: Props) => {
+const Error404 = ({ previousUrl, currentUrl, setReloadKey }: Props) => {
 
   return (
     <div className="d-flex align-items-center h-100vh justify-content-center">
@@ -23,7 +23,7 @@ const Error404 = ({ previousUrl, currentUrl, reload }: Props) => {
               <p>the page you are looking for is not avaible!</p>
 
               {previousUrl &&
-                <NavLink to={previousUrl} onClick={() => previousUrl === currentUrl && reload && reload()} className="link_404 rounded">{previousUrl === currentUrl ? 'Reload' : 'Go Back'}</NavLink>
+                <NavLink to={previousUrl} onClick={() => previousUrl === currentUrl && setReloadKey && setReloadKey(curr => curr + 1)} className="link_404 rounded">{previousUrl === currentUrl ? 'Reload' : 'Go Back'}</NavLink>
               }
             </div>
             <NavLink to="/">

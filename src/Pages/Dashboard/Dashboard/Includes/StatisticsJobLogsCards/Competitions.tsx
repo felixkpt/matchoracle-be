@@ -9,7 +9,7 @@ interface CompetitionStatsCardProps {
     stats: {
         all: CompetitionStatsInterface;
         today: TodayCompetitionStatsInterface;
-    };
+    } | null | undefined;
 }
 
 const Competitions: React.FC<CompetitionStatsCardProps> = ({ loading, errors, stats }) => {
@@ -36,7 +36,7 @@ const Competitions: React.FC<CompetitionStatsCardProps> = ({ loading, errors, st
                     <>
                         {
                             errors || !stats ?
-                                <NoContentMessage isError={errors} />
+                                <NoContentMessage message={errors} />
                                 :
                                 <div>
                                     <div className='d-flex align-items-center justify-content-between shadow-sm p-2 rounded text-muted'>

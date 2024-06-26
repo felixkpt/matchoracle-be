@@ -1,5 +1,5 @@
-import { publish, subscribe, unsubscribe } from '@/utils/events';
-import React, { ReactNode, useEffect } from 'react'
+import { publish } from '@/utils/events';
+import React, { ReactNode } from 'react'
 
 interface InlinActionProps {
     title?: string;
@@ -9,7 +9,7 @@ interface InlinActionProps {
     setKey?: React.Dispatch<React.SetStateAction<number>>; // Use React.Dispatch type for setKey
 }
 
-const InlineAction: React.FC<InlinActionProps> = ({ title, children, actionUrl, id, setKey }) => {
+const InlineAction: React.FC<InlinActionProps> = ({ children, actionUrl, id }) => {
 
     // useEffect(() => {
 

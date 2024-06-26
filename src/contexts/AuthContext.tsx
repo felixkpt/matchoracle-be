@@ -28,21 +28,7 @@ const decryptUser = (encryptedUser: string) => {
 };
 
 // Create the AuthContent context with the generic interface
-const AuthContent = createContext<AuthenticatedUser>({
-  user: null,
-  updateUser: () => { },
-  csrfToken: async () => false,
-  setUser: () => { },
-  deleteUser: () => { },
-  verified: false,
-  setVerified: () => { },
-  redirectTo: config.urls.home,
-  setRedirectTo: () => { },
-  redirectMessage: undefined,
-  setRedirectMessage: () => { },
-  fileAccessToken: null
-
-});
+const AuthContent = createContext<AuthenticatedUser | undefined>(undefined);
 
 // Function to encrypt the user object
 const encryptData = (user: UserInterface) => {
@@ -56,12 +42,12 @@ const encryptData = (user: UserInterface) => {
 // Authentication Provider component that wraps the application with authentication capabilities
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Get the stored user data from localStorage
-  
+
   // Initialize the 'user' state with the decrypted user data (if available) or null
-  const [user, _setUser] = useState<UserInterface | null>(() => {
+  const [user, _setUser] = useState<UserInterface | null | undefined>(() => {
 
     const storedUser = localStorage.getItem(`${config.storageName}.user`);
-    
+
     try {
       if (storedUser) {
         const decryptedUser = decryptUser(storedUser);
@@ -78,17 +64,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [redirectMessage, setRedirectMessage] = useState<string>()
 
   // Set encrypted user data to local storage and update roles state
-  const setUser = (newUser: UserInterface) => {
+  const setUser = (newUser: UserInterface | null | undefined) => {
 
     if (newUser && !newUser.id) return null
 
     if (newUser) {
       const encryptedUser = encryptData(newUser);
-      localStorage.setItem(`${config.storageName}.user`, encryptedUser);
+      if (encryptedUser) {
+        localStorage.setItem(`${config.storageName}.user`, encryptedUser);
+      }
     } else {
       localStorage.removeItem(`${config.storageName}.user`);
     }
-    _setUser(newUser);
+    if (newUser)
+      _setUser(newUser);
   };
 
   // Function to update the user object and store it in localStorage
@@ -102,9 +91,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (encryptedUser) {
         localStorage.setItem(`${config.storageName}.user`, encryptedUser);
         setVerified(true)
-        setFileAccessToken(updatedUserData.fileAccessToken); // Set the file access token
-
-
       }
 
       // Update the 'user' state with the updated user object
@@ -123,18 +109,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     _setUser(null);
   };
 
-  const [fileAccessToken, setFileAccessToken] = useState<string | null>(null);
-
   // Provide the authentication data and functions to the children components
   return (
-    <AuthContent.Provider value={{ user, updateUser, csrfToken, setUser, deleteUser, verified, setVerified, redirectTo, setRedirectTo, setRedirectMessage, redirectMessage, fileAccessToken }}>
+    <AuthContent.Provider value={{ user, updateUser, csrfToken, setUser, deleteUser, verified, setVerified, redirectTo, setRedirectTo, setRedirectMessage, redirectMessage }}>
       {children}
     </AuthContent.Provider>
   );
 };
 
 // Custom hook to access the authentication context
-export const useAuth = () => {
-  return useContext(AuthContent);
+export const useAuth = (): AuthenticatedUser => {
+  const context = useContext(AuthContent);
+  if (!context) {
+    throw new Error('useAuth must be used within a AuthContentProvider');
+  }
+  return context;
 };
 

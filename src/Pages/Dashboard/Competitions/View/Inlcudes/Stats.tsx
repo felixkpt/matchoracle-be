@@ -1,15 +1,46 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ProgressBar } from 'react-bootstrap';
 import NoContentMessage from '@/components/NoContentMessage';
 import useAxios from '@/hooks/useAxios';
-import { CompetitionInterface, SeasonInterface } from '@/interfaces/FootballInterface';
 import { appendFromToDates } from '@/utils/helpers';
 import Loader from '@/components/Loader';
 import Str from '@/utils/Str';
+import { CompetitionInterface, SeasonInterface } from '@/interfaces/FootballInterface';
+interface StatsData {
+    counts: number;
+    ft_home_wins: number;
+    ft_home_wins_percentage: number;
+    ft_draws: number;
+    ft_draws_percentage: number;
+    ft_away_wins: number;
+    ft_away_wins_percentage: number;
+    ft_gg: number;
+    ft_gg_percentage: number;
+    ft_ng: number;
+    ft_ng_percentage: number;
+    ft_over15: number;
+    ft_over15_percentage: number;
+    ft_under15: number;
+    ft_under15_percentage: number;
+    ft_over25: number;
+    ft_over25_percentage: number;
+    ft_under25: number;
+    ft_under25_percentage: number;
+    ft_over35: number;
+    ft_over35_percentage: number;
+    ft_under35: number;
+    ft_under35_percentage: number;
+    ht_home_wins: number;
+    ht_home_wins_percentage: number;
+    ht_draws: number;
+    ht_draws_percentage: number;
+    ht_away_wins: number;
+    ht_away_wins_percentage: number;
+}
 
 type Props = {
     competition: CompetitionInterface;
-    selectedSeason: SeasonInterface;
+    selectedSeason?: SeasonInterface | null;
     fromToDates: Array<Date | string | undefined>;
     useDate: any;
 };
@@ -19,12 +50,13 @@ const Stats = ({ competition, selectedSeason, fromToDates, useDate }: Props) => 
 
     const statsUrl = `dashboard/competitions/view/${competition.id}/statistics?season_id=${selectedSeason ? selectedSeason?.id : ''}${appendFromToDates(useDate, fromToDates)}`;
 
-    const [data, setData] = useState(null)
+    const [data, setData] = useState<StatsData | null>(null);
+
     useEffect(() => {
         get(statsUrl).then((response) => {
-            const results = response.results
+            const results = response.results;
             if (results) {
-                setData(results)
+                setData(results.data);
             }
         });
     }, [statsUrl]);
@@ -35,7 +67,7 @@ const Stats = ({ competition, selectedSeason, fromToDates, useDate }: Props) => 
                 <div className="card-header">
                     <h6 className="d-flex justify-content-between align-items-center">
                         <span>{label}</span>
-                        <span className="fs-6 fw-bold">{`${value}/${data.counts}`}</span>
+                        <span className="fs-6 fw-bold">{`${value}/${data?.counts}`}</span>
                     </h6>
                 </div>
                 <div className="card-body">
@@ -65,7 +97,7 @@ const Stats = ({ competition, selectedSeason, fromToDates, useDate }: Props) => 
                 <div className="card-header">
                     <h5 className="d-flex gap-2 justify-content-between">
                         <div className='text-dark'>Results stats</div>
-                        <div className='text-success'>{`Total matches: ${(data && data.counts) ? data.counts : 0}`}</div>
+                        <div className='text-success'>{`Total matches: ${data?.counts ?? 0}`}</div>
                     </h5>
                 </div>
                 <div className="card-body">
@@ -87,7 +119,6 @@ const Stats = ({ competition, selectedSeason, fromToDates, useDate }: Props) => 
                                     {renderProgressBar('Half time - Home Wins', data.ht_home_wins, data.ht_home_wins_percentage, 'success')}
                                     {renderProgressBar('Half time - Draws', data.ht_draws, data.ht_draws_percentage, 'secondary')}
                                     {renderProgressBar('Half time - Away Wins', data.ht_away_wins, data.ht_away_wins_percentage, 'primary')}
-
                                 </div>
                             ) : (
                                 <NoContentMessage />

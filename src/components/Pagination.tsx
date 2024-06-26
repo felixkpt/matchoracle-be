@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { SetStateAction } from 'react';
 import ReactPaginate from 'react-paginate';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import Select from 'react-select';
@@ -8,7 +8,7 @@ interface PaginationProps {
   items: any;
   setPage: (value: string) => void
   setPerPage: (value: string) => void
-  setPaginatorChangeKey?: (value: number) => void
+  setPaginatorChangeKey?: React.Dispatch<SetStateAction<number>>
   hidePerPage?: boolean
   loading?: boolean
   breakpoint?: 'md' | 'lg' | 'xl'
@@ -24,14 +24,14 @@ const Pagination: React.FC<PaginationProps> = ({ items, setPage, setPerPage, set
     const value = e?.value || e?.target.value || undefined;
     setPerPage(value)
     if (setPaginatorChangeKey)
-      setPaginatorChangeKey((curr) => curr + 1)
+      setPaginatorChangeKey((curr: number) => curr + 1)
   };
 
   const handlePageClick = (data: any) => {
     const selectedPage = data.selected + 1;
     setPage(selectedPage.toString());
     if (setPaginatorChangeKey)
-      setPaginatorChangeKey((curr) => curr + 1)
+      setPaginatorChangeKey((curr: number) => curr + 1)
   };
 
   const options = [
@@ -60,7 +60,6 @@ const Pagination: React.FC<PaginationProps> = ({ items, setPage, setPerPage, set
               pageRangeDisplayed={5}
               onPageChange={handlePageClick}
               containerClassName={'pagination'}
-              subContainerClassName={''}
               activeClassName={'active'}
             />
           </nav>

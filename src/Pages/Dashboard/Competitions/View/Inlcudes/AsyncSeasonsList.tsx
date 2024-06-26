@@ -16,8 +16,8 @@ const AsyncSeasonsList = ({ seasons, selectedSeason, handleSeasonChange }: Seaso
                 isSearchable={true}
                 placeholder="Select season"
                 name='season_id'
-                options={seasons}
-                onChange={(v) => handleSeasonChange(v)}
+                options={seasons || []}
+                onChange={(v) => handleSeasonChange && handleSeasonChange(v)}
                 getOptionValue={(option: any) => `${option['id']}`}
                 getOptionLabel={(option: any) => `${Str.before(option['start_date'], '-')} / ${Str.before(option['end_date'], '-')}`}
             />

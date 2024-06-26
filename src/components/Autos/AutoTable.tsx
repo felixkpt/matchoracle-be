@@ -1,11 +1,11 @@
 import useAutoTableEffect from '@/hooks/autos/useAutoTableEffect';
-import useStatusesUpdateEffect from '@/hooks/useStatusesUpdateEffect';
+import useStatusesUpdateEffect from '../../hooks/autos/useAutoStatusesUpdate';
 import { debounce } from 'lodash';
 import Pagination from '../Pagination';
 import { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
-import { AutoTableInterface } from '../../interfaces/UncategorizedInterfaces';
+import { AutoTableInterface, ModelDetailsInterface } from '../../interfaces/UncategorizedInterfaces';
 import AutoActions from './AutoActions';
 import AutoTableHeader from './AutoTableHeader';
 import Loader from '../Loader';
@@ -54,7 +54,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     const [tableDataLength, setTableDataLength] = useState(tableData?.total || 0)
     const [currentPageDataLength, setCurrentPageDataLength] = useState<number>(-1);
 
-    const [modelDetails, setModelDetails] = useState({})
+    const [modelDetails, setModelDetails] = useState<ModelDetailsInterface>()
     const [htmls, setHtmls] = useState<string[]>([])
     const [query, setQuery] = useState<string>('')
 
@@ -82,7 +82,9 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                 setCurrentPageDataLength(-1);
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { data, ...others } = tableData
+
             if (setModelDetails) {
 
                 const rest = { ...others, tableId: localTableId, query }
@@ -104,7 +106,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
 
     const [columns, setColumns] = useState(initCols)
 
-    const reloadAutoTable: EventListener | any = (event) => {
+    const reloadAutoTable: EventListener | any = () => {
         setReload((curr) => curr + 1)
     }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import defaultUserBackDrop from '@/assets/images/default_user_back_drop.png';
 import useAutoPostDone from '@/hooks/autos/useAutoPostDone';
 import BasicInfo from './Includes/BasicInfo';

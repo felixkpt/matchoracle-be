@@ -1,18 +1,19 @@
-import SubmitButton from '@/components/SubmitButton'
-import { UserInterface } from '@/interfaces/UncategorizedInterfaces'
-import { publish } from '@/utils/events'
-import { Icon } from '@iconify/react/dist/iconify.js'
+import React from 'react';
+import SubmitButton from '@/components/SubmitButton';
+import { UserInterface } from '@/interfaces/AuthInterfaces';
+import { publish } from '@/utils/events';
+import { Icon } from '@iconify/react/dist/iconify.js';
 
 interface Props {
-    user: UserInterface
-    imageUrl: string
-    setImageUrl: React.Dispatch<React.SetStateAction<string>>
+    user: UserInterface | null | undefined;
+    imageUrl: string;
+    setImageUrl: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const BasicInfo = ({ user, imageUrl, setImageUrl }: Props) => {
 
-    const handleImageChange = (event) => {
-        const file = event.target.files[0]; // Get the selected file
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]; // Get the selected file
         if (file) {
             const imageSrc = URL.createObjectURL(file);
             setImageUrl(imageSrc);
@@ -47,7 +48,7 @@ const BasicInfo = ({ user, imageUrl, setImageUrl }: Props) => {
                                             </div>
                                             <div className="form-floating mb-3">
                                                 <div>
-                                                    <div className="avatar-wrapper position-relative" title='Click to upload new piture' onClick={() => document.getElementById("avatarUpload")?.click()}>
+                                                    <div className="avatar-wrapper position-relative" title='Click to upload new picture' onClick={() => document.getElementById("avatarUpload")?.click()}>
                                                         <img className="profile-pic rounded-circle" src={imageUrl} alt="Profile pic" />
                                                         <div className="upload-button p-1">
                                                             <div className="position-absolute top-50 start-50 translate-middle arrow-circle-up">
@@ -74,10 +75,9 @@ const BasicInfo = ({ user, imageUrl, setImageUrl }: Props) => {
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default BasicInfo
+export default BasicInfo;

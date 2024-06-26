@@ -15,18 +15,18 @@ interface Props {
     uri: string;
     permission?: string | null;
     method?: HttpVerbsType;
-    Component: React.ComponentType;
+    Component: React.ElementType | ((props?: any) => void) | JSX.Element
 }
 
-const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
-    method = method || 'get'
-
+const AuthenticatedLayout: React.FC<Props> = ({ uri, permission, method, Component }) => {
     const { loading, isAllowed, shouldRender403, reload, previousUrl } = useRoleBasedAccessAccess({ uri, permission, method });
+
+    const ComponentAsserted = Component as React.ElementType
 
     return (
         <div>
             <ScrollToTop />
-            <NavBar hideFrom="lg" />
+            <NavBar />
             <div id="layoutWrapper">
                 <div id="sideNav">
                     <SideNav />
@@ -39,19 +39,18 @@ const AuthenticatedLayout = ({ uri, permission, method, Component }: Props) => {
                                     <Loader position="absolute" height="100vh" message="Please wait..." />
                                 </div>
                             ) : isAllowed ? (
-                                <Component />
+                                <ComponentAsserted />
                             ) : (
                                 shouldRender403 ? (
                                     environment === 'local' ?
-                                        <Error403 previousUrl={previousUrl} currentUrl={location.pathname} reload={reload} />
+                                        <Error403 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={reload} />
                                         :
-                                        <Error404 previousUrl={previousUrl} currentUrl={location.pathname} reload={reload} />
+                                        <Error404 previousUrl={previousUrl} currentUrl={location.pathname} setReloadKey={reload} />
+                                ) : (
+                                    <div style={{ fontSize: '20px' }}>
+                                        <Loader position="absolute" height="100vh" message="Granting you page access..." />
+                                    </div>
                                 )
-                                    : (
-                                        <div style={{ fontSize: '20px' }}>
-                                            <Loader position="absolute" height="100vh" message="Granting you page access..." />
-                                        </div>
-                                    )
                             )}
                         </main>
                     </div>

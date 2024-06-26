@@ -1,7 +1,7 @@
 import { UserInterface } from "./AuthInterfaces";
 
 export interface RoleInterface {
-  id: number | string;
+  id: number;
   name: string;
   guard_name: string;
   created_at: string;
@@ -11,7 +11,7 @@ export interface RoleInterface {
 }
 
 export interface PermissionInterface {
-  id: number | string;
+  id: number;
   name: string;
   guard_name: string;
   created_at: string;
@@ -38,7 +38,9 @@ export interface RouteInterface {
   icon: string | null;
   checked: boolean;
   filename: string;
+  is_public: boolean
 }
+
 export interface RouteCollectionInterface {
   folder: string;
   routes: RouteInterface[];
@@ -46,7 +48,6 @@ export interface RouteCollectionInterface {
   title: string;
   hidden: boolean;
   icon: string | null;
-
   children: RouteCollectionInterface[];
 }
 
@@ -56,16 +57,16 @@ export interface RoleRoutePermissionsAndMenuContextInterface {
     // guest mode / auth mode
     guestMode: boolean
     isGuestModeSupported: boolean
-    user: UserInterface
+    user: UserInterface | null | undefined
     loadingUser: boolean
     loadedUser: boolean
     loadingUserError: string | undefined
-    setUser: (user: UserInterface) => React.Dispatch<React.SetStateAction<UserInterface>>
+    setUser: (user: UserInterface) => void
     roles: RoleInterface[]
     routePermissions: PermissionInterface[]
     directPermissions: PermissionInterface[]
-    currentRole: RoleInterface
-    setCurrentRole: (role: RoleInterface | undefined) => React.Dispatch<React.SetStateAction<RoleInterface>>
+    currentRole: RoleInterface | undefined
+    setCurrentRole: React.Dispatch<React.SetStateAction<RoleInterface | undefined>>
     loading: boolean
     loaded: boolean
     errors: string | undefined

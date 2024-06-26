@@ -1,5 +1,3 @@
-import React from 'react';
-
 const ResetPasswordConfirm = () => {
     return (
         <div className="col-lg-5">

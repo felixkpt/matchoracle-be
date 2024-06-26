@@ -10,13 +10,13 @@ const useFromToDates = (base_uri?: string, append_date_in_uri?: boolean) => {
     const [baseUri, setBaseUri] = useState(base_uri)
     const [previousUrl, setPreviousUrl] = useState<string | null>(null)
 
-    const [fromToDates, setFromToDates] = useState<Array<string | undefined>>([]);
+    const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>([]);
 
     const dates_in_uri = typeof append_date_in_uri === 'boolean' ? append_date_in_uri : true
 
     useEffect(() => {
 
-        let url = location.pathname
+        const url = location.pathname
         setBaseUri(url ? `${url}` : base_uri)
 
         if (previousUrl !== location.pathname) {
@@ -44,7 +44,8 @@ const useFromToDates = (base_uri?: string, append_date_in_uri?: boolean) => {
     }, [location.pathname, location.search, location.hash]);
 
     useEffect(() => {
-        let combinedDates = '';
+        let combinedDates:Date | string | undefined = '';
+        
         if (fromToDates[0]) {
             combinedDates = fromToDates[0];
             if (fromToDates[1]) {

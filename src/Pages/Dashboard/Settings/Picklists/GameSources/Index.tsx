@@ -2,10 +2,11 @@ import AutoTable from '@/components/Autos/AutoTable';
 import AutoModal from '@/components/Autos/AutoModal';
 import { useState } from 'react';
 import PageHeader from '@/components/PageHeader';
+import { ModelDetailsInterface } from '@/interfaces/UncategorizedInterfaces';
 
 const Index = () => {
 
-  const [modelDetails, setModelDetails] = useState({})
+  const [modelDetails, setModelDetails] = useState<ModelDetailsInterface>()
 
   return (
     <div>

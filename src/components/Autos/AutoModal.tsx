@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { publish } from '@/utils/events';
-import { CollectionItemsInterface, DataInterface, ListSourceInterface, ModalSizeType } from '@/interfaces/UncategorizedInterfaces';
+import { DataInterface, ListSourceInterface, ModalSizeType, ModelDetailsInterface } from '@/interfaces/UncategorizedInterfaces';
 import AutoModalBody from './AutoModalBody';
 import Str from '../../utils/Str';
+
 interface ModalProps {
-    modelDetails?: Omit<CollectionItemsInterface, 'data'>;
-    record?: DataInterface | null | undefined
+    modelDetails?: ModelDetailsInterface;
+    record?: DataInterface | null | undefined | any
     modelName?: string;
     fillable?: { [key: string]: { input: string; type: string } };
     actionUrl?: string;

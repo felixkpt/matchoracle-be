@@ -26,10 +26,8 @@ const CompetitionsList: React.FC<Props> = ({ country, competitions }) => {
 
     function loadCompetitionTeams(eventOrTarget: any) {
         let target;
-        let isEvent = false;
 
         if (eventOrTarget.nativeEvent instanceof Event) {
-            isEvent = true;
             eventOrTarget.preventDefault();
             target = eventOrTarget.target;
         } else {

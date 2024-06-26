@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
-import Select from 'react-select';
+import Select, { SingleValue } from 'react-select';
 import Str from '@/utils/Str';
 import SubmitButton from './SubmitButton';
 import { publish } from '@/utils/events';
-import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces';
+import { DataInterface } from '@/interfaces/UncategorizedInterfaces';
 
 interface StatusesUpdateProps {
     checkedAllItems: boolean;
@@ -14,7 +14,7 @@ interface StatusesUpdateProps {
     setCheckedAllItems: React.Dispatch<React.SetStateAction<boolean>>;
     moduleUri: string;
     fullQueryString: string;
-    statuses: CollectionItemsInterface[]; // Adjust the type accordingly
+    statuses: DataInterface[];
     tableId: string; // Add tableId prop
 }
 
@@ -28,14 +28,18 @@ const StatusesUpdate: React.FC<StatusesUpdateProps> = ({
     fullQueryString,
     statuses,
 }) => {
-    
-    const [selectedStatus, setSelectedStatus] = useState<(CollectionItemsInterface)>();
+
+    const [selectedStatus, setSelectedStatus] = useState<DataInterface | null>(null);
 
     useEffect(() => {
         if (statuses.length > 0) {
-            setSelectedStatus(statuses[0])
+            setSelectedStatus(statuses[0]);
         }
-    }, [statuses])
+    }, [statuses]);
+
+    const handleStatusChange = (newValue: SingleValue<DataInterface>) => {
+        setSelectedStatus(newValue);
+    };
 
     return (
         <div className="d-flex align-items-center justify-content-start gap-3">
@@ -75,9 +79,9 @@ const StatusesUpdate: React.FC<StatusesUpdateProps> = ({
                             name='status_id'
                             options={statuses}
                             value={selectedStatus}
-                            onChange={setSelectedStatus}
-                            getOptionValue={(option: any) => `${option['id']}`}
-                            getOptionLabel={(option: any) => Str.title(`${option['name']}`)}
+                            onChange={handleStatusChange}
+                            getOptionValue={(option: DataInterface) => `${option['id']}`}
+                            getOptionLabel={(option: DataInterface) => Str.title(`${option['name']}`)}
                         />
                         <SubmitButton />
                     </div>

@@ -1,8 +1,7 @@
 import AutoTable from '@/components/Autos/AutoTable'
 
-type Props = {}
 
-const PredictionsJobLogs = (props: Props) => {
+const PredictionsJobLogs = () => {
 
   const columns = [
     { key: 'id' },

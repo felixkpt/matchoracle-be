@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import RenderAsyncSelect from '../RenderAsyncSelect';
-import { CollectionItemsInterface, DataInterface, ListSourceInterface, ModalSizeType } from '@/interfaces/UncategorizedInterfaces';
+import { DataInterface, ListSourceInterface, ModalSizeType, ModelDetailsInterface } from '@/interfaces/UncategorizedInterfaces';
 import Str from '@/utils/Str';
+import SubmitButton from '../SubmitButton';
 interface ModalProps {
-    modelDetails?: CollectionItemsInterface | undefined;
+    modelDetails?: ModelDetailsInterface;
     record?: DataInterface | null | undefined
     modelName?: string;
     fillable?: { [key: string]: { input: string; type: string } };
@@ -21,7 +22,7 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
     const [inputData, setInputData] = useState<{ [key: string]: string }>({});
     const [localKey, setLocalKey] = useState(0);
     const [hasFillable, setHasFillable] = useState(false);
-    const [fillable, setFillable] = useState<{ [key: string]: string }[]>({});
+    const [fillable, setFillable] = useState<{ [key: string]: string }[]>([]);
     const [method, setMethod] = useState("POST");
 
     useEffect(() => {
@@ -59,14 +60,31 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
                 setInputData(tObj);
             }
 
-            if (modalSize)
+            if (modalSize) {
                 setLocalComputedSize(modalSize)
-            else if (length < 6)
-                setLocalComputedSize('modal-sm')
-            else if (length < 16)
-                setLocalComputedSize('modal-lg')
-            else if (length > 16)
-                setLocalComputedSize('modal-xl')
+
+            } else {
+
+                let counts = 0
+                for (const input in fillable) {
+                    const type = fillable[input].input
+                    if (type === 'textarea') {
+                        counts += 2
+                    } else {
+                        counts += 1
+                    }
+                }
+
+                if (counts < 6)
+                    setLocalComputedSize('modal-sm')
+                else if (counts < 10)
+                    setLocalComputedSize('modal-md')
+                else if (counts < 16)
+                    setLocalComputedSize('modal-lg')
+                else if (counts > 16)
+                    setLocalComputedSize('modal-xl')
+
+            }
         }
 
     }, [fillable, record])
@@ -110,7 +128,7 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
     };
 
     return (
-        <div key={localKey} className='modal-body'>
+        <div key={localKey} className='modal-body overflow-auto'>
             {modelDetails ?
                 <div className="container-fluid">
                     <input type="hidden" name="_method" value={method} />
@@ -120,13 +138,13 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
                             Object.keys(fillable).map((key: any) => {
                                 const obj = fillable[key]
                                 const { input, type, min, max, rows, capitalize } = obj;
+                                const rowsCasted = rows as unknown as number
                                 const accept = obj.accept || '*'
 
                                 const current_key = key.replace(/_multilist$/, '_list')
 
                                 const currentData = inputData[current_key.replace(/_list|_id/, '')]
 
-                                console.log(computedSize)
                                 return (
                                     <div key={current_key} className={`col-12 ${computedSize !== 'modal-sm' && (input !== 'textarea') ? 'col-md-6 col-xl-6' : ''} d-flex align-items-${type === 'checkbox' ? 'end' : 'center'}`}>
                                         <div className="form-group mb-3 w-100" id={`form-group-section-${current_key}`}>
@@ -207,7 +225,7 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
                                                     defaultValue={inputData[current_key] || ''}
                                                     onChange={(e) => handleInputChange(current_key, e.target.value)}
                                                     key={current_key}
-                                                    rows={rows || 7}
+                                                    rows={rowsCasted || 7}
                                                 ></textarea>
                                             )}
                                         </div>
@@ -220,7 +238,7 @@ const AutoModalBody: React.FC<ModalProps> = ({ modelDetails, record, modalSize, 
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn btn-secondary" onClick={() => { setLocalKey(localKey + 1); setKey && setKey(localKey + 1) }} data-bs-dismiss="modal">Close</button>
-                        <button type="submit" className="btn bg-success text-white submit-button">Submit</button>
+                        <SubmitButton>Submit</SubmitButton>
                     </div>
                 </div>
                 : 'Model data incomplete'

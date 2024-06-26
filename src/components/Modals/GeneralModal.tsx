@@ -1,4 +1,4 @@
-import { publish, subscribe, unsubscribe } from '@/utils/events';
+import { publish } from '@/utils/events';
 import React, { ReactNode, useEffect, useState } from 'react'
 
 interface GeneralModalProps {
@@ -10,7 +10,7 @@ interface GeneralModalProps {
     size?: 'modal-sm' | 'modal-lg' | 'modal-xl'
 }
 
-const GeneralModal: React.FC<GeneralModalProps> = ({ title, children, actionUrl, size, id, setKey }) => {
+const GeneralModal: React.FC<GeneralModalProps> = ({ title, children, actionUrl, size, id }) => {
 
     const [computedSize, setComputedSize] = useState<string>('')
 
@@ -25,28 +25,6 @@ const GeneralModal: React.FC<GeneralModalProps> = ({ title, children, actionUrl,
         else if (length > 16)
             setComputedSize('modal-xl')
     }, [])
-
-
-    // useEffect(() => {
-
-    //     subscribe('autoPostDone', handleAutoPostDone);
-
-    //     return () => {
-    //         unsubscribe('autoPostDone', handleAutoPostDone);
-    //     };
-
-    // }, [])
-
-    // const handleAutoPostDone = (resp: any) => {
-    //     if (resp.detail) {
-    //         const detail = resp.detail;
-    //         if (detail.elementId === id && detail.results && setKey) {
-    //             setTimeout(() => {
-    //                 setKey((curr) => curr + 1);
-    //             }, 300);
-    //         }
-    //     }
-    // };
     
     return (
         <div className={`modal fade`} id={`${id || 'GeneralModal'}`} data-bs-backdrop="static" data-bs-keyboard="false" tabIndex={-1} aria-labelledby="staticBackdropLabel" aria-hidden={`true`}>

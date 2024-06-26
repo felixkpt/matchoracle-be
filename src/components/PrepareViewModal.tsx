@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react'
 import { subscribe, unsubscribe } from '@/utils/events'
 import ViewModal from './Autos/ViewModal'
+import { ModelDetailsInterface } from '@/interfaces/UncategorizedInterfaces'
 
 const PrepareViewModal = () => {
 
-    const [modelDetails, setModelDetails] = useState({})
+    const [modelDetails, setModelDetails] = useState<ModelDetailsInterface | undefined>()
     const [record, setRecord] = useState<any>(false)
 
     const prepareView = async (event: CustomEvent<{ [key: string]: any }>) => {
 
         const detail = event?.detail
         if (detail) {
-            let allExclude = ['id', 'action']
-            if (detail.exclude)
+            const allExclude = ['id', 'action']
+            if (detail.exclude) {
                 allExclude.push(detail.exclude)
+
+            }
 
             setModelDetails({ ...detail.modelDetails, exclude: allExclude })
             setRecord(detail.record)

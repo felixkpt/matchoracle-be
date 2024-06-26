@@ -39,22 +39,22 @@ class Str {
         return subject.split(search).slice(-1)[0];
     }
 
-    static title(subject: string, cases?: object[]): string {
-        if (!subject) return subject
+    static title(subject: string, cases?: { [key: string]: string }): string {
+        if (!subject) return subject;
 
         let strVal = '';
-        let str = subject.replaceAll(/_/g, ' ').split(' ');
-        for (var chr = 0; chr < str.length; chr++) {
-            let sub = str[chr]
-            if (sub === 'id') sub = 'ID'
+        const str = subject.replace(/_/g, ' ').split(' ');
+        for (let chr = 0; chr < str.length; chr++) {
+            let sub = str[chr];
+            if (sub === 'id') sub = 'ID';
 
             if (cases && cases[sub]) {
-                sub = cases[sub]
+                sub = cases[sub];
             }
 
-            strVal += sub.substring(0, 1).toUpperCase() + sub.substring(1, sub.length) + ' '
+            strVal += sub.substring(0, 1).toUpperCase() + sub.substring(1, sub.length) + ' ';
         }
-        return strVal
+        return strVal.trim();
     }
 
     static upper(subject: string): string {

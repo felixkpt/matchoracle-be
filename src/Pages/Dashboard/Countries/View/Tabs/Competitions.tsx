@@ -2,7 +2,6 @@ import CompetitionsList from '@/Pages/Dashboard/Teams/Includes/CompetitionsList'
 import Loader from '@/components/Loader'
 import useAxios from '@/hooks/useAxios'
 import { CompetitionInterface, CountryInterface } from '@/interfaces/FootballInterface'
-import { AxiosResponse } from 'axios'
 import { useEffect, useState } from 'react'
 
 type Props = {

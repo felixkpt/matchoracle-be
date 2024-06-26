@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAxios from '@/hooks/useAxios';
 import { NavLink } from 'react-router-dom';
@@ -16,9 +15,9 @@ const Password = () => {
             email: email.value,
         };
 
-        await post('/auth/password', body).then((response) => {
+        await post('/auth/password', body).then((res) => {
             // If 'sent' is true, redirect the user to the confirmation page
-            if (response) {
+            if (res) {
                 navigate('/reset-password-confirm');
             }
         });
@@ -49,7 +48,7 @@ const Password = () => {
                             <NavLink className="small" to="/login">
                                 Return to login
                             </NavLink>
-                            <SubmitButton className="btn btn-primary btn-block" loading={loading}>
+                            <SubmitButton loading={loading}>
                                 Reset Password
                             </SubmitButton>
                         </div>

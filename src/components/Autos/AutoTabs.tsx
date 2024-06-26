@@ -38,7 +38,7 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
   }, [localOpenTab, setCurrentTabName]);
 
   // Function to handle tab click event
-  function handleTab(e: React.MouseEvent, tabName: string): void {
+  function handleTab(tabName: string): void {
 
     const newUrl = `${window.location.pathname}?tab=${tabName}`;
     window.history.pushState({ path: newUrl }, "", newUrl);
@@ -112,7 +112,7 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
             <li key={tab.name} className="nav-item" role="presentation">
               <NavLink
                 to={`?tab=${Str.slug(tab.name)}`} // Set the URL parameter for the tab link
-                onClick={(e) => handleTab(e, Str.slug(tab.name))}
+                onClick={() => handleTab(Str.slug(tab.name))}
                 className={`nav-link ${Str.slug(tab.name)} ${Str.slug(localOpenTab?.name) === Str.slug(tab.name) ? "active-autotab" : "border-bottom"}`}
                 data-toggle="tab"
               >

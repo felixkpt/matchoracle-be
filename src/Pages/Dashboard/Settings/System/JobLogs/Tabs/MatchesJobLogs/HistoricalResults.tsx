@@ -1,9 +1,7 @@
 import AutoTable from '@/components/Autos/AutoTable'
 
-type Props = {}
 
-
-const HistoricalResults = (props: Props) => {
+const HistoricalResults = () => {
 
 
   const columns = [

@@ -9,7 +9,7 @@ interface MatchesCardProps {
     stats: {
         today: TodayMatchesInterface;
         all: MatchesInterface;
-    };
+    } | null |undefined;
 }
 
 const DetailedMatchesInfo: React.FC<MatchesCardProps> = ({ loading, errors, stats }) => {

@@ -15,7 +15,7 @@ export default function Dropzone<T extends Blob | MediaSource>({ files, setFiles
   const [selectedImages, setSelectedImages] = useState<T[]>(files);
   const [isMultiple] = useState(maxFiles > 1);
 
-  const onDrop = useCallback((acceptedFiles: T[], fileRejections: FileRejection[], event: DropEvent) => {
+  const onDrop = useCallback((acceptedFiles: T[]) => {
     // Ensure that we don't exceed the maxFiles limit
     const newFiles = [...files, ...acceptedFiles];
     const trimmedFiles = newFiles.slice(-maxFiles);

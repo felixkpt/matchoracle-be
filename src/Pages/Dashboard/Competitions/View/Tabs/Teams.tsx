@@ -1,7 +1,7 @@
 import AutoTable from "@/components/Autos/AutoTable";
 import GeneralModal from "@/components/Modals/GeneralModal";
 import useListSources from "@/hooks/list-sources/useListSources";
-import { DataInterface } from "@/interfaces/UncategorizedInterfaces";
+import { DataInterface, ModelDetailsInterface } from "@/interfaces/UncategorizedInterfaces";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { useEffect, useState } from "react";
 import AutoModalBody from "@/components/Autos/AutoModalBody";
@@ -9,7 +9,6 @@ import CreateOrUpdateFromSource from "@/components/CreateOrUpdateFromSource";
 import AddSource from "@/components/AddSource";
 import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface";
 import UpdateCoach from "@/components/Teams/UpdateCoach";
-import CompetitionSubHeader from "../Inlcudes/CompetitionSubHeader";
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
@@ -17,7 +16,7 @@ const Index: React.FC<Props> = ({ record, selectedSeason }) => {
 
     const competition = record
 
-    const [modelDetails, setModelDetails] = useState({})
+    const [modelDetails, setModelDetails] = useState<ModelDetailsInterface>()
     const [team, setTeam] = useState<DataInterface>()
     const [record2, setRecord2] = useState<DataInterface>()
     const [record3, setRecord3] = useState<DataInterface>()

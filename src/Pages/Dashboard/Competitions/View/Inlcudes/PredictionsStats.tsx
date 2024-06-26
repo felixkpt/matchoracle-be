@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ProgressBar } from 'react-bootstrap';
 import NoContentMessage from '@/components/NoContentMessage';
 import Loader from '@/components/Loader';
@@ -7,9 +7,60 @@ import { CompetitionInterface, SeasonInterface } from '@/interfaces/FootballInte
 import { appendFromToDates } from "@/utils/helpers";
 import { useLocation } from 'react-router-dom';
 
+interface PredictionsStatsData {
+    counts: number;
+    ft_home_wins_preds: number;
+    ft_home_wins_preds_true: number;
+    ft_home_wins_preds_true_percentage: number;
+    ft_draws_preds: number;
+    ft_draws_preds_true: number;
+    ft_draws_preds_true_percentage: number;
+    ft_away_wins_preds: number;
+    ft_away_wins_preds_true: number;
+    ft_away_wins_preds_true_percentage: number;
+    ft_gg_preds: number;
+    ft_gg_preds_true: number;
+    ft_gg_preds_true_percentage: number;
+    ft_ng_preds: number;
+    ft_ng_preds_true: number;
+    ft_ng_preds_true_percentage: number;
+    ft_over15_preds: number;
+    ft_over15_preds_true: number;
+    ft_over15_preds_true_percentage: number;
+    ft_under15_preds: number;
+    ft_under15_preds_true: number;
+    ft_under15_preds_true_percentage: number;
+    ft_over25_preds: number;
+    ft_over25_preds_true: number;
+    ft_over25_preds_true_percentage: number;
+    ft_under25_preds: number;
+    ft_under25_preds_true: number;
+    ft_under25_preds_true_percentage: number;
+    ft_over35_preds: number;
+    ft_over35_preds_true: number;
+    ft_over35_preds_true_percentage: number;
+    ft_under35_preds: number;
+    ft_under35_preds_true: number;
+    ft_under35_preds_true_percentage: number;
+    average_score: number | null;
+
+    ft_home_wins_counts:number;
+    ft_draws_counts: number;
+    ft_away_wins_counts: number;
+    ft_gg_counts: number;
+    ft_ng_counts: number;
+    ft_over15_counts: number;
+    ft_under15_counts: number;
+    ft_over25_counts: number;
+    ft_under25_counts: number;
+    ft_over35_counts: number;
+    ft_under35_counts: number;
+
+}
+
 type Props = {
     competition: CompetitionInterface;
-    selectedSeason: SeasonInterface;
+    selectedSeason?: SeasonInterface | null;
     fromToDates: Array<Date | string | undefined>;
     useDate: any;
 };
@@ -24,7 +75,7 @@ const PredictionsStats = ({ competition, selectedSeason, fromToDates, useDate }:
     const predsStatsUrl = `dashboard/competitions/view/${competition.id}/prediction-statistics?season_id=${selectedSeason ? selectedSeason?.id : ''
         }${appendFromToDates(useDate, fromToDates)}&prediction_type_id=${predictionTypeId || ''}`;
 
-    const [data, setData] = useState(null)
+    const [data, setData] = useState<PredictionsStatsData | null>(null)
     useEffect(() => {
         getPreds(predsStatsUrl).then((response) => {
             const results = response.results
@@ -34,7 +85,7 @@ const PredictionsStats = ({ competition, selectedSeason, fromToDates, useDate }:
         });
     }, [predsStatsUrl]);
 
-    const renderProgressBar = (label: string, value: number, preds: number, preds_true: number, preds_true_percentage: number) => (
+    const renderProgressBar = (data: PredictionsStatsData, label: string, value: number, preds: number, preds_true: number, preds_true_percentage: number) => (
         <div key={label} className="col-12 mb-4">
             <div className="card">
                 <div className="card-header">
@@ -74,17 +125,17 @@ const PredictionsStats = ({ competition, selectedSeason, fromToDates, useDate }:
                         <div>
                             {data ? (
                                 <div className="row">
-                                    {renderProgressBar('Full Time Home Wins', data.ft_home_wins_counts, data.ft_home_wins_preds, data.ft_home_wins_preds_true, data.ft_home_wins_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Draws', data.ft_draws_counts, data.ft_draws_preds, data.ft_draws_preds_true, data.ft_draws_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Away Wins', data.ft_away_wins_counts, data.ft_away_wins_preds, data.ft_away_wins_preds_true, data.ft_away_wins_preds_true_percentage)}
-                                    {renderProgressBar('Full Time BTS - Yes', data.ft_gg_counts, data.ft_gg_preds, data.ft_gg_preds_true, data.ft_gg_preds_true_percentage)}
-                                    {renderProgressBar('Full Time BTS - No', data.ft_ng_counts, data.ft_ng_preds, data.ft_ng_preds_true, data.ft_ng_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Over 1.5', data.ft_over15_counts, data.ft_over15_preds, data.ft_over15_preds_true, data.ft_over15_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Under 1.5', data.ft_under15_counts, data.ft_under15_preds, data.ft_under15_preds_true, data.ft_under15_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Over 2.5', data.ft_over25_counts, data.ft_over25_preds, data.ft_over25_preds_true, data.ft_over25_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Under 2.5', data.ft_under25_counts, data.ft_under25_preds, data.ft_under25_preds_true, data.ft_under25_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Over 3.5', data.ft_over35_counts, data.ft_over35_preds, data.ft_over35_preds_true, data.ft_over35_preds_true_percentage)}
-                                    {renderProgressBar('Full Time Under 3.5', data.ft_under35_counts, data.ft_under35_preds, data.ft_under35_preds_true, data.ft_under35_preds_true_percentage)}
+                                    {renderProgressBar(data, 'Full Time Home Wins', data.ft_home_wins_counts, data.ft_home_wins_preds, data.ft_home_wins_preds_true, data.ft_home_wins_preds_true_percentage)}
+                                    {renderProgressBar(data, 'Full Time Draws', data.ft_draws_counts, data.ft_draws_preds, data.ft_draws_preds_true, data.ft_draws_preds_true_percentage)}
+                                    {renderProgressBar(data, 'Full Time Away Wins', data.ft_away_wins_counts, data.ft_away_wins_preds, data.ft_away_wins_preds_true, data.ft_away_wins_preds_true_percentage)}
+                                    {renderProgressBar(data, 'Full Time BTS - Yes', data.ft_gg_counts, data.ft_gg_preds, data.ft_gg_preds_true, data.ft_gg_preds_true_percentage)}
+                                    {renderProgressBar(data, 'Full Time BTS - No', data.ft_ng_counts, data.ft_ng_preds, data.ft_ng_preds_true, data.ft_ng_preds_true_percentage)}
+                                    {renderProgressBar(data, 'Full Time Over 1.5', data.ft_over15_counts, data.ft_over15_preds, data.ft_over15_preds_true, data.ft_over15_preds_true_percentage)}
+                                    {renderProgressBar(data, 'Full Time Under 1.5', data.ft_under15_counts, data.ft_under15_preds, data.ft_under15_preds_true, data.ft_under15_preds_true_percentage)}
+                                    {renderProgressBar(data, 'Full Time Over 2.5', data.ft_over25_counts, data.ft_over25_preds, data.ft_over25_preds_true, data.ft_over25_preds_true_percentage)}
+                                    {renderProgressBar(data, 'Full Time Under 2.5', data.ft_under25_counts, data.ft_under25_preds, data.ft_under25_preds_true, data.ft_under25_preds_true_percentage)}
+                                    {renderProgressBar(data, 'Full Time Over 3.5', data.ft_over35_counts, data.ft_over35_preds, data.ft_over35_preds_true, data.ft_over35_preds_true_percentage)}
+                                    {renderProgressBar(data, 'Full Time Under 3.5', data.ft_under35_counts, data.ft_under35_preds, data.ft_under35_preds_true, data.ft_under35_preds_true_percentage)}
 
                                     <div className="col-12 mt-4">
                                         <h6 className="d-flex gap-2 justify-content-between">

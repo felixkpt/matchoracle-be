@@ -13,7 +13,7 @@ type Props = {
 
 const UpdateCoach = ({ record }: Props) => {
 
-    const { get, loading } = useAxios()
+    const { get } = useAxios()
     const [team, setTeam] = useState<TeamInterface>()
 
     useEffect(() => {
@@ -30,7 +30,7 @@ const UpdateCoach = ({ record }: Props) => {
 
             const currentValue = team?.coach_contract?.coach;
 
-            const { data: fetchedOptions } = await get(`/dashboard/teams/coaches?all=1&search=${q}`);
+            const { results: fetchedOptions } = await get(`/dashboard/teams/coaches?all=1&search=${q}`);
 
             setSelected(fetchedOptions.find((itm: any) => itm.id === currentValue.id));
 

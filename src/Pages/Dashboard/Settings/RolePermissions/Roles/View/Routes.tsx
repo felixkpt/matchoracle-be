@@ -1,14 +1,11 @@
 import useAxios from '@/hooks/useAxios';
-import { useEffect, useState } from 'react'
-import RoutesTree from '../../Tabs/Includes2/RoutesTree';
-import { Route } from '@/interfaces';
+import { useEffect } from 'react'
 
 const Routes = () => {
 
     const uri = 'dashboard/settings/role-permissions/permissions/routes'
 
-    const [routes, setRoutes] = useState<Route[] | null>(null);
-    const { results, get, loading } = useAxios();
+    const { response, get, loading } = useAxios();
 
 
     useEffect(() => {
@@ -17,19 +14,11 @@ const Routes = () => {
 
     useEffect(() => {
         
-        if (!loading && results.data) {
-            setRoutes(results.data)
-        }
         
-    }, [results, loading])
-
-    async function handleSubmit() {
-
-    }
+    }, [response, loading])
 
     return (
         <div>
-            {routes && <RoutesTree routes={routes} handleSubmit={handleSubmit} />}
         </div>
     )
 }

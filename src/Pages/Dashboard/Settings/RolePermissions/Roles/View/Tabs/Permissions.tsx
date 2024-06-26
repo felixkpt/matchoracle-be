@@ -5,7 +5,7 @@ import PrepareRoutesTreeDraggable from '../Includes/PrepareRoutesTreeDraggable';
 import RoleHeader from '../Includes/RoleHeader';
 import { useRoleRoutePermissionsAndMenuContext } from '@/contexts/RoleRoutePermissionsAndMenuContext';
 import { publish } from '@/utils/events';
-import { PermissionInterface, RoleInterface } from '@/interfaces/RolePermissionsInterfaces';
+import { PermissionInterface, RoleInterface, RouteCollectionInterface } from '@/interfaces/RolePermissionsInterfaces';
 
 type Props = {
     role: RoleInterface | undefined;
@@ -20,21 +20,34 @@ const Permissions: React.FC<Props> = ({ role }) => {
     const { roleAndPermissions, roleRoutePermissions, roleMenu } = useRoleRoutePermissionsAndMenuContext();
 
     const { post: saveData } = useAxios();
-    const { results: routes, get: getRoutes } = useAxios();
-    const { results: allPermissions, get: getAllPermissions } = useAxios<PermissionInterface[]>();
+    const { get: getRoutes, loading: loadingRoutes, loaded: loadedRoutes } = useAxios();
+    const { get: getAllPermissions, loading: loadingAllPermissions, loaded: loadedAllPermissions } = useAxios<PermissionInterface[]>();
 
     const roleUri = `dashboard/settings/role-permissions/roles/view/${id}`;
     const allPermissionsUri = `dashboard/settings/role-permissions/permissions/get-role-permissions/all`;
     const routesUri = 'dashboard/settings/role-permissions/permissions/routes';
 
+    const [routes, setRoutes] = useState<RouteCollectionInterface[]>([])
+    const [allPermissions, setAllPermissions] = useState<PermissionInterface[]>([])
+
     useEffect(() => {
-        getRoutes(routesUri, { uri: 1 });
-        getAllPermissions(allPermissionsUri, { uri: 1 });
+        getRoutes(routesUri, { uri: 1 }).then((resp) => {
+            if (resp.results) {
+                setRoutes(resp.results)
+            }
+        });
+        getAllPermissions(allPermissionsUri, { uri: 1 }).then((resp) => {
+            if (resp.results) {
+                setAllPermissions(resp.results)
+            }
+        });
+
     }, []);
 
     useEffect(() => {
 
-        if (savedFolders.length > 0 && id && roleAndPermissions.currentRole.id === id) {
+        const curr = roleAndPermissions.currentRole
+        if (savedFolders.length > 0 && id && curr && String(curr.id) == id) {
 
             roleRoutePermissions.reload()
             roleMenu.reload()
@@ -43,8 +56,8 @@ const Permissions: React.FC<Props> = ({ role }) => {
     }, [saving, id]);
 
 
-    const { get: getPermissions, loading: loadingPermission } = useAxios<PermissionInterface[]>();
-    const [permissions, setPermissions] = useState<PermissionInterface[]>()
+    const { get: getPermissions, loading: loadingPermissions } = useAxios<PermissionInterface[]>();
+    const [rolePermissions, setRolePermissions] = useState<PermissionInterface[]>([])
 
     useEffect(() => {
         if (role) {
@@ -53,8 +66,8 @@ const Permissions: React.FC<Props> = ({ role }) => {
     }, [role])
 
     function doGetPermissions() {
-        getPermissions(`dashboard/settings/role-permissions/permissions/get-role-permissions/${id}`, { uri: 1 }).then((response) => {
-            setPermissions(response.results)
+        getPermissions(`dashboard/settings/role-permissions/permissions/get-role-permissions/${id}?perms=1`, { uri: 1 }).then((resp) => {
+            setRolePermissions(resp.results)
         });
     }
 
@@ -111,7 +124,7 @@ const Permissions: React.FC<Props> = ({ role }) => {
                 <div className='d-flex justify-content-between mt-2'>
                     <h4>Role Description</h4>
                 </div>
-                <RoleHeader role={role} permissions={permissions} loadingPermission={loadingPermission} />
+                <RoleHeader role={role} permissions={rolePermissions} loadingPermissions={loadingPermissions} />
                 <div className="row">
                     <div className='col-sm-12'>
                         <div className='card mt-2'>
@@ -121,17 +134,26 @@ const Permissions: React.FC<Props> = ({ role }) => {
                             <div className='card-body overflow-auto'>
                                 {/* let us wait 4 roles, routes & permissions */}
                                 {
-                                    routes.data && permissions && allPermissions ?
-                                        <PrepareRoutesTreeDraggable routes={routes.data} permissions={permissions} allPermissions={allPermissions.data} handleSubmit={handleSubmit} saving={saving} savedFolders={savedFolders} />
+                                    routes?.length && allPermissions?.length ?
+                                        <PrepareRoutesTreeDraggable routes={routes} allPermissions={allPermissions} rolePermissions={rolePermissions} handleSubmit={handleSubmit} saving={saving} savedFolders={savedFolders} />
                                         :
                                         <div className='mt-2 p-2'>
-                                            {true ?
+                                            {loadingRoutes || loadingAllPermissions ?
                                                 <div className="d-flex align-items-center justify-content-center gap-3">
                                                     <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                                     Loading...
                                                 </div>
                                                 :
-                                                `No routes defined.`
+                                                <>
+                                                    {
+                                                        loadedRoutes && loadedAllPermissions ?
+                                                            <>
+                                                                No routes defined.
+                                                            </>
+                                                            :
+                                                            <>Data Error</>
+                                                    }
+                                                </>
                                             }
                                         </div>
                                 }
@@ -142,7 +164,7 @@ const Permissions: React.FC<Props> = ({ role }) => {
             </div>
         )
 
-    }, [permissions, allPermissions, routes, saving, savedFolders]);
+    }, [loadingRoutes, loadedRoutes, loadingAllPermissions, loadedAllPermissions, loadingPermissions, saving, savedFolders]);
 
     return memoizedComponent;
 }

@@ -5,7 +5,7 @@ import { ColumnInterface } from "../../interfaces/UncategorizedInterfaces"; // A
 interface AutoTableHeaderProps {
     columns: ColumnInterface[];
     handleOrderBy: (key: string) => void;
-    setColumns: (columns: ColumnInterface[]) => void;
+    setColumns: React.Dispatch<React.SetStateAction<ColumnInterface[]>>;
 }
 
 const AutoTableHeader: React.FC<AutoTableHeaderProps> = ({ columns, handleOrderBy, setColumns }) => {
@@ -13,7 +13,7 @@ const AutoTableHeader: React.FC<AutoTableHeaderProps> = ({ columns, handleOrderB
         const { label, key, isSorted, sortDirection } = column;
 
         const handleHeaderClick = () => {
-            const newColumns = columns.map((c) => ({
+            const newColumns: ColumnInterface[] = columns.map((c) => ({
                 ...c,
                 isSorted: c.key === key,
                 sortDirection: c.key === key ? (c.sortDirection === 'asc' ? 'desc' : 'asc') : '',

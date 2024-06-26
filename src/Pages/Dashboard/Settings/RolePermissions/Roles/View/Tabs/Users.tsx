@@ -99,9 +99,9 @@ const AddUser = ({ role }: Pick<Props, 'role'>) => {
     const loadOptions = async (q: string) => {
         if (!role) return []
 
-        const { data } = await get(`/dashboard/settings/users?role_id=${role.id}&negate=1&all=1&q=${q}`);
+        const { results } = await get(`/dashboard/settings/users?role_id=${role.id}&negate=1&all=1&q=${q}`);
 
-        return data.data ?? []
+        return results.data ?? []
     }
 
     return (

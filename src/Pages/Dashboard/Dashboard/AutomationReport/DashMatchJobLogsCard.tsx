@@ -55,7 +55,7 @@ const DashMatchJobLogsCard: React.FC<DashJobLogsMiniCardProps> = ({ loading, err
                     <>
                         {
                             errors && stats ?
-                                <NoContentMessage isError={errors} />
+                                <NoContentMessage message={errors} />
                                 :
                                 <>
                                     <div className='d-flex align-items-center justify-content-between shadow-sm p-2 rounded text-muted'>

@@ -11,7 +11,7 @@ import DashMatchJobLogsCard from './DashMatchJobLogsCard'
 const Index = () => {
 
     const { get, loading, errors } = useAxios();
-    const [stats, setStats] = useState<DashboardStatsInterface | null>(null);
+    const [stats, setStats] = useState<DashboardStatsInterface | null | undefined>(null);
 
     useEffect(() => {
         getStats()

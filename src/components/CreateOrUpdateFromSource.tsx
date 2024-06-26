@@ -1,4 +1,5 @@
 import useAxios from "@/hooks/useAxios"
+import { CompetitionGameSourceInterface } from "@/interfaces/FootballInterface"
 import { useEffect, useState } from "react"
 
 interface Props {
@@ -11,7 +12,7 @@ const CreateOrUpdateFromSource = ({ record, hideClose }: Props) => {
     const [localKey, setLocalKey] = useState(0);
 
     const [gameSources, setGameSources] = useState([])
-    const [currentGameSources, setCurentGameSources] = useState([])
+    const [currentGameSources, setCurentGameSources] = useState<CompetitionGameSourceInterface[]>([])
 
     const { get } = useAxios()
 

@@ -4,14 +4,12 @@ import { BettingTipsStatsInterface } from "@/interfaces/FootballInterface";
 import { Icon } from "@iconify/react/dist/iconify.js";
 
 interface CompetitionStatsCardProps {
-    loading: boolean
-    errors: any
-    stats:
-    {
-        all: BettingTipsStatsInterface
-        today: BettingTipsStatsInterface
-    }
-
+    loading: boolean;
+    errors: any;
+    stats: {
+        all: BettingTipsStatsInterface;
+        today: BettingTipsStatsInterface;
+    } | null | undefined;
 }
 
 const BettingTips: React.FC<CompetitionStatsCardProps> = ({ loading, errors, stats }) => {
@@ -38,7 +36,7 @@ const BettingTips: React.FC<CompetitionStatsCardProps> = ({ loading, errors, sta
                     <>
                         {
                             errors || !stats ?
-                                <NoContentMessage isError={errors} />
+                                <NoContentMessage message={errors} />
                                 :
                                 <div>
                                     <div className='d-flex align-items-center justify-content-between shadow-sm p-2 rounded text-muted'>

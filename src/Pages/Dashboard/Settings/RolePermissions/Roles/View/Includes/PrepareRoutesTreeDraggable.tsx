@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import RoutesTree from "./RoutesTree";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import SubmitButton from "@/components/SubmitButton";
+import { PermissionInterface, RouteCollectionInterface } from "@/interfaces/RolePermissionsInterfaces";
 
 // Define the Props interface for the RoutesTree component
 interface Props {
   routes: RouteCollectionInterface[];
-  permissions: PermissionInterface[];
   allPermissions: PermissionInterface[];
-  handleSubmit: ({ folders, permissions }: any) => void;
+  rolePermissions: PermissionInterface[];
+  handleSubmit: ({ folders, rolePermissions }: any) => void;
   saving: boolean;
   savedFolders: string[]
 }
@@ -34,7 +35,7 @@ function constructMenus() {
   const elements = document.querySelectorAll(selector);
 
   const orderArray: string[] = [];
-  elements.forEach((element, i) => {
+  elements.forEach((element) => {
     const id = element.id
     if (id.match(/^v-pills-/) && id.match(/-tab$/)) {
       const extractedValue = id.replace('v-pills-', '').replace('-tab', '');
@@ -53,7 +54,7 @@ function constructMenus() {
   topLevelFolders = orderArray.map(id => idToElementMap.get(id));
   const allFolders = Array.from(idToElementMap.keys());
 
-  let menu = constructMenu(topLevelFolders, true)
+  const menu = constructMenu(topLevelFolders, true)
   return { folderPermissions: constructMenu(topLevelFolders), menu, allFolders }
 
 }
@@ -121,7 +122,7 @@ function hasRouteInChildren(children: RouteCollectionInterface[]) {
 }
 
 function removeRoutelessNodes(children: RouteCollectionInterface[]): RouteCollectionInterface[] {
-  let res = [];
+  const res = [];
 
   for (const child of children) {
     const hasRoutes = child.routes.length > 0 || hasRouteInChildren(child.children);
@@ -226,7 +227,7 @@ const isResolvableURI = (uri: string) => {
 }
 
 // The main RoutesTree component
-const PrepareRoutesTreeDraggable: React.FC<Props> = ({ routes, permissions, allPermissions, handleSubmit, saving, savedFolders }) => {
+const PrepareRoutesTreeDraggable: React.FC<Props> = ({ routes, allPermissions, rolePermissions, handleSubmit, saving, savedFolders }) => {
 
   const [isInitialRender, setIsInitialRender] = useState(true);
 
@@ -401,7 +402,7 @@ const PrepareRoutesTreeDraggable: React.FC<Props> = ({ routes, permissions, allP
                   return <div key={`${currentId}`} className={`tab-pane fade ${j === 0 ? 'show active' : ''} ${MAIN_CONTAINER_CLASS} main-tree COUNTER0`} id={`v-pills-${currentId}`} role="tabpanel" aria-labelledby={`v-pills-${currentId}-tab`}>
                     <div>
                       <div className='col tree-section'>
-                        <RoutesTree child={child} permissions={permissions} allPermissions={allPermissions} indent={0} counter={0} isInitialRender={isInitialRender} hiddenIds={hiddenIds} setHiddenIds={setHiddenIds} />
+                        <RoutesTree child={child} rolePermissions={rolePermissions} allPermissions={allPermissions} indent={0} counter={0} isInitialRender={isInitialRender} hiddenIds={hiddenIds} setHiddenIds={setHiddenIds} />
                       </div>
                     </div>
                   </div>

@@ -14,8 +14,8 @@ const Index = () => {
 
     async function getStats() {
         get(`dashboard/advanced-stats`).then((response) => {
-            if (response.results.data) {
-                setStats(response.results.data)
+            if (response.results) {
+                setStats(response.results)
             }
         })
     }

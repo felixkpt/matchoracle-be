@@ -1,7 +1,7 @@
 import GeneralModal from "@/components/Modals/GeneralModal";
 import PageHeader from "@/components/PageHeader";
 import useListSources from "@/hooks/list-sources/useListSources";
-import { DataInterface } from "@/interfaces/UncategorizedInterfaces";
+import { ColumnInterface, DataInterface, ModelDetailsInterface } from "@/interfaces/UncategorizedInterfaces";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { useEffect, useState } from "react";
 import AddSource from "@/components/AddSource";
@@ -13,7 +13,7 @@ import OddsEnabled from "./Tabs/OddsEnabled";
 
 const Index = () => {
 
-    const [modelDetails, setModelDetails] = useState({})
+    const [modelDetails, setModelDetails] = useState<ModelDetailsInterface>()
     const [key, setKey] = useState(0)
     const [record, setRecord] = useState<DataInterface>()
     const [record2, setRecord2] = useState<DataInterface>()
@@ -22,7 +22,7 @@ const Index = () => {
     const { competitions: listSources } = useListSources()
     const [actionUrl, setActionUrl] = useState<string>('/dashboard/competitions')
 
-    const columns = [
+    const columns:ColumnInterface[] = [
         { key: 'Logo' },
         { label: 'Name', key: 'name' },
         { key: 'country.name' },

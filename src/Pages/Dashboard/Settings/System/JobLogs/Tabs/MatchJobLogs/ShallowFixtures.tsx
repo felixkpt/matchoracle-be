@@ -1,8 +1,6 @@
 import AutoTable from '@/components/Autos/AutoTable'
 
-type Props = {}
-
-const ShallowFixtures = (props: Props) => {
+const ShallowFixtures = () => {
 
     const columns = [
         { key: 'id' },

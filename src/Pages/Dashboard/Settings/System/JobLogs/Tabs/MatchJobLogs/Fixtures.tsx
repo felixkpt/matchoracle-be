@@ -1,8 +1,6 @@
 import AutoTable from '@/components/Autos/AutoTable'
 
-type Props = {}
-
-const Fixtures = (props: Props) => {
+const Fixtures = () => {
 
     const columns = [
         { key: 'id' },

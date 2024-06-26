@@ -1,8 +1,9 @@
 import AutoTable from '@/components/Autos/AutoTable'
+import { ColumnInterface } from '@/interfaces/UncategorizedInterfaces'
 import React from 'react'
 
 type Props = {
-    columns: []
+    columns: ColumnInterface[]
     setModelDetails: React.Dispatch<React.SetStateAction<any>>
 }
 

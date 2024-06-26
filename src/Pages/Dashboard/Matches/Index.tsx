@@ -12,8 +12,9 @@ const Index = () => {
 
     const { competitions: listSources } = useListSources()
 
+    const initialBaseUri = `/dashboard/matches/`
     const errorsState = useRouteParamValidation();
-    const { fromToDates, setFromToDates, baseUri, previousUrl } = useFromToDates(`/dashboard/matches/`);
+    const { fromToDates, setFromToDates, baseUri, previousUrl } = useFromToDates(initialBaseUri);
 
     const columns = [
         { key: 'ID' },
@@ -48,9 +49,9 @@ const Index = () => {
                         </div>
                         {
                             predictionMode &&
-                            <div key={(predictionMode ? predictionMode.id : 0) + baseUri}>
+                            <div key={(predictionMode ? predictionMode.id : 0) + (baseUri || initialBaseUri)}>
                                 <AutoTable
-                                    baseUri={`${baseUri}?matches_mode_id=${predictionMode ? predictionMode.id : 0}`}
+                                    baseUri={`${(baseUri || initialBaseUri)}?matches_mode_id=${predictionMode ? predictionMode.id : 0}`}
                                     columns={columns}
                                     search={true}
                                     listSources={listSources}

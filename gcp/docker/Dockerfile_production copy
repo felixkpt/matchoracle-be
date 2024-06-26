@@ -1,0 +1,63 @@
+# Use official Node.js LTS image
+FROM node:20.15 as build
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    locales \
+    zip \
+    jpegoptim optipng pngquant gifsicle \
+    vim \
+    unzip \
+    git \
+    curl \
+    libzip-dev \
+    wget \
+    git-core \
+    openssl \
+    libssl-dev \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /app
+# Copy application code
+COPY . /app
+
+# Copy environment file
+COPY gcp/docker/.env_production /app/.env
+
+RUN chown -R www-data: /app
+
+# Install npm dependencies
+# Build the application
+RUN cd /app && npm install
+RUN cd /app && npm run build
+
+# Use official Nginx image
+FROM nginx
+
+
+
+# Copy Nginx configuration file
+COPY ./gcp/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# # Copy the build artifacts from the previous stage to the Nginx html directory
+# COPY --from=build /app/dist /usr/share/nginx/html
+
+# CMD sh /app/gcp/docker/startup.sh
+
+# Copy the build artifacts from the previous stage to the Nginx html directory
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy the startup script
+COPY ./gcp/docker/startup.sh /app/gcp/docker/startup.sh
+
+CMD sh /app/gcp/docker/startup.sh
+
+# # Ensure the startup script is executable
+# RUN chmod +x /app/gcp/docker/startup.sh
+
+# # Command to run the startup script
+# CMD sh /app/gcp/docker/startup.sh

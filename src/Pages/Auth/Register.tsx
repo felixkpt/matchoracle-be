@@ -2,8 +2,14 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import useAxios from '@/hooks/useAxios';
 import SubmitButton from '../../components/SubmitButton';
+import { config } from '@/utils/helpers';
 
-export default function Register() {
+interface Props {
+    className?: string
+    isMinimal?: boolean
+}
+export default function Register({ className, isMinimal }: Props) {
+
     const { setUser } = useAuth();
     const navigate = useNavigate();
     const { post, loading } = useAxios(); // Include loading from useAxios
@@ -23,15 +29,17 @@ export default function Register() {
         if (loading) return;
 
         await post('/auth/register', body).then((response) => {
-            if (response.results) {
+            if (response.results && response.results.id) {
                 setUser(response.results);
-                navigate("/profile");
+                if (!isMinimal) {
+                    navigate(config.urls.afteRegister);
+                }
             }
         });
     }
 
     return (
-        <div className="col-lg-7">
+        <div className={`${className ? className : 'col-lg-7'}`}>
             <div className="card shadow-lg border-0 rounded-lg mt-5">
                 <div className="card-header"><h3 className="text-center font-weight-light my-4">Create Account</h3></div>
                 <div className="card-body">
@@ -58,12 +66,17 @@ export default function Register() {
                                 </div>
                             </div>
                         </div>
-                        <SubmitButton className="btn btn-primary btn-block" loading={loading}>Create Account</SubmitButton>
+                        <SubmitButton loading={loading}>Create Account</SubmitButton>
                     </form>
                 </div>
-                <div className="card-footer text-center py-3">
-                    <div className="small"><NavLink to="/login">Have an account? Go to login</NavLink></div>
-                </div>
+                {!isMinimal
+                    ?
+                    <div className="card-footer text-center py-3">
+                        <div className="small"><NavLink to="/login">Have an account? Go to login</NavLink></div>
+                    </div>
+                    :
+                    null
+                }
             </div>
         </div>
     );

@@ -1,8 +1,6 @@
 import AutoTable from '@/components/Autos/AutoTable'
 
-type Props = {}
-
-const RecentResults = (props: Props) => {
+const RecentResults = () => {
 
   const columns = [
     { key: 'id' },

@@ -1,3 +1,4 @@
+import { RouteCollectionInterface } from "../interfaces/RolePermissionsInterfaces";
 import Str from "./Str";
 
 export function convertToTitleCase(str: string) {
@@ -48,6 +49,7 @@ interface Config {
     release: string;
     urls: {
         home: string;
+        afteRegister: string
         rolePermissions: string
     };
     storageName: string;
@@ -59,6 +61,7 @@ export const config: Config = {
     release: String(new Date().getFullYear()),
     urls: {
         home: import.meta.env.VITE_APP_HOME || '/',
+        afteRegister: import.meta.env.VITE_APP_AFTER_REGISTER || '/user/account',
         rolePermissions: import.meta.env.VITE_APP_ROLE_PERMISSION_PREFIX || '/auth'
     },
     storageName: Str.slug(import.meta.env.VITE_APP_NAME || 'App name')
@@ -92,4 +95,17 @@ export const competitionLogo = (logo: string | null | undefined) => {
 
 export const countryLogo = (logo: string | null | undefined) => {
     return logo ? baseURL(logo) : '/images/default_team_logo.png'
+}
+
+export const folderHasRoutes = (child: RouteCollectionInterface): boolean => {
+
+    const routes = child.routes
+    const children = child.children
+    if (routes.length > 0) return true
+
+    if (children.length > 0) {
+        return children.some(child => folderHasRoutes(child))
+    }
+
+    return false
 }

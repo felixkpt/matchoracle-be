@@ -9,8 +9,9 @@ import { config } from '@/utils/helpers';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
-import ChangePassword from './ChangePassword';
 import useAutoPostDone from '../../../../../hooks/autos/useAutoPostDone';
+import Loader from '@/components/Loader';
+import AlertMessage from '@/components/AlertMessage';
 
 const Index = () => {
 
@@ -22,8 +23,9 @@ const Index = () => {
 
   const navigate = useNavigate();
 
-  const { loading, errors, get } = useAxios()
-  const { loading: loggingIn, errors: errorsLoggingIn, post: postLogin } = useAxios()
+  const { loading, get } = useAxios()
+  const { loading: loadingResetToken, post: postResetToken } = useAxios()
+  const { loading: loggingIn, post: postLogin } = useAxios()
 
   const [modelDetails, setModelDetails] = useState<CollectionItemsInterface>()
 
@@ -75,8 +77,10 @@ const Index = () => {
   }
 
   function sendResetToken() {
-    get(`dashboard/settings/users/view/token/${user.id}`).then(() => {
-    })
+    if (user) {
+      postResetToken(`dashboard/settings/users/view/token/${user.id}`).then(() => {
+      })
+    }
 
   }
 
@@ -85,12 +89,12 @@ const Index = () => {
   return (
     <div className="row">
       <div className="col-md-12">
-        <div className="card">
-          <div className="card-body">
-            {
-              user ?
+        {
+          user ?
+            <div className="card">
+              <div className="card-body">
                 <div className="row">
-                  <div className="col-md-6">
+                  <div className="col-md-6 overflow-auto">
                     <div className="model-view">
                       {
                         modelDetails &&
@@ -103,35 +107,50 @@ const Index = () => {
 
                     <div className='row gap-2 gap-lg-0'>
                       <div className='col-12 col-lg-4 px-1'>
-                        <button type="button" className="btn btn-outline-info w-100 text-start" data-bs-toggle="modal" data-bs-target="#UpdateUserInfo">
+                        <button type="button" disabled={loggingIn || loadingResetToken} className="btn btn-outline-info w-100 text-start" data-bs-toggle="modal" data-bs-target="#UpdateUserInfo">
                           <Icon fontSize={26} icon="streamline:interface-user-edit-actions-close-edit-geometric-human-pencil-person-single-up-user-write" />
                           <span className='ms-2'>Edit User</span>
                         </button>
                       </div>
                       <div className='col-12 col-lg-5 px-1'>
-                        <button type="button" className="btn btn-outline-secondary w-100 text-start" onClick={sendResetToken}>
+                        <button type="button" onClick={sendResetToken} disabled={loggingIn || loadingResetToken} className="btn btn-outline-secondary w-100 text-start">
                           <Icon fontSize={26} icon={`ooui:edit-lock`} />
-                          <span className='ms-2'>Send reset token</span>
+                          {
+                            !loadingResetToken ?
+                              <span className='ms-2'>Send reset token</span>
+                              :
+                              <span className='ms-2'>Loading...</span>
+                          }
                         </button>
                       </div>
                       <div className='col-12 col-lg-3 px-1'>
-                        <button onClick={loginUser} className="btn btn-outline-dark w-100 text-start">
+                        <button type="button" onClick={loginUser} disabled={loggingIn || loadingResetToken} className="btn btn-outline-dark w-100 text-start d-flex gap-2">
                           <Icon fontSize={26} icon={`uiw:login`} />
-                          <span className='ms-2'>Login</span>
+                          {
+                            !loggingIn ?
+                              <span className='ms-2'>Login</span>
+                              :
+                              <span className='ms-2'>Loading...</span>
+                          }
                         </button>
                       </div>
                     </div>
                   </div>
+                  <AutoModal setKey={setKey} modelDetails={modelDetails} record={user} actionUrl={`/dashboard/settings/users/view/${user.id || 0}`} listSources={listSources} modalSize='modal-lg' id='UpdateUserInfo' />
                 </div>
-                : <div>Loading user info</div>
-            }
+              </div>
+            </div>
+            :
+            <>
+              {
+                loading ?
+                  <Loader message='Loading user info...' />
+                  :
+                  <AlertMessage message='Could not load user info' />
+              }
+            </>
+        }
 
-            {
-              user && <><AutoModal setKey={setKey} modelDetails={modelDetails} record={user} actionUrl={`/dashboard/settings/users/view/${user.id || 0}`} listSources={listSources} size='modal-lg' id='UpdateUserInfo' /></>
-            }
-
-          </div>
-        </div>
       </div>
     </div>
   )

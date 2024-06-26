@@ -120,7 +120,7 @@ const Head2HeadCard = ({ game, homeTeam, awayTeam, perPage }: Props) => {
                                 </div>
                                 {
                                     totals > 0 &&
-                                    <FormSummary data1={teamWins} data2={draws} data3={teamLoses} totals={totals} data1ColorClass='bg-primary' loseColorClass='bg-secondary' />
+                                    <FormSummary data1={teamWins} data2={draws} data3={teamLoses} totals={totals} data1ColorClass='bg-primary' data2ColorClass='bg-secondary' />
                                 }
                                 <div className='d-flex flex-column'>
                                     <div className='d-flex gap-3 align-items-center justify-content-between'>{homeTeam.name} <div className='rounded bg-primary' style={{ width: 12, height: 12 }}></div></div>

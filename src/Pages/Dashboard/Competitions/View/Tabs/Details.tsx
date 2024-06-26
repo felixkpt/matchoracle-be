@@ -17,7 +17,7 @@ const Details = ({ record, modelDetails }: Props) => {
 
     const { competitions: listSources } = useListSources()
 
-    const addSources = (e: Event) => {
+    const addSources = () => {
     }
 
     useEffect(() => {

@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from 'react';
 import Str from '@/utils/Str';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import MenuTree from './MenuTree';
-import RoutesList from './RoutesList';
+import MenuTree from './components/MenuTree';
+import RoutesList from './components/RoutesList';
 import Select from 'react-select';
 import { useRoleRoutePermissionsAndMenuContext } from '@/contexts/RoleRoutePermissionsAndMenuContext';
-import MenuLoader from './MenuLoader';
+import MenuLoader from './components/MenuLoader';
 import { RouteCollectionInterface } from '@/interfaces/RolePermissionsInterfaces';
 
 const Index = () => {

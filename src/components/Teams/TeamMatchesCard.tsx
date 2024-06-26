@@ -32,7 +32,7 @@ const TeamMatchesCard = ({ team, teamGames, setTeamRecentResults }: Props) => {
 
             if (teamGames) {
 
-                teamGames.map((game, i) => {
+                teamGames.map((game) => {
                     const resultsStatus = Composer.winner(game, team.id)
                     const hasResults = Composer.hasResults(game)
 

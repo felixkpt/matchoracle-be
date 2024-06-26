@@ -1,11 +1,12 @@
+import { PermissionInterface, RoleInterface } from "@/interfaces/RolePermissionsInterfaces"
 
 type Props = {
     role: RoleInterface | undefined
     permissions: PermissionInterface[] | undefined
-    loadingPermission: boolean
+    loadingPermissions: boolean
 }
 
-const RoleHeader = ({ role, permissions, loadingPermission }: Props) => {
+const RoleHeader = ({ role, permissions, loadingPermissions }: Props) => {
 
     return (
         <div>
@@ -23,7 +24,7 @@ const RoleHeader = ({ role, permissions, loadingPermission }: Props) => {
                             </tr>
                             <tr>
                                 <td>Permissions counts</td>
-                                <td>{loadingPermission ? 'Counting...' : permissions?.length || 0}</td>
+                                <td>{loadingPermissions ? 'Counting...' : permissions?.length || 0}</td>
                             </tr>
                             <tr>
                                 <td>Status</td>

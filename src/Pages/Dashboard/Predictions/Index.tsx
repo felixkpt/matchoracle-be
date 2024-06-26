@@ -43,7 +43,7 @@ const Index = () => {
                         </div>
                         {
                             predictionMode &&
-                            <div key={(predictionMode ? predictionMode.id : 0) + baseUri}>
+                            <div key={(predictionMode ? predictionMode.id : 0) + (baseUri ?? '')}>
                                 <AutoTable
                                     baseUri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`}
                                     columns={predictionsColumns}

@@ -279,23 +279,24 @@ export interface CompetitionGameSourceInterface {
     is_subscribed: string
     priority_number: number
     pivot: any
+    uri: string
 }
 
 export interface CompetitionTabInterface {
     record: CompetitionInterface | undefined;
-    seasons: SeasonInterface[] | null
-    selectedSeason: SeasonInterface | null
+    seasons?: SeasonInterface[] | null
+    selectedSeason?: SeasonInterface | null
     setSelectedSeason: React.Dispatch<React.SetStateAction<SeasonInterface | null>>;
     mainKey: any
     setMainKey?: React.Dispatch<React.SetStateAction<number>>;
     useDate?: boolean;
     isDisabled?: boolean
-    setUseDates: any
+    setUseDates?: any
 }
 
 export interface SeasonsListInterface {
-    seasons: SeasonInterface[] | null
-    selectedSeason: SeasonInterface | null
+    seasons?: SeasonInterface[] | null
+    selectedSeason?: SeasonInterface | null
     handleSeasonChange?: (season: SeasonInterface | null) => void;
 
 }
@@ -456,10 +457,18 @@ export interface DashboardStatsInterface {
     }
 
     betting_tips_statistics_logs:
+
     {
-        'today': BettingTipsStatsInterface[]
-        'all': BettingTipsStatsInterface
-    }
+        all: BettingTipsStatsInterface;
+        today: BettingTipsStatsInterface;
+    } | null | undefined
+
+    stats?:
+    {
+        all: BettingTipsStatsInterface;
+        today: BettingTipsStatsInterface;
+    } | null | undefined
+
 
 }
 
@@ -504,3 +513,25 @@ export interface BettingStrategyInterface {
     amount?: number;
     advantages: string[];
 }
+
+// +------------------+         +------------------+         +------------------+
+// | CountryInterface |<-------| CompetitionInterface |------>| SeasonInterface  |
+// +------------------+         +------------------+         +------------------+
+//         |                                        |                 |
+//         |                                        |                 |
+//         v                                        v                 v
+// +------------------+         +------------------+         +------------------+
+// | TeamInterface    |<-------| StandingInterface |------>| StandingTableIntfc |
+// +------------------+         +------------------+         +------------------+
+//         |                                        |                 |
+//         |                                        |                 |
+//         v                                        v                 v
+// +------------------+         +------------------+         +------------------+
+// | GameInterface    |<-------| ScoreInterface    |         | PredictionIntfc  |
+// +------------------+         +------------------+         +------------------+
+//         |                                        |                 |
+//         |                                        |                 |
+//         v                                        v                 v
+// +------------------+         +------------------+         +------------------+
+// | OddInterface     |         | CurrentUserVotes |         | DashboardStatsIntfc|
+// +------------------+         +------------------+         +------------------+

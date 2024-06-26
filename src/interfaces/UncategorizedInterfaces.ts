@@ -1,8 +1,9 @@
+
 export interface DataInterface {
     id: string | number
     name?: string
     status: boolean | number | string
-    [key: string]: unknown
+    [key: string]: any
 }
 export interface CollectionItemsInterface {
     current_page: number
@@ -15,17 +16,21 @@ export interface CollectionItemsInterface {
     next_page_url: string
     path: string
     per_page: number
-    prev_page_url: string
+    prev_page_url: any
     to: number
     total: number
     model_name: string
     model_name_plural: string
-    fillable: { [key: string]: unknown }
+    fillable: { [key: string]: string }[]
     sortable: []
     htmls: []
     query: string
     statuses: []
     module_uri: string
+}
+
+export interface ModelDetailsInterface extends Omit<CollectionItemsInterface, 'data'> {
+    [key: string]: any
     tableId?: string
 }
 
@@ -39,7 +44,7 @@ export interface GetItemInterface {
     data: DataInterface
     model_name: string
     model_name_plural: string
-    fillable: object
+    fillable: {}
     sortable: []
 }
 
@@ -50,7 +55,7 @@ export interface GetItemsInterface {
 export interface ResponseDataInterface {
     type: string;
     message: string;
-    data: unknown;
+    data: any;
 }
 
 export interface ColumnInterface {
@@ -58,7 +63,9 @@ export interface ColumnInterface {
     key: string
     column?: string
     is_html?: boolean
-    callback?: (key: unknown, record: unknown) => string
+    isSorted?: boolean
+    sortDirection?: 'desc' | 'asc' | ''
+    callback?: (key: string, record: any) => void
 }
 
 interface ActionInterface {
@@ -102,7 +109,7 @@ export interface DocsInterface {
 
 export type ModalSizeType = 'modal-sm' | 'modal-lg' | 'modal-xl';
 
-export type HttpVerbsType = 'GET' | 'get' | 'POST' | 'post' | 'PUT' | 'put' | 'PATCH' | 'patch' | 'DELETE' | 'delete'
+export type HttpVerbsType = 'POST' | 'post' | 'PUT' | 'put' | 'PATCH' | 'patch' | 'DELETE' | 'delete' | 'GET' | 'get'
 
 export interface PageHeaderInterface {
     title: string;
@@ -113,11 +120,11 @@ export interface PageHeaderInterface {
     method?: string; // Method name
     actionTargetId?: string
     listUrl?: string
-    setRecord?: React.Dispatch<React.SetStateAction<unknown>>
-}
+    setRecord?: React.Dispatch<React.SetStateAction<any>>
+};
 
 export interface TabInterface {
     name: string;
     label?: string;
     component: JSX.Element;
-}
+};

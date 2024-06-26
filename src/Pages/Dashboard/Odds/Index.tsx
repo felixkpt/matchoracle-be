@@ -10,8 +10,10 @@ const Index = () => {
 
     const { competitions: listSources } = useListSources()
 
+    const initBaseUri = '/dashboard/odds/'
+
     const errorsState = useRouteParamValidation();
-    const { fromToDates, setFromToDates, baseUri, previousUrl } = useFromToDates('/dashboard/odds/');
+    const { fromToDates, setFromToDates, baseUri, previousUrl } = useFromToDates(initBaseUri);
 
     return (
         <div>
@@ -25,7 +27,7 @@ const Index = () => {
                         </div>
                         <AutoTable
                             key={baseUri}
-                            baseUri={baseUri}
+                            baseUri={baseUri || initBaseUri}
                             columns={oddsColumns}
                             search={true}
                             listSources={listSources}
