@@ -37,7 +37,7 @@ return [
     ],
 
     'add' => [
-        'img-src' => ["'self'", 'http://localhost:5173'],
+        'img-src' => ["'self'", 'http://localhost:5173', 'http://localhost:4173'],
     ],
 
 ];
