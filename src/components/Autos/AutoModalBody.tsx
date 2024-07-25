@@ -4,7 +4,7 @@ import { DataInterface, ListSourceInterface, ModalSizeType, ModelDetailsInterfac
 import Str from '@/utils/Str';
 import SubmitButton from '../SubmitButton';
 interface ModalProps {
-    modelDetails?: ModelDetailsInterface;
+    modelDetails?: ModelDetailsInterface | undefined;
     record?: DataInterface | null | undefined
     modelName?: string;
     fillable?: { [key: string]: { input: string; type: string } };

@@ -5,7 +5,6 @@ import useAxios from '@/hooks/useAxios'
 import { useEffect, useState } from 'react'
 import DashJobLogsCard from '../Includes/DashJobLogsCard'
 import CompetitionStatsCard from '../Includes/StatisticsJobLogsCards/Competitions'
-import BettingTipsCard from '../Includes/StatisticsJobLogsCards/BettingTips'
 import DashMatchJobLogsCard from './DashMatchJobLogsCard'
 
 const Index = () => {
@@ -240,7 +239,7 @@ const Index = () => {
                     <div className="col-12">
                         <h4>Statistics Job Logs</h4>
                         <div className="row">
-                            <div className="col-lg-4 mb-4">
+                            <div className="col-lg-6 mb-4">
                                 <div className="card shadow h-100">
                                     <NavLink to={`/dashboard/settings/system/job-logs?tab=matches`} className={'link-unstyled'}>
                                         <div className="card-header bg-secondary text-white">
@@ -255,7 +254,7 @@ const Index = () => {
                                     </NavLink>
                                 </div>
                             </div>
-                            <div className="col-lg-4 mb-4">
+                            <div className="col-lg-6 mb-4">
                                 <div className="card shadow h-100">
                                     <NavLink to={`/dashboard/settings/system/job-logs?tab=matches`} className={'link-unstyled'}>
                                         <div className="card-header bg-secondary text-white">
@@ -266,21 +265,6 @@ const Index = () => {
                                         </div>
                                         <div className="card-body text-center">
                                             <CompetitionStatsCard loading={loading} errors={errors} stats={stats?.competition_prediction_statistics_logs} />
-                                        </div>
-                                    </NavLink>
-                                </div>
-                            </div>
-                            <div className="col-lg-4 mb-4">
-                                <div className="card shadow h-100">
-                                    <NavLink to={`/dashboard/settings/system/job-logs?tab=matches`} className={'link-unstyled'}>
-                                        <div className="card-header bg-secondary text-white">
-                                            <h5 className='d-flex align-items-center gap-1'>
-                                                <Icon width={'2rem'} icon={`${'mdi:soccer-field'}`} />
-                                                <span>Betting Tips Stats Job</span>
-                                            </h5>
-                                        </div>
-                                        <div className="card-body text-center">
-                                            <BettingTipsCard loading={loading} errors={errors} stats={stats?.betting_tips_statistics_logs} />
                                         </div>
                                     </NavLink>
                                 </div>

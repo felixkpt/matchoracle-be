@@ -5,8 +5,7 @@ import Pagination from '../Pagination';
 import { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
-import { AutoTableInterface, ModelDetailsInterface } from '../../interfaces/UncategorizedInterfaces';
-import AutoActions from './AutoActions';
+import { AutoTableInterface, ColumnInterface } from '../../interfaces/UncategorizedInterfaces';
 import AutoTableHeader from './AutoTableHeader';
 import Loader from '../Loader';
 import StatusesUpdate from '../StatusesUpdate';
@@ -14,10 +13,9 @@ import { config } from '@/utils/helpers';
 import usePermissions from '@/hooks/rba/usePermissions';
 import useAutoPostDone from '@/hooks/autos/useAutoPostDone';
 import Str from '../../utils/Str';
-
-function __dangerousHtml(html: HTMLElement) {
-    return <div dangerouslySetInnerHTML={{ __html: html }} />;
-}
+import useAutoAction from '@/hooks/autos/useAutoAction';
+import AutoAction from './AutoActions';
+import RecordStatus from './RecordStatus';
 
 const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetails, listSources, tableId, modalSize, customModalId, perPage }: AutoTableInterface) => {
     const localTableId = tableId ? tableId : 'AutoTable'
@@ -54,7 +52,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     const [tableDataLength, setTableDataLength] = useState(tableData?.total || 0)
     const [currentPageDataLength, setCurrentPageDataLength] = useState<number>(-1);
 
-    const [modelDetails, setModelDetails] = useState<ModelDetailsInterface>()
+    const [modelDetails, setModelDetails] = useState({})
     const [htmls, setHtmls] = useState<string[]>([])
     const [query, setQuery] = useState<string>('')
 
@@ -112,38 +110,38 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
 
     const navigate = useNavigate()
 
-    const autoActions = new AutoActions(modelDetails, tableData, navigate, listSources, exclude, modalSize, customModalId)
+    const { handleNavigation, handleView, handleModalAction } = useAutoAction({ modelDetails, tableData, navigate, listSources, exclude, modalSize, customModalId })
 
     useEffect(() => {
         if (currentPageDataLength) {
 
             const autotableNavigateElements = document.querySelectorAll('.autotable .autotable-navigate');
             autotableNavigateElements.forEach((element) => {
-                (element as HTMLElement).addEventListener('click', autoActions.handleNavigation);
+                (element as HTMLElement).addEventListener('click', handleNavigation);
             });
 
             const autotableViewElements = document.querySelectorAll('.autotable .autotable-modal-view');
             autotableViewElements.forEach((element) => {
-                (element as HTMLElement).addEventListener('click', autoActions.handleView);
+                (element as HTMLElement).addEventListener('click', handleView);
             });
 
             const autotableModalActionElements = document.querySelectorAll('.autotable [class*="autotable-modal-"]');
             autotableModalActionElements.forEach((element) => {
-                (element as HTMLElement).addEventListener('click', autoActions.handleModalAction);
+                (element as HTMLElement).addEventListener('click', handleModalAction);
             });
 
             return () => {
                 // Clean up event listeners when the component unmounts
                 autotableViewElements.forEach((element) => {
-                    (element as HTMLElement).removeEventListener('click', autoActions.handleView);
+                    (element as HTMLElement).removeEventListener('click', handleView);
                 });
 
                 autotableNavigateElements.forEach((element) => {
-                    (element as HTMLElement).removeEventListener('click', autoActions.handleNavigation);
+                    (element as HTMLElement).removeEventListener('click', handleNavigation);
                 });
 
                 autotableModalActionElements.forEach((element) => {
-                    (element as HTMLElement).removeEventListener('click', autoActions.handleModalAction);
+                    (element as HTMLElement).removeEventListener('click', handleModalAction);
                 });
             };
         }
@@ -195,10 +193,32 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
 
     }
 
+
+    const renderCellContent = (column: ColumnInterface, row: any, htmls: any) => {
+        if (column.key === 'action') {
+            return <AutoAction row={row} moduleUri={moduleUri} />;
+        } else if (column.key === 'Status') {
+            return <RecordStatus row={row} statuses={tableData?.statuses} />;
+        } else if (htmls.includes(column.key) || column.callback) {
+            return column.callback ? column.callback(row[column.key], row) : row[column.key];
+        } else {
+            return String(getDynamicValue(row, column.key));
+        }
+
+    };
+
+    const renderColumns = (columns: ColumnInterface[], row: any, htmls: any) => {
+        return columns.map((column) => (
+            <td key={column.key} scope="col" className="px-6 py-3">
+                {renderCellContent(column, row, htmls)}
+            </td>
+        ));
+    };
+
     const canUpdateStatuses = userCan(`${baseUri}/update-statuses`, `patch`)
 
     return (
-        <div id={localTableId} className={`autotable shadow p-1 rounded my-3 relative shadow-md sm:rounded-lg`}>
+        <div id={localTableId} className={`autotable p-1 rounded my-3 relative shadow-md sm:rounded-lg`}>
             <div className={`card`}>
                 <div className="card-header">
                     <div className="row align-items-center justify-content-end align-items-center text-muted">
@@ -320,13 +340,8 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                                             </label>
                                         </div>
                                     </td>
-
-                                    {columns && columns.map(column => {
-                                        return (
-                                            <td key={column.key} scope="col" className="px-6 py-3">{(column.key === 'action' || (htmls.includes(column.key) === true || column?.callback)) ? __dangerousHtml(column?.callback ? column.callback(row[column.key], row) : row[column.key]) : String(getDynamicValue(row, column.key))}</td>
-                                        )
-                                    })}
-
+                                    {/* Render all columns */}
+                                    {columns && renderColumns(columns, row, htmls)}
                                 </tr>
                             ))
                                 :

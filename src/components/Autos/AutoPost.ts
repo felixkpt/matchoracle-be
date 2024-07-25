@@ -37,8 +37,7 @@ const AutoPost = () => {
         let url = rawForm?.getAttribute('data-action') || ''; // Get the baseUri from the event detail
         url = baseURL('api/' + url);
 
-        const input = rawForm?.querySelector('input[name="_method"]') as HTMLInputElement
-        const method: HttpVerbsType = (input?.value || 'post').toLowerCase() as HttpVerbsType; // Get the form's HTTP method
+        const method: HttpVerbsType = (rawForm?.getAttribute('method') || 'post').toLowerCase() as HttpVerbsType; // Get the form's HTTP method
         const submitButton = rawForm?.querySelector('button[type="submit"]') as HTMLButtonElement;
 
         if (submitButton) {

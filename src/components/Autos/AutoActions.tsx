@@ -1,143 +1,29 @@
-import { publish } from "@/utils/events";
+import usePermissions from "@/hooks/rba/usePermissions"
 
-class AutoActions {
-    protected modelDetails: any;
-    protected tableData: any;
-    protected navigate: any;
-    protected listSources?: any;
-    protected exclude?: any;
-    protected modalSize: any;
-    protected customModalId?: any;
-    protected isSingle?: boolean;
-
-    constructor(modelDetails: any, tableData: any, navigate: any, listSources?: any, exclude?: any, modalSize?: any, customModalId?: any, isSingle?: boolean) {
-        this.modelDetails = modelDetails;
-        this.tableData = tableData;
-        this.navigate = navigate;
-        this.listSources = listSources;
-        this.exclude = exclude;
-        this.modalSize = modalSize;
-        this.customModalId = customModalId;
-        this.isSingle = isSingle;
-    }
-
-    handleModalAction = (event: Event) => {
-        event.preventDefault();
-
-        const target = event.target as HTMLElement | null; // Narrow down the type to HTMLElement
-
-        if (!target) return; // Check if target is null or undefined
-
-        if (target.classList.contains('autotable-modal-edit')) {
-            this.handleEdit(event);
-        } else if (target.classList.contains('autotable-modal-update-status')) {
-            this.handleStatusUpdate(event);
-        } else {
-            const id = target.getAttribute('data-id');
-            const action = (target.getAttribute('data-action') || target.getAttribute('href'));
-
-            if (!id || !action) return;
-
-            const record = this.isSingle ? this.tableData : this.tableData.data.find((item: any) => item.id == id);
-
-            publish('prepareModalAction', {
-                modelDetails: this.modelDetails,
-                record,
-                action,
-                listSources: this.listSources,
-                modalSize: this.modalSize,
-                customModalId: this.customModalId,
-                classList: Array.from(target.classList || []) // Ensure target.classList is treated as HTMLElement's classList
-            });
-        }
-    };
-
-    handleView = (event: Event) => {
-        event.preventDefault();
-
-        const target = event.target as HTMLElement | null; // Narrow down the type to HTMLElement
-
-        if (!target) return; // Check if target is null or undefined
-
-        const id = target.getAttribute('data-id');
-        const action = target.getAttribute('href');
-
-        if (!id || !action) return;
-
-        const record = this.isSingle ? this.tableData : this.tableData.data.find((item: any) => item.id == id);
-
-        publish('prepareView', {
-            modelDetails: this.modelDetails,
-            record,
-            action,
-            modalSize: this.modalSize,
-            customModalId: this.customModalId,
-            exclude: this.exclude
-        });
-    };
-
-    handleEdit = (event: Event) => {
-        event.preventDefault();
-
-        const target = event.target as HTMLElement | null; // Narrow down the type to HTMLElement
-
-        if (!target) return; // Check if target is null or undefined
-
-        const id = target.getAttribute('data-id');
-        const action = (target.getAttribute('data-action') || target.getAttribute('href'))?.replace(/\/edit/g, '');
-
-        if (!id || !action) return;
-
-        const record = this.isSingle ? this.tableData : this.tableData.data.find((item: any) => item.id == id);
-
-        publish('prepareEdit', {
-            modelDetails: this.modelDetails,
-            record,
-            action,
-            listSources: this.listSources,
-            modalSize: this.modalSize,
-            customModalId: this.customModalId
-        });
-    };
-
-    handleStatusUpdate = (event: Event) => {
-        event.preventDefault();
-
-        const target = event.target as HTMLElement | null; // Narrow down the type to HTMLElement
-
-        if (!target) return; // Check if target is null or undefined
-
-        const id = target.getAttribute('data-id');
-        const action = target.getAttribute('href');
-
-        if (!id || !action) return;
-
-        const record = this.isSingle ? this.tableData : this.tableData.data.find((item: any) => item.id == id);
-
-        publish('prepareStatusUpdate', {
-            modelDetails: this.modelDetails,
-            record,
-            action,
-            modalSize: this.modalSize
-        });
-    };
-
-    handleNavigation = (event: Event) => {
-        const mouseEvent = event as MouseEvent;
-
-        if (mouseEvent.ctrlKey) return;
-
-        event.preventDefault();
-
-        const target = event.currentTarget as HTMLElement | null; // Narrow down the type to HTMLElement
-
-        if (!target) return; // Check if target is null or undefined
-
-        const href = target.getAttribute('href');
-        if (href) {
-            this.navigate(href);
-        }
-    };
+type Props = {
+    key?: string, row: any, moduleUri: string
 }
 
-export default AutoActions;
+const AutoAction = ({ row, moduleUri }: Props) => {
+    const { userCan } = usePermissions()
+
+    const showView = userCan(moduleUri + '/view/:id', 'get')
+    const showEdit = userCan(moduleUri + '/view/:id', 'put')
+    const showUpdateStatus = userCan(moduleUri + '/view/:id/update-status', 'patch')
+
+    return (
+        <div className="dropdown">
+            <button className="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i className="icon icon-list2 font-20"></i>
+            </button>
+            <ul className="dropdown-menu">
+                {showView && <li><a className="dropdown-item autotable-modal-view" data-id={row.id} href={`${moduleUri}view/${row.id}`}>View</a></li>}
+                {showEdit && <li><a className="dropdown-item autotable-modal-edit" data-id={row.id} href={`${moduleUri}view/${row.id}`}>Edit</a></li>}
+                {showUpdateStatus && <li><a className="dropdown-item autotable-modal-update-status" data-id={row.id} href={`${moduleUri}view/${row.id}/update-status`}>Update Status</a></li>}
+            </ul>
+        </div>
+    );
+
+}
+
+export default AutoAction
