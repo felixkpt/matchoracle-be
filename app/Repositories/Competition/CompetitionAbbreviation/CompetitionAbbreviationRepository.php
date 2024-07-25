@@ -35,12 +35,9 @@ class CompetitionAbbreviationRepository implements CompetitionAbbreviationReposi
 
         $uri = '/dashboard/competitions/competition-abbreviations/';
         $statuses = SearchRepo::of($statuses, ['id', 'name'])
-            ->addColumn('Is_intl', fn ($q) => $q->is_international ? 'Yes' : 'No')
-            ->addColumn('Created_at', 'Created_at')
+            ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
-            ->addColumn('Status', 'getStatus')
-            ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, 'modal', 'modal', 'update-competition-abbreviation'))
-            ->htmls(['Status'])
+            ->addColumn('Is_intl', fn ($q) => $q->is_international ? 'Yes' : 'No')
             ->paginate();
 
         return response(['results' => $statuses]);

@@ -26,11 +26,8 @@ class ContinentRepository implements ContinentRepositoryInterface
 
         $uri = '/dashboard/continents/';
         $res = SearchRepo::of($continents, ['id', 'name'])
-            ->addColumn('Flag', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->flag ? asset($q->flag) : asset('storage/football/defaultflag.png')) . '" />')
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'getStatus')
-            ->addActionColumn('action', $uri)
-            ->htmls(['Status', 'Flag'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->paginate();
 
         return response(['results' => $res]);

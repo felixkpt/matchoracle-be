@@ -26,13 +26,8 @@ class StatusRepository implements StatusRepositoryInterface
 
         $uri = '/dashboard/settings/picklists/statuses/default/';
         $statuses = SearchRepo::of($statuses, ['id', 'name'])
-            ->addColumn('Created_at', 'Created_at')
+            ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
-            ->addColumn('Icon', function ($q) {
-                return '<div class="d-flex align-items-center"><iconify-icon icon="' . $q->icon . '" class="' . $q->class . ' me-1"></iconify-icon>' . Str::ucfirst(Str::replace('_', ' ', $q->name)) . '</div>';
-            })
-            ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, 'modal', 'modal', 'update-status'))
-            ->htmls(['Icon'])
             ->paginate();
 
         return response(['results' => $statuses]);

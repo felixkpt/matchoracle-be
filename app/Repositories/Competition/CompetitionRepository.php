@@ -61,10 +61,9 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $uri = '/dashboard/competitions/';
         $results = SearchRepo::of($competitions, ['id', 'name', 'code', 'country.name', 'seasons.start_date', 'slug'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->addColumn('season', fn ($q) => $q->currentSeason ? (Carbon::parse($q->currentSeason->start_date)->format('Y') . '/' . Carbon::parse($q->currentSeason->end_date)->format('Y')) : null)
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'getStatus')
-            ->addColumn('Logo', fn ($q) => '<a class="autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ? asset($q->logo) : asset('assets/images/competitions/default_logo.png')) . '" /></a>')
             ->addColumn('Has_teams', fn ($q) => $q->has_teams ? 'Yes' : 'No')
             ->addColumn('seasons_fetched', function ($q) {
                 $item = $q->lastAction->seasons_last_fetch ?? null;
@@ -106,15 +105,6 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                 }
                 return $ct;
             })
-            ->addActionItem(
-                [
-                    'title' => 'Add Sources',
-                    'action' => ['title' => 'add-sources', 'modal' => 'add-sources', 'native' => null, 'use' => 'modal']
-                ],
-                'Update status'
-            )
-            ->addActionColumn('action', $uri, ['view' => 'native'])
-            ->htmls(['Status', 'Logo'])
             ->addFillable('continent_id', ['input' => 'select'], 'continent_id')
             ->addFillable('has_teams', ['input' => 'select'], 'has_teams')
             ->orderby('id');
@@ -234,10 +224,8 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $uri = '/dashboard/countries/';
         $res = SearchRepo::of($gamesources, ['id', 'name'])
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'getStatus')
-            ->addActionColumn('action', $uri)
-            ->htmls(['Status'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->orderBy('name')
             ->paginate();
 
@@ -251,10 +239,8 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $uri = '/dashboard/countries/';
         $res = SearchRepo::of($seasons, ['id', 'name'])
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'getStatus')
-            ->addActionColumn('action', $uri)
-            ->htmls(['Status'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->orderBy('start_date')
             ->paginate();
 

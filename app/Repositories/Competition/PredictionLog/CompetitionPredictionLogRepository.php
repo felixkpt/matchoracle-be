@@ -25,11 +25,8 @@ class CompetitionPredictionLogRepository implements CompetitionPredictionLogRepo
 
         $uri = '/dashboard/competitions/prediction-logs/';
         $statuses = SearchRepo::of($statuses, ['id', 'competition.name', 'competition.country.name', 'date', 'total_games'])
-            ->addColumn('Created_at', 'Created_at')
+            ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
-            ->addColumn('Status', 'getStatus')
-            ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, 'modal', 'modal'))
-            ->htmls(['Status'])
             ->paginate();
 
         return response(['results' => $statuses]);

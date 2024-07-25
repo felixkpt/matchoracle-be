@@ -40,6 +40,8 @@ class OddsRepository implements OddsRepositoryInterface
 
         $uri = '/dashboard/odds/';
         $results = SearchRepo::of($odds, ['id', 'home_team', 'away_team'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->addColumn('Date', fn ($q) => Carbon::parse($q->utc_date)->format('Y-m-d'))
             ->addColumn('home_win', fn ($q) => $q->home_win_odds ?? '-')
             ->addColumn('draw', fn ($q) => $q->draw_odds ?? '-')
@@ -48,12 +50,6 @@ class OddsRepository implements OddsRepositoryInterface
             ->addColumn('under_25', fn ($q) => $q->under_25_odds ?? '-')
             ->addColumn('GG', fn ($q) => $q->gg_odds ?? '-')
             ->addColumn('NG', fn ($q) => $q->ng_odds ?? '-')
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Created_by', 'getUser')
-            ->addColumn('Status', 'getStatus')
-            ->addColumn('Game', fn ($q) => $q->game->id ? '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->game->id . '" href="/dashboard/matches/view/' . $q->game->id . '">#' . $q->game->id . '</a>' :  'N/A')
-            ->addActionColumn('action', $uri)
-            ->htmls(['Status', 'Game'])
             ->orderBy('utc_date', 'desc')
             ->paginate();
 

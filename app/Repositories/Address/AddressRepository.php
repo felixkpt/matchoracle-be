@@ -28,19 +28,8 @@ class AddressRepository implements AddressRepositoryInterface
 
         $uri = '/dashboard/teams/addresses';
         $statuses = SearchRepo::of($teams, ['id', 'name'])
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'getStatus')
-            ->addActionColumn(
-                'action',
-                $uri,
-                [
-                    'view'  => 'native',
-                    'edit'  => 'modal',
-                    'hide'  => null
-                ]
-            )
-            ->htmls(['Status'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->orderby('name')
             ->paginate(request()->competition_id ? $teams->count() : 20);
 
@@ -85,18 +74,8 @@ class AddressRepository implements AddressRepositoryInterface
 
         $uri = '/dashboard/teams/address';
         $statuses = SearchRepo::of($team, ['id', 'name'])
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'getStatus')
-            ->addActionColumn(
-                'action',
-                $uri,
-                [
-                    'view'  => 'native',
-                    'edit'  => 'modal',
-                    'hide'  => null
-                ]
-            )
-            ->htmls(['Status'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->first();
 
         return response(['results' => $statuses]);
@@ -175,29 +154,9 @@ class AddressRepository implements AddressRepositoryInterface
 
         $uri = '/dashboard/teams/';
         $res = SearchRepo::of($teams, ['name', 'founded'])
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'getStatus')
-            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
-            ->addActionColumn(
-                'action',
-                $uri,
-                [
-                    'view'  => 'native',
-                    'edit'  => 'modal',
-                    'hide'  => null
-                ]
-            )
-            ->htmls(['Status', 'Crest'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->orderby('priority_number')
-            ->addActionColumn(
-                'action',
-                $uri,
-                [
-                    'view'  => 'native',
-                    'edit'  => 'modal',
-                    'hide'  => null
-                ]
-            )
             ->paginate();
         return response(['results' => $res]);
     }

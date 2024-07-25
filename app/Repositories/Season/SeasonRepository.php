@@ -40,16 +40,13 @@ class SeasonRepository implements SeasonRepositoryInterface
 
         $uri = '/dashboard/seasons/';
         $results = SearchRepo::of($seasons, ['start_date'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->addColumn('Winner', fn ($q) => $q->winner->name ?? '-')
             ->addColumn('Played', fn ($q) => '-')
             ->addColumn('Fetched_standings', fn ($q) => $q->fetched_standings ?  'Yes' : 'No')
             ->addColumn('Fetched_all_matches', fn ($q) => $q->fetched_all_matches ?  'Yes' : 'No')
             ->addColumn('Fetched_all_single_matches', fn ($q) => $q->fetched_all_single_matches ?  'Yes' : 'No')
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Created_by', 'getUser')
-            ->addColumn('Status', 'getStatus')
-            ->addActionColumn('action', $uri)
-            ->htmls(['Status'])
             ->orderby('start_date', 'desc');
 
         $results = false ? $results->first() : $results->paginate();

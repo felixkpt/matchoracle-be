@@ -27,11 +27,8 @@ class GameSourceRepository implements GameSourceRepositoryInterface
 
         $uri = '/dashboard/settings/picklists/game-sources/';
         $results = SearchRepo::of($statuses, ['id', 'name'])
-            ->addColumn('Created_at', 'Created_at')
+            ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
-            ->addColumn('Status', 'getStatus')
-            ->addActionColumn('action', $uri)
-            ->htmls(['Status'])
             ->paginate();
 
         return response(['results' => $results]);

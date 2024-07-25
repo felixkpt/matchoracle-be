@@ -34,37 +34,11 @@ class TeamRepository implements TeamRepositoryInterface
 
         $uri = '/dashboard/teams/';
         $results = SearchRepo::of($teams, ['id', 'name'])
-            ->addColumn('Created_at', 'Created_at')
+            ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
-            ->addColumn('Status', 'getStatus')
-            ->addColumn('Logo', fn ($q) => '<a class="autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ? asset($q->logo) : asset('assets/images/teams/default_logo.png')) . '" /></a>')
-            ->addActionItem(
-                [
-                    'title' => 'Add Sources',
-                    'action' => ['title' => 'add-sources', 'modal' => 'add-sources', 'native' => null, 'use' => 'modal']
-                ],
-                'Update Status'
-            )
-            ->addActionItem(
-                [
-                    'title' => 'Update Coach',
-                    'action' => ['title' => 'update-coach', 'modal' => 'update-coach', 'native' => null, 'use' => 'modal']
-                ],
-                'Update status'
-            )
-            ->addActionColumn(
-                'action',
-                $uri,
-                [
-                    'view'  => 'native',
-                    'edit'  => 'modal',
-                    'hide'  => null
-                ]
-            )
             ->addFillable('website', ['input' => 'input', 'type' => 'url'], 'website')
             ->addFillable('tla', ['input' => 'input', 'type' => 'text', 'capitalize' => true], 'tla')
             ->addFillable('founded', ['input' => 'input', 'type' => 'number'], 'founded')
-            ->htmls(['Status', 'Logo'])
             ->removeFillable(['coach_id'])
             ->orderby('name');
 
@@ -310,30 +284,11 @@ class TeamRepository implements TeamRepositoryInterface
 
         $uri = '/dashboard/teams/';
         $res = SearchRepo::of($teams, ['name', 'founded'])
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'getStatus')
-            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
-            ->addActionColumn(
-                'action',
-                $uri,
-                [
-                    'view'  => 'native',
-                    'edit'  => 'modal',
-                    'hide'  => null
-                ]
-            )
-            ->htmls(['Status', 'Crest'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->orderby('priority_number')
-            ->addActionColumn(
-                'action',
-                $uri,
-                [
-                    'view'  => 'native',
-                    'edit'  => 'modal',
-                    'hide'  => null
-                ]
-            )
             ->paginate();
+
         return response(['results' => $res]);
     }
 }

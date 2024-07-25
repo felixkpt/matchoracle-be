@@ -27,19 +27,8 @@ class CoachRepository implements CoachRepositoryInterface
 
         $uri = '/dashboard/teams/coaches';
         $statuses = SearchRepo::of($coaches, ['id', 'name'])
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'getStatus')
-            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
-            ->addActionColumn(
-                'action',
-                $uri,
-                [
-                    'view'  => 'native',
-                    'edit'  => 'modal',
-                    'hide'  => null
-                ]
-            )
-            ->htmls(['Status', 'Crest'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->addFillable('date_of_birth', ['input' => 'input', 'type' => 'date'], 'date_of_birth')
             ->orderby('name')
             ->paginate(request()->competition_id ? $coaches->count() : 20);
@@ -64,27 +53,9 @@ class CoachRepository implements CoachRepositoryInterface
 
         $uri = '/dashboard/teams/';
         $statuses = SearchRepo::of($team, ['id', 'name', 'country.name', 'slug'])
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'getStatus')
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->addColumn('has_teams', fn ($q) => $q->has_teams ? 'Yes' : 'No')
-            ->addActionItem(
-                [
-                    'title' => 'Add Sources',
-                    'action' => ['title' => 'add-sources', 'modal' => 'add-sources', 'native' => null, 'use' => 'modal']
-                ],
-                'Status update'
-            )
-            ->addColumn('Crest', fn ($q) => '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->logo ?? asset('storage/football/defaultflag.png')) . '" />')
-            ->addActionColumn(
-                'action',
-                $uri,
-                [
-                    'view'  => 'native',
-                    'edit'  => 'modal',
-                    'hide'  => null
-                ]
-            )
-            ->htmls(['Status', 'Crest'])
             ->addFillable('continent_id', 'continent_id', ['input' => 'select'])
             ->orderby('priority_number')
             ->first();

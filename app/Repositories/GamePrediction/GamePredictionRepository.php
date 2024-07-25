@@ -39,13 +39,15 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
         };
 
         $preds = $this->model
-            // ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
             ->when(request()->from_date, fn ($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
             ->when(request()->to_date, fn ($q) => $q->whereDate('date', '<=', Carbon::parse(request()->to_date)->format('Y-m-d')))
             ->when(request()->date, fn ($q) => $q->whereDate('date', '=', Carbon::parse(request()->date)->format('Y-m-d')))
             ->when(!request()->date && request()->type, $type_cb);
 
+        $uri = '';
         $results = SearchRepo::of($preds, ['id'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->addColumn('utc_date', fn ($q) => $q->date)
             ->addColumn('cs_target', fn ($q) => $q->score ? game_scores($q->score) : '-')
             ->addColumn('half_time', fn ($q) => $q->score ? game_scores($q->score, true) : '-')

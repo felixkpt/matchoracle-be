@@ -170,6 +170,12 @@ class SearchRepo
         return $self;
     }
 
+    public function setModelUri($uri)
+    {
+        $this->moduleUri = $uri;
+        return $this;
+    }
+
     /**
      * Perform sorting of the search results.
      */

@@ -47,6 +47,8 @@ class UserRepository implements UserRepositoryInterface
         $uri = '/dashboard/settings/users/';
 
         $users = SearchRepo::of($users, ['name', 'id'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->addColumn('Roles', function ($user) {
                 return implode(', ', $user->roles()->get()->pluck('name')->toArray());
             })
@@ -54,11 +56,7 @@ class UserRepository implements UserRepositoryInterface
             ->addFillable('roles_multilist', ['input' => 'input', 'type' => 'checkbox'], 'two_factor_enabled')
             ->addFillable('direct_permissions_multilist', ['input' => 'input', 'type' => 'checkbox'], 'roles_multilist')
             ->addFillable('two_factor_enabled', ['input' => 'input', 'type' => 'checkbox'], 'theme')
-            ->addFillable('allowed_session_no', ['input' => 'input', 'type' => 'number', 'min' => 1, 'max' => 10], 'theme')
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Status', 'getStatus')
-            ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, 'modal', 'modal'))
-            ->htmls(['Status']);
+            ->addFillable('allowed_session_no', ['input' => 'input', 'type' => 'number', 'min' => 1, 'max' => 10], 'theme');
 
         return response(['results' => $id ? $users->first() : $users->paginate(), 'status' => true]);
     }

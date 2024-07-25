@@ -38,15 +38,10 @@ class RoleRepository implements RoleRepositoryInterface
             return response(['results' => $roles->get()]);
 
         $uri =  '/dashboard/settings/role-permissions/roles/';
-        $view = 'link';
-        $edit = 'modal';
         $roles = SearchRepo::of($roles, ['name', 'id'])
+            ->setModelUri($uri)
+            ->addColumn('Created_by', 'getUser')
             ->fillable(['name', 'guard_name'])
-            ->addColumn('Created_at', 'Created_at')
-            ->addColumn('Created_by', 'Created_by')
-            ->addColumn('Status', 'getStatus')
-            ->addColumn('action', fn ($q) => call_user_func('actionLinks', $q, $uri, $view, $edit))
-            ->htmls(['Status'])
             ->paginate();
 
         return response(['results' => $roles]);
@@ -114,7 +109,7 @@ class RoleRepository implements RoleRepositoryInterface
      */
     function storeRolePermissions(Request $request, $id)
     {
-         Log::info('RRR', Role::find($id)->permissions->select('name', 'guard_name', 'parent_folder', 'uri', 'title', 'icon', 'hidden', 'is_public', 'position')->toArray());
+        //  Log::info('RRR', Role::find($id)->permissions->select('name', 'guard_name', 'parent_folder', 'uri', 'title', 'icon', 'hidden', 'is_public', 'position')->toArray());
 
         // return response()->json(Permission::query()->select('name', 'guard_name', 'parent_folder', 'uri', 'title', 'icon', 'hidden', 'is_public', 'position')->get()->toArray());
 
