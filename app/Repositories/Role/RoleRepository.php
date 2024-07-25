@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class RoleRepository implements RoleRepositoryInterface
@@ -113,7 +114,7 @@ class RoleRepository implements RoleRepositoryInterface
      */
     function storeRolePermissions(Request $request, $id)
     {
-        //  Log::info('RRR', Role::find($id)->permissions->select('name', 'guard_name', 'parent_folder', 'uri', 'title', 'icon', 'hidden', 'is_public', 'position')->toArray());
+         Log::info('RRR', Role::find($id)->permissions->select('name', 'guard_name', 'parent_folder', 'uri', 'title', 'icon', 'hidden', 'is_public', 'position')->toArray());
 
         // return response()->json(Permission::query()->select('name', 'guard_name', 'parent_folder', 'uri', 'title', 'icon', 'hidden', 'is_public', 'position')->get()->toArray());
 

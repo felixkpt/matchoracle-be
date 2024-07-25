@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\BettingTipsStatistic;
 use App\Models\Competition;
 use App\Models\CompetitionPredictionStatisticJobLog;
 use App\Models\CompetitionStatisticJobLog;
@@ -100,10 +99,6 @@ class DashboardController extends Controller
 
             'predictions_job_logs' => $predictionsJobLogs,
             'advanced_matches' => $matches,
-            'betting_tips_statistics' => [
-                'all' => BettingTipsStatistic::where('range', 'Last 1 year')->orderby('gain', 'desc')->get(),
-                'totals' => BettingTipsStatistic::where('range', 'Last 1 year')->selectRaw('SUM(gain) as total_gain, SUM(total) as total_totals, SUM(won) as total_won, ROUND(AVG(roi)) as average_roi')->first(),
-            ],
         ];
 
         return response(['results' => $results]);
@@ -273,7 +268,7 @@ class DashboardController extends Controller
 
     private function getPredictionJobLogsStats($date)
     {
-        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(prediction_run_counts) as total_fetch_run_counts, SUM(prediction_success_counts) as total_fetch_success_counts, SUM(prediction_failed_counts) as total_fetch_failed_counts, SUM(predicted_counts) as total_updated_items_counts';
+        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(prediction_success_counts) as total_fetch_run_counts, SUM(prediction_success_counts) as total_fetch_success_counts, SUM(prediction_failed_counts) as total_fetch_failed_counts, SUM(predicted_counts) as total_updated_items_counts';
 
         return [
             'all' => PredictionJobLog::selectRaw($selects)->first(),

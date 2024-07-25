@@ -1,12 +1,12 @@
 <?php
 
-namespace Database\Seeders\Admin;
+namespace Database\Seeders;
 
-use App\Models\Status;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class AdminUserSeeder extends Seeder
 {
@@ -17,13 +17,17 @@ class AdminUserSeeder extends Seeder
      */
     public function run()
     {
-        User::updateOrCreate(['email' => 'admin@example.com'], [
+        $arr = [
             'name' => 'Demo User',
             'email' => 'admin@example.com',
             'password' => Hash::make('admin@example.com'),
             'email_verified_at' => Carbon::now(),
-            'status_id' => Status::where('name', 'active')->first()->id ?? 0
-        ]);
+        ];
 
+        User::updateOrCreate(['email' => $arr['email']], $arr);
+
+        if (Schema::hasColumn('users', 'status_id')) {
+            $arr['status_id'] = activeStatusId();
+        }
     }
 }

@@ -4,8 +4,6 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-use Database\Seeders\Admin\AdminRoleSeeder;
-use Database\Seeders\Admin\AdminUserSeeder;
 use Database\Seeders\Countries\CountriesSeeder;
 use Illuminate\Database\Seeder;
 
@@ -17,10 +15,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $arr = [
+
             StatusSeeder::class,
             AdminUserSeeder::class,
-            AdminRoleSeeder::class,
+            RoleSeeder::class,
             PermissionSeeder::class,
+
             ContinentsTableSeeder::class,
             CountriesSeeder::class,
             CompetitionSeeder::class,

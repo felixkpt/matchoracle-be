@@ -48,14 +48,14 @@ class Kernel extends ConsoleKernel
     protected function commands(): void
     {
 
-        Artisan::command('migrate:fresh {--seed}', function () {
-            /** @var \Illuminate\Console\Command $cmd */
-            $cmd = $this;
+        // Artisan::command('migrate:fresh {--seed}', function () {
+        //     /** @var \Illuminate\Console\Command $cmd */
+        //     $cmd = $this;
 
-            $confirmed = $cmd->ask("Are you sure you want to resign?", "Yes");
+        //     $confirmed = $cmd->ask("Are you sure you want to resign?", "Yes");
 
-            $cmd->comment('Nope!');
-        })->purpose('Disable fresh command');
+        //     $cmd->comment('Nope!');
+        // })->purpose('Disable fresh command');
 
         $this->load(__DIR__ . '/Commands');
 
