@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard\Settings\RolePermissions\Roles\View;
 
-use App\Http\Controllers\Dashboard\Settings\RolePermissions\Roles\RolesController;
+use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\Role\RoleRepositoryInterface;
@@ -10,17 +10,14 @@ use App\Services\Validations\Role\RoleValidationInterface;
 
 class RoleController extends Controller
 {
+    use CommonControllerMethods;
 
     function __construct(
         private RoleRepositoryInterface $roleRepositoryInterface,
         private RoleValidationInterface $roleValidationInterface
     ) {
+        $this->repo = $roleRepositoryInterface;
         sanctum_auth();
-    }
-
-    public function show($id)
-    {
-        return $this->roleRepositoryInterface->show($id);
     }
 
     /**
@@ -41,12 +38,6 @@ class RoleController extends Controller
     {
 
         return $this->roleRepositoryInterface->storeRoleMenuAndCleanPermissions($request, $id);
-    }
-
-    function update(Request $request, $id)
-    {
-        $request->merge(['id' => $id]);
-        return app(RolesController::class)->store($request);
     }
 
     /**

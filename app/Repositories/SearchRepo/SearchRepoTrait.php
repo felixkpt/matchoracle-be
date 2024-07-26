@@ -137,7 +137,6 @@ trait SearchRepoTrait
             'email' => ['input' => 'input', 'type' => 'email'],
             'password' => ['input' => 'input', 'type' => 'password'],
             'password_confirmation' => ['input' => 'input', 'type' => 'password'],
-            'position' => ['input' => 'input', 'type' => 'number'],
             'priority' => ['input' => 'input', 'type' => 'number'],
 
             'content*' => ['input' => 'textarea', 'type' => null, 'rows' => 7],

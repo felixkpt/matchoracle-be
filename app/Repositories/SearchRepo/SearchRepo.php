@@ -25,6 +25,7 @@ class SearchRepo
 
     use SearchRepoTrait;
 
+    protected $searchRepoID;
     protected $builder;
 
     protected $addedColumns = [];
@@ -81,6 +82,8 @@ class SearchRepo
         }
 
         $model_table = $model->getTable();
+
+        $self->searchRepoID = Str::random() . '-' . $model_table;
 
         $request_data = request()->all();
         $self->request_data = $request_data;
