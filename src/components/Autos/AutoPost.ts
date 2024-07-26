@@ -31,7 +31,7 @@ const AutoPost = () => {
             }
         }
 
-        const elementId = rawForm.getAttribute('data-id') || rawForm?.closest('.modal')?.id || null;
+        const elementId = rawForm.getAttribute('id') || rawForm.getAttribute('data-id') || rawForm?.closest('.modal')?.id || null;
 
         // Specify the URL where the post request will be sent
         let url = rawForm?.getAttribute('data-action') || ''; // Get the baseUri from the event detail

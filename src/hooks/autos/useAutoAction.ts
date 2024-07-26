@@ -3,7 +3,6 @@ import { publish } from '@/utils/events';
 
 type Props = {
   modelDetails: any
-  tableId: string
   tableData: any
   navigate: any
   listSources: any
@@ -13,7 +12,7 @@ type Props = {
   isSingle?: boolean
 }
 
-const useAutoAction = ({ modelDetails, tableId, tableData, navigate, listSources, exclude, modalSize, customModalId, isSingle }: Props) => {
+const useAutoAction = ({ modelDetails, tableData, navigate, listSources, exclude, modalSize, customModalId, isSingle }: Props) => {
   
   const handleModalAction = (event: any) => {
     event.preventDefault();
@@ -36,7 +35,6 @@ const useAutoAction = ({ modelDetails, tableId, tableData, navigate, listSources
 
       publish('prepareModalAction', {
         modelDetails,
-        tableId,
         record,
         action,
         listSources,
@@ -63,7 +61,6 @@ const useAutoAction = ({ modelDetails, tableId, tableData, navigate, listSources
 
     publish('prepareView', {
       modelDetails,
-      tableId,
       record,
       action,
       modalSize,
@@ -88,7 +85,6 @@ const useAutoAction = ({ modelDetails, tableId, tableData, navigate, listSources
 
     publish('prepareEdit', {
       modelDetails,
-      tableId,
       record,
       action,
       listSources,
@@ -113,7 +109,6 @@ const useAutoAction = ({ modelDetails, tableId, tableData, navigate, listSources
 
     publish('prepareStatusUpdate', {
       modelDetails,
-      tableId,
       record,
       action,
       modalSize

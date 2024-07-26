@@ -13,7 +13,7 @@ const Index = () => {
       key: 'name',
     },
     {
-      key: 'Created_at',
+      key: 'created_at',
     },
     {
       key: 'Status',

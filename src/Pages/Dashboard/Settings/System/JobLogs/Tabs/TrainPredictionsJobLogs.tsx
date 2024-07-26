@@ -13,7 +13,7 @@ const TrainPredictionsJobLogs = () => {
     { key: 'train_failed_counts', label: 'Train failed' },
     { key: 'trained_counts', label: 'Trained counts' },
     { label: 'Last run', key: 'Last_run' },
-    { label: 'Created At', key: 'Created_at' },
+    { label: 'Created At', key: 'created_at' },
   ]
 
   return (

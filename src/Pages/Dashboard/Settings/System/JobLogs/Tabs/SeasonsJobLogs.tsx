@@ -12,7 +12,7 @@ const SeasonsJobLogs = () => {
     { key: 'fetch_failed_counts', label: 'Fetch failed' },
     { key: 'updated_seasons_counts', label: 'Updated seasons' },
     { label: 'Last run', key: 'Last_run' },
-    { label: 'Created At', key: 'Created_at' },
+    { label: 'Created At', key: 'created_at' },
   ]
 
   return (

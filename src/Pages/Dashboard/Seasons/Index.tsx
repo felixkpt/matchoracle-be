@@ -18,7 +18,7 @@ const Seasons = () => {
         { key: 'Winner' },
         { key: 'Created_by' },
         { label: 'Status', key: 'Status' },
-        { label: 'Created At', key: 'Created_at' },
+        { label: 'Created At', key: 'created_at' },
         { label: 'Action', key: 'action' },
     ]
     // end component common config

@@ -40,7 +40,7 @@ const Index = () => {
         { label: 'priority_no', key: 'priority_number' },
         {
             label: 'Created At',
-            key: 'Created_at',
+            key: 'created_at',
         },
         {
             label: 'Status',

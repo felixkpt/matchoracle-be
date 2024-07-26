@@ -24,7 +24,7 @@ const Index = () => {
     },
     {
         label: 'Created At',
-        key: 'Created_at',
+        key: 'created_at',
     },
     {
         label: 'Status',

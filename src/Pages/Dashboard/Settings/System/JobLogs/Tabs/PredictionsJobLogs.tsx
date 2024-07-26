@@ -14,7 +14,7 @@ const PredictionsJobLogs = () => {
     { key: 'prediction_failed_counts', label: 'Prediction failed' },
     { key: 'predicted_counts', label: 'Predicted matches' },
     { label: 'Last run', key: 'Last_run' },
-    { label: 'Created At', key: 'Created_at' },
+    { label: 'Created At', key: 'created_at' },
   ]
 
   return (

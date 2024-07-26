@@ -25,7 +25,7 @@ const Index = () => {
         { label: 'full_time', key: 'full_time' },
         { key: 'utc_date' },
         { label: 'Status', key: 'Status' },
-        { label: 'Created At', key: 'Created_at' },
+        { label: 'Created At', key: 'created_at' },
         { label: 'Action', key: 'action' },
     ]
 

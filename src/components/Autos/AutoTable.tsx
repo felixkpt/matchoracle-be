@@ -16,6 +16,7 @@ import Str from '../../utils/Str';
 import useAutoAction from '@/hooks/autos/useAutoAction';
 import AutoAction from './AutoActions';
 import RecordStatus from './RecordStatus';
+import TimeAgo from 'timeago-react';
 
 const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetails, listSources, tableId, modalSize, customModalId, perPage }: AutoTableInterface) => {
     const localTableId = tableId || 'AutoTable'
@@ -62,7 +63,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
 
         if (event && event.status && [200, 201].includes(event.status) && tableId) {
             const test = Str.replace(tableId, 'Table', '')
-            const against = Str.replace(Str.replace(Str.replace(event.id, 'Form', ''), 'Modal', ''), 'Table', '')
+            const against = Str.replace(Str.replace(event.id, 'Form', ''), 'Modal', '')
 
             if (tableId && test === against) {
                 setReload((curr: number) => curr + 1)
@@ -196,10 +197,12 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     }
 
 
-    console.log('moduleUri:', moduleUri)
-
     const renderCellContent = (column: ColumnInterface, row: any, htmls: any) => {
-        if (column.key === 'action') {
+        if (column.key === 'created_at') {
+            return <TimeAgo datetime={row[column.key]} />;
+        } else if (column.key === 'updated_at') {
+            return <TimeAgo datetime={row[column.key]} />;
+        } else if (column.key === 'action') {
             return <AutoAction row={row} moduleUri={moduleUri} />;
         } else if (column.key === 'Status') {
             return <RecordStatus row={row} statuses={tableData?.statuses} />;
@@ -208,7 +211,6 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
         } else {
             return String(getDynamicValue(row, column.key));
         }
-
     };
 
     const renderColumns = (columns: ColumnInterface[], row: any, htmls: any) => {

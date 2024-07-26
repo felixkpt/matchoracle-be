@@ -10,7 +10,8 @@ const PrepareStatusUpdateModal = () => {
     const [selected, setSelected] = useState<PropsValue<object> | null>();
 
     const [actionUrl, setActionUrl] = useState<string>('')
-    const [formId, setFormId] = useState<string>('StatusUpdate')
+
+    const [formId, setFormId] = useState<string>('AutoModalForm')
 
     const prepareStatusUpdate = async (event: CustomEvent<{ [key: string]: any }>) => {
 
@@ -18,9 +19,13 @@ const PrepareStatusUpdateModal = () => {
 
         if (detail) {
             setStatuses(detail.modelDetails.statuses)
-            setFormId(detail.tableId)
             setRecord(detail.record)
             setActionUrl(detail.action)
+
+            if (detail.modelDetails && detail.modelDetails.tableId) {
+                setFormId(Str.before(detail.modelDetails.tableId, 'Table') + 'Form')
+            }
+
         }
 
         document.getElementById("showStatusUpdate")?.click()
@@ -69,7 +74,7 @@ const PrepareStatusUpdateModal = () => {
                         </div>
                         <div className="modal-body">
                             <div className="section">
-                                <form method="post" data-action={actionUrl} data-id={formId} onSubmit={(e: any) => publish('autoPost', e)} >
+                                <form method="post" data-action={actionUrl} id={formId} onSubmit={(e: any) => publish('autoPost', e)} >
                                     <input type="hidden" name="_method" value="patch" />
                                     <div className='form-group'>
                                         {

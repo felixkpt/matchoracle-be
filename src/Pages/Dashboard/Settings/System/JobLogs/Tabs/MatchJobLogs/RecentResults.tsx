@@ -12,7 +12,7 @@ const RecentResults = () => {
         { key: 'fetch_failed_counts', label: 'Fetch failed' },
         { key: 'updated_matches_counts', label: 'Updated matches' },
         { label: 'Last run', key: 'Last_run' },
-        { label: 'Created At', key: 'Created_at' },
+        { label: 'Created At', key: 'created_at' },
     ]
 
 
