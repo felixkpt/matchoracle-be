@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dashboard\Settings\RolePermissions\Roles\View;
 
 use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Dashboard\Settings\RolePermissions\Roles\RolesController;
 use Illuminate\Http\Request;
 use App\Repositories\Role\RoleRepositoryInterface;
 use App\Services\Validations\Role\RoleValidationInterface;
@@ -38,6 +39,12 @@ class RoleController extends Controller
     {
 
         return $this->roleRepositoryInterface->storeRoleMenuAndCleanPermissions($request, $id);
+    }
+
+    function update(Request $request, $id)
+    {
+        $request->merge(['id' => $id]);
+        return app(RolesController::class)->store($request);
     }
 
     /**
