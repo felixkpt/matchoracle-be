@@ -18,7 +18,7 @@ import AutoAction from './AutoActions';
 import RecordStatus from './RecordStatus';
 
 const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetails, listSources, tableId, modalSize, customModalId, perPage }: AutoTableInterface) => {
-    const localTableId = tableId ? tableId : 'AutoTable'
+    const localTableId = tableId || 'AutoTable'
 
     const {
         tableData,
@@ -59,9 +59,11 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     const { userCan } = usePermissions()
     const { event } = useAutoPostDone()
     useEffect(() => {
+
         if (event && event.status && [200, 201].includes(event.status) && tableId) {
             const test = Str.replace(tableId, 'Table', '')
-            const against = Str.replace(Str.replace(event.id, 'Form', ''), 'Modal', '')
+            const against = Str.replace(Str.replace(Str.replace(event.id, 'Form', ''), 'Modal', ''), 'Table', '')
+
             if (tableId && test === against) {
                 setReload((curr: number) => curr + 1)
             }
@@ -110,7 +112,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
 
     const navigate = useNavigate()
 
-    const { handleNavigation, handleView, handleModalAction } = useAutoAction({ modelDetails, tableData, navigate, listSources, exclude, modalSize, customModalId })
+    const { handleNavigation, handleView, handleModalAction } = useAutoAction({ modelDetails, tableId, tableData, navigate, listSources, exclude, modalSize, customModalId })
 
     useEffect(() => {
         if (currentPageDataLength) {
@@ -193,6 +195,8 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
 
     }
 
+
+    console.log('moduleUri:', moduleUri)
 
     const renderCellContent = (column: ColumnInterface, row: any, htmls: any) => {
         if (column.key === 'action') {

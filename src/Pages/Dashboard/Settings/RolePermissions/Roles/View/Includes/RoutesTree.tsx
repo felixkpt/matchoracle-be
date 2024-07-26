@@ -383,7 +383,9 @@ const RoutesTree: React.FC<Props> = ({ child, rolePermissions, allPermissions, i
                                                                 </div>
                                                             )}
                                                         </Draggable>
+
                                                     })
+
                                                 }
                                             </div>
                                         )}

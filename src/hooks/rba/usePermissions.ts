@@ -5,7 +5,7 @@ import { convertToLaravelPattern } from '@/utils/helpers';
 const usePermissions = () => {
     const { roleAndPermissions, roleRoutePermissions } = useRoleRoutePermissionsAndMenuContext();
     const { directPermissions, } = roleAndPermissions;
-    const { permissions } = roleRoutePermissions;
+    const permissions = roleRoutePermissions.permissions.length ? roleRoutePermissions.permissions : roleAndPermissions.routePermissions;
 
     const [loading, setLoading] = useState(true)
 
@@ -18,6 +18,8 @@ const usePermissions = () => {
     }, [permissions])
 
     const userCan = (permission: string, method: string) => {
+
+        permission = permission.replace(/\/+/g, '/')
 
         if (method) {
             permission = permission.replace(/\./g, '/')
