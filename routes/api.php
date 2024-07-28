@@ -1,11 +1,4 @@
 <?php
-
-use App\Http\Controllers\Auth\AuthController;
-use App\Models\User;
-use App\Services\NestedRoutes\RoutesHelper;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -16,13 +9,3 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::get('test', function() {
-    $nestedRoutes = (new RoutesHelper())->getRoutes('');
-    dd($nestedRoutes);
-
-    foreach (collect(Route::getRoutes())->pluck('uri') as $r) {
-        echo ($r) . "<br>";
-    }
-    dd();
-
-});

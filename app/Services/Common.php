@@ -9,6 +9,7 @@ use App\Models\Stadium;
 use App\Models\Team;
 use App\Models\WeatherCondition;
 use App\Repositories\EloquentRepository;
+use App\Services\ClientHelper\Client;
 use App\Services\Games\Games;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -41,7 +42,7 @@ class Common
             return response(['results' => ['type' => 'success', 'message' => 'Last fetch is less than 1 day.']], 200, $response_type);
 
         if (!$crawler) {
-            $html = Client::request(Common::resolve($competition->url));
+            $html = Client::get(Common::resolve($competition->url));
 
             if ($html === null) return;
 
@@ -178,13 +179,10 @@ class Common
         $ext = pathinfo($source, PATHINFO_EXTENSION);
         $filename = "c" . $competition->id . '.' . $ext;
 
-        $dest = "public/images/competitions/" . $filename;
+        $dest = "images/competitions/" . $filename;
 
         $path = Client::downloadFileFromUrl($source, $dest);
-        if ($path)
-            return 'assets/' . Str::after($path, 'public/');
-        else
-            return null;
+        return $path;
     }
 
     static function resolve($source)
@@ -317,11 +315,11 @@ class Common
         $ext = pathinfo($source, PATHINFO_EXTENSION);
         $filename = "t" . $team->id . '.' . $ext;
 
-        $dest = "public/images/teams/" . $filename; /* Complete path & file name */
+        $dest = "assets/images/teams/" . $filename; /* Complete path & file name */
 
         $path = Client::downloadFileFromUrl($source, $dest);
         if ($path) {
-            $team->update(['logo' => 'assets/' . Str::after($path, 'public/')]);
+            $team->update(['logo' => $path]);
             return true;
         }
 

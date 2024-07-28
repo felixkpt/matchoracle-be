@@ -37,7 +37,7 @@ class MatchHandler
             ->where('id', $game_id)
             ->firstOrFail();
 
-        if (!in_array($game->game_score_status_id, unsettledGameScoreStatuses())) {
+        if (!request()->ignore_results && !in_array($game->game_score_status_id, unsettledGameScoreStatuses())) {
             return $this->matchMessage('Update status is satisfied.');
         }
 
@@ -585,8 +585,9 @@ class MatchHandler
 
             $game->update($arr);
             // update season fetched_all_single_matches
-            if ($game->season->games()->whereIn('game_score_status_id', unsettledGameScoreStatuses())->count() === 0)
+            if ($game->season && $game->season->games()->whereIn('game_score_status_id', unsettledGameScoreStatuses())->count() === 0) {
                 $game->season->update(['fetched_all_single_matches' => true]);
+            }
 
             OddsHandler::updateOrCreate([
                 'utc_date' => $data['utc_date'],

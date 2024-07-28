@@ -21,7 +21,7 @@ class ContinentValidation implements ContinentValidationInterface
                 'name' => 'required|string|max:255|unique:continents,name,' . $request->id . ',id',
                 'slug' => 'nullable|string|max:255|unique:continents,slug,' . $request->id . ',id',
                 'code' => 'required|string|max:10',
-                'image' => ['required', 'image'],
+                'flag' => ['required', 'image'],
                 'priority_number' => 'nullable|integer|between:1,99999999',
             ]
         );

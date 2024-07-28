@@ -57,7 +57,11 @@ class SeasonsHandler
             }
         });
 
-        if (!$competition->logo) {
+        if (!$competition->logo || request()->refetch_image == 1) {
+
+            if (request()->refetch_image) {
+                Log::info('Refetching image...');
+            }
 
             $elem = $crawler->filter('.contentmiddle h1.frontH img[alt="league_logo"]');
             if ($elem->count() == 1) {
@@ -93,7 +97,7 @@ class SeasonsHandler
         $message = 'Seasons for ' . $competition->name . ' saved/updated. ';
         $message .= $saved . ' seasons saved, ' . $updated . ' seasons updated.';
 
-        
+
         $response = ['message' => $message, 'results' => ['saved_updated' => $saved + $updated]];
 
         if (request()->without_response) return $response;

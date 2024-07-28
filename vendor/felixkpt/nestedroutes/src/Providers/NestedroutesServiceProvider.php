@@ -97,8 +97,8 @@ class NestedroutesServiceProvider extends ServiceProvider
         }
 
         $this->publishConfig();
-        $this->publishModels();
         $this->publishMigrations();
+        $this->publishModels();
     }
 
     protected function publishConfig()
@@ -109,6 +109,13 @@ class NestedroutesServiceProvider extends ServiceProvider
             ],
             'nestedroutes-config'
         );
+    }
+
+    protected function publishMigrations()
+    {
+        $folder = 'database/migrations';
+
+        $this->publishFiles($folder, 'nestedroutes-migrations', true);
     }
 
     protected function publishModels()
@@ -160,22 +167,15 @@ class NestedroutesServiceProvider extends ServiceProvider
         $this->publishes($filesArray, $tag);
     }
 
-    protected function publishMigrations()
-    {
-        $srcFolder = __DIR__ . '/../database/migrations';
-        $dstFolder = 'database/migrations';
-
-        $this->publishFiles($srcFolder, $dstFolder, 'nestedroutes-migrations', true);
-    }
-
-    protected function publishFiles($srcFolder, $dstFolder, $tag, $timestamp = false)
+    protected function publishFiles($folder, $tag, $timestamp = false)
     {
         $filesArray = [];
 
-        foreach (File::files($srcFolder) as $file) {
+        $src = $folder;
+        foreach (File::files($src) as $file) {
             $fileName = $file->getFilename();
-            $fileWithPath = $srcFolder . '/' . $fileName;
-            $destination = base_path($dstFolder . '/' . ($timestamp ? Carbon::now()->addSeconds(10)->format('Y_m_d_His') . '_' . $fileName : $fileName));
+            $fileWithPath = $src . '/' . $fileName;
+            $destination = base_path($folder . '/' . ($timestamp ? Carbon::now()->addSeconds(10)->format('Y_m_d_His') . '_' . $fileName : $fileName));
             $existingFile = $this->fileExistsEndingWith($fileName);
             $filesArray[$fileWithPath] = $existingFile ?? $destination;
         }

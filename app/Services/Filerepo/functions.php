@@ -56,6 +56,6 @@ if (!function_exists('refreshTemporaryTokensInString')) {
 if (!function_exists('assetUriWithToken')) {
     function assetUriWithToken($uri)
     {
-        return 'dashboard/file-repo/' . $uri . '?token=' . generateTemporaryToken();
+        return 'admin/file-repo/' . $uri . '?token=' . generateTemporaryToken();
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Coach;
 use App\Models\Team;
 use App\Models\Venue;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class TeamsHandler
@@ -46,8 +47,11 @@ class TeamsHandler
         $this->updateOrCreate($teamData, $country);
     }
 
-    function updateOrCreate($teamData, $country, $competition = null, $season = null, $ignore_competition = false)
+    function updateOrCreate($tableData, $country, $competition = null, $season = null, $ignore_competition = false)
     {
+
+        $teamData = $tableData[1];
+        $position = $tableData[0];
 
         if (!isset($teamData['name'])) return false;
 
@@ -127,6 +131,18 @@ class TeamsHandler
             ],
             $arr
         );
+
+
+        if (isset($season) && $season->id) {
+
+            $exists = $team->seasons()->wherePivot('season_id', $season->id)->first();
+
+            if (!$exists) {
+                $team->seasons()->attach($season->id, ['competition_id' => $competition->id, 'position' => $position, 'status_id' => 1, 'user_id' => auth()->id() ?? 0, 'uuid' => Str::uuid()]);
+            } else {
+                $exists->update(['position' => $position,]);
+            }
+        }
 
         static::saveCoach($teamData, $team);
 

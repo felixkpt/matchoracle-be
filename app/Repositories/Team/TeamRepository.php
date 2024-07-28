@@ -24,11 +24,24 @@ class TeamRepository implements TeamRepositoryInterface
     public function index($id = null)
     {
 
+        Log::info("(message)", [request()->season_id]);
+
         $teams = $this->model::query()
             ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->with(['country', 'competition', 'address', 'venue', 'coachContract' => fn ($q) => $q->with('coach'), 'gameSources'])
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
+            ->when(request()->season_id, function ($q) {
+                // Join with the pivot table and filter by season_id
+                $q->whereHas('seasons', function ($query) {
+                    $query->where('season_teams.season_id', request()->season_id);
+                });
+
+                // Join season_teams to access pivot columns for ordering
+                $q->join('season_teams', 'teams.id', '=', 'season_teams.team_id')
+                    ->where('season_teams.season_id', request()->season_id);
+            })
             ->when($id, fn ($q) => $q->where('id', $id));
+
 
         if ($this->applyFiltersOnly) return $teams;
 
@@ -39,8 +52,13 @@ class TeamRepository implements TeamRepositoryInterface
             ->addFillable('website', ['input' => 'input', 'type' => 'url'], 'website')
             ->addFillable('tla', ['input' => 'input', 'type' => 'text', 'capitalize' => true], 'tla')
             ->addFillable('founded', ['input' => 'input', 'type' => 'number'], 'founded')
-            ->removeFillable(['coach_id'])
-            ->orderby('name');
+            ->removeFillable(['coach_id']);
+
+        if (request()->season_id) {
+            $results->orderBy('season_teams.position');
+        } else {
+            $results->orderby('name');
+        }
 
         $results = $id ? $results->first() : $results->paginate(25);
 

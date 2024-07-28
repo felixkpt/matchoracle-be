@@ -14,11 +14,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // Seasons commands
-        $schedule->command('app:seasons-handler')->everyOddHour();
+        $schedule->command('app:seasons-handler')->everyFifteenMinutes();
 
         // Standing commands
-        $schedule->command('app:standings-handler --task=historical_results')->everyThreeHours();
-        $schedule->command('app:standings-handler --task=recent_results')->everyThreeHours();
+        $schedule->command('app:standings-handler --task=historical_results')->everyFifteenMinutes();
+        $schedule->command('app:standings-handler --task=recent_results')->everyFifteenMinutes();
 
         // Matches commands
         $schedule->command('app:matches-handler --task=historical_results')->everyFifteenMinutes();

@@ -79,4 +79,16 @@ class Team extends Model
     {
         return $this->hasMany(Game::class);
     }
+
+    public function seasonTeam()
+    {
+        return $this->hasMany(SeasonTeam::class);
+    }
+
+    public function seasons()
+    {
+        return $this->belongsToMany(Season::class, 'season_teams')
+            ->withPivot('competition_id', 'position', 'status_id', 'user_id', 'uuid')
+            ->withTimestamps();
+    }
 }

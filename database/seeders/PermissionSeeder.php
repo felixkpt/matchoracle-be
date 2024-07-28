@@ -41,7 +41,7 @@ class PermissionSeeder extends Seeder
                 ['name' => $row['name']],
                 [
                     ...$row,
-                    'status_id' => Status::where('name', 'active')->first()->id ?? 0,
+                    'status_id' => activeStatusId(),
                     'user_id' => User::first()->id ?? 0,
                 ]
             )->id;

@@ -18,7 +18,7 @@ class RoutesHelper
     {
 
         $this->nested_routes_folder = config('nestedroutes.folder');
-        $this->renameMainFolders = config('nestedroutes.rename_root_folders');
+        $this->renameMainFolders = config('nestedroutes.rename_main_folders');
 
         $this->prefix_from = trim($prefix_from ? $prefix_from : '', '/');
     }
@@ -196,6 +196,7 @@ class RoutesHelper
                     
                     $name = Str::slug(Str::replace('/', ' ', $uri_and_methods), '.');
                  
+                    Log::info("SLU: ", [$name]);
 
                     return [
                         'uri' => $uri,
@@ -286,7 +287,7 @@ class RoutesHelper
             $prefix = '/' . $this->prefix_from . $prefix;
         }
 
-        return preg_replace('#/+#', '/', $prefix);
+        return $prefix;
     }
 
     /**

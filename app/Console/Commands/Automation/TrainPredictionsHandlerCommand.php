@@ -14,7 +14,7 @@ class TrainPredictionsHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:train-predictions-handler {--task=}';
+    protected $signature = 'app:train-predictions-handler {--task=} {--competition=}';
 
     /**
      * The console command description.
@@ -29,15 +29,17 @@ class TrainPredictionsHandlerCommand extends Command
     public function handle()
     {
         $task = $this->option('task') ?? 'train';
-        
+
         if ($task != 'train') {
             $this->warn('Task should be train');
-            return 0;               
+            return 0;
         }
 
+        
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
-
-        dispatch(new TrainPredictionsHandlerJob($task));
+        
+        $competition_id = $this->option('competition');
+        dispatch(new TrainPredictionsHandlerJob($task, $competition_id));
         $this->info('Train Predictions handler command executed successfully!');
     }
 }

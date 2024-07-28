@@ -82,12 +82,30 @@ class Client
 
         try {
 
-            File::ensureDirectoryExists(storage_path() . '/app/' . dirname($destinationPath));
-
+            // File::ensureDirectoryExists(storage_path() . '/app/' . dirname($destinationPath));
             // Store the downloaded file content to the specified path
-            Storage::disk('local')->put($filePath, $fileContent);
+            // Storage::disk('local')->put($filePath, $fileContent);
 
-            // Return the path where the file is saved
+
+            if (!str()->startsWith($filePath, 'assets/')) {
+                $filePath = 'assets/' . $filePath;
+            }
+
+            $path = $filePath;
+            if (!str()->startsWith($path, config('app.gcs_project_folder'))) {
+                $path = config('app.gcs_project_folder') . '/' . $path;
+                // Remove repeated slashes
+                $path = preg_replace("#/+#", "/", $path);
+            }
+
+            // Store the downloaded file content to the specified path and set its visibility to public
+            Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->put($path, $fileContent);
+            Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->setVisibility($path, 'public');
+
+            Log::info('Compe url::', [Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->url($path)]);
+
+
+            // Return the filePath/path where the file is saved
             return $filePath;
         } catch (Exception $e) {
             // Log the exception for further analysis

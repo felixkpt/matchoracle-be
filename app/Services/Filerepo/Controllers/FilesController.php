@@ -3,21 +3,113 @@
 namespace App\Services\Filerepo\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\TemporaryToken;
 use App\Services\Filerepo\FileRepo;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use ZipArchive;
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class FilesController extends Controller
 {
 
     protected $files_folder;
-    protected $delete_url = "dashboard/file-repo/tmp/delete";
+    protected $delete_url = "admin/file-repo/tmp/delete";
 
     function __construct()
     {
+    }
+
+    public function uploadFolder(Request $request)
+    {
+
+        ini_set('post_max_size', '264M');
+        ini_set('upload_max_filesize', '264M');
+
+        // Validate the uploaded file
+        $request->validate([
+            'folder' => 'required|file|mimes:zip|max:20400', // max size in bytes
+        ]);
+
+        if ($request->hasFile('folder')) {
+
+            $file = $request->file('folder');
+            $zip = new ZipArchive;
+            $extractPath = storage_path('app/public/uploads');
+
+            if ($zip->open($file) === TRUE) {
+                // Create a unique directory to avoid conflicts
+                $uniqueDir = uniqid();
+                $zip->extractTo($extractPath . '/' . $uniqueDir);
+                $zip->close();
+
+                // Recursively process the extracted files
+                $this->processExtractedFiles($extractPath . '/' . $uniqueDir);
+
+                return response()->json(['message' => 'Folder uploaded and processed successfully'], 200);
+            }
+        }
+
+        return response()->json(['message' => 'Failed to upload or unzip folder'], 400);
+    }
+
+    private function processExtractedFiles($directory)
+    {
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($directory),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($files as $file) {
+            if ($file->isFile()) {
+                $filePath = $file->getRealPath();
+                $relativePath = substr($filePath, strlen($directory) + 1);
+                
+                $path = 'assets/' . $relativePath;
+        
+                if (!Str::startsWith($path, config('app.gcs_project_folder'))) {
+                    $path = config('app.gcs_project_folder') . '/' . $path;
+                    // Remove repeated slashes
+                    $path = preg_replace("#/+#", "/", $path);
+                }
+
+                Log::info('Processing file: ' . $path);
+
+                try {
+                    // Save the file using Laravel Storage
+                    $fileContents = file_get_contents($filePath);
+
+                    // Store the file and set its visibility to public
+                    Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->put($path, $fileContents);
+                    Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->setVisibility($path, 'public');
+
+                    // Optional: Log success or perform additional operations
+                    Log::info('File stored successfully: ' . $path);
+                } catch (\Exception $e) {
+                    // Log errors if any occur
+                    Log::error('Failed to store file: ' . $e->getMessage());
+                }
+            }
+        }
+    }
+
+
+    function getFolder($modelRecord)
+    {
+        $folder = $modelRecord ? strtolower(Str::plural(class_basename($modelRecord))) : (request()->files_folder ?? 'uncategorized');
+
+        $gcs_project_folder = null;
+        if (env('FILESYSTEM_DRIVER') == 'gcs') {
+            $gcs_project_folder = config('app.gcs_project_folder') ?? 'file-uploads';
+        }
+
+        if ($gcs_project_folder) {
+            $folder = $gcs_project_folder . '/' . $folder;
+        }
+
+        return $folder;
     }
 
     /**
@@ -26,10 +118,11 @@ class FilesController extends Controller
     public function saveFiles($modelRecord = null, $files = null)
     {
 
-        if (request()->clear == 1)
+        if (request()->clear == 1) {
             return FileRepo::deleteOldTempFiles();
+        }
 
-        $this->files_folder = $modelRecord ? strtolower(Str::plural(class_basename($modelRecord))) : (request()->files_folder ?? 'uncategorized');
+        $this->files_folder = $this->getFolder($modelRecord);
 
         $files = $files ?? (request()->file('files_array') ?: []);
 
@@ -58,8 +151,8 @@ class FilesController extends Controller
                     'path' => $this->files_folder . '/' . $file_name
                 ];
 
-                if (!Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->exists($path)) {
 
+                if (!Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->exists($path)) {
                     $file = $image;
                     $folder = $this->files_folder;
                     $record = FileRepo::uploadFile($modelRecord, $file, $folder, $file_name, 0, true,);
@@ -120,8 +213,6 @@ class FilesController extends Controller
     public function show($path)
     {
         $filePath = $path;
-
-        // dd($path);
 
         if (Storage::disk('local')->exists($filePath)) {
             $file = Storage::disk('local')->get($filePath);

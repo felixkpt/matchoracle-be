@@ -19,9 +19,8 @@ class TeamsController extends Controller
         $this->repo = $teamRepositoryInterface;
     }
 
-    function index($competition_id = null)
+    function index()
     {
-        request()->merge(['competition_id' => $competition_id]);
         return $this->teamRepositoryInterface->index();
     }
 

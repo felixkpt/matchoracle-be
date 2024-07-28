@@ -274,7 +274,9 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
     function teams($id)
     {
-        return app(TeamsController::class)->index($id);
+        request()->merge(['competition_id' => $id]);
+
+        return app(TeamsController::class)->index();
     }
 
     function odds($id)
@@ -319,7 +321,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $dates = array_values(array_unique(array_map(fn ($date) => Carbon::parse($date)->format('Y-m-d'), $dates)));
 
-        $predicted_dates = CompetitionPredictionLog::query()->where('competition_id', $id)->whereIn('date', $dates)->whereRaw('predictable_games = predicted_games')->pluck('date')->toArray();
+        $predicted_dates = CompetitionPredictionLog::query()->where('competition_id', $id)->whereIn('date', $dates)->whereRaw('total_predictable_games = predicted_games')->pluck('date')->toArray();
 
         $dates = array_values(array_diff($dates, $predicted_dates));
 

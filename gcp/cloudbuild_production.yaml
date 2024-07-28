@@ -26,7 +26,7 @@ steps:
       - '-c'
       - |
         /cloudsql/cloud_sql_proxy -instances=${_CLOUD_SQL_INSTANCES} -dir=/cloudsql & sleep 2;
-        php artisan migrate --force --seed
+        php artisan storage:link
   # Deploy container image to Cloud Run
   - id : "Deploying to Cloud Run"
     name: 'gcr.io/cloud-builders/gcloud'

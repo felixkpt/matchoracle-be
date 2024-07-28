@@ -32,7 +32,7 @@ class PredictionsHandlerJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($task)
+    public function __construct($task, $competition_id)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
@@ -47,6 +47,11 @@ class PredictionsHandlerJob implements ShouldQueue
         if ($task) {
             $this->task = $task;
         }
+
+        if ($competition_id) {
+            request()->merge(['competition_id' => $competition_id]);
+        }
+
     }
 
     /**
@@ -69,6 +74,7 @@ class PredictionsHandlerJob implements ShouldQueue
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->when(request()->competition_id, fn ($q) => $q->where('competitions.id', request()->competition_id))
             ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->where(fn ($query) => $query->whereNotNull('competition_last_actions.predictions_last_train'))
             ->select('competitions.*')

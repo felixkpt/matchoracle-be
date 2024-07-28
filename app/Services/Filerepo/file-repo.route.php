@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 $controller = FilesController::class;
 
 // Prefix all generated routes
-$prefix = 'api/dashboard';
+$prefix = 'api/admin';
 
 // Middlewares to be passed before accessing any route
 $middleWares = ['api'];
@@ -18,7 +18,7 @@ Route::middleware(array_filter($middleWares))
 
         $middleWares = [];
         $middleWares[] = 'auth:sanctum';
-        $middleWares[] = 'nestedroutes.auth';
+        $middleWares[] = 'nested_routes_auth';
 
         Route::middleware(array_filter($middleWares))
             ->group(function () use ($controller) {

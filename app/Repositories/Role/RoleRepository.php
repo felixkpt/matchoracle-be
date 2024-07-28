@@ -40,8 +40,9 @@ class RoleRepository implements RoleRepositoryInterface
         $uri =  '/dashboard/settings/role-permissions/roles/';
         $roles = SearchRepo::of($roles, ['name', 'id'])
             ->setModelUri($uri)
-            ->addColumn('Created_by', 'getUser')
             ->fillable(['name', 'guard_name'])
+            ->addColumn('Created_at', 'Created_at')
+            ->addColumn('Created_by', 'Created_by')
             ->paginate();
 
         return response(['results' => $roles]);
@@ -86,7 +87,7 @@ class RoleRepository implements RoleRepositoryInterface
 
         request()->merge(['without_response' => true]);
 
-        $route_permissions = [];
+        $route_permissions = $this->getRoleRoutePermissions($user->default_role_id ?? $this->guestRoleId);
 
         return response(['results' => compact('roles', 'route_permissions', 'direct_permissions')]);
     }
@@ -244,11 +245,11 @@ class RoleRepository implements RoleRepositoryInterface
         // Get JSON from storage
         $filePath = '/system/roles/' . Str::slug($role->name) . '_menu.json';
 
-        if (!Storage::exists($filePath)) {
+        if (!Storage::disk('local')->exists($filePath)) {
             return response()->json(['message' => 'Role ' . $role->name . ' permissions file not found'], 404);
         }
 
-        $jsonContent = file_get_contents(Storage::path($filePath));
+        $jsonContent = file_get_contents(Storage::disk('local')->path($filePath));
 
         return response()->json(['results' => ['roles' => $role, 'menu' => json_decode($jsonContent), 'expanded_root_folders' => [config('nestedroutes.folder'), 'dashboard']]]);
     }

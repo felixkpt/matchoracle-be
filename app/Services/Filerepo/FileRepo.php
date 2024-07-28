@@ -85,15 +85,8 @@ class  FileRepo
      */
     private static function saveToGcs($file, $folder, $filename, $public)
     {
-        $project_folder = config('app.gcs_project_folder');
         $disk = Storage::disk('gcs');
-
-        if ($folder) {
-            $folder = $project_folder . '/' . $folder;
-        } else {
-            $folder = $project_folder;
-        }
-
+       
         // Remove repeated slashes
         $folder = preg_replace("#/+#", "/", $folder);
 
@@ -138,11 +131,11 @@ class  FileRepo
         try {
             $new_path = $folder . "/";
 
-            $pre = ($public) ? '/' : 'app/';
+            $pre = ($public) ? 'public/' : '/';
 
             $new_path = $pre . $new_path;
 
-            File::ensureDirectoryExists(storage_path() . '/app/' . $new_path);
+            File::ensureDirectoryExists(storage_path() . '/app/' . $new_path, 755);
 
             $disk->putFileAs($new_path, $file, $filename);
 
@@ -170,6 +163,7 @@ class  FileRepo
     private static function insertFile($record, $file, $filename, $path, $update_id = null, $status = 1)
     {
         [$model_instance_id, $model_id] = getModelDetails($record);
+        
         Log::alert('FileRepo md:',[ $model_instance_id, $model_id]);
 
         $originalFileName = $file->getClientOriginalName();

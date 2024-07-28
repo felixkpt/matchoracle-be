@@ -11,6 +11,7 @@ use App\Services\Games\Games;
 use App\Services\Validations\Competition\CompetitionValidationInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class CompetitionController extends Controller
 {
@@ -174,8 +175,9 @@ class CompetitionController extends Controller
         return $this->competitionRepositoryInterface->seasons($id);
     }
 
-    function teams($id)
+    function teams($id, $season_id)
     {
+        request()->merge(['season_id' => $season_id]);
         return $this->competitionRepositoryInterface->teams($id);
     }
 

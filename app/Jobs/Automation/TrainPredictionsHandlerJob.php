@@ -30,7 +30,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($task)
+    public function __construct($task, $competition_id)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
@@ -44,6 +44,10 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         // Set the task property
         if ($task) {
             $this->task = $task;
+        }
+
+        if ($competition_id) {
+            request()->merge(['competition_id' => $competition_id]);
         }
     }
 
@@ -67,6 +71,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->when(request()->competition_id, fn ($q) => $q->where('competitions.id', request()->competition_id))
             ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
             ->limit(1000)->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
@@ -82,7 +87,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
 
             $this->doCompetitionRunLogging();
 
-            $command = '/usr/bin/python3 ~/Documents/Dev/python/matchoracle-predictions-v2/main.py train --competition=' . $competition->id.' --ignore-trained';
+            $command = '/usr/bin/python3 ~/Documents/Dev/python/matchoracle-predictions-v2/main.py train --competition=' . $competition->id . ' --ignore-trained';
 
             exec($command, $output, $returnCode);
 
@@ -99,13 +104,11 @@ class TrainPredictionsHandlerJob implements ShouldQueue
 
                 echo "Python script ran successfully!\n";
                 $data['results']['saved_updated'] = 1;
-
             } else {
                 $should_sleep_for_competitions = false;
 
                 echo "Error: Python script failed to run. Check the output for details.\n";
                 $data['results']['saved_updated'] = 0;
-                
             }
 
             $data['message'] = '';
