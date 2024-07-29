@@ -118,10 +118,13 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
             )->first();
 
             $predicted_games = $this->model->where($commonModelQuery)->count();
-            $predicted_games = $predicted_games > $record->predictable_games ? $record->predictable_games : $predicted_games;
-
+            
+            $predicted_games = $predicted_games > $record->predictable_games ? intval($record->predictable_games) : $predicted_games;
+            
             $unpredicted_games = $record->predictable_games - $predicted_games;
             $unpredicted_games = $unpredicted_games < 0 ? 0 : $unpredicted_games;
+            Log::info('predicted_games::-->',[$predicted_games]);
+            Log::info('unpredicted_games::-->',[$unpredicted_games]);
 
             CompetitionPredictionLog::updateOrCreate(
                 [

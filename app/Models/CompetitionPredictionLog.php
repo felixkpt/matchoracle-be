@@ -16,7 +16,7 @@ class CompetitionPredictionLog extends Model
         'date',
 
         'total_games',
-        'predictable_games',
+        'total_predictable_games',
         'predicted_games',
         'unpredicted_games',
     ];

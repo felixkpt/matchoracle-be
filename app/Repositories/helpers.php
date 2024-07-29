@@ -2,8 +2,10 @@
 
 use App\Models\Continent;
 use App\Models\Game;
+use App\Models\GamePredictionType;
 use App\Models\GameScoreStatus;
 use App\Models\GameSource;
+use App\Models\Prediction;
 use App\Models\Status;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -317,7 +319,12 @@ if (!function_exists('getUriFromUrl')) {
 if (!function_exists('current_prediction_type')) {
     function current_prediction_type()
     {
-        return request()->prediction_type_id ?? request()->current_prediction_type ?? 1109;
+        $prediction_type_id = request()->prediction_type_id ?? request()->current_prediction_type;
+        if (!$prediction_type_id) {
+            $prediction_type_id = GamePredictionType::find(1109)->id ?? GamePredictionType::first()->id ?? 0;
+        }
+
+        return $prediction_type_id;
     }
 }
 

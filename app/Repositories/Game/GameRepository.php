@@ -197,7 +197,7 @@ class GameRepository implements GameRepositoryInterface
                 'date' => $date,
 
                 'total_games' => $total_games,
-                'predictable_games' => $predictable_games,
+                'total_predictable_games' => $predictable_games,
             ]
         );
     }

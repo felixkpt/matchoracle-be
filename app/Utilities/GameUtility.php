@@ -216,11 +216,20 @@ class GameUtility
             }
         }
 
+        $uri = '/dashboard/matches/';
         $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name'], $search_builder)
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'ID', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . '#' . $q->id . '</a>')
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Competition', fn ($q) => '<a class="autotable-navigate hover-underline text-decoration-underline link-unstyled" data-id="' . $q->competition->id . '" href="/dashboard/competitions/view/' . $q->competition->id . '">' . '<img class="symbol-image-sm bg-body-secondary border" src="' . ($q->competition->logo ? asset($q->competition->logo) : asset('assets/images/competitions/default_logo.png')) . '" /><span class="ms-1">' . $q->competition->name . '</span></a>')
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Game', fn ($q) => '<a class="dropdown-item autotable-navigate hover-underline text-decoration-underline" data-id="' . $q->id . '" href="' . $uri . 'view/' . $q->id . '">' . $q->homeTeam->name . ' vs ' . $q->awayTeam->name . '</a>', 'cs')
+            ->setModelUri($uri)
             ->addColumn('Winner', fn ($q) => $q->score ? GameComposer::winningSide($q) : null)
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Competition', fn ($q) => $q->competition->name)
+
+            ->addColumn('winningSideHT', fn ($q) => $q->score ? GameComposer::winningSideHT($q) : null)
+            ->addColumn('hasResultsHT', fn ($q) => $q->score ? GameComposer::hasResultsHT($q) : null)
+
+            ->addColumn('winningSide', fn ($q) => $q->score ? GameComposer::winningSide($q) : null)
+            ->addColumn('hasResults', fn ($q) => $q->score ? GameComposer::hasResults($q) : null)
+            ->addColumn('BTS', fn ($q) => $q->score ? GameComposer::bts($q, true) : null)
+            ->addColumn('Goals', fn ($q) => $q->score ? GameComposer::goals($q, true) : null)
+
             ->addColumn('is_future', fn ($q) => Carbon::parse($q->utc_date)->isFuture())
             ->addColumn('full_time', fn ($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
             ->addColumn('half_time', fn ($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
@@ -232,43 +241,22 @@ class GameUtility
             ->addColumn('gg_votes', $ggVotes)
             ->addColumn('ng_votes', $ngVotes)
 
-            ->addColumnWhen(request()->break_preds, 'FT_HDA', fn ($q) => $this->formatFTHDAProba(clone $q))
-            ->addColumnWhen(request()->break_preds, 'FT_HDA_PICK', fn ($q) => $this->formatFTHDAPick(clone $q))
-            ->addColumnWhen(request()->break_preds, 'HT_HDA', fn ($q) => $this->formatHTHDAProba(clone $q))
-            ->addColumnWhen(request()->break_preds, 'HT_HDA_PICK', fn ($q) => $this->formatHTHDAPick(clone $q))
-            ->addColumnWhen(request()->break_preds, 'BTS', fn ($q) => $this->formatBTS(clone $q))
-            ->addColumnWhen(request()->break_preds, 'Over25', fn ($q) => $this->formatGoals(clone $q))
-            ->addColumnWhen(request()->break_preds, 'CS', fn ($q) => $this->formatCS(clone $q))
-            ->addColumnWhen(request()->break_preds, 'Halftime', fn ($q) => $this->formatHTScores(clone $q))
-            ->addColumnWhen(request()->break_preds, 'Fulltime', fn ($q) => $this->formatFTScores(clone $q))
-            ->addColumnWhen(request()->break_preds, 'UTC_date', fn ($q) => '<span class="text-nowrap">' . Carbon::parse($q->utc_date)->format('y-m-d') . '</span>')
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'prediction_strategy', fn ($q) => $this->prediction_strategy(clone $q))
 
             ->addColumnWhen(!request()->is_predictor, 'current_user_votes', fn ($q) => $this->currentUserVotes($q))
             ->addColumnWhen(!request()->is_predictor, 'Created_by', 'getUser')
-            // ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'formatted_prediction', fn ($q) => $this->formatted_prediction(clone $q))
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Created_at', 'Created_at')
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Last_fetch', fn ($q) => Carbon::parse($q->last_fetch)->diffForHumans())
-            // ->addColumnWhen((!request()->is_predictor && !request()->without_response),
-            //     'Predicted',
-            //     function ($q) {
-            //         if (request()->prediction_mode_id == 2) {
-            //             return 'N/A';
-            //         }
-            //         return $q->prediction ? Carbon::parse($q->prediction->created_at)->diffForHumans() : 'N/A';
-            //     }
-            // )
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Status', 'getStatus')
-
-            // ->addActionColumnWhen((!request()->is_predictor && !request()->without_response),
-            //     'action',
-            //     $uri,
-            //     [
-            //         'view'  => 'native',
-            //         'edit'  => 'modal',
-            //         'hide'  => null
-            //     ]
-            // )
-            ->htmls(['Status', 'ID', 'Competition', 'Game', 'HT_HDA', 'HT_HDA_PICK', 'FT_HDA', 'FT_HDA_PICK', 'BTS', 'Over25', 'CS', 'Halftime', 'Fulltime', 'UTC_date']);
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response),
+                'Predicted',
+                function ($q) {
+                    if (request()->prediction_mode_id == 2) {
+                        return 'N/A';
+                    }
+                    return $q->prediction ? Carbon::parse($q->prediction->created_at)->diffForHumans() : 'N/A';
+                }
+            )
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Status', 'getStatus');
 
         if (!request()->order_by)
             $results = $results->orderby('utc_date', request()->type == 'upcoming' ? 'asc' : 'desc');
