@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // Seasons commands
-        $schedule->command('app:seasons-handler')->everyFifteenMinutes();
+        $schedule->command('app:seasons-handler')->everyThreeHours();
 
         // Standing commands
         $schedule->command('app:standings-handler --task=historical_results')->everyFifteenMinutes();
@@ -35,7 +35,6 @@ class Kernel extends ConsoleKernel
         // Statistics commands
         $schedule->command('app:competition-statistics')->everySixHours();
         $schedule->command('app:competition-prediction-statistics')->everySixHours();
-        $schedule->command('app:betting-tips-statistics')->everySixHours();
 
         // Predictions commands
         $schedule->command('app:predictions-handler')->everyThreeHours();

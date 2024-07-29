@@ -1,0 +1,1 @@
+php artisan app:match-handler --task=historical_results

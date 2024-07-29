@@ -1,0 +1,1 @@
+app:standings-handler --task=historical_results

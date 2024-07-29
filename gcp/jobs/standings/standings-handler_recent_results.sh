@@ -1,0 +1,1 @@
+pp:standings-handler --task=recent_results

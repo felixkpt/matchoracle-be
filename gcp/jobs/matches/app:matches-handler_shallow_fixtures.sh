@@ -1,0 +1,1 @@
+php artisan app:matches-handler --task=shallow_fixtures

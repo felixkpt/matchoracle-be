@@ -1,0 +1,1 @@
+php artisan app:seasons-handler
