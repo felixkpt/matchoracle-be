@@ -8,12 +8,12 @@ type Props = {
     setModelDetails: React.Dispatch<React.SetStateAction<any>>
 }
 
-const OddsEnabled = ({ columns, setModelDetails }: Props) => {
+const OddsEnabled = ({ columns,actions, setModelDetails }: Props) => {
 
     return (
         <div>
-            <AutoTable columns={columns} actions={actions} baseUri={`dashboard/competitions?is_odds_enabled=1`} search={true} getModelDetails={setModelDetails} tableId={'OddsEnabledCompetitionsTable'} customModalId="competitionModal" />
-        </div>
+            <AutoTable columns={columns} actions={actions} baseUri={`dashboard/competitions?is_odds_enabled=1`} search={true} getModelDetails={setModelDetails} tableId={'allCompetitionsTable'} customModalId="competitionModal" />
+            </div>
     )
 }
 
