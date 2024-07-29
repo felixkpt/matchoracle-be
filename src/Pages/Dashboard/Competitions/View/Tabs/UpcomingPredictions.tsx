@@ -4,8 +4,8 @@ import GeneralModal from "@/components/Modals/GeneralModal"
 import AutoTable from "@/components/Autos/AutoTable"
 import { useEffect, useState } from "react"
 import { appendFromToDates } from "@/utils/helpers"
-import { predictionsColumns } from '@/utils/constants';
 import Str from "@/utils/Str"
+import { predictionsColumns } from "@/components/TableColumns"
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 

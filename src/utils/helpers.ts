@@ -84,18 +84,26 @@ export const appendFromToDates = (useDate: boolean, fromToDates: Array<Date | st
     return ''
 
 }
-
-export const teamLogo = (logo: string | null | undefined) => {
-    return logo ? baseURL(logo) : '/images/default_team_logo.png'
+export const renderCountryLogo = (logo: string | null | undefined) => {
+    return logo ? logo : '/images/default_country_logo.png'
 }
 
-export const competitionLogo = (logo: string | null | undefined) => {
-    return logo ? baseURL(logo) : '/images/default_team_logo.png'
+export const renderCompetitionLogo = (logo: string | null | undefined) => {
+    return logo ? logo : '/images/default_competition_logo.png'
 }
 
-export const countryLogo = (logo: string | null | undefined) => {
-    return logo ? baseURL(logo) : '/images/default_team_logo.png'
+export const renderTeamLogo = (logo: string | null | undefined) => {
+    return logo ? logo : '/images/default_team_logo.png'
 }
+
+export const renderUserLogo = (logo: string | null | undefined) => {
+    return logo ? logo : '/images/default_user_logo.png'
+}
+
+export const renderDefaultImage = (logo: string | null | undefined) => {
+    return logo ? logo : '/images/default_image.png'
+}
+
 
 export const folderHasRoutes = (child: RouteCollectionInterface): boolean => {
 

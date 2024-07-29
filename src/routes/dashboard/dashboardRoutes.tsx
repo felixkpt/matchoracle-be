@@ -6,6 +6,7 @@ import countries from './countries';
 import competitions from './competitions';
 import seasons from './seasons';
 import predictions from './predictions';
+import uploads from './uploads';
 import matches from './matches';
 import teams from './teams';
 import odds from './odds';
@@ -52,9 +53,14 @@ const dashboardRoutes = [
   {
     path: 'odds',
     children: odds,
-  }, {
+  },
+  {
     path: 'settings',
     children: settings,
+  },
+  {
+    path: 'uploads',
+    children: uploads,
   },
   {
     path: '*',

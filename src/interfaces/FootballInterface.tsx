@@ -222,7 +222,7 @@ export interface GameInterface {
     user_bts_vote: string | boolean
 
     prediction: PredictionInterface,
-    formatted_prediction: PredictionInterface,
+    prediction_strategy: PredictionInterface,
     CS: string;
     odds: OddInterface[]
     Fulltime: HTMLElement

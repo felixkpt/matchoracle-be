@@ -3,7 +3,7 @@ import CompetitionSubHeader from "../Inlcudes/CompetitionSubHeader"
 import AutoTable from "@/components/Autos/AutoTable"
 import { useEffect, useState } from "react"
 import { appendFromToDates } from "@/utils/helpers"
-import { oddsColumns } from '@/utils/constants';
+import { oddsColumns } from "@/components/TableColumns"
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 

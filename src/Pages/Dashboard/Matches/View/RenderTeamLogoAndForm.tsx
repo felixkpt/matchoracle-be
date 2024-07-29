@@ -1,6 +1,6 @@
 import LastXResultsIcons from "@/components/Teams/LastXResultsIcons";
 import { TeamInterface } from "@/interfaces/FootballInterface";
-import { teamLogo } from "@/utils/helpers";
+import { renderTeamLogo } from "@/utils/helpers";
 import { NavLink } from "react-router-dom";
 
 type TeamInfoProps = {
@@ -13,7 +13,7 @@ const RenderTeamLogoAndForm = ({ team, recentResults }: TeamInfoProps) => {
     return (
         <>
             <NavLink to={`/dashboard/teams/view/${team.id}`}>
-                <img className="symbol-image-lg" src={teamLogo(team.logo)} alt="" />
+                <img className="symbol-image-lg" src={renderTeamLogo(team.logo)} alt="" />
             </NavLink>
             <LastXResultsIcons results={recentResults} size="sm" />
         </>

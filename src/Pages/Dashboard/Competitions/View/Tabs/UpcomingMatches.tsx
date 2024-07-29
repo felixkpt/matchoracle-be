@@ -5,6 +5,7 @@ import GeneralModal from '@/components/Modals/GeneralModal';
 import { useEffect, useState } from 'react';
 import { appendFromToDates } from '@/utils/helpers';
 import Str from '@/utils/Str';
+import { renderMatchViewlink } from '@/components/HtmlRenderers';
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
@@ -16,7 +17,10 @@ const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) =
 
 
   const columns = [
-    { key: 'ID' },
+    {
+      key: 'id',
+      renderCell: renderMatchViewlink
+    },
     { key: 'home_team.name' },
     { key: 'away_team.name' },
     { label: 'half_time', key: 'half_time' },

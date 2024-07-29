@@ -4,7 +4,6 @@ import { debounce } from 'lodash';
 import Pagination from '../Pagination';
 import { useEffect, useState } from 'react';
 import { Icon } from '@iconify/react';
-import { useNavigate } from 'react-router-dom';
 import { AutoTableInterface, ColumnInterface } from '../../interfaces/UncategorizedInterfaces';
 import AutoTableHeader from './AutoTableHeader';
 import Loader from '../Loader';
@@ -16,9 +15,9 @@ import Str from '../../utils/Str';
 import useAutoAction from '@/hooks/autos/useAutoAction';
 import AutoAction from './AutoActions';
 import RecordStatus from './RecordStatus';
-import TimeAgo from 'timeago-react';
+import { renderImage, renderTableId, renderTime } from '../HtmlRenderers';
 
-const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetails, listSources, tableId, modalSize, customModalId, perPage }: AutoTableInterface) => {
+const AutoTable = ({ baseUri, search, columns: initCols, actions, exclude, getModelDetails, listSources, tableId, modalSize, customModalId, perPage }: AutoTableInterface) => {
     const localTableId = tableId || 'AutoTable'
 
     const {
@@ -54,7 +53,6 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
     const [currentPageDataLength, setCurrentPageDataLength] = useState<number>(-1);
 
     const [modelDetails, setModelDetails] = useState({})
-    const [htmls, setHtmls] = useState<string[]>([])
     const [query, setQuery] = useState<string>('')
 
     const { userCan } = usePermissions()
@@ -91,7 +89,6 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                 const rest = { ...others, tableId: localTableId, query }
 
                 setModelDetails(rest)
-                setHtmls(rest.htmls)
                 if (getModelDetails) {
                     getModelDetails(rest)
                 }
@@ -111,26 +108,24 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
         setReload((curr) => curr + 1)
     }
 
-    const navigate = useNavigate()
-
-    const { handleNavigation, handleView, handleModalAction } = useAutoAction({ modelDetails, tableId, tableData, navigate, listSources, exclude, modalSize, customModalId })
+    const { handleView, handleEdit, handleUpdateStatus } = useAutoAction({ modelDetails, tableData, actions, listSources, exclude, modalSize, customModalId })
 
     useEffect(() => {
         if (currentPageDataLength) {
 
-            const autotableNavigateElements = document.querySelectorAll('.autotable .autotable-navigate');
-            autotableNavigateElements.forEach((element) => {
-                (element as HTMLElement).addEventListener('click', handleNavigation);
-            });
-
-            const autotableViewElements = document.querySelectorAll('.autotable .autotable-modal-view');
+            const autotableViewElements = document.querySelectorAll('.autotable .autotable-view');
             autotableViewElements.forEach((element) => {
                 (element as HTMLElement).addEventListener('click', handleView);
             });
 
-            const autotableModalActionElements = document.querySelectorAll('.autotable [class*="autotable-modal-"]');
-            autotableModalActionElements.forEach((element) => {
-                (element as HTMLElement).addEventListener('click', handleModalAction);
+            const autotableEditActionElements = document.querySelectorAll('.autotable .autotable-edit');
+            autotableEditActionElements.forEach((element) => {
+                (element as HTMLElement).addEventListener('click', handleEdit);
+            });
+
+            const autotableUpdateActionElements = document.querySelectorAll('.autotable .autotable-update-status');
+            autotableUpdateActionElements.forEach((element) => {
+                (element as HTMLElement).addEventListener('click', handleUpdateStatus);
             });
 
             return () => {
@@ -139,18 +134,17 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                     (element as HTMLElement).removeEventListener('click', handleView);
                 });
 
-                autotableNavigateElements.forEach((element) => {
-                    (element as HTMLElement).removeEventListener('click', handleNavigation);
+                autotableEditActionElements.forEach((element) => {
+                    (element as HTMLElement).removeEventListener('click', handleEdit);
                 });
 
-                autotableModalActionElements.forEach((element) => {
-                    (element as HTMLElement).removeEventListener('click', handleModalAction);
+                autotableUpdateActionElements.forEach((element) => {
+                    (element as HTMLElement).removeEventListener('click', handleUpdateStatus);
                 });
             };
         }
 
-    }, [navigate, currentPageDataLength, handleOrderBy]);
-
+    }, [currentPageDataLength, handleOrderBy]);
 
     function getDynamicValue(row: any, path: string) {
 
@@ -196,27 +190,32 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
 
     }
 
+    const renderCellContent = (column: ColumnInterface, row: any) => {
+        const value = row[column.key]
 
-    const renderCellContent = (column: ColumnInterface, row: any, htmls: any) => {
-        if (column.key === 'created_at') {
-            return <TimeAgo datetime={row[column.key]} />;
+        if (column?.renderCell) {
+            return column.renderCell ? column.renderCell(value, row) : value;
+        } else if (column.key === 'id') {
+            return renderTableId(value, moduleUri)
+        } else if (column.key === 'created_at') {
+            return renderTime(value)
         } else if (column.key === 'updated_at') {
-            return <TimeAgo datetime={row[column.key]} />;
+            return renderTime(value)
         } else if (column.key === 'action') {
             return <AutoAction row={row} moduleUri={moduleUri} />;
+        } else if (['image', 'logo', 'flag'].includes(column.key)) {
+            return renderImage(value)
         } else if (column.key === 'Status') {
             return <RecordStatus row={row} statuses={tableData?.statuses} />;
-        } else if (htmls.includes(column.key) || column.callback) {
-            return column.callback ? column.callback(row[column.key], row) : row[column.key];
         } else {
             return String(getDynamicValue(row, column.key));
         }
     };
 
-    const renderColumns = (columns: ColumnInterface[], row: any, htmls: any) => {
+    const renderColumns = (columns: ColumnInterface[], row: any) => {
         return columns.map((column) => (
             <td key={column.key} scope="col" className="px-6 py-3">
-                {renderCellContent(column, row, htmls)}
+                {renderCellContent(column, row)}
             </td>
         ));
     };
@@ -347,7 +346,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, exclude, getModelDetail
                                         </div>
                                     </td>
                                     {/* Render all columns */}
-                                    {columns && renderColumns(columns, row, htmls)}
+                                    {columns && renderColumns(columns, row)}
                                 </tr>
                             ))
                                 :

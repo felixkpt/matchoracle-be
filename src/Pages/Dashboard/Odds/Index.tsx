@@ -3,8 +3,8 @@ import AutoTable from '@/components/Autos/AutoTable';
 import useListSources from '@/hooks/list-sources/useListSources';
 import useRouteParamValidation from '@/hooks/useRouteParamValidation';
 import MatchesPageHeader from '@/components/Matches/MatchesPageHeader';
-import { oddsColumns } from '@/utils/constants';
 import useFromToDates from '@/hooks/useFromToDates';
+import { oddsColumns } from '@/components/TableColumns';
 
 const Index = () => {
 

@@ -2,7 +2,7 @@ import TeamMatchesCard from '@/components/Teams/TeamMatchesCard'
 import useAxios from '@/hooks/useAxios'
 import { GameInterface } from '@/interfaces/FootballInterface'
 import Composer from '@/utils/Composer'
-import { teamLogo } from '@/utils/helpers'
+import { renderTeamLogo } from '@/utils/helpers'
 import { useEffect, useState } from 'react'
 
 type Props = {
@@ -58,7 +58,7 @@ const LastMatches = ({ game, homeTeam, awayTeam, currentground, perPage, setHome
             <div className="card mb-5">
                 <div className="card-body">
                     <div className="row gap-4 gap-md-0">
-                        <div className="col-12"><h5 className='rounded text-center d-flex justify-content-between'><span className='d-flex gap-1 align-items-center'><img className='symbol-image-xm' src={teamLogo(homeTeam.logo)} alt="" />{Composer.team(homeTeam, 'TLA')}</span><span>{currentground ? 'Home/Away' : 'Past matches'}</span><span className='d-flex gap-1 align-items-center'><img className='symbol-image-xm' src={teamLogo(awayTeam.logo)} alt="" />{Composer.team(awayTeam, 'TLA')}</span></h5></div>
+                        <div className="col-12"><h5 className='rounded text-center d-flex justify-content-between'><span className='d-flex gap-1 align-items-center'><img className='symbol-image-xm' src={renderTeamLogo(homeTeam.logo)} alt="" />{Composer.team(homeTeam, 'TLA')}</span><span>{currentground ? 'Home/Away' : 'Past matches'}</span><span className='d-flex gap-1 align-items-center'><img className='symbol-image-xm' src={renderTeamLogo(awayTeam.logo)} alt="" />{Composer.team(awayTeam, 'TLA')}</span></h5></div>
                         {/* Home Card */}
                         <div className='col-md-6'>
                             <TeamMatchesCard team={homeTeam} teamGames={homeTeamGames} setTeamRecentResults={setHomeTeamRecentResults} />

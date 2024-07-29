@@ -1,7 +1,7 @@
 import GeneralModal from "@/components/Modals/GeneralModal";
 import PageHeader from "@/components/PageHeader";
 import useListSources from "@/hooks/list-sources/useListSources";
-import { ColumnInterface, DataInterface, ModelDetailsInterface } from "@/interfaces/UncategorizedInterfaces";
+import { ActionsType, ColumnInterface, DataInterface, ModelDetailsInterface } from "@/interfaces/UncategorizedInterfaces";
 import { subscribe, unsubscribe } from "@/utils/events";
 import { useEffect, useState } from "react";
 import AddSource from "@/components/AddSource";
@@ -23,7 +23,7 @@ const Index = () => {
     const [actionUrl, setActionUrl] = useState<string>('/dashboard/competitions')
 
     const columns:ColumnInterface[] = [
-        { key: 'Logo' },
+        { key: 'logo' },
         { label: 'Name', key: 'name' },
         { key: 'country.name' },
         { key: 'code' },
@@ -145,14 +145,20 @@ const Index = () => {
 
     }, [])
 
+    const actions: ActionsType = {
+        view: {
+            actionMode: 'navigation'
+        },
+    }
+
     const tabs = [
         {
             name: "All",
-            component: <All columns={columns} setModelDetails={setModelDetails} />,
+            component: <All columns={columns} actions={actions} setModelDetails={setModelDetails} />,
         },
         {
             name: "OddsEnabled",
-            component: <OddsEnabled columns={columns} setModelDetails={setModelDetails} />,
+            component: <OddsEnabled columns={columns} actions={actions} setModelDetails={setModelDetails} />,
         },
     ]
 

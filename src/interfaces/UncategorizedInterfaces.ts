@@ -65,7 +65,7 @@ export interface ColumnInterface {
     is_html?: boolean
     isSorted?: boolean
     sortDirection?: 'desc' | 'asc' | ''
-    callback?: (key: string, record: any) => void
+    renderCell?: (key: string, record: any) => void
 }
 
 interface ActionInterface {
@@ -76,12 +76,20 @@ interface ActionInterface {
     delete?: boolean;
 }
 
+export type KnownActionsTypes = 'view' | 'edit' | 'statusUpdate'
+
+export type ActionsType = {
+    [key in KnownActionsTypes]?: {
+        actionMode: 'navigation' | 'modal'
+    }
+}
 export interface AutoTableInterface {
     baseUri: string;
     listUri?: string;
     singleUri?: string;
     search?: boolean;
     columns: ColumnInterface[];
+    actions?: ActionsType
     exclude?: string[];
     action?: ActionInterface;
     reload?: number;

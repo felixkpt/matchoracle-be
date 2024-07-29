@@ -1,7 +1,7 @@
 import { StandingInterface, StandingTableInterface } from '@/interfaces/FootballInterface'
 import Composer from '@/utils/Composer'
 import Str from '@/utils/Str'
-import { teamLogo } from '@/utils/helpers'
+import { renderTeamLogo } from '@/utils/helpers'
 import { NavLink } from 'react-router-dom'
 import TimeAgo from 'timeago-react'
 import Loader from '../Loader'
@@ -67,7 +67,7 @@ const StandingsTable = ({ standings, minimal, homeTeamId, awayTeamId }: Props) =
                             </div>
                             <div className={`team-name ${minimal ? 'col-6 col-md-4 col-lg-6' : 'col-2'} text-nowrap text-truncate`} title={Composer.team(teamStanding.team)}>
                               <span className='d-flex gap-1 align-items-center'>
-                                <img className='symbol-image-xm' src={teamLogo(teamStanding.team.logo)} alt="" />
+                                <img className='symbol-image-xm' src={renderTeamLogo(teamStanding.team.logo)} alt="" />
                                 <span className='text-truncate'>{Composer.team(teamStanding.team)}</span>
                               </span>
                             </div>

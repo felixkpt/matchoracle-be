@@ -69,23 +69,24 @@ const OverUnderVotesSection = ({ game: initialGame }: Props) => {
     }, [isFuture, voted, game])
 
     useEffect(() => {
+        setTimeout(() => {
+            if (isFuture || voted) {
+                const transitionedElement = document.querySelector('.over-under-transistion');
+                transitionedElement && transitionedElement.addEventListener('transitionend', handleTransitionEnd);
 
-        if (isFuture || voted) {
-            const transitionedElement = document.querySelector('.over-under-transistion');
-            transitionedElement && transitionedElement.addEventListener('transitionend', handleTransitionEnd);
+                return () => {
+                    transitionedElement && transitionedElement.removeEventListener('transitionend', handleTransitionEnd);
+                };
 
-            return () => {
-                transitionedElement && transitionedElement.removeEventListener('transitionend', handleTransitionEnd);
-            };
+            }
 
-        }
-
+        }, 100);
     }, [isFuture, voted])
 
     const handleTransitionEnd = () => {
         setTimeout(() => {
             setShowText(true);
-        }, 1000);
+        }, 700);
     };
 
     return (

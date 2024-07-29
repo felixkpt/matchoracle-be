@@ -40,14 +40,14 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
           const { ft, ht, average_score } = data;
 
           const ft_counts = ft.counts;
-          setFTStats({ ...ft, counts: ft_counts, average_score });
+          setFTStats({ ...ft, counts: ft_counts });
 
           const ht_counts = ht.counts;
-          setHTStats({ ...ht, counts: ht_counts, average_score });
+          setHTStats({ ...ht, counts: ht_counts });
         }
       });
     }
-  }, [baseUri, get]);
+  }, [baseUri]);
 
   // Function to calculate totals
   const calculateTotals = (stats: Record<string, PredictionCategoryInterface>) => {
@@ -101,15 +101,15 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
                   <thead className="thead-dark">
                     <tr>
                       <th>Category</th>
-                      <th>Counts</th>
+                      <th>Occurency</th>
                       <th>Predictions</th>
                       <th>True Predictions</th>
                       <th>True Percentage</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {FTStats.ft && renderNestedCategories(FTStats.ft)}
-                    {FTStats.ft && renderTotals(FTStats.ft)}
+                    {FTStats && renderNestedCategories(FTStats)}
+                    {FTStats && renderTotals(FTStats)}
                   </tbody>
                 </table>
               </div>
@@ -119,15 +119,15 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
                   <thead className="thead-dark">
                     <tr>
                       <th>Category</th>
-                      <th>Counts</th>
+                      <th>Occurency</th>
                       <th>Predictions</th>
                       <th>True Predictions</th>
                       <th>True Percentage</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {HTStats?.ht && renderNestedCategories(HTStats.ht)}
-                    {HTStats?.ht && renderTotals(HTStats.ht)}
+                    {HTStats && renderNestedCategories(HTStats)}
+                    {HTStats && renderTotals(HTStats)}
                   </tbody>
                 </table>
               </div>

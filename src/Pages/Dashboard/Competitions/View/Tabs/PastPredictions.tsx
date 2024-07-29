@@ -4,11 +4,12 @@ import GeneralModal from "@/components/Modals/GeneralModal"
 import AutoTable from "@/components/Autos/AutoTable"
 import { useEffect, useState } from "react"
 import { appendFromToDates } from "@/utils/helpers"
-import { predictionModes, predictionsColumns } from '@/utils/constants';
+import { predictionModes } from '@/utils/constants';
 import Str from "@/utils/Str"
 import PredictionStatsTable from "@/components/Predictions/PredictionStatsTable"
 import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces"
 import PredictionsModeSwitcher from "@/components/Predictions/PredictionsModeSwitcher"
+import { predictionsColumns } from "@/components/TableColumns"
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 

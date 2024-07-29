@@ -87,6 +87,22 @@ class GameComposer {
         return null
     }
 
+    static hasHTResults(game: any) {
+
+        const { score } = game
+        if (!score?.winner) return null
+
+        if (score.winner === 'DRAW') return true
+
+        if (score.winner === 'HOME_TEAM') {
+            return true
+        } else if (score.winner === 'AWAY_TEAM') {
+            return true
+        }
+
+        return null
+    }
+    
     static hasResults(game: any) {
 
         const { score } = game

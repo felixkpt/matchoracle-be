@@ -2,7 +2,7 @@ import Error404 from '@/Pages/ErrorPages/Error404';
 import AutoTable from '@/components/Autos/AutoTable';
 import useListSources from '@/hooks/list-sources/useListSources';
 import useRouteParamValidation from '@/hooks/useRouteParamValidation';
-import { predictionModes, predictionsColumns } from '@/utils/constants';
+import { predictionModes } from '@/utils/constants';
 import MatchesPageHeader from '@/components/Matches/MatchesPageHeader';
 import useFromToDates from '@/hooks/useFromToDates';
 import PredictionStatsTable from '@/components/Predictions/PredictionStatsTable';
@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces';
 import { PredictionModeInterface } from '@/interfaces/FootballInterface';
 import PredictionsModeSwitcher from '@/components/Predictions/PredictionsModeSwitcher';
+import { predictionsColumns } from '@/components/TableColumns';
 
 const Index = () => {
 

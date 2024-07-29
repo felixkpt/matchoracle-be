@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react';
 import { appendFromToDates } from '@/utils/helpers';
 import Str from '@/utils/Str';
 import CompetitionSubHeader from '../Inlcudes/CompetitionSubHeader';
+import { renderMatchViewlink } from '@/components/HtmlRenderers';
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
+
 
 const PastMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
 
@@ -16,7 +18,10 @@ const PastMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
   const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>([undefined, undefined]);
 
   const columns = [
-    { key: 'ID' },
+    {
+      key: 'id',
+      renderCell: renderMatchViewlink
+    },
     { key: 'home_team.name' },
     { key: 'away_team.name' },
     { label: 'half_time', key: 'half_time' },
@@ -49,7 +54,7 @@ const PastMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
         competition &&
         <div>
           <div className='shadow-sm'>
-          <CompetitionSubHeader actionTitle="Fetch Results" actionButton="fetchPastMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+            <CompetitionSubHeader actionTitle="Fetch Results" actionButton="fetchPastMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
           </div>
 
           {baseUri &&

@@ -70,22 +70,24 @@ const BTSVotesSection = ({ game: initialGame }: Props) => {
 
     useEffect(() => {
 
-        if (isFuture || voted) {
-            const transitionedElement = document.querySelector('.bts-transistion');
-            transitionedElement && transitionedElement.addEventListener('transitionend', handleTransitionEnd);
+        setTimeout(() => {
+            if (isFuture || voted) {
+                const transitionedElement = document.querySelector('.bts-transistion');
+                transitionedElement && transitionedElement.addEventListener('transitionend', handleTransitionEnd);
 
-            return () => {
-                transitionedElement && transitionedElement.removeEventListener('transitionend', handleTransitionEnd);
-            };
+                return () => {
+                    transitionedElement && transitionedElement.removeEventListener('transitionend', handleTransitionEnd);
+                };
 
-        }
+            }
+        }, 100);
 
     }, [isFuture, voted])
 
     const handleTransitionEnd = () => {
         setTimeout(() => {
             setShowText(true);
-        }, 1000);
+        }, 700);
     };
 
     return (

@@ -7,7 +7,7 @@ import { GameInterface } from '@/interfaces/FootballInterface'
 import FormatDate from '@/utils/FormatDate'
 import FormSummary from './FormSummary'
 import { useEffect, useState } from 'react'
-import { teamLogo } from '@/utils/helpers'
+import { renderTeamLogo } from '@/utils/helpers'
 
 type Props = {
     team: TeamInterface
@@ -97,8 +97,8 @@ const TeamMatchesCard = ({ team, teamGames, setTeamRecentResults }: Props) => {
                                             <div className='row py-1'>
                                                 <div className="col-3 d-flex flex-column align-items-center border-end border-2 my-1 fs-small"><span>{FormatDate.DDMMYY(game.utc_date)}</span><span>{FormatDate.HHMM(game.utc_date)}</span></div>
                                                 <div className="col-5 d-flex flex-column">
-                                                    <div className='col text-nowrap d-flex align-items-center gap-1'><span><img className='symbol-image-xm' src={teamLogo(home_team.logo)} alt="" /></span><span className={`text-nowrap text-truncate ${winningSide === 'h' ? 'fw-medium' : ''}`}>{Composer.team(home_team, 'short')}</span></div>
-                                                    <div className='col text-nowrap d-flex align-items-center gap-1'><span><img className='symbol-image-xm' src={teamLogo(away_team.logo)} alt="" /></span><span className={`text-nowrap text-truncate ${winningSide === 'a' ? 'fw-medium' : ''}`}>{Composer.team(away_team, 'short')}</span></div>
+                                                    <div className='col text-nowrap d-flex align-items-center gap-1'><span><img className='symbol-image-xm' src={renderTeamLogo(home_team.logo)} alt="" /></span><span className={`text-nowrap text-truncate ${winningSide === 'h' ? 'fw-medium' : ''}`}>{Composer.team(home_team, 'short')}</span></div>
+                                                    <div className='col text-nowrap d-flex align-items-center gap-1'><span><img className='symbol-image-xm' src={renderTeamLogo(away_team.logo)} alt="" /></span><span className={`text-nowrap text-truncate ${winningSide === 'a' ? 'fw-medium' : ''}`}>{Composer.team(away_team, 'short')}</span></div>
                                                 </div>
                                                 <div className='col-2 d-flex flex-column align-items-center border-end border-2 my-1'>
                                                     <div className={`col-5 text-nowrap ${winningSide === 'h' ? 'fw-medium' : ''}`}>{Composer.results(game.score, 'ft', 'h')}</div>

@@ -25,7 +25,7 @@ const Index: React.FC<Props> = ({ record, selectedSeason }) => {
     const [actionUrl, setActionUrl] = useState<string>('/dashboard/teams')
 
     const columns = [
-        { key: 'Logo' },
+        { key: 'logo' },
         { label: 'Name', key: 'name' },
         { label: 'Short Name', key: 'short_name' },
         { label: 'TLA', key: 'tla' },

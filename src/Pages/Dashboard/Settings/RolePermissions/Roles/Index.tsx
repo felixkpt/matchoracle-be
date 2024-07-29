@@ -1,6 +1,7 @@
 import Str from '@/utils/Str';
 import AutoPage from '@/components/Autos/AutoPage';
 import useListSources from '@/hooks/list-sources/useListSources';
+import { ActionsType } from '@/interfaces/UncategorizedInterfaces';
 
 const Index = () => {
   // begin component common config
@@ -38,9 +39,16 @@ const Index = () => {
   ]
   // end component common config
 
+  const actions: ActionsType = {
+    view: {
+      actionMode: 'navigation'
+    },
+
+  }
+
   const { rolePermissions: listSources } = useListSources();
 
-  return <AutoPage pluralName={pluralName} singularName={singularName} uri={uri} columns={columns} componentId={componentId} search={search} listSources={listSources} />;
+  return <AutoPage pluralName={pluralName} singularName={singularName} uri={uri} columns={columns} actions={actions} componentId={componentId} search={search} listSources={listSources} />;
 };
 
 export default Index;

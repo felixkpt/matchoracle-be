@@ -17,9 +17,9 @@ const AutoAction = ({ row, moduleUri }: Props) => {
                 <i className="icon icon-list2 font-20"></i>
             </button>
             <ul className="dropdown-menu">
-                {showView && <li><a className="dropdown-item autotable-modal-view" data-id={row.id} href={`${moduleUri}view/${row.id}`}>View</a></li>}
-                {showEdit && <li><a className="dropdown-item autotable-modal-edit" data-id={row.id} href={`${moduleUri}view/${row.id}`}>Edit</a></li>}
-                {showUpdateStatus && <li><a className="dropdown-item autotable-modal-update-status" data-id={row.id} href={`${moduleUri}view/${row.id}/update-status`}>Update Status</a></li>}
+                {showView && <li><a className="dropdown-item autotable-view" data-id={row.id} href={`${moduleUri}view/${row.id}`}>View</a></li>}
+                {showEdit && <li><a className="dropdown-item autotable-edit" data-id={row.id} href={`${moduleUri}view/${row.id}`}>Edit</a></li>}
+                {showUpdateStatus && <li><a className="dropdown-item autotable-update-status" data-id={row.id} href={`${moduleUri}view/${row.id}/update-status`}>Update Status</a></li>}
             </ul>
         </div>
     );

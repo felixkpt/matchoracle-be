@@ -1,10 +1,11 @@
-import { ModalSizeType } from '@/interfaces/UncategorizedInterfaces';
+import { ActionsType, ModalSizeType } from '@/interfaces/UncategorizedInterfaces';
 import { publish } from '@/utils/events';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   modelDetails: any
   tableData: any
-  navigate: any
+  actions: ActionsType
   listSources: any
   exclude?: string[]
   modalSize?: ModalSizeType
@@ -12,38 +13,9 @@ type Props = {
   isSingle?: boolean
 }
 
-const useAutoAction = ({ modelDetails, tableData, navigate, listSources, exclude, modalSize, customModalId, isSingle }: Props) => {
-  
-  const handleModalAction = (event: any) => {
-    event.preventDefault();
+const useAutoAction = ({ modelDetails, tableData, actions, listSources, exclude, modalSize, customModalId, isSingle }: Props) => {
 
-    const target = event.target instanceof HTMLElement ? event.target : null;
-
-    if (!target) return;
-
-    if (target.classList.contains('autotable-modal-edit')) {
-      handleEdit(event);
-    } else if (target.classList.contains('autotable-modal-update-status')) {
-      handleStatusUpdate(event);
-    } else {
-      const id = target.getAttribute('data-id');
-      const action = target.getAttribute('data-action') || target.getAttribute('href');
-
-      if (!id || !action) return;
-
-      const record = isSingle ? tableData : tableData.data.find((item: any) => item.id == id);
-
-      publish('prepareModalAction', {
-        modelDetails,
-        record,
-        action,
-        listSources,
-        modalSize,
-        customModalId,
-        classList: Array.from(target.classList || [])
-      });
-    }
-  };
+  const navigate = useNavigate()
 
   const handleView = (event: any) => {
     event.preventDefault();
@@ -53,11 +25,14 @@ const useAutoAction = ({ modelDetails, tableData, navigate, listSources, exclude
     if (!target) return;
 
     const id = target.getAttribute('data-id');
-    const action = target.getAttribute('href');
+    const action = target.getAttribute('data-action') || target.getAttribute('href');
 
     if (!id || !action) return;
 
+    if (actions?.view?.actionMode === 'navigation') return navigate(action)
+
     const record = isSingle ? tableData : tableData.data.find((item: any) => item.id == id);
+
 
     publish('prepareView', {
       modelDetails,
@@ -81,7 +56,10 @@ const useAutoAction = ({ modelDetails, tableData, navigate, listSources, exclude
 
     if (!id || !action) return;
 
+    if (actions?.edit?.actionMode === 'navigation') return navigate(action)
+
     const record = isSingle ? tableData : tableData.data.find((item: any) => item.id == id);
+
 
     publish('prepareEdit', {
       modelDetails,
@@ -93,7 +71,7 @@ const useAutoAction = ({ modelDetails, tableData, navigate, listSources, exclude
     });
   };
 
-  const handleStatusUpdate = (event: any) => {
+  const handleUpdateStatus = (event: any) => {
     event.preventDefault();
 
     const target = event.target instanceof HTMLElement ? event.target : null;
@@ -105,6 +83,8 @@ const useAutoAction = ({ modelDetails, tableData, navigate, listSources, exclude
 
     if (!id || !action) return;
 
+    if (actions?.statusUpdate?.actionMode === 'navigation') return navigate(action)
+
     const record = isSingle ? tableData : tableData.data.find((item: any) => item.id == id);
 
     publish('prepareStatusUpdate', {
@@ -115,29 +95,10 @@ const useAutoAction = ({ modelDetails, tableData, navigate, listSources, exclude
     });
   };
 
-  const handleNavigation = (event: any) => {
-    const mouseEvent = event;
-
-    if (mouseEvent.ctrlKey) return;
-
-    event.preventDefault();
-
-    const target = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
-
-    if (!target) return;
-
-    const href = target.getAttribute('href');
-    if (href) {
-      navigate(href);
-    }
-  };
-
   return {
-    handleModalAction,
     handleView,
     handleEdit,
-    handleStatusUpdate,
-    handleNavigation
+    handleUpdateStatus,
   };
 };
 

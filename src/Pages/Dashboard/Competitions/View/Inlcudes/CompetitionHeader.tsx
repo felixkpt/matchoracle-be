@@ -1,6 +1,6 @@
 import { CompetitionInterface, SeasonInterface } from "@/interfaces/FootballInterface"
 import Str from "@/utils/Str"
-import { competitionLogo, countryLogo } from "@/utils/helpers"
+import { renderCompetitionLogo, renderCountryLogo } from "@/utils/helpers"
 import { NavLink } from "react-router-dom"
 import Select from 'react-select';
 
@@ -30,14 +30,14 @@ const CompetitionHeader = ({ competition, currentTab, seasons, selectedSeason, s
         <div className='header-title shadow-sm p-2 rounded mb-4 row no-select'>
             <div className="col-12">
                 <div className="d-flex gap-3">
-                    <img className="compe-logo" src={competitionLogo(competition.logo)} alt="" />
+                    <img className="compe-logo" src={renderCompetitionLogo(competition.logo)} alt="" />
                     <div className="d-flex align-items-center gap-4">
                         <h5 className="row align-items-center gap-2">
                             <span><span>{competition.name}</span><span>{currentTab ? ' - ' + currentTab : ''}</span></span>
                             <div className="d-flex gap-1">
                                 <small className="d-flex align-items-center gap-2">
                                     <NavLink to={`/dashboard/countries/view/${competition.country.id}`} className="d-flex align-items-center btn-link">
-                                        <img className="symbol-image-sm me-1" src={countryLogo(competition?.country.flag)} alt="" />{competition.country.name}
+                                        <img className="symbol-image-sm me-1" src={renderCountryLogo(competition?.country.flag)} alt="" />{competition.country.name}
                                     </NavLink>
                                 </small>
                                 <div>

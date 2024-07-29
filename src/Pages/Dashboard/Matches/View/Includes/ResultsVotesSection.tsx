@@ -74,6 +74,7 @@ const ResultsVotesSection = ({ game: initialGame }: Props) => {
 
     useEffect(() => {
 
+       setTimeout(() => {
         if (isFuture || voted) {
             const transitionedElement = document.querySelector('.winner-transistion');
             transitionedElement && transitionedElement.addEventListener('transitionend', handleTransitionEnd);
@@ -83,13 +84,14 @@ const ResultsVotesSection = ({ game: initialGame }: Props) => {
             }
 
         }
+       }, 100);
 
     }, [isFuture, voted])
 
     const handleTransitionEnd = () => {
         setTimeout(() => {
             setShowText(true);
-        }, 1000);
+        }, 700);
     };
 
     return (

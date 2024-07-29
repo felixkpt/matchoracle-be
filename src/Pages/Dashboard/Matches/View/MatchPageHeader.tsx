@@ -3,7 +3,7 @@ import Composer from "@/utils/Composer";
 import FormatDate from "@/utils/FormatDate";
 import { NavLink } from "react-router-dom";
 import RenderTeamLogoAndForm from "./RenderTeamLogoAndForm";
-import { competitionLogo } from "@/utils/helpers";
+import { renderCompetitionLogo } from "@/utils/helpers";
 import TimeAgo from "timeago-react";
 
 type Props = {
@@ -31,7 +31,7 @@ const MatchPageHeader = ({ game, homeTeam, awayTeam, homeTeamRecentResults, away
             <div className="p-1">
               {
                 game.competition.logo &&
-                <img className="compe-logo" src={competitionLogo(game.competition.logo)} alt="" />
+                <img className="compe-logo" src={renderCompetitionLogo(game.competition.logo)} alt="" />
               }
             </div>
             <div className="d-flex align-items-center justify-content-center">

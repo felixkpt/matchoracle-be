@@ -9,6 +9,7 @@ import useAxios from "@/hooks/useAxios"
 import TeamHeader from "./Includes/TeamHeader"
 import Loader from "@/components/Loader"
 import useAutoPostDone from "@/hooks/autos/useAutoPostDone"
+import Predictions from "./Tabs/Predictions"
 
 const Index = () => {
 
@@ -54,6 +55,10 @@ const Index = () => {
     {
       name: "Matches",
       component: <Matches record={record} />,
+    },
+    {
+      name: "Predictions",
+      component: <Predictions record={record} modelDetails={modelDetails} />,
     },
     {
       name: "Details",

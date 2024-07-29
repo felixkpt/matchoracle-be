@@ -17,7 +17,7 @@ const Index = () => {
     const { fromToDates, setFromToDates, baseUri, previousUrl } = useFromToDates(initialBaseUri);
 
     const columns = [
-        { key: 'ID' },
+        { key: 'id' },
         { key: 'Competition' },
         { key: 'home_team.name' },
         { key: 'away_team.name' },

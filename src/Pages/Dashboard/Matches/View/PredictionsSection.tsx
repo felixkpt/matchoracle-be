@@ -3,6 +3,7 @@ import { GameInterface } from "@/interfaces/FootballInterface"
 import Composer from "@/utils/Composer"
 import OverUnderVotesSection from "./Includes/OverUnderVotesSection"
 import BTSVotesSection from "./Includes/BTSVotesSection"
+import { renderCS } from "@/components/HtmlRenderers"
 
 type Props = {
     game: GameInterface
@@ -14,7 +15,7 @@ export function __dangerousHtml(html: HTMLElement | string) {
 }
 
 const PredictionsSection = ({ game }: Props) => {
-    const { formatted_prediction } = game
+    const { prediction_strategy } = game
 
     return (
         <div>
@@ -23,24 +24,24 @@ const PredictionsSection = ({ game }: Props) => {
                 <div className="card-body">
                     <div className="row">
                         <div className="col-12 col-md-12 col-lg-4">
-                            {__dangerousHtml(` Win-Draw-Win: ${game.CS}`)}
+                            <span>Win-Draw-Win: {renderCS('', game)}</span>
                             {
-                                formatted_prediction ?
-                                    <FormSummary data1={formatted_prediction.ft_home_win_proba} data2={formatted_prediction.ft_draw_proba} data3={formatted_prediction.ft_away_win_proba} totals={100} data1ColorClass="bg-primary" label1=" (1)" label2=" (X)" label3=" (2)" />
+                                prediction_strategy ?
+                                    <FormSummary data1={prediction_strategy.ft_home_win_proba} data2={prediction_strategy.ft_draw_proba} data3={prediction_strategy.ft_away_win_proba} totals={100} data1ColorClass="bg-primary" label1=" (1)" label2=" (X)" label3=" (2)" />
                                     : ' N/A'
                             }
                         </div>
                         <div className="col-12 col-md-12 col-lg-4">
                             <div className="border-2 py-1 text-nowrap">OVER/UNDER 25:</div>
                             {
-                                formatted_prediction ? <FormSummary data1={formatted_prediction.over25_proba} data2={formatted_prediction.under25_proba} totals={100} data1ColorClass="bg-primary" label1=" (OVER)" label2=" (UNDER)" /> : ' N/A'
+                                prediction_strategy ? <FormSummary data1={prediction_strategy.over25_proba} data2={prediction_strategy.under25_proba} totals={100} data1ColorClass="bg-primary" label1=" (OVER)" label2=" (UNDER)" /> : ' N/A'
                             }
                         </div>
                         <div className="col-12 col-md-12 col-lg-4">
                             <div className="border-2 py-1 text-nowrap">BTS:</div>
                             {
-                                formatted_prediction ?
-                                    <FormSummary data1={formatted_prediction.gg_proba} data2={formatted_prediction.ng_proba} totals={100} data1ColorClass="bg-primary" label1=" (YES)" label2=" (NO)" />
+                                prediction_strategy ?
+                                    <FormSummary data1={prediction_strategy.gg_proba} data2={prediction_strategy.ng_proba} totals={100} data1ColorClass="bg-primary" label1=" (YES)" label2=" (NO)" />
                                     : ' N/A'
                             }
                         </div>

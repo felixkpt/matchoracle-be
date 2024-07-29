@@ -1,5 +1,5 @@
 import { CountryInterface } from '@/interfaces/FootballInterface'
-import { countryLogo } from '@/utils/helpers'
+import { renderCountryLogo } from '@/utils/helpers'
 import { NavLink } from 'react-router-dom'
 import CompetitionsList from './CompetitionsList'
 import { Icon } from '@iconify/react/dist/iconify.js'
@@ -16,7 +16,7 @@ const CountriesList = ({ countries }: Props) => {
                     <h2 className="accordion-header" id="headingTwo">
                         <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={`#collapse${country.id}`} aria-expanded="false" aria-controls={`collapse${country.id}`}>
                             <NavLink to={`/dashboard/countries/view/${country.id}`} onClick={(e) => e.preventDefault()} className="text-decoration-none text-dark">
-                                <img src={`${countryLogo(country.flag)}`} className="rounded-circle me-2 bg-body-secondary border" style={{ width: "28px", height: "28px" }} alt="" /> <span>{country.name}</span>
+                                <img src={`${renderCountryLogo(country.flag)}`} className="rounded-circle me-2 bg-body-secondary border" style={{ width: "28px", height: "28px" }} alt="" /> <span>{country.name}</span>
                             </NavLink>
                         </button>
                     </h2>

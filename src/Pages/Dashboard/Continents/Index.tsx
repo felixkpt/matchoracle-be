@@ -11,7 +11,7 @@ const Index = () => {
     const columns = [
         {
             label: 'Flag',
-            key: 'Flag',
+            key: 'flag',
         },
         {
             label: 'Name',
