@@ -4,7 +4,7 @@ import Details from "./Tabs/Details"
 import Matches from "./Tabs/Matches"
 import AutoTabs from "@/components/Autos/AutoTabs"
 import { TeamInterface } from "@/interfaces/FootballInterface"
-import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces"
+import { ModelDetailsInterface } from "@/interfaces/UncategorizedInterfaces"
 import useAxios from "@/hooks/useAxios"
 import TeamHeader from "./Includes/TeamHeader"
 import Loader from "@/components/Loader"
@@ -17,7 +17,7 @@ const Index = () => {
   const { get, loading } = useAxios()
 
   const [record, setRecord] = useState<TeamInterface>()
-  const [modelDetails, setModelDetails] = useState<CollectionItemsInterface>()
+  const [modelDetails, setModelDetails] = useState<ModelDetailsInterface>()
   const [currentTab, setCurrentTabName] = useState<string | undefined>()
 
   const { event } = useAutoPostDone()
@@ -58,7 +58,7 @@ const Index = () => {
     },
     {
       name: "Predictions",
-      component: <Predictions record={record} modelDetails={modelDetails} />,
+      component: <Predictions record={record} />,
     },
     {
       name: "Details",

@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 type Props = {
   modelDetails: any
   tableData: any
-  actions: ActionsType
-  listSources: any
+  actions?: ActionsType
+  listSources?: any
   exclude?: string[]
   modalSize?: ModalSizeType
   customModalId?: string

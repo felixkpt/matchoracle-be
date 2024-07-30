@@ -24,7 +24,7 @@ const PredictionsSection = ({ game }: Props) => {
                 <div className="card-body">
                     <div className="row">
                         <div className="col-12 col-md-12 col-lg-4">
-                            <span>Win-Draw-Win: {renderCS('', game)}</span>
+                            <div className="border-2 py-1 text-nowrap d-flex gap-2">Win-Draw-Win: {renderCS('', game)}</div>
                             {
                                 prediction_strategy ?
                                     <FormSummary data1={prediction_strategy.ft_home_win_proba} data2={prediction_strategy.ft_draw_proba} data3={prediction_strategy.ft_away_win_proba} totals={100} data1ColorClass="bg-primary" label1=" (1)" label2=" (X)" label3=" (2)" />

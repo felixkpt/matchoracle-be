@@ -6,6 +6,7 @@ import { appendFromToDates } from '@/utils/helpers';
 import Str from '@/utils/Str';
 import CompetitionSubHeader from '../Inlcudes/CompetitionSubHeader';
 import { renderMatchViewlink } from '@/components/HtmlRenderers';
+import { ActionsType } from '@/interfaces/UncategorizedInterfaces';
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
@@ -16,6 +17,21 @@ const PastMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
 
   const [useDate, setUseDates] = useState(false);
   const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>([undefined, undefined]);
+
+  const [baseUri, setBaseUri] = useState('')
+
+  useEffect(() => {
+
+    if (competition) {
+      let uri = `dashboard/competitions/view/${competition.id}/matches?type=past`
+      if (useDate) {
+        uri = uri + `${appendFromToDates(useDate, fromToDates)}`
+      } else {
+        uri = uri + `&season_id=${selectedSeason ? selectedSeason?.id : ''}`
+      }
+      setBaseUri(uri)
+    }
+  }, [competition, fromToDates])
 
   const columns = [
     {
@@ -33,20 +49,12 @@ const PastMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
     { label: 'Action', key: 'action' },
   ]
 
-  const [baseUri, setBaseUri] = useState('')
+  const actions: ActionsType = {
+    view: {
+      actionMode: 'navigation'
+    },
+  }
 
-  useEffect(() => {
-
-    if (competition) {
-      let uri = `dashboard/competitions/view/${competition.id}/matches?type=past`
-      if (useDate) {
-        uri = uri + `${appendFromToDates(useDate, fromToDates)}`
-      } else {
-        uri = uri + `&season_id=${selectedSeason ? selectedSeason?.id : ''}`
-      }
-      setBaseUri(uri)
-    }
-  }, [competition, fromToDates])
 
   return (
     <div>
@@ -58,7 +66,7 @@ const PastMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
           </div>
 
           {baseUri &&
-            <AutoTable key={baseUri} columns={columns} baseUri={baseUri} search={true} tableId={'competitionPastMatchesTable'} customModalId="teamModal" />
+            <AutoTable key={baseUri} columns={columns} actions={actions} baseUri={baseUri} search={true} tableId={'competitionPastMatchesTable'} customModalId="teamModal" />
           }
 
           <GeneralModal title={`Fetch Results form`} actionUrl={`dashboard/competitions/view/${competition.id}/fetch-matches`} size={'modal-lg'} id={`fetchPastMatches`}>

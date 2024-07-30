@@ -27,7 +27,7 @@ const Predictions = ({ record }: Props) => {
     useEffect(() => {
 
         if (team) {
-            const uri = `dashboard/teams/view/${team.id}/predictions?break_preds=1`
+            const uri = `dashboard/teams/view/${team.id}/predictions?include_preds=1`
             
             setBaseUri(uri)
         }

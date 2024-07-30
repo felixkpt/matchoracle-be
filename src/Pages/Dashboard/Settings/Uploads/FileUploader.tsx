@@ -1,23 +1,23 @@
 import JSZip from 'jszip';
-import useAxios from '@/hooks/useAxios';
 import { baseURL } from '@/utils/helpers';
 import { useState } from 'react';
 import axios from 'axios';
 
 function FileUploader() {
-  const { post } = useAxios();
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<File[]>([]);
 
-  const handleFilesChange = (event) => {
+  const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
-    const filesArray = Array.from(fileList);
-    setFiles(filesArray);
+    if (fileList) {
+      const filesArray = Array.from(fileList);
+      setFiles(filesArray);
+    }
   };
 
   const uploadFiles = async () => {
     const zip = new JSZip();
     files.forEach(file => {
-      zip.file(file.webkitRelativePath, file);
+      zip.file(file.webkitRelativePath || file.name, file);
     });
 
     const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -29,7 +29,13 @@ function FileUploader() {
 
   return (
     <div>
-      <input type="file" webkitdirectory="true" multiple onChange={handleFilesChange} />
+      <input
+        type="file"
+        multiple
+        onChange={handleFilesChange}
+        // @ts-expect-error unhandled
+        webkitdirectory="true"
+      />
       <button onClick={uploadFiles}>Upload</button>
     </div>
   );

@@ -14,12 +14,15 @@ import 'react-toastify/dist/ReactToastify.css';
 import "flatpickr/dist/themes/material_green.css";
 
 import { RoleRoutePermissionsAndMenuProvider } from "./contexts/RoleRoutePermissionsAndMenuContext";
+import { SelectedItemsProvider } from "./contexts/SelectedItemsContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <ErrorBoundary fallback="There was an error.">
     <AuthProvider>
       <RoleRoutePermissionsAndMenuProvider>
-        <RouterProvider router={router} />
+        <SelectedItemsProvider>
+          <RouterProvider router={router} />
+        </SelectedItemsProvider>
       </RoleRoutePermissionsAndMenuProvider>
     </AuthProvider>
   </ErrorBoundary>

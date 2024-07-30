@@ -100,11 +100,12 @@ export const renderFT1X2Pick = (_: string, row: any) => {
   let className = 'bg-light-blue text-dark';
 
   const pred = row.prediction_strategy;
+
   let str: string = '-';
   if (pred && pred.ft_home_win_proba) {
     str = pred.ft_hda_pick == 0 ? '1' : (pred.ft_hda_pick == 1 ? 'X' : '2');
-    const has_res = row.hasResultsHT;
-    const res = row.winningSideHT;
+    const has_res = row.hasResultsFT;
+    const res = row.winningSideFT;
 
     if (has_res) {
       if (pred.ft_hda_pick == res) {
@@ -152,8 +153,8 @@ export const renderOver25 = (_: string, row: any) => {
 
   if (pred) {
     str = pred.over_under25_pick == 1 ? 'OV' : 'UN';
-    const has_res = row.hasResults;
-    const res = row.Goals;
+    const has_res = row.hasResultsFT;
+    const res = row.goalsCount;
 
     if (has_res) {
       if (pred.over_under25_pick == 1 && res > 2) {
@@ -203,7 +204,7 @@ export const renderCS = (_: string, row: any) => {
   }
 
   return (
-    <div className={`border-2 py-1 text-nowrap ${className} d-inline-block text-center results-icon-md`}>{str}</div>
+    <div className={`border-2 py-0 text-nowrap ${className}`}>{str}</div>
   );
 }
 

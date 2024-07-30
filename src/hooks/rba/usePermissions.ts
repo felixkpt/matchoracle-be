@@ -20,6 +20,7 @@ const usePermissions = () => {
     const userCan = (permission: string, method: string) => {
 
         permission = permission.replace(/\/+/g, '/')
+        permission = permission.split(/[?#]/)[0];
 
         if (method) {
             permission = permission.replace(/\./g, '/')

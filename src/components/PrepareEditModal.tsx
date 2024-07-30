@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { publish, subscribe, unsubscribe } from '@/utils/events'
 import AutoModal from './Autos/AutoModal'
 import { CollectionItemsInterface, ListSourceInterface } from '@/interfaces/UncategorizedInterfaces'
-import Str from '@/utils/Str'
 
 const PrepareEditModal = () => {
 

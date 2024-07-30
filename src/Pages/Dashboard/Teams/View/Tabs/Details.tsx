@@ -1,7 +1,7 @@
 import GeneralModal from '@/components/Modals/GeneralModal'
 import SimpleTable from '@/components/Autos/SimpleTable'
 import useListSources from '@/hooks/list-sources/useListSources'
-import { CollectionItemsInterface } from '@/interfaces/UncategorizedInterfaces'
+import { ModelDetailsInterface } from '@/interfaces/UncategorizedInterfaces'
 import { subscribe, unsubscribe } from '@/utils/events'
 import { useEffect } from 'react'
 import { TeamInterface } from '@/interfaces/FootballInterface'
@@ -9,7 +9,7 @@ import AddSource from '@/components/AddSource'
 
 type Props = {
     record: TeamInterface | undefined
-    modelDetails: CollectionItemsInterface | undefined
+    modelDetails: ModelDetailsInterface | undefined
 }
 
 const Details = ({ record, modelDetails }: Props) => {

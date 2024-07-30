@@ -1,7 +1,6 @@
 import Str from "@/utils/Str";
-import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { CollectionItemsInterface, ListSourceInterface } from "@/interfaces/UncategorizedInterfaces";
+import { ListSourceInterface, ModelDetailsInterface } from "@/interfaces/UncategorizedInterfaces";
 import useAutoAction from "@/hooks/autos/useAutoAction";
 
 type Props = {
@@ -10,7 +9,8 @@ type Props = {
     only?: string[]
     htmls?: string[]
     listSources?: { [key: string]: () => Promise<ListSourceInterface[]> }
-    modelDetails?: CollectionItemsInterface
+    modelDetails?: ModelDetailsInterface
+    actions?: any
 
 }
 
@@ -20,7 +20,7 @@ function __dangerousHtml(html: HTMLElement) {
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
-function SimpleTable({ record, exclude, only, htmls, listSources, modelDetails }: Props) {
+function SimpleTable({ record, exclude, only, htmls, listSources, modelDetails, actions }: Props) {
 
     const isNative = !!modelDetails
 
@@ -45,44 +45,42 @@ function SimpleTable({ record, exclude, only, htmls, listSources, modelDetails }
         }, {});
     }
 
-    const navigate = useNavigate()
-
     const tableData = record
-    const { handleNavigation, handleView, handleModalAction } = useAutoAction({ modelDetails, tableData, navigate, listSources, exclude })
+    const { handleView, handleEdit, handleUpdateStatus } = useAutoAction({ modelDetails, tableData, actions, listSources, exclude })
 
     useEffect(() => {
 
-        const autotableNavigateElements = document.querySelectorAll('.autotable .autotable-navigate');
-        autotableNavigateElements.forEach((element) => {
-            element.addEventListener('click', handleNavigation);
-        });
-
-        const autotableViewElements = document.querySelectorAll('.autotable .autotable-modal-view');
+        const autotableViewElements = document.querySelectorAll('.autotable .autotable-view');
         autotableViewElements.forEach((element) => {
-            element.addEventListener('click', handleView);
+            (element as HTMLElement).addEventListener('click', handleView);
         });
 
-        const autotableModalActionElements = document.querySelectorAll('.autotable [class*="autotable-modal-"]');
-        autotableModalActionElements.forEach((element) => {
-            element.addEventListener('click', handleModalAction);
+        const autotableEditActionElements = document.querySelectorAll('.autotable .autotable-edit');
+        autotableEditActionElements.forEach((element) => {
+            (element as HTMLElement).addEventListener('click', handleEdit);
+        });
+
+        const autotableUpdateActionElements = document.querySelectorAll('.autotable .autotable-update-status');
+        autotableUpdateActionElements.forEach((element) => {
+            (element as HTMLElement).addEventListener('click', handleUpdateStatus);
         });
 
         return () => {
             // Clean up event listeners when the component unmounts
             autotableViewElements.forEach((element) => {
-                element.removeEventListener('click', handleView);
+                (element as HTMLElement).removeEventListener('click', handleView);
             });
 
-            autotableNavigateElements.forEach((element) => {
-                element.removeEventListener('click', handleNavigation);
+            autotableEditActionElements.forEach((element) => {
+                (element as HTMLElement).removeEventListener('click', handleEdit);
             });
 
-            autotableModalActionElements.forEach((element) => {
-                element.removeEventListener('click', handleModalAction);
+            autotableUpdateActionElements.forEach((element) => {
+                (element as HTMLElement).removeEventListener('click', handleUpdateStatus);
             });
         };
 
-    }, [navigate, record]);
+    }, [record]);
 
     return (
         <div className="autotable">

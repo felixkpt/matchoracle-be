@@ -239,27 +239,25 @@ export interface PredictionCategoryInterface {
     preds_true_percentage: number;
 }
 
-export interface PredictionStatisticsInterface {
+export interface PredictionSummaryType {
     counts: number;
-    ft: {
-        home_wins: PredictionCategoryInterface;
-        draws: PredictionCategoryInterface;
-        away_wins: PredictionCategoryInterface;
-        gg: PredictionCategoryInterface;
-        ng: PredictionCategoryInterface;
-        over15: PredictionCategoryInterface;
-        under15: PredictionCategoryInterface;
-        over25: PredictionCategoryInterface;
-        under25: PredictionCategoryInterface;
-        over35: PredictionCategoryInterface;
-        under35: PredictionCategoryInterface;
-    };
-    ht: {
-        home_wins: PredictionCategoryInterface;
-        draws: PredictionCategoryInterface;
-        away_wins: PredictionCategoryInterface;
-    };
     average_score: number;
+    home_wins: PredictionCategoryInterface;
+    draws: PredictionCategoryInterface;
+    away_wins: PredictionCategoryInterface;
+    gg: PredictionCategoryInterface;
+    ng: PredictionCategoryInterface;
+    over15: PredictionCategoryInterface;
+    under15: PredictionCategoryInterface;
+    over25: PredictionCategoryInterface;
+    under25: PredictionCategoryInterface;
+    over35: PredictionCategoryInterface;
+    under35: PredictionCategoryInterface;
+}
+
+export interface PredictionStatisticsInterface {
+    ft: PredictionSummaryType;
+    ht: PredictionSummaryType;
 }
 
 export interface GameSourceInterface {

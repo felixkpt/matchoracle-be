@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react';
 const useStatusesUpdateEffect = (
     tableData: CollectionItemsInterface | null,
     tableId: string | undefined,
+    moduleUri: string | undefined,
 ) => {
+
+    console.log('useStatusesUpdateEffect:',moduleUri)
 
     const [currentPageDataLength, setCurrentPageDataLength] = useState<number>(-1);
     const [statuses, setStatuses] = useState<DataInterface[]>([]);

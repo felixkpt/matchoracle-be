@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { appendFromToDates } from "@/utils/helpers"
 import Str from "@/utils/Str"
 import { predictionsColumns } from "@/components/TableColumns"
+import { ActionsType } from "@/interfaces/UncategorizedInterfaces"
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
@@ -20,7 +21,7 @@ const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason 
     useEffect(() => {
 
         if (competition) {
-            let uri = `dashboard/competitions/view/${competition.id}/predictions?prediction_mode_id=1&break_preds=1&type=upcoming`
+            let uri = `dashboard/competitions/view/${competition.id}/predictions?prediction_mode_id=1&include_preds=1&type=upcoming`
             if (useDate) {
                 uri = uri + `${appendFromToDates(useDate, fromToDates)}`
             }
@@ -28,6 +29,12 @@ const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason 
         }
 
     }, [competition, fromToDates])
+
+    const actions: ActionsType = {
+        view: {
+            actionMode: 'navigation'
+        },
+    }
 
     return (
         <div>
@@ -38,7 +45,7 @@ const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason 
                         <CompetitionSubHeader actionTitle="Do Predictions" actionButton="doPredictions" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
                     </div>
                     {baseUri &&
-                        <AutoTable key={baseUri} columns={predictionsColumns} baseUri={baseUri} search={true} tableId={'competitionUpcomingPredictionsTable'} customModalId="teamModal" />
+                        <AutoTable key={baseUri} columns={predictionsColumns} actions={actions} baseUri={baseUri} search={true} tableId={'competitionUpcomingPredictionsTable'} customModalId="teamModal" />
                     }
                     <GeneralModal title={`Predictions form`} actionUrl={`dashboard/competitions/view/${competition.id}/predict`} size={'modal-lg'} id={`doPredictions`}>
                         <div className="form-group mb-3">

@@ -7,6 +7,7 @@ import useFromToDates from '@/hooks/useFromToDates';
 import { useEffect, useState } from 'react';
 import { PredictionModeInterface } from '@/interfaces/FootballInterface';
 import { predictionModes } from '@/utils/constants';
+import { ActionsType } from '@/interfaces/UncategorizedInterfaces';
 
 const Index = () => {
 
@@ -15,6 +16,14 @@ const Index = () => {
     const initialBaseUri = `/dashboard/matches/`
     const errorsState = useRouteParamValidation();
     const { fromToDates, setFromToDates, baseUri, previousUrl } = useFromToDates(initialBaseUri);
+
+    const [predictionMode, setPredictionMode] = useState<PredictionModeInterface | null>();
+
+    useEffect(() => {
+        if (predictionModes) {
+            setPredictionMode(predictionModes[0])
+        }
+    }, [predictionModes])
 
     const columns = [
         { key: 'id' },
@@ -29,13 +38,11 @@ const Index = () => {
         { label: 'Action', key: 'action' },
     ]
 
-    const [predictionMode, setPredictionMode] = useState<PredictionModeInterface | null>();
-
-    useEffect(() => {
-        if (predictionModes) {
-            setPredictionMode(predictionModes[0])
-        }
-    }, [predictionModes])
+    const actions: ActionsType = {
+        view: {
+            actionMode: 'navigation'
+        },
+    }
 
     return (
         <div>
@@ -53,6 +60,7 @@ const Index = () => {
                                 <AutoTable
                                     baseUri={`${(baseUri || initialBaseUri)}?matches_mode_id=${predictionMode ? predictionMode.id : 0}`}
                                     columns={columns}
+                                    actions={actions}
                                     search={true}
                                     listSources={listSources}
                                     perPage={100}

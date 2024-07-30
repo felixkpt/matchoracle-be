@@ -36,6 +36,8 @@ const AutoTable = ({ baseUri, search, columns: initCols, actions, exclude, getMo
         fullQueryString,
     } = useAutoTableEffect(baseUri, localTableId, { perPage });
 
+    const [moduleUri, setModuleUri] = useState<(string)>('');
+
     const {
         visibleItemsCounts,
         checkedAllItems,
@@ -45,9 +47,8 @@ const AutoTable = ({ baseUri, search, columns: initCols, actions, exclude, getMo
         setPaginatorChangeKey,
         handleChecked,
 
-    } = useStatusesUpdateEffect(tableData, localTableId);
+    } = useStatusesUpdateEffect(tableData, localTableId, moduleUri);
 
-    const [moduleUri, setModuleUri] = useState<(string)>('');
 
     const [tableDataLength, setTableDataLength] = useState(tableData?.total || 0)
     const [currentPageDataLength, setCurrentPageDataLength] = useState<number>(-1);
@@ -220,7 +221,7 @@ const AutoTable = ({ baseUri, search, columns: initCols, actions, exclude, getMo
         ));
     };
 
-    const canUpdateStatuses = userCan(`${baseUri}/update-statuses`, `patch`)
+    const canUpdateStatuses = userCan(`${baseUri.split(/[?#]/)[0]}/update-statuses`, `patch`)
 
     return (
         <div id={localTableId} className={`autotable p-1 rounded my-3 relative shadow-md sm:rounded-lg`}>

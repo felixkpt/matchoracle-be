@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { appendFromToDates } from '@/utils/helpers';
 import Str from '@/utils/Str';
 import { renderMatchViewlink } from '@/components/HtmlRenderers';
+import { ActionsType } from '@/interfaces/UncategorizedInterfaces';
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
@@ -15,6 +16,18 @@ const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) =
   const [useDate, setUseDates] = useState(false);
   const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>([undefined, undefined]);
 
+  const [baseUri, setBaseUri] = useState('')
+
+  useEffect(() => {
+
+    if (competition) {
+      let uri = `dashboard/competitions/view/${competition.id}/matches?type=upcoming&order_direction=asc`
+      if (useDate) {
+        uri = uri + `${appendFromToDates(useDate, fromToDates)}`
+      }
+      setBaseUri(uri)
+    }
+  }, [competition, fromToDates])
 
   const columns = [
     {
@@ -32,18 +45,11 @@ const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) =
     { label: 'Action', key: 'action' },
   ]
 
-  const [baseUri, setBaseUri] = useState('')
-
-  useEffect(() => {
-
-    if (competition) {
-      let uri = `dashboard/competitions/view/${competition.id}/matches?type=upcoming&order_direction=asc`
-      if (useDate) {
-        uri = uri + `${appendFromToDates(useDate, fromToDates)}`
-      }
-      setBaseUri(uri)
-    }
-  }, [competition, fromToDates])
+  const actions: ActionsType = {
+    view: {
+      actionMode: 'navigation'
+    },
+  }
 
   return (
     <div>
@@ -54,7 +60,7 @@ const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) =
             <CompetitionHeader actionTitle="Fetch Upcoming Matches" actionButton="fetchUpcomingMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
           </div>
           {baseUri &&
-            <AutoTable key={baseUri} columns={columns} baseUri={baseUri} search={true} tableId={'competitionUpcomingMatchesTable'} customModalId="teamModal" />
+            <AutoTable key={baseUri} columns={columns} actions={actions} baseUri={baseUri} search={true} tableId={'competitionUpcomingMatchesTable'} customModalId="teamModal" />
           }
 
           {

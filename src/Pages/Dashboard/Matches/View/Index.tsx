@@ -40,7 +40,7 @@ const Index = () => {
   }, [id])
 
   async function getGameDetails() {
-    getGame(`dashboard/matches/view/${id}?break_preds=1`).then((response) => {
+    getGame(`dashboard/matches/view/${id}?include_preds=1`).then((response) => {
       const data = response.results?.data
 
       if (data) {

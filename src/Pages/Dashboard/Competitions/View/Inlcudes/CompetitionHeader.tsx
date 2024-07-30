@@ -27,10 +27,10 @@ const CompetitionHeader = ({ competition, currentTab, seasons, selectedSeason, s
         }
     }
     return (
-        <div className='header-title shadow-sm p-2 rounded mb-4 row no-select'>
+        <div className='header-title shadow-sm p-3 rounded mb-4 row no-select'>
             <div className="col-12">
                 <div className="d-flex gap-3">
-                    <img className="compe-logo" src={renderCompetitionLogo(competition.logo)} alt="" />
+                    <img className="compe-logo shadow-sm rounded" src={renderCompetitionLogo(competition.logo)} alt="" />
                     <div className="d-flex align-items-center gap-4">
                         <h5 className="row align-items-center gap-2">
                             <span><span>{competition.name}</span><span>{currentTab ? ' - ' + currentTab : ''}</span></span>

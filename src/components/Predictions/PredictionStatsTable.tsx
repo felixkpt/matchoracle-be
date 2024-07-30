@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { PredictionCategoryInterface, PredictionStatisticsInterface } from '@/interfaces/FootballInterface';
+import { PredictionCategoryInterface, PredictionSummaryType } from '@/interfaces/FootballInterface';
 import useAxios from '@/hooks/useAxios';
 import Loader from '../Loader';
 import Str from '@/utils/Str';
@@ -20,7 +20,7 @@ const renderCategory = (category: string, data: PredictionCategoryInterface) => 
   );
 };
 
-const renderNestedCategories = (categories: Record<string, PredictionCategoryInterface>) => {
+const renderNestedCategories = (categories: PredictionSummaryType) => {
   return Object.entries(categories).map(([subcategory, data]) => {
     if (subcategory === 'counts') return null;
     return renderCategory(subcategory, data);
@@ -29,15 +29,15 @@ const renderNestedCategories = (categories: Record<string, PredictionCategoryInt
 
 const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
   const { get, loading } = useAxios();
-  const [FTStats, setFTStats] = useState<Partial<PredictionStatisticsInterface> | null>(null);
-  const [HTStats, setHTStats] = useState<Partial<PredictionStatisticsInterface> | null>(null);
+  const [FTStats, setFTStats] = useState<PredictionSummaryType | null>(null);
+  const [HTStats, setHTStats] = useState<PredictionSummaryType | null>(null);
 
   useEffect(() => {
     if (baseUri) {
       get(baseUri, { params: { get_prediction_stats: true } }).then((response) => {
         if (response.results) {
           const data = response.results;
-          const { ft, ht, average_score } = data;
+          const { ft, ht } = data;
 
           const ft_counts = ft.counts;
           setFTStats({ ...ft, counts: ft_counts });
@@ -50,7 +50,7 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
   }, [baseUri]);
 
   // Function to calculate totals
-  const calculateTotals = (stats: Record<string, PredictionCategoryInterface>) => {
+  const calculateTotals = (stats: PredictionSummaryType) => {
     const totals = {
       counts: 0,
       preds: 0,
@@ -72,7 +72,7 @@ const PredictionStatsTable: React.FC<Props> = ({ baseUri }) => {
   };
 
   // Render the totals row
-  const renderTotals = (stats: Record<string, PredictionCategoryInterface>) => {
+  const renderTotals = (stats: PredictionSummaryType) => {
     const totals = calculateTotals(stats);
 
     return (

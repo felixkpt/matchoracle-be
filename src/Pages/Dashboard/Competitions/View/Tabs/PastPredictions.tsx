@@ -7,7 +7,7 @@ import { appendFromToDates } from "@/utils/helpers"
 import { predictionModes } from '@/utils/constants';
 import Str from "@/utils/Str"
 import PredictionStatsTable from "@/components/Predictions/PredictionStatsTable"
-import { CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces"
+import { ActionsType, CollectionItemsInterface } from "@/interfaces/UncategorizedInterfaces"
 import PredictionsModeSwitcher from "@/components/Predictions/PredictionsModeSwitcher"
 import { predictionsColumns } from "@/components/TableColumns"
 
@@ -33,7 +33,7 @@ const PastPredictions: React.FC<Props> = ({ record, seasons, selectedSeason }) =
     useEffect(() => {
 
         if (competition) {
-            let uri = `dashboard/competitions/view/${competition.id}/predictions?break_preds=1&type=past`
+            let uri = `dashboard/competitions/view/${competition.id}/predictions?include_preds=1&type=past`
             if (useDate) {
                 uri = uri + `${appendFromToDates(useDate, fromToDates)}`
             } else {
@@ -44,6 +44,12 @@ const PastPredictions: React.FC<Props> = ({ record, seasons, selectedSeason }) =
     }, [competition, fromToDates])
 
     const [modelDetails, setModelDetails] = useState<Omit<CollectionItemsInterface, 'data'>>()
+
+    const actions: ActionsType = {
+        view: {
+            actionMode: 'navigation'
+        },
+    }
 
     return (
         <div>
@@ -60,7 +66,7 @@ const PastPredictions: React.FC<Props> = ({ record, seasons, selectedSeason }) =
                     </div>
                     {baseUri &&
                         <div>
-                            <AutoTable key={baseUri} columns={predictionsColumns} baseUri={baseUri} search={true}
+                            <AutoTable key={baseUri} columns={predictionsColumns} actions={actions} baseUri={baseUri} search={true}
                                 getModelDetails={setModelDetails}
                                 tableId={'competitionPastPredictionsTable'} customModalId="teamModal" />
                             <PredictionStatsTable key={modelDetails?.query || 0} baseUri={`${baseUri}&prediction_mode_id=${predictionMode ? predictionMode.id : 1}&search=${modelDetails?.query || ''}`} />
