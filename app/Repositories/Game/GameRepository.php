@@ -280,7 +280,7 @@ class GameRepository implements GameRepositoryInterface
             ]
         );
 
-        request()->merge(['without_response' => true, 'break_preds' => true]);
+        request()->merge(['without_response' => true, 'include_preds' => true]);
 
         return response(['type' => 'success', 'message' => 'Voted successfully', 'results' => $this->index($id, true)['results']]);
     }

@@ -46,6 +46,7 @@ class InitialCompetitionsHandler
             }
         });
 
+
         // Combine data from both arrays
         $combinedData = array_merge($allCountries, $allInternationals);
 

@@ -131,7 +131,11 @@ class StandingsHandler
         $message .= $saved . ' new standings added, and ' . $updated . ' existing standings updated. (winner ' . ($winner ? $winner->name : 'N/A') . ')';
 
         // Prepare response data
-        $response = ['message' => $message, 'results' => ['saved_updated' => $saved + $updated]];
+        $response = [
+            'message' => $message,
+            'results' => ['saved_updated' => $saved + $updated],
+            'status' => $saved > 0 ? 200 : 201,
+        ];
 
         // If response is requested without HTTP response, return data array
         if (request()->without_response) return $response;

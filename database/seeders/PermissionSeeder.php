@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\Status;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\PermissionRegistrar;

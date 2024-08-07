@@ -238,13 +238,20 @@ class SearchRepo
     /**
      * Add a custom column to the search results.
      *
-     * @param string $column The column name.
+     * @param string|array $column The column name.
      * @param \Closure $callback The callback function to generate the column value.
      * @return $this The SearchRepo instance.
      */
     public function addColumn($column, $callback)
     {
-        $this->addedColumns[$column] = $callback;
+
+        if (is_array($column)) {
+            foreach ($column as $col) {
+                $this->addedColumns[$col] = [Str::slug(implode(',', $column)), $callback];
+            }
+        } else {
+            $this->addedColumns[$column] = $callback;
+        }
 
         return $this;
     }
@@ -261,43 +268,6 @@ class SearchRepo
     {
         if ($condition) {
             $this->addColumn($column, $callback);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add a custom column to the search results.
-     *
-     * @param string $column The column name.
-     * @param \Closure $callback The callback function to generate the column value.
-     * @return $this The SearchRepo instance.
-     */
-    public function addActionColumn($column, $uri, $options = [])
-    {
-        if (!$this->moduleUri) {
-            $this->moduleUri = $uri;
-        }
-
-        $this->addedColumns[$column] = ['method' => 'action', 'options' => array_merge($options, ['uri' => $uri])];
-
-        return $this;
-    }
-    /**
-     * Add an action column to the search results conditionally.
-     *
-     * @param bool $condition The condition to determine whether to add the action column.
-     * @param string $column The column name.
-     * @param string $uri The URI for the action column.
-     * @param string $view The view parameter for the action column.
-     * @param string $edit The edit parameter for the action column.
-     * @param string|null $hide The hide parameter for the action column.
-     * @return $this The SearchRepo instance.
-     */
-    public function addActionColumnWhen($condition, $column, $uri, $options = [])
-    {
-        if ($condition) {
-            $this->addActionColumn($column, $uri, $options);
         }
 
         return $this;
@@ -391,17 +361,7 @@ class SearchRepo
 
         if ($result) {
             $item = $result;
-
-            // Loop through added custom columns and add them to the stdClass object
-            foreach ($this->addedColumns as $column => $callback) {
-                if (is_array($callback) && isset($callback['method'])) {
-                    // If the callback is an array with a 'method', call the method with options
-                    $item->$column = $this->action($item, $callback['options']);
-                } else {
-                    // If the callback is a closure, call the closure
-                    $item->$column = $callback($item);
-                }
-            }
+            $this->addsDataToColumn($item);
         }
 
         // Create an array with a 'data' key containing the result
@@ -444,17 +404,35 @@ class SearchRepo
         $data = method_exists($results, 'items') ? $results->items() : $results;
 
         foreach ($data as $item) {
-
-            foreach ($this->addedColumns as $column => $callback) {
-
-                if (is_array($callback) && isset($callback['method'])) {
-                    $item->$column = $this->action($item, $callback['options']);
-                } else
-                    $item->$column = $callback($item);
-            }
+            $this->addsDataToColumn($item);
         }
 
         return $data;
+    }
+
+    function addsDataToColumn($item)
+    {
+
+        $closure_results = [];
+        foreach ($this->addedColumns as $column => $callback) {
+
+            if (is_array($callback)) {
+
+                [$mapper, $cb] = $callback;
+
+                if (key_exists($mapper, $closure_results)) {
+                    $res = $closure_results[$mapper];
+                } else {
+                    $res = $cb($item);
+                    $closure_results[$mapper] = $res;
+                }
+
+                $item->$column = $res[$column];
+            } else {
+                $res = $callback($item);
+                $item->$column = $res;
+            }
+        }
     }
 
     /**

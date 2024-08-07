@@ -144,7 +144,7 @@ if (!function_exists('gameScoresStatus')) {
 if (!function_exists('unsettledGameScoreStatuses')) {
     function unsettledGameScoreStatuses()
     {
-        return [1100, 1101, 1104];
+        return [1100, 1101, 1102];
     }
 }
 

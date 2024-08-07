@@ -24,7 +24,7 @@ class PredictionsController extends Controller
         $this->predictionModeId = request()->prediction_mode_id;
 
         $arr = [
-            'break_preds' => true,
+            'include_preds' => true,
         ];
 
         if (request()->type == 'upcoming') {

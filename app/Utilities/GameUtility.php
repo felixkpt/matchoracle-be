@@ -6,7 +6,6 @@ use App\Models\Game;
 use App\Repositories\GameComposer;
 use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -102,12 +101,18 @@ class GameUtility
 
         $with = ['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'homeTeam', 'awayTeam', 'score', 'votes', 'referees', 'odds'];
 
-        if (request()->prediction_mode_id == 1) {
-            array_push($with, 'prediction');
-            $games = $games->whereHas('prediction');
-        } else if (request()->prediction_mode_id == 2) {
-            array_push($with, 'sourcePrediction');
-            $games = $games->whereHas('sourcePrediction');
+        if (request()->include_preds || request()->requires_preds) {
+            if (request()->prediction_mode_id == 1 || !request()->prediction_mode_id) {
+                array_push($with, 'prediction');
+                if (request()->requires_preds) {
+                    $games = $games->whereHas('prediction');
+                }
+            } else if (request()->prediction_mode_id == 2) {
+                array_push($with, 'sourcePrediction');
+                if (request()->requires_preds) {
+                    $games = $games->whereHas('sourcePrediction');
+                }
+            }
         }
 
         $games = $games->with($with);
@@ -219,18 +224,16 @@ class GameUtility
         $uri = '/dashboard/matches/';
         $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name'], $search_builder)
             ->setModelUri($uri)
-            ->addColumn('Winner', fn ($q) => $q->score ? GameComposer::winningSide($q) : null)
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Competition', fn ($q) => $q->competition->name)
-
-            ->addColumn('winningSideHT', fn ($q) => $q->score ? GameComposer::winningSideHT($q) : null)
-            ->addColumn('hasResultsHT', fn ($q) => $q->score ? GameComposer::hasResultsHT($q) : null)
-
-            ->addColumn('winningSide', fn ($q) => $q->score ? GameComposer::winningSide($q) : null)
-            ->addColumn('hasResults', fn ($q) => $q->score ? GameComposer::hasResults($q) : null)
-            ->addColumn('BTS', fn ($q) => $q->score ? GameComposer::bts($q, true) : null)
-            ->addColumn('Goals', fn ($q) => $q->score ? GameComposer::goals($q, true) : null)
-
             ->addColumn('is_future', fn ($q) => Carbon::parse($q->utc_date)->isFuture())
+
+            ->addColumn('Winner', fn ($q) => $q->score ? GameComposer::winningSide($q) : null)
+            ->addColumn('winningSideHT', fn ($q) => $q->score ? GameComposer::winningSideHT($q, true) : null)
+            ->addColumn('hasResultsHT', fn ($q) => $q->score ? GameComposer::hasResultsHT($q, true) : null)
+            ->addColumn('winningSideFT', fn ($q) => $q->score ? GameComposer::winningSide($q, true) : null)
+            ->addColumn('hasResultsFT', fn ($q) => $q->score ? GameComposer::hasResults($q, true) : null)
+
+            ->addColumn('BTS', fn ($q) => $q->score ? GameComposer::bts($q, true) : null)
+            ->addColumn('goalsCount', fn ($q) => $q->score ? GameComposer::goals($q, true) : null)
             ->addColumn('full_time', fn ($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
             ->addColumn('half_time', fn ($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
             ->addColumn('home_win_votes', $homeWinVotes)
@@ -241,22 +244,11 @@ class GameUtility
             ->addColumn('gg_votes', $ggVotes)
             ->addColumn('ng_votes', $ngVotes)
 
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'prediction_strategy', fn ($q) => $this->prediction_strategy(clone $q))
-
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Last_fetch', fn ($q) => Carbon::parse($q->last_fetch)->diffForHumans())
             ->addColumnWhen(!request()->is_predictor, 'current_user_votes', fn ($q) => $this->currentUserVotes($q))
             ->addColumnWhen(!request()->is_predictor, 'Created_by', 'getUser')
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Created_at', 'Created_at')
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Last_fetch', fn ($q) => Carbon::parse($q->last_fetch)->diffForHumans())
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response),
-                'Predicted',
-                function ($q) {
-                    if (request()->prediction_mode_id == 2) {
-                        return 'N/A';
-                    }
-                    return $q->prediction ? Carbon::parse($q->prediction->created_at)->diffForHumans() : 'N/A';
-                }
-            )
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Status', 'getStatus');
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Competition', fn ($q) => $q->competition->name)
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response && request()->include_preds), ['prediction_strategy', 'Predicted'], fn ($q) => $this->prediction_strategy(clone $q));
 
         if (!request()->order_by)
             $results = $results->orderby('utc_date', request()->type == 'upcoming' ? 'asc' : 'desc');

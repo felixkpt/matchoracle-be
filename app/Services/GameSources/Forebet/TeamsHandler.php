@@ -50,8 +50,8 @@ class TeamsHandler
     function updateOrCreate($tableData, $country, $competition = null, $season = null, $ignore_competition = false)
     {
 
-        $teamData = $tableData[1];
         $position = $tableData[0];
+        $teamData = $tableData[1];
 
         if (!isset($teamData['name'])) return false;
 

@@ -3,13 +3,18 @@
 namespace App\Utilities;
 
 use App\Repositories\GameComposer;
-use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 trait FormatPredictionTrait
 {
     function prediction_strategy($q)
     {
-        return $q->{$this->predictionTypeMode};
+        $strategy = $q->{$this->predictionTypeMode};
+        $created_at = $strategy ? Carbon::parse($strategy->created_at)->diffForHumans() : 'N/A';
+        return [
+           'prediction_strategy' => $q->{$this->predictionTypeMode},
+           'Predicted' => $created_at,
+        ];
     }
 
     protected function formatFTHDAProba($q)

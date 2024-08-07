@@ -29,7 +29,7 @@ class TeamRepository implements TeamRepositoryInterface
         $teams = $this->model::query()
             ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->with(['country', 'competition', 'address', 'venue', 'coachContract' => fn ($q) => $q->with('coach'), 'gameSources'])
-            ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
+            ->when(request()->competition_id, fn ($q) => $q->where('teams.competition_id', request()->competition_id))
             ->when(request()->season_id, function ($q) {
                 // Join with the pivot table and filter by season_id
                 $q->whereHas('seasons', function ($query) {
