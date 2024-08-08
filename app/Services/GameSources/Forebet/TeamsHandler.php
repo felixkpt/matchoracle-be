@@ -26,37 +26,8 @@ class TeamsHandler
         $this->initialize();
     }
 
-    // function findTeamById($id)
-    // {
-    //     $teamData = $this->findTeamById($id);
-
-    //     $country = $teamData->area;
-    //     $country = Country::updateOrCreate(
-    //         [
-    //             'name' => $country->name,
-    //             'code' => $country->code,
-    //         ],
-    //         [
-    //             'name' => $country->name,
-    //             'slug' => Str::slug($country->name),
-    //             'code' => $country->code,
-    //             'flag' => $country->flag,
-    //         ]
-    //     );
-
-    //     $this->updateOrCreate($teamData, $country);
-    // }
-
-    function updateOrCreate($teamDataOrTeamTableData, $country, $competition = null, $season = null, $ignore_competition = false)
+    function updateOrCreate($teamData, $country, $competition = null, $season = null, $ignore_competition = false, $position = null)
     {
-
-        $position = null;
-        if (is_array($teamDataOrTeamTableData) && key_exists(0, $teamDataOrTeamTableData)) {
-            $position = $teamDataOrTeamTableData[0];
-            $teamData = $teamDataOrTeamTableData[1];
-        } else {
-            $teamData = $teamDataOrTeamTableData;
-        }
 
         if (!isset($teamData['name'])) return false;
 
@@ -137,25 +108,7 @@ class TeamsHandler
             $arr
         );
 
-
-        if (isset($season) && $season->id) {
-
-            $exists = $team->seasons()->wherePivot('season_id', $season->id)->first();
-
-            $arr = ['competition_id' => $competition->id, 'status_id' => 1, 'user_id' => auth()->id() ?? 0, 'uuid' => Str::uuid()];
-
-            if ($position) {
-                $arr['position'] = $position;
-            }
-
-            if (!$exists) {
-                $team->seasons()->attach($season->id, $arr);
-            } else {
-                if ($position) {
-                    $exists->update(['position' => $position,]);
-                }
-            }
-        }
+        static::attachSeason($team, $competition, $position);
 
         static::saveCoach($teamData, $team);
 
@@ -167,6 +120,8 @@ class TeamsHandler
 
         return $team;
     }
+
+
 
     function updateByCompetition($id)
     {
@@ -199,5 +154,27 @@ class TeamsHandler
         }
 
         return true;
+    }
+
+    static function attachSeason($team, $competition, $position)
+    {
+        if (isset($season) && $season->id) {
+
+            $exists = $team->seasons()->wherePivot('season_id', $season->id)->first();
+
+            $arr = ['competition_id' => $competition->id, 'status_id' => 1, 'user_id' => auth()->id() ?? 0, 'uuid' => Str::uuid()];
+
+            if ($position) {
+                $arr['position'] = $position;
+            }
+
+            if (!$exists) {
+                $team->seasons()->attach($season->id, $arr);
+            } else {
+                if ($position) {
+                    $exists->update(['position' => $position,]);
+                }
+            }
+        }
     }
 }

@@ -310,8 +310,10 @@ class StandingsHandler
 
             if (!isset($tableData[1]) || !is_array($tableData[1])) continue;
 
+            $position = $tableData[0];
+            $teamData = $tableData[1];
 
-            $team = (new TeamsHandler())->updateOrCreate($tableData, $country, $competition, $season);
+            $team = (new TeamsHandler())->updateOrCreate($teamData, $country, $competition, $season, false, $position);
 
             if (!$team) {
                 Log::critical("Team could not be created for compe: {$competition->id}, season {$season->id}", [$tableData]);
