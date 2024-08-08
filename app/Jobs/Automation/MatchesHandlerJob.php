@@ -25,12 +25,12 @@ class MatchesHandlerJob implements ShouldQueue
      * @var string
      */
     protected $task = 'recent_results';
-    protected $ignore_date;
+    protected $ignore_timing;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $ignore_date)
+    public function __construct($task, $competition_id, $ignore_timing)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
@@ -46,8 +46,13 @@ class MatchesHandlerJob implements ShouldQueue
         if ($task) {
             $this->task = $task;
         }
-        if ($ignore_date) {
-            $this->ignore_date = $ignore_date;
+
+        if ($competition_id) {
+            request()->merge(['competition_id' => $competition_id]);
+        }
+
+        if ($ignore_timing) {
+            $this->ignore_timing = $ignore_timing;
         }
     }
 
@@ -79,13 +84,13 @@ class MatchesHandlerJob implements ShouldQueue
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
-            // ->where('id', 1622)
+            ->when(request()->competition_id, fn ($q) => $q->where('competitions.id', request()->competition_id))
             ->whereHas('gameSources', function ($q) {
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('seasons')
             ->when($this->task == 'recent_results', fn ($q) => $q->whereHas('games', fn ($q) => $q->where('utc_date', '>', Carbon::now()->subDays(5))->where('utc_date', '<', Carbon::now()->subHours(5))))
-            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+            // ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
             ->limit(700)
             ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
@@ -103,7 +108,7 @@ class MatchesHandlerJob implements ShouldQueue
                 ->whereDate('start_date', '>=', '2015-01-01')
                 ->where('fetched_all_matches', false)
                 ->take($this->task == 'historical_results' ? 15 : 1)
-                ->orderBy('start_date', 'desc')->get();
+                ->orderBy('updated_at', 'asc')->get();
             $total_seasons = $seasons->count();
 
             $should_sleep_for_seasons = false;

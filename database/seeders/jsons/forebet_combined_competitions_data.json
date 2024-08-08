@@ -124,8 +124,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-argentina\/primera-division",
-                "name": "Primera Division",
+                "uri": "\/en\/football-tips-and-predictions-for-argentina\/liga-profesional",
+                "name": "Liga Profesional",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -265,14 +265,14 @@
             },
             {
                 "uri": "\/en\/tips-and-predictions-for-australia\/npl-victoria",
-                "name": "Npl Victoria",
+                "name": "NPL Victoria",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
                 "uri": "\/en\/tips-and-predictions-for-australia\/npl-nsw",
-                "name": "Npl NSW",
+                "name": "NPL NSW",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -286,59 +286,59 @@
             },
             {
                 "uri": "\/en\/tips-and-predictions-for-australia\/npl-west",
-                "name": "Npl West",
+                "name": "NPL West",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
                 "uri": "\/en\/tips-and-predictions-for-australia\/npl-south",
-                "name": "Npl South",
+                "name": "NPL South",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
                 "uri": "\/en\/tips-and-predictions-for-australia\/npl-queensland",
-                "name": "Npl Queensland",
+                "name": "NPL Queensland",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
                 "uri": "\/en\/tips-and-predictions-for-australia\/npl-tasmania",
-                "name": "Npl Tasmania",
+                "name": "NPL Tasmania",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/tips-and-predictions-for-australia\/northern-nsw",
-                "name": "Northern Nsw",
+                "uri": "\/en\/tips-and-predictions-for-australia\/npl-northern-nsw",
+                "name": "NPL Northern NSW",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/tips-and-predictions-for-australia\/npl-act-1",
-                "name": "Npl Act 1",
+                "uri": "\/en\/tips-and-predictions-for-australia\/npl-act",
+                "name": "NPL ACT",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/tips-and-predictions-for-australia\/ffa-cup",
-                "name": "FFA Cup",
+                "uri": "\/en\/tips-and-predictions-for-australia\/australia-cup",
+                "name": "Australia Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/tips-and-predictions-for-australia\/w-league",
-                "name": "W League",
+                "uri": "\/en\/tips-and-predictions-for-australia\/a-league-women",
+                "name": "A-League Women",
                 "category": "domestic",
                 "type": null,
-                "gender": 1
+                "gender": 2
             }
         ]
     },
@@ -355,8 +355,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-austria\/erste-division",
-                "name": "Erste Division",
+                "uri": "\/en\/football-tips-and-predictions-for-austria\/2-liga",
+                "name": "2. Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -411,8 +411,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-austria\/ofb-pokal",
-                "name": "OFB Pokal",
+                "uri": "\/en\/football-tips-and-predictions-for-austria\/ofb-cup",
+                "name": "OFB Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -495,8 +495,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/tips-and-predictions-for-azerbaijan\/first-division",
-                "name": "First Division",
+                "uri": "\/en\/tips-and-predictions-for-azerbaijan\/i-liqa",
+                "name": "I Liqa",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -586,8 +586,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-belarus\/vyscha-liga",
-                "name": "Vyscha Liga",
+                "uri": "\/en\/football-tips-and-predictions-for-belarus\/vysshaya-liga",
+                "name": "Vysshaya Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -614,8 +614,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-belarus\/women-premier-league",
-                "name": "Women Premier League",
+                "uri": "\/en\/football-tips-and-predictions-for-belarus\/vysshaya-liga-women",
+                "name": "Vysshaya Liga Women",
                 "category": "domestic",
                 "type": null,
                 "gender": 2
@@ -656,8 +656,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-belgium\/2e-klasse",
-                "name": "2e-Klasse",
+                "uri": "\/en\/football-tips-and-predictions-for-belgium\/challenger-pro-league",
+                "name": "Challenger Pro League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -789,8 +789,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-bolivia\/liga-de-futbol-prof",
-                "name": "Liga de F\u00fatbol Prof",
+                "uri": "\/en\/football-tips-and-predictions-for-bolivia\/division-profesional",
+                "name": "Divisi\u00f3n Profesional",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -810,29 +810,29 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/tips-and-predictions-for-bosnia\/premijer-liga",
-                "name": "Premier league",
+                "uri": "\/en\/tips-and-predictions-for-bosnia\/premier-league",
+                "name": "Premier League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/tips-and-predictions-for-bosnia\/kup-bih",
-                "name": "Kup BiH",
+                "uri": "\/en\/tips-and-predictions-for-bosnia\/bih-cup",
+                "name": "BiH Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/tips-and-predictions-for-bosnia\/1st-league-fbih",
-                "name": "1st League FBiH",
+                "uri": "\/en\/tips-and-predictions-for-bosnia\/prva-liga-fbih",
+                "name": "Prva Liga - FBiH",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/tips-and-predictions-for-bosnia\/1st-league-rs",
-                "name": "1st League: RS",
+                "uri": "\/en\/tips-and-predictions-for-bosnia\/prva-liga-rs",
+                "name": "Prva Liga - RS",
                 "category": "domestic",
                 "type": null,
                 "gender": 1

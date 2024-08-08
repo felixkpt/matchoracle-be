@@ -11,16 +11,54 @@ class GameScoreStatusSeeder extends Seeder
     {
 
         $statuses = [
-            ['name' => 'scheduled', 'icon' => 'ic:sharp-published-with-changes', 'class' => 'text-success'],
-            ['name' => 'playing', 'icon' => 'mdi:soccer', 'class' => 'text-primary'],
-            ['name' => 'played', 'icon' => 'mdi:check-circle-outline', 'class' => 'text-success'],
-            ['name' => 'postponed', 'icon' => 'mdi:clock-outline', 'class' => 'text-warning'],
-            ['name' => 'cancelled', 'icon' => 'mdi:cancel', 'class' => 'text-danger'],
+            [
+                'name' => 'Scheduled',
+                'slug' => 'scheduled',
+                'description' => 'Scheduled',
+                'icon' => 'fontisto:checkbox-active',
+                'class' => 'text-success',
+            ],
+            [
+                'name' => 'Playing',
+                'slug' => 'playing',
+                'description' => 'Playing',
+                'icon' => 'material-symbols:inactive-order-outline-sharp',
+                'class' => 'text-danger',
+            ],
+            [
+                'name' => 'FT results only',
+                'slug' => 'ft-results-only',
+                'description' => 'FT results only',
+                'icon' => 'fontisto:checkbox-active',
+                'class' => 'text-dark',
+            ],
+            [
+                'name' => 'FT and HT results',
+                'slug' => 'ft-and-ht-results',
+                'description' => 'FT and HT results',
+                'icon' => 'material-symbols:inactive-order-outline-sharp',
+                'class' => 'text-muted',
+            ],
+            [
+                'name' => 'Postponed',
+                'slug' => 'postponed',
+                'description' => 'Postponed',
+                'icon' => 'fontisto:checkbox-active',
+                'class' => 'text-dark',
+            ],
+            [
+                'name' => 'Deactivated',
+                'slug' => 'deactivated',
+                'description' => 'Deactivated',
+                'icon' => 'material-symbols:inactive-order-outline-sharp',
+                'class' => 'text-success',
+            ],
         ];
 
         foreach ($statuses as $status) {
             GameScoreStatus::updateOrCreate(['name' => $status['name']], [
                 'name' => $status['name'],
+                'slug' => $status['slug'],
                 'description' => ucfirst(str_replace('_', ' ', $status['name'])) . ' status.',
                 'icon' => $status['icon'],
                 'class' => $status['class'],

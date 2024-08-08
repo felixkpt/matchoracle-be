@@ -105,9 +105,9 @@ class MatchesHandler implements MatchesInterface
 
     private function handleMatches($competition, $season, $crawler)
     {
-
+        
         $matchesData = $this->is_fixtures ? $this->filterUpcomingMatches($crawler) : $this->filterPlayedMatches($crawler);
-
+        
         $msg = "";
         $saved = $updated = 0;
         try {

@@ -21,26 +21,10 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             PermissionSeeder::class,
 
+            GameScoreStatusSeeder::class,
             ContinentsTableSeeder::class,
             CountriesSeeder::class,
             CompetitionSeeder::class,
-            // AreaSeeder::class,
-            // SeasonSeeder::class,
-            // RoleSeeder::class,
-            // UsersTableSeeder::class,
-            // CompanyTypeSeeder::class,
-            // CompaniesTableSeeder::class,
-            // DepartmentSeeder::class,
-            // IssueSourceSeeder::class,
-            // IssueCategorySeeder::class,
-            // DispositionSeeder::class,
-            // SlaLevelSeeder::class,
-            // QueueSeeder::class,
-            // TicketStatusSeeder::class,
-
-            // CustomersTableSeeder::class,
-            // PostSeeder::class,
-            // TicketSeeder::class,
         ];
 
         // shuffle($arr);

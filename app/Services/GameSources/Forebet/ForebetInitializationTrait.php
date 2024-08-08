@@ -263,6 +263,8 @@ trait ForebetInitializationTrait
             $home_team_not_found = [];
             $away_team_not_found = [];
 
+            dd($matches);
+            
             foreach ($matches as $key => &$match) {
                 $competition = $competition ?? $match['competition'];
                 $country = $competition->country ?? null;
