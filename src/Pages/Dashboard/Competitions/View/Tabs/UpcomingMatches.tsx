@@ -24,10 +24,12 @@ const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) =
       let uri = `dashboard/competitions/view/${competition.id}/matches?type=upcoming&order_direction=asc`
       if (useDate) {
         uri = uri + `${appendFromToDates(useDate, fromToDates)}`
+      } else {
+        uri = uri + `&season_id=${selectedSeason ? selectedSeason?.id : ''}`
       }
       setBaseUri(uri)
     }
-  }, [competition, fromToDates])
+  }, [competition, fromToDates, useDate, selectedSeason])
 
   const columns = [
     {
@@ -68,7 +70,6 @@ const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) =
             <>
               <GeneralModal title={`Fetch Fixtures form`} actionUrl={`dashboard/competitions/view/${competition.id}/fetch-matches?is_fixtures=1`} size={'modal-lg'} id={`fetchUpcomingMatches`}>
                 <div className='row align-items-center'>
-
                   <div className="form-group mb-3">
                     <label htmlFor="season_id">Season:&nbsp;</label>
                     <label>{seasons?.length && Str.before(seasons[0].start_date, '-')}</label>

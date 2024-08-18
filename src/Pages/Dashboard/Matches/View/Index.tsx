@@ -16,7 +16,7 @@ import useAutoPostDone from '@/hooks/autos/useAutoPostDone'
 
 const Index = () => {
 
-  const { get: getGame, loading } = useAxios()
+  const { get: getGame, loading, loaded } = useAxios()
   const { id } = useParams()
 
   const { userCan } = usePermissions()
@@ -60,7 +60,8 @@ const Index = () => {
   // Getting standings
   useEffect(() => {
 
-    if (game) {
+    console.log('game.season_id', game?.season_id)
+    if (game && game.season_id) {
       getStandings(`dashboard/competitions/view/${game.competition_id}/standings/${game.season_id}`).then((response) => {
 
         const data = response.results
@@ -89,13 +90,13 @@ const Index = () => {
       {
         !loading ?
 
-          game && homeTeam && awayTeam ?
+          loaded && game && homeTeam && awayTeam ?
             <div className='' key={key}>
               <div className="row">
                 <div className="col-12 col-xl-9">
-                  {userCan('dashboard/matches/view/{id}/update-game', 'post') &&
+                  {userCan('dashboard/matches/view/{id}', 'put') &&
                     <div className="d-flex justify-content-end mb-3">
-                      <InlineAction id='update-game' actionUrl={`dashboard/matches/view/${id}/update-game`}><button type="submit" className="btn btn-primary">Update game</button></InlineAction>
+                      <InlineAction id='update-game' actionUrl={`dashboard/matches/view/${id}`} method="put"><button type="submit" className="btn btn-primary">Update game</button></InlineAction>
                     </div>
                   }
                   <MatchPageHeader game={game} homeTeam={homeTeam} awayTeam={awayTeam} homeTeamRecentResults={homeTeamRecentResults} awayTeamRecentResults={awayTeamRecentResults} />
@@ -110,9 +111,12 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="col-12 col-xl-3">
-                  <div className='mb-5'>
-                    <StandingsTable standings={standings} minimal={true} homeTeamId={homeTeam.id} awayTeamId={awayTeam.id} />
-                  </div>
+                  {
+                    standings &&
+                    <div className='mb-5'>
+                      <StandingsTable standings={standings} minimal={true} homeTeamId={homeTeam.id} awayTeamId={awayTeam.id} />
+                    </div>
+                  }
                   <div className='mb-5'>
                     <Head2HeadCard key={game.id} game={game} homeTeam={homeTeam} perPage={5} awayTeam={awayTeam} />
                   </div>

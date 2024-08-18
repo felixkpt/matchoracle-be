@@ -7,10 +7,11 @@ import { CountryInterface } from "@/interfaces/FootballInterface";
 import useAxios from "@/hooks/useAxios";
 import CountryHeader from "./Includes/CountryHeader";
 import Loader from "@/components/Loader";
+import Error404 from "@/Pages/ErrorPages/Error404";
 
 const Index: React.FC = () => {
   const { id } = useParams()
-  const { get, loading } = useAxios()
+  const { get, loading, loaded } = useAxios()
   const [country, setCountry] = useState<CountryInterface | undefined>()
   const [currentTab, setCurrentTabName] = useState<string | undefined>()
 
@@ -42,11 +43,18 @@ const Index: React.FC = () => {
   return (
     <div className="mb-3">
       {
-        !loading && country ?
-          <div>
-            <CountryHeader country={country} currentTab={currentTab} />
-            <AutoTabs tabs={tabs} setCurrentTabName={setCurrentTabName} />
-          </div>
+        !loading ?
+          <>
+            {
+              loaded && country ?
+                <div>
+                  <CountryHeader country={country} currentTab={currentTab} />
+                  <AutoTabs tabs={tabs} setCurrentTabName={setCurrentTabName} />
+                </div>
+                :
+                <Error404 />
+            }
+          </>
           :
           <Loader />
       }

@@ -33,7 +33,7 @@ const PastPredictions: React.FC<Props> = ({ record, seasons, selectedSeason }) =
     useEffect(() => {
 
         if (competition) {
-            let uri = `dashboard/competitions/view/${competition.id}/predictions?include_preds=1&type=past`
+            let uri = `dashboard/competitions/view/${competition.id}/predictions?requires_preds=1&type=past`
             if (useDate) {
                 uri = uri + `${appendFromToDates(useDate, fromToDates)}`
             } else {

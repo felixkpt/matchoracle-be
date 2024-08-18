@@ -10,11 +10,12 @@ import TeamHeader from "./Includes/TeamHeader"
 import Loader from "@/components/Loader"
 import useAutoPostDone from "@/hooks/autos/useAutoPostDone"
 import Predictions from "./Tabs/Predictions"
+import Error404 from "@/Pages/ErrorPages/Error404"
 
 const Index = () => {
 
   const { id } = useParams()
-  const { get, loading } = useAxios()
+  const { get, loading, loaded } = useAxios()
 
   const [record, setRecord] = useState<TeamInterface>()
   const [modelDetails, setModelDetails] = useState<ModelDetailsInterface>()
@@ -70,15 +71,22 @@ const Index = () => {
   return (
     <div className="mb-3">
       {
-        !loading && record ?
-          <div>
-            <div>
-              <div>
-                <TeamHeader team={record} currentTab={currentTab} />
-              </div>
-            </div>
-            <AutoTabs tabs={tabs} setCurrentTabName={setCurrentTabName} />
-          </div>
+        !loading ?
+          <>
+            {
+              loaded && record ?
+                <div>
+                  <div>
+                    <div>
+                      <TeamHeader team={record} currentTab={currentTab} />
+                    </div>
+                  </div>
+                  <AutoTabs tabs={tabs} setCurrentTabName={setCurrentTabName} />
+                </div>
+                :
+                <Error404 />
+            }
+          </>
           :
           <Loader />
       }

@@ -1,3 +1,4 @@
+import { HttpVerbsType } from '@/interfaces/UncategorizedInterfaces';
 import { publish } from '@/utils/events';
 import React, { ReactNode } from 'react'
 
@@ -7,9 +8,10 @@ interface InlinActionProps {
     actionUrl: string;
     id?: string
     setKey?: React.Dispatch<React.SetStateAction<number>>; // Use React.Dispatch type for setKey
+    method?: HttpVerbsType
 }
 
-const InlineAction: React.FC<InlinActionProps> = ({ children, actionUrl, id }) => {
+const InlineAction: React.FC<InlinActionProps> = ({ children, actionUrl, id, method = "post" }) => {
 
     // useEffect(() => {
 
@@ -32,7 +34,7 @@ const InlineAction: React.FC<InlinActionProps> = ({ children, actionUrl, id }) =
     //     }
     // };
 
-    return <form encType="" id={id || 'inlineForm'} method="post" data-action={actionUrl} onSubmit={(e: any) => publish('autoPost', e)} >{children}</form>
+    return <form encType="" id={id || 'inlineForm'} method={method} data-action={actionUrl} onSubmit={(e: any) => publish('autoPost', e)} >{children}</form>
 
 }
 

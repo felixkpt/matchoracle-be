@@ -21,14 +21,14 @@ const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason 
     useEffect(() => {
 
         if (competition) {
-            let uri = `dashboard/competitions/view/${competition.id}/predictions?prediction_mode_id=1&include_preds=1&type=upcoming`
+            let uri = `dashboard/competitions/view/${competition.id}/predictions?prediction_mode_id=1&requires_preds=1&type=upcoming&season_id=${selectedSeason?.id}`
             if (useDate) {
                 uri = uri + `${appendFromToDates(useDate, fromToDates)}`
             }
             setBaseUri(uri)
         }
 
-    }, [competition, fromToDates])
+    }, [competition, fromToDates, useDate, selectedSeason])
 
     const actions: ActionsType = {
         view: {

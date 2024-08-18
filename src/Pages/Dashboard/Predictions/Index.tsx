@@ -46,7 +46,7 @@ const Index = () => {
                             predictionMode &&
                             <div key={(predictionMode ? predictionMode.id : 0) + (baseUri ?? '')}>
                                 <AutoTable
-                                    baseUri={`${baseUri}?prediction_mode_id=${predictionMode ? predictionMode.id : 0}`}
+                                    baseUri={`${baseUri}?requires_preds=1&prediction_mode_id=${predictionMode ? predictionMode.id : 0}`}
                                     columns={predictionsColumns}
                                     search={true}
                                     listSources={listSources}
