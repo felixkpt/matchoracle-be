@@ -13,7 +13,7 @@ class MatchesHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:matches-handler {--task=} {--competition=} {--ignore-timing}';
+    protected $signature = 'app:matches-handler {--task=} {--ignore-timing} {--competition=} ';
 
     /**
      * The console command description.
@@ -35,12 +35,12 @@ class MatchesHandlerCommand extends Command
         }
 
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
+        $ignore_timing = $this->option('ignore-timing');
 
         $competition_id = $this->option('competition');
 
-        $ignore_timing = $this->option('ignore-timing');
 
-        dispatch(new MatchesHandlerJob($task, $competition_id, $ignore_timing));
+        dispatch(new MatchesHandlerJob($task, $ignore_timing,$competition_id));
         $this->info('Matches handler command executed successfully!');
     }
 }

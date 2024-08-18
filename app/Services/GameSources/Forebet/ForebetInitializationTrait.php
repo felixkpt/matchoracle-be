@@ -98,10 +98,11 @@ trait ForebetInitializationTrait
 
     private function storeScores($game, $score)
     {
-
         $full_time_results = $score['full_time_results'];
 
-        if (Str::contains($full_time_results, ':')) return false;
+        if (Str::contains($full_time_results, ':')) {
+            return false;
+        }
 
         $winner = isset($score['postponed']) ? Str::upper('postponed') : null;
 
@@ -109,75 +110,66 @@ trait ForebetInitializationTrait
         $away_scores_full_time = null;
 
         if (Str::contains($full_time_results, '-')) {
-            $arr = explode('-', $full_time_results);
-            $home_scores_full_time = trim($arr[0]);
-            $away_scores_full_time = trim($arr[1]);
+            [$home_scores_full_time, $away_scores_full_time] = array_map('trim', explode('-', $full_time_results));
 
-            if ($home_scores_full_time > $away_scores_full_time)
-                $winner = 'HOME_TEAM';
-            elseif ($home_scores_full_time == $away_scores_full_time)
-                $winner = 'DRAW';
-            elseif ($home_scores_full_time < $away_scores_full_time)
-                $winner = 'AWAY_TEAM';
+            $winner = $this->determineWinner($home_scores_full_time, $away_scores_full_time);
         }
 
         $data = [
             'game_id' => $game->id,
             'winner' => $winner,
             'duration' => null,
-
             'home_scores_full_time' => $home_scores_full_time,
             'away_scores_full_time' => $away_scores_full_time,
         ];
 
-        if (isset($score['half_time_results'])) {
+        if (isset($score['half_time_results']) && Str::contains($score['half_time_results'], '-')) {
+            [$home_scores_half_time, $away_scores_half_time] = array_map('trim', explode('-', $score['half_time_results']));
 
-            $half_time_results = $score['half_time_results'];
-
-            if (Str::contains($half_time_results, '-')) {
-                $arr = explode('-', $half_time_results);
-                $home_scores_half_time = trim($arr[0]);
-                $away_scores_half_time = trim($arr[1]);
-
-                $data['home_scores_half_time'] = $home_scores_half_time;
-                $data['away_scores_half_time'] = $away_scores_half_time;
-            }
+            $data['home_scores_half_time'] = $home_scores_half_time;
+            $data['away_scores_half_time'] = $away_scores_half_time;
         }
 
         $game_score_status_id = gameScoresStatus('scheduled');
         if ($winner) {
-
             $score = GameScore::updateOrCreate(
-                [
-                    'game_id' => $game->id
-                ],
+                ['game_id' => $game->id],
                 $data
             );
 
-            $game_score_status_id = gameScoresStatus('ft-and-ht-results');
-
-            if (in_array($game->game_score_status_id, unsettledGameScoreStatuses())) {
-
-                if (isset($data['home_scores_half_time']) && $data['home_scores_half_time'] >= 0) {
-                    $game_score_status_id = gameScoresStatus('ft-and-ht-results');
-                    $game->update(['game_score_status_id' => $game_score_status_id, 'status' => GameScoreStatus::find(gameScoresStatus('ft-and-ht-results'))->name]);
-                }
-                // postponed
-                else if ($score->winner == Str::upper('postponed')) {
-                    $game_score_status_id = gameScoresStatus('ft-and-ht-results');
-                    $game->update(['game_score_status_id' => $game_score_status_id, 'status' => Str::upper('postponed')]);
-                }
-
-                // Avoid overwriting
-                else if ($score->home_scores_half_time == null) {
-                    $game_score_status_id = gameScoresStatus('ft-results-only');
-                    $game->update(['game_score_status_id' => $game_score_status_id, 'status' => GameScoreStatus::find(gameScoresStatus('ft-and-ht-results'))->name]);
-                }
-            }
+            $game_score_status_id = $this->determineGameScoreStatus($game, $data, $score);
+            $game->update(['game_score_status_id' => $game_score_status_id, 'status' => GameScoreStatus::find($game_score_status_id)->name]);
         }
 
         return $game_score_status_id;
     }
+
+    private function determineWinner($home_scores, $away_scores)
+    {
+        if ($home_scores > $away_scores) {
+            return 'HOME_TEAM';
+        } elseif ($home_scores == $away_scores) {
+            return 'DRAW';
+        } else {
+            return 'AWAY_TEAM';
+        }
+    }
+
+    private function determineGameScoreStatus($game, $data, $score)
+    {
+        if (in_array($game->game_score_status_id, unsettledGameScoreStatuses())) {
+            if (isset($data['home_scores_half_time']) && $data['home_scores_half_time'] >= 0) {
+                return gameScoresStatus('ft-and-ht-results');
+            } elseif ($score->winner == Str::upper('postponed')) {
+                return gameScoresStatus('postponed');
+            } elseif ($score->home_scores_half_time === null) {
+                return gameScoresStatus('ft-results-only');
+            }
+        }
+
+        return gameScoresStatus('ft-and-ht-results');
+    }
+
 
     private function syncReferees($game, $match)
     {
@@ -253,24 +245,25 @@ trait ForebetInitializationTrait
     {
         $msg = "";
         $saved = $updated = 0;
-        try {
 
-            DB::beginTransaction();
+        $date_or_compe_not_found = [];
+        $country_not_found = [];
+        $competition_not_found = [];
+        $home_team_not_found = [];
+        $away_team_not_found = [];
 
-            $date_or_compe_not_found = [];
-            $country_not_found = [];
-            $competition_not_found = [];
-            $home_team_not_found = [];
-            $away_team_not_found = [];
+        foreach ($matches as $key => &$match) {
 
-            dd($matches);
-            
-            foreach ($matches as $key => &$match) {
-                $competition = $competition ?? $match['competition'];
-                $country = $competition->country ?? null;
-                $season = null;
+            $competition = $competition ?? $match['competition'];
+            $country = $competition->country ?? null;
+            $season = null;
 
-                if ($competition && $country && $match['date']) {
+
+            if ($competition && $country && $match['date']) {
+
+                try {
+
+                    DB::beginTransaction();
 
                     $homeTeam = Team::whereHas('gameSources', function ($q) use ($match) {
                         $q->where('source_uri', $match['home_team']['uri']);
@@ -325,43 +318,44 @@ trait ForebetInitializationTrait
                             Log::critical('awayTeam not found:', (array) $match['away_team']['name']);
                         }
                     }
-                } else {
-                    $no_date_mgs = ['competition' => $competition->id ?? null, 'season' => $season ? $season->id : null, 'match' => $match];
-                    $date_or_compe_not_found['match'][$key] = $match;
-                    Log::critical('Match has no date or competition:', $no_date_mgs);
+
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    $this->has_errors = true;
+                    $msg = "Error during data import for compe#$competition->id: ";
+
+                    Log::error($msg . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
                 }
+            } else {
+                $no_date_mgs = ['competition' => $competition->id ?? null, 'season' => $season ? $season->id : null, 'match' => $match];
+                $date_or_compe_not_found['match'][$key] = $match;
+                Log::critical('Match has no date or competition:', $no_date_mgs);
             }
 
-            DB::commit();
+            sleep(0);
+        }
 
-            $msg = "Fetching matches completed, (saved $saved, updated: $updated).";
+        $msg = "Fetching matches completed, (saved $saved, updated: $updated).";
 
-            if (count($date_or_compe_not_found) > 0) {
-                $msg .= ' ' . count($date_or_compe_not_found) . ' dates / competition were not found.';
-            }
+        if (count($date_or_compe_not_found) > 0) {
+            $msg .= ' ' . count($date_or_compe_not_found) . ' dates / competition were not found.';
+        }
 
-            if (count($country_not_found) > 0) {
-                $msg .= ' ' . count($country_not_found) . ' countries were not found.';
-            }
+        if (count($country_not_found) > 0) {
+            $msg .= ' ' . count($country_not_found) . ' countries were not found.';
+        }
 
-            if (count($competition_not_found) > 0) {
-                $msg .= ' ' . count($competition_not_found) . ' competitions were not found.';
-            }
+        if (count($competition_not_found) > 0) {
+            $msg .= ' ' . count($competition_not_found) . ' competitions were not found.';
+        }
 
-            if (count($home_team_not_found) > 0) {
-                $msg .= ' ' . count($home_team_not_found) . ' home teams were not found.';
-            }
+        if (count($home_team_not_found) > 0) {
+            $msg .= ' ' . count($home_team_not_found) . ' home teams were not found.';
+        }
 
-            if (count($away_team_not_found) > 0) {
-                $msg .= ' ' . count($away_team_not_found) . ' away teams were not found.';
-            }
-        } catch (\Exception $e) {
-            dd($e);
-            DB::rollBack();
-            $this->has_errors = true;
-
-            Log::error('Error during data import: ' . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
-            $msg = 'Error during data import.';
+        if (count($away_team_not_found) > 0) {
+            $msg .= ' ' . count($away_team_not_found) . ' away teams were not found.';
         }
 
         return [$saved, $updated, $msg];
@@ -389,10 +383,8 @@ trait ForebetInitializationTrait
             'competition_id' => $competition_id,
             'home_team_id' => $homeTeam->id,
             'away_team_id' => $awayTeam->id,
-            'season_id' => $season_id,
             'country_id' => $country_id,
-            'utc_date' => $utc_date,
-            'has_time' => $has_time,
+            'date' => $date->format('Y-m-d'),
             'status' => $status,
             'matchday' => $matchday,
             'stage' => $stage,
@@ -401,26 +393,38 @@ trait ForebetInitializationTrait
             'user_id' => $user_id,
         ];
 
+        if ($season_id) {
+            $arr['season_id'] = $season_id;
+        }
+
         $qry = [
             ['competition_id', $competition_id],
             ['home_team_id', $homeTeam->id],
             ['away_team_id', $awayTeam->id],
         ];
 
-        if ($season_id) {
-            $qry[] = ['season_id', $season_id];
-        }
-
         // Check if a game with the same details already exists
         $game = Game::query()
-            ->whereDate('utc_date', $date->format('Y-m-d'))
+            ->whereDate('date', $date->format('Y-m-d'))
             ->where($qry)->first();
 
         // If the game exists, update it; otherwise, create a new one
         if ($game) {
+
+            if ($has_time) {
+                $arr['utc_date'] = $utc_date;
+                $arr['has_time'] = $has_time;
+            } else if (!$game->has_time) {
+                $arr['utc_date'] = $utc_date;
+                $arr['has_time'] = $has_time;
+            }
+
             $game->update($arr);
             $msg = 'updated';
         } else {
+            $arr['utc_date'] = $utc_date;
+            $arr['has_time'] = $has_time;
+            $arr['game_score_status_id'] = gameScoresStatus('scheduled');
             $game = Game::create($arr);
             $msg = 'saved';
         }

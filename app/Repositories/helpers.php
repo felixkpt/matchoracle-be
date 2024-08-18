@@ -144,7 +144,14 @@ if (!function_exists('gameScoresStatus')) {
 if (!function_exists('unsettledGameScoreStatuses')) {
     function unsettledGameScoreStatuses()
     {
-        return [1100, 1101, 1104];
+        return array_merge([0], GameScoreStatus::where('is_fully_settled', 0)->pluck('id')->toArray());
+    }
+}
+
+if (!function_exists('settledGameScoreStatuses')) {
+    function settledGameScoreStatuses()
+    {
+        return GameScoreStatus::where('is_fully_settled', 1)->pluck('id')->toArray();
     }
 }
 

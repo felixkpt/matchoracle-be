@@ -25,11 +25,12 @@ class StandingsHandlerJob implements ShouldQueue
      * @var string
      */
     protected $task = 'recent_results';
+    protected $ignore_timing;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task)
+    public function __construct($task, $ignore_timing)
     {
 
         // Set the maximum execution time (seconds)
@@ -46,6 +47,10 @@ class StandingsHandlerJob implements ShouldQueue
         if ($task) {
             $this->task = $task;
         }
+
+        if ($ignore_timing) {
+            $this->ignore_timing = $ignore_timing;
+        }
     }
 
     /**
@@ -59,6 +64,9 @@ class StandingsHandlerJob implements ShouldQueue
         request()->merge(['without_response' => true]);
 
         $lastFetchColumn = 'standings_' . $this->task . '_last_fetch';
+
+        $delay = 60 * 24 * 15;
+        if ($this->ignore_timing) $delay = 0;
 
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
@@ -78,7 +86,7 @@ class StandingsHandlerJob implements ShouldQueue
                 });
             })
             ->where('has_standings', true)
-            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, 60 * 24 * 2))
+            ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
             ->limit(700)
             ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
@@ -90,7 +98,7 @@ class StandingsHandlerJob implements ShouldQueue
         foreach ($competitions as $key => $competition) {
 
             if ($this->runTimeExceeded()) exit;
-            
+
             echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
             $this->doCompetitionRunLogging();
 

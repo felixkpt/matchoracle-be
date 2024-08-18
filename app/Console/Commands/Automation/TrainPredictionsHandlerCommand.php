@@ -14,7 +14,7 @@ class TrainPredictionsHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:train-predictions-handler {--task=} {--competition=}';
+    protected $signature = 'app:train-predictions-handler {--task=} {--ignore-timing} {--competition=}';
 
     /**
      * The console command description.
@@ -35,11 +35,12 @@ class TrainPredictionsHandlerCommand extends Command
             return 0;
         }
 
-        
+
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
-        
+        $ignore_timing = $this->option('ignore-timing');
+
         $competition_id = $this->option('competition');
-        dispatch(new TrainPredictionsHandlerJob($task, $competition_id));
+        dispatch(new TrainPredictionsHandlerJob($task, $ignore_timing, $competition_id));
         $this->info('Train Predictions handler command executed successfully!');
     }
 }

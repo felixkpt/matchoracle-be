@@ -39,7 +39,7 @@ class SeasonsHandler
         // echo ($url) . "\n";
 
         $content = Client::get($url);
-        if (!$content) return $this->inaccessibleMessage();
+        if (!$content) return $this->matchMessage('Source inaccessible');
 
         $crawler = new Crawler($content);
 
@@ -97,8 +97,11 @@ class SeasonsHandler
         $message = 'Seasons for ' . $competition->name . ' saved/updated. ';
         $message .= $saved . ' seasons saved, ' . $updated . ' seasons updated.';
 
-
-        $response = ['message' => $message, 'results' => ['saved_updated' => $saved + $updated]];
+        $response = [
+            'message' => $message,
+            'status' => $saved > 0 ? 200 : 201,
+            'results' => ['saved_updated' => $saved + $updated]
+        ];
 
         if (request()->without_response) return $response;
 

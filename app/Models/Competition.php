@@ -62,9 +62,11 @@ class Competition extends Model
     return $this->belongsTo(Country::class);
   }
 
-  function teams()
+  public function teams()
   {
-    return $this->hasMany(Team::class);
+    return $this->belongsToMany(Team::class, 'season_teams')
+      ->withPivot('position', 'status_id', 'user_id', 'uuid')
+      ->withTimestamps();
   }
 
   function gameSources()

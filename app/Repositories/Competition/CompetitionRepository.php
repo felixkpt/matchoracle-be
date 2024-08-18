@@ -337,7 +337,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                 ->when($season_id, fn ($q) => $this->seasonFilter($q, 'id'))
                 ->whereHas('standings')->count(),
 
-            "teams" => $this->model::find($id)->teams()->count(),
+            "teams" => $this->model::find($id)->teams()->where('season_id', $season_id)->count(),
 
             "past-matches" => $this->model::find($id)->games()
                 ->when($season_id, fn ($q) => $this->seasonFilter($q))

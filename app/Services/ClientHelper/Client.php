@@ -102,8 +102,6 @@ class Client
             Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->put($path, $fileContent);
             Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->setVisibility($path, 'public');
 
-            Log::info('Compe url::', [Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->url($path)]);
-
 
             // Return the filePath/path where the file is saved
             return $filePath;

@@ -30,7 +30,7 @@ class MatchesHandlerJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $competition_id, $ignore_timing)
+    public function __construct($task, $ignore_timing, $competition_id)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
@@ -47,13 +47,14 @@ class MatchesHandlerJob implements ShouldQueue
             $this->task = $task;
         }
 
+        if ($ignore_timing) {
+            $this->ignore_timing = $ignore_timing;
+        }
+
         if ($competition_id) {
             request()->merge(['competition_id' => $competition_id]);
         }
 
-        if ($ignore_timing) {
-            $this->ignore_timing = $ignore_timing;
-        }
     }
 
     /**
@@ -80,21 +81,25 @@ class MatchesHandlerJob implements ShouldQueue
             $delay = 60 * 24 * 2;
         }
 
+        if ($this->ignore_timing) $delay = 0;
+
         // Get competitions that need matches data updates
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
-            ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
-            ->when(request()->competition_id, fn ($q) => $q->where('competitions.id', request()->competition_id))
+            ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
+            ->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))
             ->whereHas('gameSources', function ($q) {
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('seasons')
-            ->when($this->task == 'recent_results', fn ($q) => $q->whereHas('games', fn ($q) => $q->where('utc_date', '>', Carbon::now()->subDays(5))->where('utc_date', '<', Carbon::now()->subHours(5))))
-            // ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+            ->when($this->task == 'recent_results', fn($q) => $q->whereHas('games', fn($q) => $q->where('utc_date', '>', Carbon::now()->subDays(5))->where('utc_date', '<', Carbon::now()->subHours(5))))
+            ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
             ->limit(700)
             ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
             ->get();
+
+        // dd($lastFetchColumn,$competitions->count());
 
         // Loop through each competition to fetch and update matches
         $should_sleep_for_competitions = false;
@@ -104,11 +109,12 @@ class MatchesHandlerJob implements ShouldQueue
             $this->doCompetitionRunLogging();
 
             $seasons = $competition->seasons()
-                ->when(Str::endsWith($this->task, 'fixtures'), fn ($q) => $q->where('is_current', true))
+                ->when(Str::endsWith($this->task, 'fixtures'), fn($q) => $q->where('is_current', true))
                 ->whereDate('start_date', '>=', '2015-01-01')
                 ->where('fetched_all_matches', false)
                 ->take($this->task == 'historical_results' ? 15 : 1)
                 ->orderBy('updated_at', 'asc')->get();
+
             $total_seasons = $seasons->count();
 
             $should_sleep_for_seasons = false;
@@ -144,9 +150,9 @@ class MatchesHandlerJob implements ShouldQueue
                 // Introduce a delay to avoid rapid consecutive requests
                 sleep($should_sleep_for_seasons ? 15 : 0);
                 $should_sleep_for_seasons = false;
-            }
 
-            $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
+                $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
+            }
 
             $this->determineCompetitionGamesPerSeason($competition, $seasons);
 
@@ -209,15 +215,19 @@ class MatchesHandlerJob implements ShouldQueue
     {
         if ($this->task == 'fixtures') return false;
 
-        $teams_counts = $competition->teams()->count();
-        $expected_games_per_season = intval(2 * ($teams_counts - 1) * ($teams_counts / 2));
-
-        if ($expected_games_per_season === 0) return false;
-
-        echo "Teams counts: {$teams_counts}, expected games per season: {$expected_games_per_season}\n";
-
         $season_matches_arr = [];
+
         foreach ($seasons as $season) {
+            $teams_counts = $competition->teams()
+                ->wherePivot('season_id', $season->id)
+                ->count();
+
+            $expected_games_per_season = intval(2 * ($teams_counts - 1) * ($teams_counts / 2));
+
+            if ($expected_games_per_season === 0) continue;
+
+            echo "Season ID: {$season->id}, Teams counts: {$teams_counts}, Expected games per season: {$expected_games_per_season}\n";
+
             $start_date = Str::before($season->start_date, '-');
             $end_date = Str::before($season->end_date, '-');
 
@@ -229,19 +239,17 @@ class MatchesHandlerJob implements ShouldQueue
 
         // season average matches is count of most repeated match counts
         rsort($season_matches_arr);
-        $season_matches_arr = array_filter($season_matches_arr, fn ($val) => $val >= $expected_games_per_season);
+        $season_matches_arr = array_filter($season_matches_arr, fn($val) => $val >= $expected_games_per_season);
 
         echo "Counts after filtering >= expected_games_per_season: " . count($season_matches_arr) . "\n";
 
         if (count($season_matches_arr) >= 3) {
-
             // Get the first three most repeated counts
             $most_repeated_counts = array_slice($season_matches_arr, 0, 3);
 
             $games_per_season = intval(array_sum($most_repeated_counts) / 3);
             // Check if the first two counts are the same
             if (count(array_count_values($most_repeated_counts)) == 1 || $games_per_season == $expected_games_per_season) {
-
                 if ($games_per_season > 0 && $competition->games_per_season != $games_per_season) {
                     echo "Games per season: {$games_per_season} games\n";
 

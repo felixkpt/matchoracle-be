@@ -33,7 +33,6 @@ class MatchHandler
     function fetchMatch($game_id)
     {
         $game = Game::query()
-            ->where('status_id', activeStatusId())
             ->where('id', $game_id)
             ->firstOrFail();
 
@@ -65,9 +64,6 @@ class MatchHandler
     {
         $content = Client::get($url);
         if (!$content) return $this->matchMessage('Source inaccessible or not found.', 500);
-
-        // $content = file_get_contents(storage_path('app/public/saved-matches/Liverpool vs Crystal Palace predictions and stats - 14 Apr 2024.html'));
-        // dd($content);
 
         $crawler = new Crawler($content);
 
@@ -335,8 +331,6 @@ class MatchHandler
                         // Return only if competition exists
                         return $match;
                     }
-                } else {
-                    Log::critical("Competition abbreviation not found::", ['abbrv' => $abbrv, 'country' => $country->name ?? 'N/A']);
                 }
             }
 
@@ -352,6 +346,7 @@ class MatchHandler
 
     function deactivateGames($game, $matches, $playing = 'home')
     {
+        return;
 
         $team = $game->homeTeam;
         if ($playing == 'away') {
@@ -366,8 +361,8 @@ class MatchHandler
         $team_games = Game::query()
             ->where('status_id', activeStatusId())
             ->whereIn('game_score_status_id', unsettledGameScoreStatuses())
-            ->where('utc_date', '>=', $old_date)
-            ->where('utc_date', '<=', $latest_date)
+            ->where('date', '>=', $old_date)
+            ->where('date', '<=', $latest_date)
             ->where(function ($q) use ($team) {
                 $q->where('home_team_id', $team->id)
                     ->orWhere('away_team_id', $team->id);

@@ -15,6 +15,7 @@ class Game extends Model
         'away_team_id',
         'season_id',
         'country_id',
+        'date',
         'utc_date',
         'has_time',
         'status',
@@ -29,7 +30,7 @@ class Game extends Model
 
     public function lastAction()
     {
-        return $this->belongsTo(GameLastAction::class);
+        return $this->hasOne(GameLastAction::class);
     }
 
     public function competition()

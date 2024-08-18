@@ -21,103 +21,84 @@ class GameUtility
 
     function __construct()
     {
-        // Determine the prediction type mode based on the request
         $this->predictionTypeMode = request()->prediction_mode_id == 2 ? 'sourcePrediction' : 'prediction';
-
-        // Configure execution settings
         $this->configureExecutionSettings();
     }
 
-    /**
-     * Configure execution settings such as max execution time and memory limit.
-     */
     private function configureExecutionSettings()
     {
         ini_set('max_execution_time', 60 * 10);
         ini_set('memory_limit', '1024M');
     }
 
-    /**
-     * Apply filters to the games query.
-     */
     function applyGameFilters($id = null)
     {
-
         $all_params = request()->all_params;
 
-        if (is_array($all_params)) {
-            $team_id = $all_params['team_id'] ?? null;
-            $team_ids = $all_params['team_ids'] ?? null;
-            $playing = $all_params['playing'] ?? null;
-            $from_date = $all_params['from_date'] ?? null;
-            $date = $all_params['date'] ?? null;
-            $to_date = $all_params['to_date'] ?? null;
-            $currentground = $all_params['currentground'] ?? null;
-            $season_id = $all_params['season_id'] ?? null;
-            $type = $all_params['type'] ?? null;
-            $order_by = $all_params['order_by'] ?? 'utc_date';
-            $order_direction = $all_params['order_direction'] ?? 'desc';
-            $per_page = $all_params['per_page'] ?? null;
-        } else {
-            $team_id = request()->team_id ?? null;
-            $team_ids = request()->team_ids ?? null;
-            $playing = request()->playing ?? null;
-            $from_date = request()->from_date ?? null;
-            $date = request()->date ?? null;
-            $to_date = request()->to_date ?? null;
-            $currentground = request()->currentground ?? null;
-            $season_id = request()->season_id ?? null;
-            $type = request()->type ?? null;
-            $order_by = request()->order_by ?? null;
-            $order_direction = request()->order_direction ?? 'desc';
-            $per_page = request()->per_page ?? null;
-        }
+        $params = is_array($all_params) ? $all_params : request()->all();
+        $order_by = $params['order_by'] ?? 'utc_date';
+        $order_direction = $params['order_direction'] ?? 'desc';
+        $per_page = $params['per_page'] ?? null;
 
-        request()->merge(['order_by' => $order_by ?? 'utc_date', 'per_page' => $per_page]);
-        request()->merge(['order_direction' => $order_direction]);
+        request()->merge(['order_by' => $order_by, 'per_page' => $per_page, 'order_direction' => $order_direction]);
 
         $games = Game::query()
-            ->when(true, fn ($q) => $q->where('status_id', activeStatusId()))
-            ->when($team_id, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', $team_id)->orWhere('away_team_id', $team_id)))
-            ->when($team_ids, fn ($q) => $this->teamsMatch($q, $team_ids, $playing))
-            ->when($currentground, fn ($q) => $currentground == 'home' ? $q->where('home_team_id', $team_id) : ($currentground == 'away' ? $q->where('away_team_id', $team_id) :  $q))
-            ->when($from_date, fn ($q) => $q->whereDate('utc_date', '>=', Carbon::parse($from_date)->format('Y-m-d')))
-            ->when($to_date, fn ($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($to_date)->format('Y-m-d')))
-            ->when($date, fn ($q) => $q->whereDate('utc_date', '=', Carbon::parse($date)->format('Y-m-d')))
-            ->when(!$date && !$to_date && $type, fn ($q) => $this->typeOrdering($q, $type, $to_date))
-            ->when($season_id, fn ($q) => $q->where('season_id', $season_id))
+            ->when(true, fn ($q) => $q->where('status_id', activeStatusId()));
+
+        // Apply filters
+        $this->applyTeamFilters($games, $params);
+        $this->applyDateFilters($games, $params);
+        $this->applyMiscFilters($games, $params, $id);
+
+        $games = $this->applyWithRelations($games, $params);
+
+        return $games;
+    }
+
+    private function applyTeamFilters($query, $params)
+    {
+        $query->when($params['team_id'] ?? null, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', $params['team_id'])->orWhere('away_team_id', $params['team_id'])))
+            ->when($params['team_ids'] ?? null, fn ($q) => $this->teamsMatch($q, $params['team_ids'], $params['playing'] ?? null))
+            ->when($params['currentground'] ?? null, fn ($q) => $this->filterByGround($q, $params['currentground'], $params['team_id']));
+    }
+
+    private function applyDateFilters($query, $params)
+    {
+        $query->when($params['from_date'] ?? null, fn ($q) => $q->whereDate('utc_date', '>=', Carbon::parse($params['from_date'])->format('Y-m-d')))
+            ->when($params['to_date'] ?? null, fn ($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($params['to_date'])->format('Y-m-d')))
+            ->when($params['date'] ?? null, fn ($q) => $q->whereDate('utc_date', '=', Carbon::parse($params['date'])->format('Y-m-d')))
+            ->when(!($params['date'] ?? null) && !($params['to_date'] ?? null) && ($params['type'] ?? null), fn ($q) => $this->typeOrdering($q, $params['type'], $params['to_date'] ?? null));
+    }
+
+    private function applyMiscFilters($query, $params, $id)
+    {
+        $query->when($params['season_id'] ?? null, fn ($q) => $q->where('season_id', $params['season_id']))
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
             ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
-            ->when(request()->yesterday, fn ($q) => $q->whereDate('utc_date', Carbon::yesterday()))
-            ->when(request()->today, fn ($q) => $q->whereDate('utc_date', Carbon::today()))
-            ->when(request()->tomorrow, fn ($q) => $q->whereDate('utc_date', Carbon::tomorrow()))
-            ->when(request()->year, fn ($q) => $q->whereYear('utc_date', request()->year))
-            ->when(request()->year && request()->month, fn ($q) => $this->yearMonthFilter($q))
-            ->when(request()->year && request()->month && request()->day, fn ($q) => $this->yearMonthDayFilter($q))
             ->when($id, fn ($q) => $q->where('games.id', $id))
             ->when(request()->include_ids, fn ($q) => $q->whereIn('games.id', request()->include_ids))
             ->when(request()->exclude_ids, fn ($q) => $q->whereNotIn('games.id', request()->exclude_ids))
             ->when(request()->limit, fn ($q) => $q->limit(request()->limit));
+    }
 
-        $with = ['competition' => fn ($q) => $q->with(['country', 'currentSeason']), 'homeTeam', 'awayTeam', 'score', 'votes', 'referees', 'odds'];
+    private function applyWithRelations($query, $params)
+    {
+        $with = [
+            'competition' => fn ($q) => $q->with(['country', 'currentSeason']),
+            'homeTeam', 'awayTeam', 'score', 'votes', 'referees', 'odds'
+        ];
 
         if (request()->include_preds || request()->requires_preds) {
-            if (request()->prediction_mode_id == 1 || !request()->prediction_mode_id) {
-                array_push($with, 'prediction');
-                if (request()->requires_preds) {
-                    $games = $games->whereHas('prediction');
-                }
-            } else if (request()->prediction_mode_id == 2) {
-                array_push($with, 'sourcePrediction');
-                if (request()->requires_preds) {
-                    $games = $games->whereHas('sourcePrediction');
-                }
-            }
+            $with[] = $this->predictionTypeMode;
+            $query->when(request()->requires_preds, fn ($q) => $q->whereHas($this->predictionTypeMode));
         }
 
-        $games = $games->with($with);
+        return $query->with($with);
+    }
 
-        return $games;
+    private function filterByGround($query, $currentground, $team_id)
+    {
+        return $currentground == 'home' ? $query->where('home_team_id', $team_id) : ($currentground == 'away' ? $query->where('away_team_id', $team_id) : $query);
     }
 
     /**

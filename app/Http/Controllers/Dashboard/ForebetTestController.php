@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Competition;
+use App\Models\Season;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 
@@ -36,11 +37,12 @@ class ForebetTestController extends Controller
 
         $competition = Competition::find($competition_id);
         // $season = Season::where('competition_id', $competition->id)->where('is_current', false)->first();
-        // $season = Season::where('competition_id', $competition->id)->whereYear('start_date', '2016')->first();
-
+        // $season = Season::where('competition_id', $competition->id)->whereYear('start_date', '2024')->first();
+        $season = Season::find(1103);
+        
         // return $this->fetchStandings($competition->id, $season->id);
         return $this->fetchMatches($competition->id, $season->id, false);
-        return $this->fetchMatch(request()->test_id ?? 1164);
+        // return $this->fetchMatch(request()->test_id ?? 1164);
     }
 
     function fetchSeasons($competition_id)

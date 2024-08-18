@@ -3,6 +3,7 @@
 namespace App\Jobs\Automation;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 trait AutomationTrait
@@ -59,19 +60,25 @@ trait AutomationTrait
      */
     private function updateLastAction($model, $should_update_last_action, $column, $field = 'competition_id')
     {
-        // Check if the column is specified and there are seasons to update.
         if ($column && $should_update_last_action) {
-            
-            // Update or create the last action entry with the current timestamp.
-            $model
-                ->lastAction()
-                ->updateOrCreate(
-                    [$field => $model->id],
-                    [
-                        $field => $model->id,
-                        $column => now(),
-                    ]
-                );
+            try {
+                DB::transaction(function () use ($model, $column, $field) {
+                    $lastAction = $model->lastAction()->where($field, $model->id)->first();
+
+                    if ($lastAction) {
+                        $lastAction->update([$column => now()]);
+                    } else {
+                        $model->lastAction()->create([
+                            $field => $model->id,
+                            $column => now(),
+                        ]);
+                    }
+                });
+            } catch (\Exception $e) {
+                Log::error("Failed to update last action: " . $e->getMessage());
+                // Optionally, rethrow the exception if you want it to propagate further.
+                // throw $e;
+            }
         }
     }
 

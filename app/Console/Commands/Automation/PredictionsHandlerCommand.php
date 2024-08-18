@@ -13,7 +13,7 @@ class PredictionsHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:predictions-handler {--task=} {--competition=}';
+    protected $signature = 'app:predictions-handler {--task=} {--ignore-timing} {--competition=}';
 
     /**
      * The console command description.
@@ -35,10 +35,11 @@ class PredictionsHandlerCommand extends Command
         }
 
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
+        $ignore_timing = $this->option('ignore-timing');
 
         $competition_id = $this->option('competition');
 
-        dispatch(new PredictionsHandlerJob($task, $competition_id));
+        dispatch(new PredictionsHandlerJob($task, $ignore_timing, $competition_id));
         $this->info('Predictions handler command executed successfully!');
 
         return 1;

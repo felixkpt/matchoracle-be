@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('away_team_id');
             $table->unsignedBigInteger('season_id')->nullable();
             $table->unsignedBigInteger('country_id');
+            $table->date('date');
             $table->datetime('utc_date');
             $table->boolean('has_time')->default(false);
             $table->string('status');
@@ -30,6 +31,9 @@ return new class extends Migration
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
+
+            // Adding the unique index to restrain duplicates
+            $table->unique(['home_team_id', 'away_team_id', 'date'], 'unique_game_match');
         });
     }
 

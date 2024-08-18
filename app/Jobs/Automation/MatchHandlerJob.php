@@ -26,13 +26,13 @@ class MatchHandlerJob implements ShouldQueue
      * @var string
      */
     protected $task = 'recent_results';
-    protected $ignore_date;
+    protected $ignore_timing;
     protected $match_id;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $ignore_date, $match_id)
+    public function __construct($task, $ignore_timing, $match_id)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
@@ -47,8 +47,9 @@ class MatchHandlerJob implements ShouldQueue
         if ($task) {
             $this->task = $task;
         }
-        if ($ignore_date) {
-            $this->ignore_date = $ignore_date;
+
+        if ($ignore_timing) {
+            $this->ignore_timing = $ignore_timing;
         }
 
         if ($match_id) {
@@ -79,6 +80,8 @@ class MatchHandlerJob implements ShouldQueue
             $delay = 60;
         }
 
+        if ($this->ignore_timing) $delay = 0;
+
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
@@ -91,7 +94,9 @@ class MatchHandlerJob implements ShouldQueue
             ->whereHas('games', function ($q) {
                 $q->when(!$this->match_id, function ($q) {
                     // Exclude action filters when match_id is not null
-                    $this->lastActionFilters($q->whereIn('game_score_status_id', unsettledGameScoreStatuses()));
+                    $q->whereNotIn('game_score_status_id', settledGameScoreStatuses());
+
+                    $this->lastActionFilters($q);
                 })
                     ->when($this->match_id, function ($q) {
                         // Apply game ID filter when match_id is provided
@@ -100,12 +105,13 @@ class MatchHandlerJob implements ShouldQueue
             })
             ->when(!$this->match_id, function ($q) use ($lastFetchColumn, $delay) {
                 // Apply last action delay when match_id is not provided
-                $q->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay));
+                $q->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay));
             })
             ->select('competitions.*')
             ->limit(1000)
             ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
             ->get();
+
 
         // Loop through each competition to fetch and update matches
         $should_sleep_for_competitions = false;
@@ -115,11 +121,12 @@ class MatchHandlerJob implements ShouldQueue
             $this->doCompetitionRunLogging();
 
             $seasons = $competition->seasons()
-                ->when($this->task == 'fixtures', fn ($q) => $q->where('is_current', true))
-                ->whereDate('start_date', '>=', '2020-01-01')
+                ->when($this->task == 'fixtures', fn($q) => $q->where('is_current', true))
+                ->whereDate('start_date', '>=', '2016-01-01')
                 ->where('fetched_all_single_matches', false)
                 ->take($this->task == 'historical_results' ? 15 : 1)
                 ->orderBy('start_date', 'desc')->get();
+
             $total_seasons = $seasons->count();
 
             $should_sleep_for_seasons = false;
@@ -142,15 +149,19 @@ class MatchHandlerJob implements ShouldQueue
                     });
 
                 $builder = $this->lastActionFilters($builder->whereIn('game_score_status_id', unsettledGameScoreStatuses()));
+                $unsettled_games = $builder->count();
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
 
-                echo ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date}, untouched games {$builder->count()}/{$season_games} games)\n";
+                echo ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date}, unsettled games {$unsettled_games}/{$season_games} games)\n";
+                if ($unsettled_games === 0) continue;
 
                 $delay_games = 90;
+                if ($this->ignore_timing) $delay_games = 0;
+
                 $games = $builder
-                    ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay_games, 'game_last_actions'))
+                    ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay_games, 'game_last_actions'))
                     ->select('games.*')
                     ->limit(1000)->orderBy('game_last_actions.' . $lastFetchColumn, 'asc')
                     ->get();
@@ -158,6 +169,7 @@ class MatchHandlerJob implements ShouldQueue
                 $total_games = $games->count();
                 echo "After applying last action delay check >= {$delay_games} mins: {$total_games} games\n";
                 if ($total_games === 0) continue;
+
 
                 // Loop through each game to fetch and update matches
                 foreach ($games as $key => $game) {
@@ -217,10 +229,10 @@ class MatchHandlerJob implements ShouldQueue
                 $q->where('utc_date', '>=', Carbon::now()->subDays(5))
                     ->where('utc_date', '<=', Carbon::now()->subHours(5));
             })
-            ->when($this->task == 'shallow_fixtures', fn ($q) => $q
+            ->when($this->task == 'shallow_fixtures', fn($q) => $q
                 ->where('utc_date', '>', Carbon::now())
                 ->where('utc_date', '<=', Carbon::now()->addDays(7)))
-            ->when($this->task == 'fixtures', fn ($q) => $q
+            ->when($this->task == 'fixtures', fn($q) => $q
                 ->where('utc_date', '>', Carbon::now()->addDays(7)));
 
         return $query;

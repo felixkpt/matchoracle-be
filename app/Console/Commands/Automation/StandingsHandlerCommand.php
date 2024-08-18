@@ -13,7 +13,7 @@ class StandingsHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:standings-handler {--task=}';
+    protected $signature = 'app:standings-handler {--task=} {--ignore-timing}';
 
     /**
      * The console command description.
@@ -28,6 +28,7 @@ class StandingsHandlerCommand extends Command
     public function handle()
     {
         $task = $this->option('task') ?? 'recent_results';
+        $ignore_timing = $this->option('ignore-timing');
 
         if ($task != 'recent_results' && $task != 'historical_results') {
             $this->warn('Task should be either recent_results or historical_results');
@@ -36,7 +37,7 @@ class StandingsHandlerCommand extends Command
 
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
 
-        dispatch(new StandingsHandlerJob($task));
+        dispatch(new StandingsHandlerJob($task, $ignore_timing));
         $this->info('Standings handler command executed successfully!');
     }
 }

@@ -108,7 +108,7 @@ class TeamsHandler
             $arr
         );
 
-        static::attachSeason($team, $competition, $position);
+        static::attachSeason($team, $competition, $season, $position);
 
         static::saveCoach($teamData, $team);
 
@@ -121,7 +121,28 @@ class TeamsHandler
         return $team;
     }
 
+    static function attachSeason($team, $competition, $season, $position)
+    {
 
+        if (isset($season) && $season->id) {
+
+            $exists = $team->seasons()->wherePivot('season_id', $season->id)->first();
+
+            $arr = ['competition_id' => $competition->id, 'status_id' => 1, 'user_id' => auth()->id() ?? 0, 'uuid' => Str::uuid()];
+
+            if ($position) {
+                $arr['position'] = $position;
+            }
+
+            if (!$exists) {
+                $team->seasons()->attach($season->id, $arr);
+            } else {
+                if ($position) {
+                    $exists->pivot->update(['position' => $position,]);
+                }
+            }
+        }
+    }
 
     function updateByCompetition($id)
     {
@@ -154,27 +175,5 @@ class TeamsHandler
         }
 
         return true;
-    }
-
-    static function attachSeason($team, $competition, $position)
-    {
-        if (isset($season) && $season->id) {
-
-            $exists = $team->seasons()->wherePivot('season_id', $season->id)->first();
-
-            $arr = ['competition_id' => $competition->id, 'status_id' => 1, 'user_id' => auth()->id() ?? 0, 'uuid' => Str::uuid()];
-
-            if ($position) {
-                $arr['position'] = $position;
-            }
-
-            if (!$exists) {
-                $team->seasons()->attach($season->id, $arr);
-            } else {
-                if ($position) {
-                    $exists->update(['position' => $position,]);
-                }
-            }
-        }
     }
 }

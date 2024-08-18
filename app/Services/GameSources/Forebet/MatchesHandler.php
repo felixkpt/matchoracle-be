@@ -3,9 +3,11 @@
 namespace App\Services\GameSources\Forebet;
 
 use App\Models\Game;
+use App\Models\Season;
 use App\Models\Team;
 use App\Services\ClientHelper\Client;
 use App\Services\GameSources\Interfaces\MatchesInterface;
+use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -32,6 +34,14 @@ class MatchesHandler implements MatchesInterface
 
         $this->is_fixtures = $is_fixtures;
 
+        // if its fixtures and season is not active return error message
+
+        if ($is_fixtures && $season_id) {
+            $is_current = !!Season::findOrFail($season_id)->is_current;
+            // if is not array then there could be an error that has occured
+            if (!$is_current) return $this->matchMessage('When fetching fixtures season should be active.', 422);
+        }
+
         $results = $this->prepareFetch($competition_id, $season_id);
 
         if (is_array($results) && $results['message'] === true) {
@@ -52,19 +62,23 @@ class MatchesHandler implements MatchesInterface
 
         $messages = [];
         $saved = $updated = 0;
-        foreach ($links as $link) {
-            $url = $this->sourceUrl . ltrim($link, '/');
+        foreach ($links as $i => $link) {
+            try {
+                $url = $this->sourceUrl . ltrim($link, '/');
 
-            $content = Client::get($url);
-            if (!$content) $this->has_errors = true;
+                $content = Client::get($url);
+                if (!$content) $this->has_errors = true;
 
-            $crawler = new Crawler($content);
-            [$saved_new, $updated_new, $msg_new] = $this->handleMatches($competition, $season, $crawler);
-            $saved = $saved + $saved_new;
-            $updated = $updated + $updated_new;
-            $messages[] = $msg_new;
+                $crawler = new Crawler($content);
+                [$saved_new, $updated_new, $msg_new] = $this->handleMatches($competition, $season, $crawler);
+                $saved = $saved + $saved_new;
+                $updated = $updated + $updated_new;
+                $messages[] = $msg_new;
 
-            sleep(5);
+                sleep(5);
+            } catch (Exception $e) {
+                Log::critical("fetchMatches Error {$i}: " . $e->getMessage());
+            }
         }
 
         if ($saved > 0) {
@@ -105,132 +119,126 @@ class MatchesHandler implements MatchesInterface
 
     private function handleMatches($competition, $season, $crawler)
     {
-        
+
         $matchesData = $this->is_fixtures ? $this->filterUpcomingMatches($crawler) : $this->filterPlayedMatches($crawler);
-        
+
         $msg = "";
         $saved = $updated = 0;
-        try {
 
-            DB::beginTransaction();
+        $country = $competition->country;
 
-            $country = $competition->country;
+        $date_not_found = [];
+        $country_not_found = [];
+        $competition_not_found = [];
+        $home_team_not_found = [];
+        $away_team_not_found = [];
 
-            $date_not_found = [];
-            $country_not_found = [];
-            $competition_not_found = [];
-            $home_team_not_found = [];
-            $away_team_not_found = [];
+        if (!is_array($matchesData)) {
+            abort(500, "Cannot get matches for: compe#$competition->id, season#$season->id");
+        }
 
-            foreach ($matchesData as $key => $match) {
+        foreach ($matchesData as $key => $match) {
 
-                if ($match['date']) {
 
-                    $homeTeam = Team::whereHas('gameSources', function ($q) use ($match) {
-                        $q->where('source_uri', $match['home_team']['uri']);
-                    })->first();
-                    if (!$homeTeam) {
-                        $homeTeam = (new TeamsHandler())->updateOrCreate($match['home_team'], $country, $competition, $season, true);
-                    }
+            if ($match['date']) {
 
-                    $awayTeam = Team::whereHas('gameSources', function ($q) use ($match) {
-                        $q->where('source_uri', $match['away_team']['uri']);
-                    })->first();
-                    if (!$awayTeam) {
-                        $awayTeam = (new TeamsHandler())->updateOrCreate($match['away_team'], $country, $competition, $season, true);
-                    }
+                try {
+                    DB::beginTransaction();
 
+                    $homeTeam = $this->handleTeam($match['home_team'], $country, $competition, $season, $home_team_not_found);
+                    $awayTeam = $this->handleTeam($match['away_team'], $country, $competition, $season, $away_team_not_found);
 
                     if ($homeTeam && $awayTeam) {
-                        // All is set can now save game!
                         $result = $this->saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam);
 
-                        // Check the result of the save operation
                         if ($result === 'saved') {
                             $saved++;
                         } elseif ($result === 'updated') {
                             $updated++;
                         }
-                    } else {
-
-                        if (!$homeTeam) {
-
-                            if (!isset($home_team_not_found[$country->name])) {
-                                $home_team_not_found[$match['home_team']['name']] = 1;
-                            } else {
-                                $home_team_not_found[$match['home_team']['name']] = $home_team_not_found[$match['home_team']['name']] + 1;
-                            }
-
-                            Log::critical('homeTeam not found:', (array) $match['home_team']['name']);
-                        }
-
-                        if (!$awayTeam) {
-
-                            if (!isset($away_team_not_found[$country->name])) {
-                                $away_team_not_found[$match['away_team']['name']] = 1;
-                            } else {
-                                $away_team_not_found[$match['away_team']['name']] = $away_team_not_found[$match['away_team']['name']] + 1;
-                            }
-
-                            Log::critical('awayTeam not found:', (array) $match['away_team']['name']);
-                        }
                     }
-                } else {
-                    $no_date_mgs = ['competition' => $competition->id, 'season' => $season->id, 'match' => $match];
-                    $date_not_found['match'][$key] = $match;
-                    Log::critical('Match has no date:', $no_date_mgs);
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    $this->has_errors = true;
+
+                    $msg = "Error during data import for compe#$competition->id, season#1363$season->id: ";
+                    Log::error($msg . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
                 }
+            } else {
+                $no_date_msg = ['competition' => $competition->id, 'season' => $season->id, 'match' => $match];
+                $date_not_found['match'][$key] = $match;
+                Log::critical('Match has no date:', $no_date_msg);
             }
-
-            DB::commit();
-
-            $msg = "Fetching matches completed, (saved $saved, updated: $updated).";
-
-            if (count($date_not_found) > 0) {
-                $msg .= ' ' . count($date_not_found) . ' dates were not found.';
-            }
-
-            if (count($country_not_found) > 0) {
-                $msg .= ' ' . count($country_not_found) . ' countries were not found.';
-            }
-
-            if (count($competition_not_found) > 0) {
-                $msg .= ' ' . count($competition_not_found) . ' competitions were not found.';
-            }
-
-            if (count($home_team_not_found) > 0) {
-                $msg .= ' ' . count($home_team_not_found) . ' home teams were not found.';
-            }
-
-            if (count($away_team_not_found) > 0) {
-                $msg .= ' ' . count($away_team_not_found) . ' away teams were not found.';
-            }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $this->has_errors = true;
-
-            Log::error('Error during data import: ' . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
-            $msg = 'Error during data import.';
         }
 
+        $msg = "Fetching matches completed, (saved $saved, updated: $updated).";
+
+        if (count($date_not_found) > 0) {
+            $msg .= ' ' . count($date_not_found) . ' dates were not found.';
+        }
+
+        if (count($country_not_found) > 0) {
+            $msg .= ' ' . count($country_not_found) . ' countries were not found.';
+        }
+
+        if (count($competition_not_found) > 0) {
+            $msg .= ' ' . count($competition_not_found) . ' competitions were not found.';
+        }
+
+        if (count($home_team_not_found) > 0) {
+            $msg .= ' ' . count($home_team_not_found) . ' home teams were not found.';
+        }
+
+        if (count($away_team_not_found) > 0) {
+            $msg .= ' ' . count($away_team_not_found) . ' away teams were not found.';
+        }
+
+
         return [$saved, $updated, $msg];
+    }
+
+    private function handleTeam($teamData, $country, $competition, $season, &$teamNotFound)
+    {
+        $team = Team::whereHas('gameSources', function ($q) use ($teamData) {
+            $q->where('source_uri', $teamData['uri']);
+        })->first();
+
+        if (!$team) {
+            $team = (new TeamsHandler())->updateOrCreate($teamData, $country, $competition, $season, true);
+            if (!$team) {
+                if (!isset($teamNotFound[$country->name])) {
+                    $teamNotFound[$teamData['name']] = 1;
+                } else {
+                    $teamNotFound[$teamData['name']]++;
+                }
+
+                Log::critical('Team not found:', (array) $teamData['name']);
+            }
+        }
+
+        return $team;
     }
 
     private function filterPlayedMatches($crawler)
     {
         $chosen_crawler = null;
-        $crawler->filter('.contentmiddle table[border="0"]')->each(function ($crawler) use (&$chosen_crawler) {
+        $has_matches = false;
+        $crawler->filter('.contentmiddle table[border="0"]')->each(function ($crawler) use (&$chosen_crawler, &$has_matches) {
+            $has_matches = true;
             if ($crawler->filter('tr.heading')->count() > 0) {
                 $chosen_crawler = $crawler;
                 return false;
             }
         });
 
-        if (!$chosen_crawler) return null;
+        if (!$chosen_crawler) return $has_matches ? [] : null;
 
         // Now $chosen_crawler contains the desired crawler
         $matches = [];
         $date = null;
+
+
         // Extracted data from the HTML will be stored in this array
         $matches = $chosen_crawler->filter('tr')->each(function ($crawler) use (&$date) {
 
@@ -287,14 +295,16 @@ class MatchesHandler implements MatchesInterface
     private function filterUpcomingMatches($crawler)
     {
         $chosen_crawler = null;
-        $crawler->filter('.contentmiddle table[border="0"]')->each(function ($crawler) use (&$chosen_crawler) {
+        $has_matches = false;
+        $crawler->filter('.contentmiddle table[border="0"]')->each(function ($crawler) use (&$chosen_crawler, &$has_matches) {
+            $has_matches = true;
             if ($crawler->filter('tr.heading')->count() > 0) {
                 $chosen_crawler = $crawler;
                 return false;
             }
         });
 
-        if (!$chosen_crawler) return null;
+        if (!$chosen_crawler) return $has_matches ? [] : null;
 
         // Now $chosen_crawler contains the desired crawler
         $matches = [];

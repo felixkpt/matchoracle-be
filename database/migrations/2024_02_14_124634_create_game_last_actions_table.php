@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('game_last_actions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('game_id');
-            
+            $table->unsignedInteger('game_id')->unique();
+                        
             $table->dateTime('match_recent_results_last_fetch')->nullable();
             $table->dateTime('match_historical_results_last_fetch')->nullable();
             $table->dateTime('match_fixtures_last_fetch')->nullable();

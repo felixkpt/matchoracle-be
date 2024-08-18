@@ -98,6 +98,7 @@ class DashboardController extends Controller
             'competition_prediction_statistics_logs' => $competitionPredictionStatisticsLogs,
 
             'predictions_job_logs' => $predictionsJobLogs,
+            
             'advanced_matches' => $matches,
         ];
 

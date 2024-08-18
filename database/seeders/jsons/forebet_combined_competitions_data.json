@@ -929,7 +929,7 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-brazil\/brasiliense-df",
+                "uri": "\/en\/football-tips-and-predictions-for-brazil\/brasiliense",
                 "name": "Brasiliense",
                 "category": "domestic",
                 "type": null,
@@ -950,7 +950,7 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-brazil\/carioca-b1",
+                "uri": "\/en\/football-tips-and-predictions-for-brazil\/carioca-2",
                 "name": "Carioca 2",
                 "category": "domestic",
                 "type": null,
@@ -1111,7 +1111,7 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-brazil\/campeonato-rondoniense",
+                "uri": "\/en\/football-tips-and-predictions-for-brazil\/rondoniense",
                 "name": "Rondoniense",
                 "category": "domestic",
                 "type": null,
@@ -1230,8 +1230,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-brazil\/copa-gaucha",
-                "name": "Copa Ga\u00facha",
+                "uri": "\/en\/football-tips-and-predictions-for-brazil\/copa-fgf",
+                "name": "Copa FGF",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -1252,7 +1252,7 @@
             },
             {
                 "uri": "\/en\/football-tips-and-predictions-for-brazil\/copa-sao-paulo-de-juniores",
-                "name": "Copa Sao Paulo de juniores",
+                "name": "Copa Sao Paulo de Juniores",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -1265,15 +1265,15 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-bulgaria\/first-league",
-                "name": "First League",
+                "uri": "\/en\/football-tips-and-predictions-for-bulgaria\/parva-liga",
+                "name": "Parva Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-bulgaria\/second-league",
-                "name": "Second Leagu\u0435",
+                "uri": "\/en\/football-tips-and-predictions-for-bulgaria\/vtora-liga",
+                "name": "Vtora Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -1342,8 +1342,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/predictions-burundi\/ligue-a",
-                "name": "Ligue A",
+                "uri": "\/en\/predictions-burundi\/primus-league",
+                "name": "Primus League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -2217,28 +2217,35 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-finland-veikkausliiga\/veikkausliiga",
+                "uri": "\/en\/football-tips-and-predictions-for-finland\/veikkausliiga",
                 "name": "Veikkausliiga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-finland-veikkausliiga\/ykkonen",
+                "uri": "\/en\/football-tips-and-predictions-for-finland\/finland-ykkonen",
                 "name": "Ykkosliiga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-finland-veikkausliiga\/kakkonen",
+                "uri": "\/en\/football-tips-and-predictions-for-finland\/ykkonen",
+                "name": "Ykkonen",
+                "category": "domestic",
+                "type": null,
+                "gender": 1
+            },
+            {
+                "uri": "\/en\/football-tips-and-predictions-for-finland\/kakkonen",
                 "name": "Kakkonen",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-finland-veikkausliiga\/suomen-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-finland\/suomen-cup",
                 "name": "Suomen Cup",
                 "category": "domestic",
                 "type": null,
@@ -5349,20 +5356,6 @@
     },
     {
         "country": {
-            "name": "Turkmenistan"
-        },
-        "competitions": [
-            {
-                "uri": "\/en\/predictions-turkmenistan\/yokary-liga",
-                "name": "Yokary Liga",
-                "category": "domestic",
-                "type": null,
-                "gender": 1
-            }
-        ]
-    },
-    {
-        "country": {
             "name": "Turkey"
         },
         "competitions": [
@@ -5404,6 +5397,20 @@
             {
                 "uri": "\/en\/football-tips-and-predictions-for-turkey\/super-cup",
                 "name": "Super Cup",
+                "category": "domestic",
+                "type": null,
+                "gender": 1
+            }
+        ]
+    },
+    {
+        "country": {
+            "name": "Turkmenistan"
+        },
+        "competitions": [
+            {
+                "uri": "\/en\/predictions-turkmenistan\/yokary-liga",
+                "name": "Yokary Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1

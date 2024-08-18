@@ -19,10 +19,12 @@ class SeasonsHandlerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
+    protected $ignore_timing;
+
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct($ignore_timing)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
@@ -33,6 +35,10 @@ class SeasonsHandlerJob implements ShouldQueue
 
         // Set the initial game source strategy (can be switched dynamically)
         $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
+
+        if ($ignore_timing) {
+            $this->ignore_timing = $ignore_timing;
+        }
     }
 
     /**
@@ -47,14 +53,18 @@ class SeasonsHandlerJob implements ShouldQueue
 
         $lastFetchColumn = 'seasons_last_fetch';
 
+        $delay = 60 * 24 * 15;
+        if ($this->ignore_timing) $delay = 0;
+
+
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
-            ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
             ->whereHas('gameSources', function ($q) {
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
-            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, 60 * 24 * 15))
+            ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
             ->limit(700)->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
             ->get();
@@ -64,7 +74,7 @@ class SeasonsHandlerJob implements ShouldQueue
         foreach ($competitions as $key => $competition) {
 
             if ($this->runTimeExceeded()) exit;
-            
+
             echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
             $this->doCompetitionRunLogging();
 

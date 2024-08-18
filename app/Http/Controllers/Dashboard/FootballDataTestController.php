@@ -182,6 +182,7 @@ class FootballDataTestController extends Controller
         $competition_id = $competition->id;
         $season_id = $season->id;
         $country_id = $country->id;
+        $date = Carbon::parse($match->utcDate)->format('Y-m-d');
         $utc_date = Carbon::parse($match->utcDate)->toDateTimeString();
         $status = $match->status;
         $matchday = $match->matchday;
@@ -198,6 +199,7 @@ class FootballDataTestController extends Controller
             'away_team_id' => $awayTeam->id,
             'season_id' => $season_id,
             'country_id' => $country_id,
+            'date' => $date,
             'utc_date' => $utc_date,
         ];
 

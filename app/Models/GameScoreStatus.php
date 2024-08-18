@@ -9,5 +9,5 @@ class GameScoreStatus extends Model
 {
     use HasFactory, CommonModelRelationShips;
 
-    protected $fillable = ['name', 'slug', 'description', 'icon', 'class'];
+    protected $fillable = ['name', 'slug', 'description', 'is_fully_settled', 'icon', 'class'];
 }

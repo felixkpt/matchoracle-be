@@ -27,12 +27,12 @@ class PredictionsHandlerJob implements ShouldQueue
      * @var string
      */
     protected $task = 'train';
-    protected $ignore_date;
+    protected $ignore_timing;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $competition_id)
+    public function __construct($task, $ignore_timing, $competition_id)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
@@ -52,6 +52,9 @@ class PredictionsHandlerJob implements ShouldQueue
             request()->merge(['competition_id' => $competition_id]);
         }
 
+        if ($ignore_timing) {
+            $this->ignore_timing = $ignore_timing;
+        }
     }
 
     /**
@@ -69,14 +72,15 @@ class PredictionsHandlerJob implements ShouldQueue
         // Set delay in minutes based on the task type:
         // Default case for predict
         $delay = 60 * 24 * 7;
+        if ($this->ignore_timing) $delay = 0;
 
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
-            ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
-            ->when(request()->competition_id, fn ($q) => $q->where('competitions.id', request()->competition_id))
-            ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
-            ->where(fn ($query) => $query->whereNotNull('competition_last_actions.predictions_last_train'))
+            ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
+            ->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))
+            ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+            ->where(fn($query) => $query->whereNotNull('competition_last_actions.predictions_last_train'))
             ->select('competitions.*')
             ->limit(1000)->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
             ->get();

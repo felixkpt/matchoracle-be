@@ -13,7 +13,7 @@ class MatchHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:match-handler {--task=} {--ignore-date} {--match-id=}';
+    protected $signature = 'app:match-handler {--task=} {--ignore-timing} {--match-id=}';
 
     /**
      * The console command description.
@@ -28,7 +28,7 @@ class MatchHandlerCommand extends Command
     public function handle()
     {
         $task = $this->option('task') ?? 'recent_results';
-        $ignore_date = $this->option('ignore-date');
+        $ignore_timing = $this->option('ignore-timing');
         $match_id = $this->option('match-id');
       
         if ($task != 'recent_results' && $task != 'historical_results' && $task != 'shallow_fixtures' && $task != 'fixtures') {
@@ -38,7 +38,7 @@ class MatchHandlerCommand extends Command
 
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
 
-        dispatch(new MatchHandlerJob($task, $ignore_date, $match_id));
+        dispatch(new MatchHandlerJob($task, $ignore_timing, $match_id));
         $this->info('Match handler command executed successfully!');
 
         return 1;

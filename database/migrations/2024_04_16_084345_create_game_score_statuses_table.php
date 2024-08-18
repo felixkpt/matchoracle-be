@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('slug')->nullable()->unique();
             $table->text('description');
+            $table->boolean('is_fully_settled')->default(0);
             $table->string('icon')->nullable();
             $table->string('class')->nullable();
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
