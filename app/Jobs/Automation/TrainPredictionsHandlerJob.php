@@ -3,11 +3,10 @@
 namespace App\Jobs\Automation;
 
 use App\Models\Competition;
-use App\Models\FailedTrainPredictionLog;
-use App\Models\TrainPredictionJobLog;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -17,7 +16,7 @@ use Illuminate\Support\Str;
 
 class TrainPredictionsHandlerJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait, PredictionAutomationTrait;
 
     /**
      * The task to be performed by the job.
@@ -33,7 +32,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
     public function __construct($task, $ignore_timing, $competition_id)
     {
         // Set the maximum execution time (seconds)
-        $this->maxExecutionTime = 60 * 10;
+        $this->maxExecutionTime = 60 * 60;
         $this->startTime = time();
 
         // Instantiate the context class for handling game sources
@@ -60,7 +59,10 @@ class TrainPredictionsHandlerJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->loggerModel(true);
+        $per_page = 1000;
+        request()->merge(['prediction_type' => 'regular_prediction_12_6_4_' . $per_page]);
+
+        $this->trainPredictionsLoggerModel(true);
 
         // Set the request parameter to indicate no direct response is expected
         request()->merge(['without_response' => true]);
@@ -68,8 +70,8 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         $lastFetchColumn = 'predictions_last_train';
 
         // Set delay in minutes based on the task type:
-        // Default case for train
-        $delay = 60 * 24 * 2;
+        // Default case for train 3 months
+        $delay = 60 * 24 * 90;
         if ($this->ignore_timing) $delay = 0;
 
 
@@ -79,50 +81,69 @@ class TrainPredictionsHandlerJob implements ShouldQueue
             ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
             ->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))
             ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+            ->whereHas('games')
             ->select('competitions.*')
             ->limit(1000)->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
             ->get();
 
         // Loop through each competition to fetch and update matches
+        $options = [
+            'target' => null,
+            'ignore_saved_matches' => true,
+            'is_grid_search' => false,
+            'retrain_if_last_train_is_before' => now()->subMinutes($delay)->toDateString(),
+            'ignore_trained' => true,
+            'per_page' => $per_page,
+        ];
+
         $should_sleep_for_competitions = false;
         $total = $competitions->count();
+        $client = new Client();
         foreach ($competitions as $key => $competition) {
+            $compe_run_start_time = Carbon::now();
 
-            $last_action = $competition->{$lastFetchColumn} ?? 'N/A';
-            echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name}), last trained: {$last_action}\n";
+            // create a jobs table entity
+            $processId = Str::random();
+            $job = $competition->jobs()->create([
+                'process_id' => $processId,
+                'status' => 'processing',
+            ]);
 
-            $this->doCompetitionRunLogging();
+            $last_action = $competition->lastAction->{$lastFetchColumn} ?? 'N/A';
+            echo sprintf(
+                "%d/%d [Job ID: %s] - Competition: #%d (%s - %s) | Last trained: %s\n",
+                $key + 1,
+                $total,
+                $job->id,
+                $competition->id,
+                $competition->country->name,
+                $competition->name,
+                $last_action 
+            );
 
-            $command = '/usr/bin/python3 ~/Documents/Dev/python/matchoracle-predictions-v2/main.py train --competition=' . $competition->id . ' --ignore-trained';
+            $options['competition'] = $competition->id;
+            $options['job_id'] = (string) $job->id;
 
-            exec($command, $output, $returnCode);
+            try {
+                $should_update_last_action = true;
 
-            echo "Return Code: $returnCode\n";
+                $response = $client->post('http://127.0.0.1:8000/train', [
+                    'json' => $options
+                ]);
 
-            echo "Output:\n";
-            foreach ($output as $line) {
-                echo $line . "\n";
+                $response->getBody()->getContents();
+            } catch (\Exception $e) {
+                $should_update_last_action = false;
+                $data['status'] = 500;
+                $data['message'] = $e->getMessage();
             }
 
-            $data = [];
-            if ($returnCode === 0) {
-                $should_sleep_for_competitions = true;
-
-                echo "Python script ran successfully!\n";
-                $data['results']['saved_updated'] = 1;
+            if ($should_update_last_action) {
+                // Call the polling function
+                $this->pollJobCompletion($competition, $job->id, $lastFetchColumn, $last_action, $compe_run_start_time, $options);
             } else {
-                $should_sleep_for_competitions = false;
-
-                echo "Error: Python script failed to run. Check the output for details.\n";
-                $data['results']['saved_updated'] = 0;
+                echo "  No data received, logging skipped.\n";
             }
-
-            $data['message'] = '';
-            echo $data['message'] . "\n";
-
-            $should_update_last_action = true;
-            $this->doLogging($data);
-            $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
             echo "------------\n";
 
@@ -130,6 +151,64 @@ class TrainPredictionsHandlerJob implements ShouldQueue
             sleep($should_sleep_for_competitions ? 10 : 0);
             $should_sleep_for_competitions = false;
         }
+    }
+
+    /**
+     * Function to poll and check if the job is completed.
+     */
+    private function pollJobCompletion($competition, $jobId, $lastFetchColumn, $last_action, $start_time, $options)
+    {
+        $startTime = now();
+        $maxWaitTime = 60 * 30; // 30 minutes
+        $checkInterval = 30; // Poll every 30 seconds
+
+        $i = 0;
+        $data = [];
+        $endTime = Carbon::now();
+        $runTime = $endTime->diffInMinutes($start_time);
+        $data['minutes_taken'] = $runTime;
+
+
+        while (now()->diffInSeconds($startTime) < $maxWaitTime) {
+            $i++;
+            $elapsedTime = now()->diffInMinutes($startTime);
+
+            // Check if the process ID status is marked as "completed"
+            $jobStatus = Competition::find($competition->id)
+                ->jobs()
+                ->where('id', $jobId)
+                ->first();
+
+            echo "  Polling #{$i} & checking process status...\n";
+
+            if ($jobStatus && $jobStatus->status == 'completed') {
+                echo "  Job ID #{$jobId} marked as completed {$jobStatus->updated_at->diffForHumans()}.\n";
+
+                $checked_last_action = Competition::find($competition->id)->lastAction->{$lastFetchColumn} ?? null;
+                $lastActionTime = 'N/A';
+
+                if ($checked_last_action) {
+                    $lastActionTime = Carbon::parse($checked_last_action)->diffForHumans();
+                }
+
+                echo "  Elapsed Time: {$elapsedTime} minutes | Updated Last Action: {$lastActionTime}.\n";
+
+                if ($checked_last_action && $checked_last_action != $last_action) {
+                }
+
+                break; // Exit the loop since training is completed
+            }
+
+            // Sleep for the check interval before checking again
+            sleep($checkInterval);
+        }
+
+        // Log timeout if training did not complete
+        if (now()->diffInSeconds($startTime) >= $maxWaitTime) {
+            echo "  Timeout: Training for Competition #{$competition->id} did not complete within the expected time.\n";
+        }
+
+        $this->updateLastAction($competition, $jobStatus == 'completed', $lastFetchColumn);
     }
 
     private function lastActionFilters($query)
@@ -140,49 +219,5 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         });
 
         return $query;
-    }
-
-    private function doLogging($data = null)
-    {
-        $updated_matches_counts = $data['results']['saved_updated'] ?? 0;
-        $train_success_counts = $updated_matches_counts > 0 ? 1 : 0;
-        $fetch_failed_counts = $data ? ($updated_matches_counts === 0 ? 1 : 0) : 0;
-
-        $exists = $this->loggerModel();
-
-        if ($exists) {
-            $arr = [
-                'job_run_counts' => $exists->job_run_counts + 1,
-                'train_success_counts' => $exists->train_success_counts + $train_success_counts,
-                'train_failed_counts' => $exists->train_failed_counts + $fetch_failed_counts,
-                'trained_counts' => $exists->trained_counts + $train_success_counts,
-            ];
-
-            $exists->update($arr);
-
-            if ($fetch_failed_counts || ($data && $data['status'] == 500)) $this->logFailure(new FailedTrainPredictionLog(), $data);
-        }
-    }
-
-    private function loggerModel($increment_job_run_counts = false)
-    {
-        $today = Carbon::now()->format('Y-m-d');
-        $record = TrainPredictionJobLog::where('prediction_type_id', current_prediction_type())->where('date', $today)->first();
-
-        if (!$record) {
-            $arr = [
-                'prediction_type_id' => current_prediction_type(),
-                'date' => $today,
-                'job_run_counts' => 1,
-                'competition_run_counts' => 0,
-                'train_success_counts' => 0,
-                'train_failed_counts' => 0,
-                'trained_counts' => 0,
-            ];
-
-            $record = TrainPredictionJobLog::create($arr);
-        } elseif ($increment_job_run_counts) $record->update(['job_run_counts' => $record->job_run_counts + 1]);
-
-        return $record;
     }
 }

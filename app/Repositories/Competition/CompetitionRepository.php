@@ -92,7 +92,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                 return $ct;
             })
             ->addColumn('Predictions_counts', function ($q) {
-                $ct = GamePrediction::where('competition_id', $q->id)->where('prediction_type_id', current_prediction_type())->count();
+                $ct = GamePrediction::where('competition_id', $q->id)->where('prediction_type_id', current_prediction_type_id())->count();
                 if ($q->predictions_counts == 0) {
                     Competition::find($q->id)->update(['predictions_counts' => $ct]);
                 }

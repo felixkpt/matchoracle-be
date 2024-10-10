@@ -323,12 +323,12 @@ if (!function_exists('getUriFromUrl')) {
     }
 }
 
-if (!function_exists('current_prediction_type')) {
-    function current_prediction_type()
+if (!function_exists('current_prediction_type_id')) {
+    function current_prediction_type_id()
     {
         $prediction_type_id = request()->prediction_type_id ?? request()->current_prediction_type;
         if (!$prediction_type_id) {
-            $prediction_type_id = GamePredictionType::find(1109)->id ?? GamePredictionType::first()->id ?? 0;
+            $prediction_type_id = GamePredictionType::find(1101)->id ?? GamePredictionType::first()->id ?? 0;
         }
 
         return $prediction_type_id;

@@ -29,7 +29,7 @@ class StandingTable extends Model
 
     public function standings()
     {
-        return $this->belongsTo(Standings::class, 'standing_id');
+        return $this->belongsTo(Standing::class, 'standing_id');
     }
 
     public function team()

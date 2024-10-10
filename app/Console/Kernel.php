@@ -14,32 +14,32 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // Seasons commands
-        $schedule->command('app:seasons-handler')->everyThirtyMinutes();
+        $schedule->command('app:seasons-handler')->hourly();
 
         // Standing commands
-        $schedule->command('app:standings-handler')->everyFifteenMinutes();
-        $schedule->command('app:standings-handler --task=historical_results')->everyFifteenMinutes();
-        $schedule->command('app:standings-handler --task=recent_results')->everyFifteenMinutes();
+        $schedule->command('app:standings-handler')->everySixHours(0);
+        $schedule->command('app:standings-handler --task=historical_results')->everySixHours(5);
+        $schedule->command('app:standings-handler --task=recent_results')->everySixHours(10);
 
         // Matches commands
-        $schedule->command('app:matches-handler --task=historical_results')->everyFifteenMinutes();
-        $schedule->command('app:matches-handler --task=recent_results')->everyFifteenMinutes();
-        $schedule->command('app:matches-handler --task=shallow_fixtures')->everyFifteenMinutes();
-        $schedule->command('app:matches-handler --task=fixtures')->everyFifteenMinutes();
+        $schedule->command('app:matches-handler --task=historical_results')->everySixHours(15);
+        $schedule->command('app:matches-handler --task=recent_results')->hourly();
+        $schedule->command('app:matches-handler --task=shallow_fixtures')->hourly();
+        $schedule->command('app:matches-handler --task=fixtures')->everySixHours(20);
 
         // Match commands
-        $schedule->command('app:match-handler --task=historical_results')->everyFifteenMinutes();
-        $schedule->command('app:match-handler --task=recent_results')->everyThirtyMinutes();
-        $schedule->command('app:match-handler --task=shallow_fixtures')->everyThirtyMinutes();
-        $schedule->command('app:match-handler --task=fixtures')->everyThirtyMinutes();
+        $schedule->command('app:match-handler --task=historical_results')->everySixHours(25);
+        $schedule->command('app:match-handler --task=recent_results')->hourly();
+        $schedule->command('app:match-handler --task=shallow_fixtures')->hourly();
+        $schedule->command('app:match-handler --task=fixtures')->everySixHours(30);
 
         // Statistics commands
-        $schedule->command('app:competition-statistics')->everySixHours();
-        $schedule->command('app:competition-prediction-statistics')->everySixHours();
+        $schedule->command('app:competition-statistics')->everySixHours(35);
+        $schedule->command('app:competition-prediction-statistics')->everySixHours(40);
 
         // Predictions commands
-        $schedule->command('app:predictions-handler')->everyThreeHours();
-        // $schedule->command('app:train-predictions-handler')->everyThreeHours();
+        $schedule->command('app:predictions-handler')->everySixHours(45);
+        $schedule->command('app:train-predictions-handler')->daily();
     }
 
     /**
@@ -48,14 +48,14 @@ class Kernel extends ConsoleKernel
     protected function commands(): void
     {
 
-        // Artisan::command('migrate:fresh {--seed}', function () {
-        //     /** @var \Illuminate\Console\Command $cmd */
-        //     $cmd = $this;
+        Artisan::command('migrate:fresh {--seed}', function () {
+            /** @var \Illuminate\Console\Command $cmd */
+            $cmd = $this;
 
-        //     $confirmed = $cmd->ask("Are you sure you want to resign?", "Yes");
+            $confirmed = $cmd->ask("Are you sure you want to resign?", "Yes");
 
-        //     $cmd->comment('Nope!');
-        // })->purpose('Disable fresh command');
+            $cmd->comment('Nope!');
+        })->purpose('Disable fresh command');
 
         $this->load(__DIR__ . '/Commands');
 

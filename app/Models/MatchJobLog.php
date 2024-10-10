@@ -10,8 +10,14 @@ class MatchJobLog extends Model
     use HasFactory, CommonModelRelationShips;
 
     protected $fillable = [
-        'task', 'date', 'job_run_counts', 'competition_run_counts',
-        'fetch_run_counts', 'fetch_success_counts', 'fetch_failed_counts', 'last_fail_message',
-        'updated_matches_counts', 'source_id'
+        'task',
+        'date',
+        'job_run_counts',
+        'competition_run_counts',
+        'fetch_run_counts',
+        'fetch_success_counts',
+        'fetch_failed_counts',
+        'last_fail_message',
+        'source_id'
     ];
 }

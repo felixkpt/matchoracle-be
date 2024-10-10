@@ -22,7 +22,8 @@ return new class extends Migration
             $table->integer('train_success_counts')->default(0);
             $table->integer('train_failed_counts')->default(0);
             
-            $table->integer('trained_counts')->default(0);
+            $table->integer('average_minutes_per_run')->default(0);
+
             $table->timestamps();
         });
     }

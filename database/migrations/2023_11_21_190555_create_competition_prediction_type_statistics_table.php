@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('competition_score_target_outcomes', function (Blueprint $table) {
+        Schema::create('competition_prediction_type_statistics', function (Blueprint $table) {
             $table->bigIncrements('id')->startingValue(1100);
             $table->string('prediction_type');
             $table->unsignedBigInteger('competition_id');
@@ -39,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('competition_score_target_outcomes');
+        Schema::dropIfExists('competition_prediction_type_statistics');
     }
 };

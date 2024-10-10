@@ -22,7 +22,8 @@ return new class extends Migration
             $table->integer('prediction_success_counts')->default(0);
             $table->integer('prediction_failed_counts')->default(0);
             
-            $table->integer('predicted_counts')->default(0);
+            $table->integer('average_minutes_per_run')->default(0);
+            
             $table->timestamps();
         });
     }

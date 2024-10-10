@@ -32,7 +32,8 @@ Route::patch('/update-statuses', [$controller, 'updateStatuses'])->hidden(); // 
 // Routes for Python app integration
 Route::prefix('from-python-app')->group(function () use ($controller) {
     Route::post('/store-predictions', [$controller, 'storePredictions']); // Store predictions from Python app
-    Route::post('/store-competition-score-target-outcome', [$controller, 'storeCompetitionScoreTargetOutcome']); // Store competition score and target outcome from Python app
+    Route::post('/store-competition-score-target-outcome', [$controller, 'storeCompetitionPredictionTypeStatistics']); // Store competition score and target outcome from Python app
     Route::post('/predictions-job-logs', [$controller, 'predictionsJobLogs']); // Perform logging from Python app
     Route::post('/update-competition-last-training', [$controller, 'updateCompetitionLastTraining']); // Perform logging from Python app
+    Route::post('/update-competition-last-prediction', [$controller, 'updateCompetitionLastPrediction']); // Perform logging from Python app
 });

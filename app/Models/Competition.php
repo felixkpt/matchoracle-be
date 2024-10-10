@@ -118,4 +118,10 @@ class Competition extends Model
   {
     return $this->hasMany(CompetitionPredictionStatistic::class);
   }
+
+  public function jobs()
+  {
+      return $this->morphMany(Job::class, 'morphable');
+  }
+
 }

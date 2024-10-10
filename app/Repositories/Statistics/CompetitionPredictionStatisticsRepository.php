@@ -28,7 +28,7 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
         sleep(0);
 
         $results = $this->model
-            ->where('prediction_type_id', current_prediction_type())
+            ->where('prediction_type_id', current_prediction_type_id())
             ->where('competition_id', request()->competition_id)
             ->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))
             ->when(request()->from_date, fn ($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
@@ -46,7 +46,7 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
         $season_id = $season->id ?? 0;
 
         request()->merge([
-            'prediction_type_id' => current_prediction_type(), 'per_page' => 5000,
+            'prediction_type_id' => current_prediction_type_id(), 'per_page' => 5000,
             'order_by' => 'utc_date', 'order_direction' => 'asc', 'to_date' => Carbon::now()->format('Y-m-d'),
             'without_response' => true,
             'show_predictions' => true,

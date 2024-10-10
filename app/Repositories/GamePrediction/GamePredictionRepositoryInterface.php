@@ -8,7 +8,5 @@ interface GamePredictionRepositoryInterface extends CommonRepoActionsInterface
 {
     function raw();
     function storePredictions();
-    function storeCompetitionScoreTargetOutcome();
-    function predictionsJobLogs();
-    function updateCompetitionLastTraining();
+    function updateCompetitionLastPrediction();
 }

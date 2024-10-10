@@ -15,10 +15,14 @@ trait AutomationTrait
     /**
      * Increment the competition run count in the logger model.
      */
-    private function doCompetitionRunLogging()
+    private function doCompetitionRunLogging($logger = null)
     {
         // Retrieve the logger model and update the competition run count.
-        $record = $this->loggerModel();
+        if (!$logger){
+            $record = $this->loggerModel();
+        }else{
+            $record = $this->$logger();
+        }
 
         if ($record) {
             $record->update(['competition_run_counts' => $record->competition_run_counts + 1]);
@@ -76,8 +80,6 @@ trait AutomationTrait
                 });
             } catch (\Exception $e) {
                 Log::error("Failed to update last action: " . $e->getMessage());
-                // Optionally, rethrow the exception if you want it to propagate further.
-                // throw $e;
             }
         }
     }

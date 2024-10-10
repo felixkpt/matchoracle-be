@@ -22,6 +22,8 @@ use App\Repositories\Game\GameRepository;
 use App\Repositories\Game\GameRepositoryInterface;
 use App\Repositories\GamePrediction\GamePredictionRepository;
 use App\Repositories\GamePrediction\GamePredictionRepositoryInterface;
+use App\Repositories\GamePrediction\TrainGamePredictionRepository;
+use App\Repositories\GamePrediction\TrainGamePredictionRepositoryInterface;
 use App\Repositories\GameScoreStatus\GameScoreStatusRepository;
 use App\Repositories\GameScoreStatus\GameScoreStatusRepositoryInterface;
 use App\Repositories\GameSource\GameSourceRepository;
@@ -75,6 +77,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(SeasonRepositoryInterface::class, SeasonRepository::class);
         $this->app->singleton(GameRepositoryInterface::class, GameRepository::class);
         $this->app->singleton(GamePredictionRepositoryInterface::class, GamePredictionRepository::class);
+        $this->app->singleton(TrainGamePredictionRepositoryInterface::class, TrainGamePredictionRepository::class);
         $this->app->singleton(CompetitionStatisticsRepositoryInterface::class, CompetitionStatisticsRepository::class);
         $this->app->singleton(CompetitionPredictionStatisticsRepositoryInterface::class, CompetitionPredictionStatisticsRepository::class);
         $this->app->singleton(OddsRepositoryInterface::class, OddsRepository::class);

@@ -43,11 +43,8 @@ return [
         'api' => [
             'driver' => 'token',
             'provider' => 'users',
+            'hash' => false,
         ],
-        'admin' => [
-            'driver' => 'session',
-            'provider' => 'admin',
-        ]
     ],
 
     /*
@@ -102,8 +99,8 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => 'password_reset_tokens',
-            'expire' => 10,
-            'throttle' => 10,
+            'expire' => 60,
+            'throttle' => 60,
         ],
     ],
 
