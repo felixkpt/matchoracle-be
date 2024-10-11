@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Statistics;
 
-use App\Http\Controllers\Dashboard\Statistics\CompetitionsStatisticsController;
 use App\Jobs\Automation\AutomationTrait;
 use App\Models\Competition;
 use App\Models\CompetitionStatisticJobLog;

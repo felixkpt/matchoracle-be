@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Statistics;
 
-use App\Http\Controllers\Dashboard\Statistics\CompetitionsPredictionsStatisticsController;
 use App\Jobs\Automation\AutomationTrait;
 use App\Models\Competition;
 use App\Models\CompetitionPredictionStatistic;
@@ -48,34 +47,44 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
 
         request()->merge(['prediction_mode_id' => 1]);
 
-        foreach ($prediction_types as $prediction_type) {
+        foreach ($prediction_types as $index => $prediction_type) {
             request()->merge(['prediction_type_id' => $prediction_type->id]);
 
             $this->loggerModel(true);
 
             $lastFetchColumn = 'predictions_stats_last_done';
             // Set delay in minutes, 10 days is okay for this case
-            $delay = 60 * 24 * 0;
+            $delay = 60 * 24 * 10;
 
             // Get competitions that need stats done
             $competitions = Competition::query()
                 ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
-                ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
+                ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
                 ->where('games_counts', '>=', 500)
                 ->when($this->competitionId, function ($query) {
                     $query->where('competitions.id', $this->competitionId);
                 })
                 ->whereHas('games')
-                ->where(fn ($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+                ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
                 ->select('competitions.*')
-                ->limit(700)
+                ->limit(1000)
                 ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
                 ->get();
 
             // Loop through each competition & do stats
             $total = $competitions->count();
             foreach ($competitions as $key => $competition) {
-                echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
+                echo sprintf(
+                    "[Pred %d/%d] - %d/%d. Competition: #%s, (%s - %s)\n",
+                    $index + 1,
+                    count($prediction_types),
+                    $key + 1,
+                    $total,
+                    $competition->id,
+                    $competition->country->name,
+                    $competition->name,
+                );
+
                 $this->doCompetitionRunLogging();
 
                 request()->merge(['competition_id' => $competition->id]);

@@ -49,7 +49,7 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
             'prediction_type_id' => current_prediction_type_id(), 'per_page' => 5000,
             'order_by' => 'utc_date', 'order_direction' => 'asc', 'to_date' => Carbon::now()->format('Y-m-d'),
             'without_response' => true,
-            'show_predictions' => true,
+            'requires_preds' => true,
         ]);
 
 
