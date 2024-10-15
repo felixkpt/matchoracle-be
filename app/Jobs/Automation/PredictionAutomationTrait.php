@@ -26,7 +26,7 @@ trait PredictionAutomationTrait
                 'competition_run_counts' => 0,
                 'train_success_counts' => 0,
                 'train_failed_counts' => 0,
-                'average_minutes_per_run' => 0,
+                'average_seconds_per_run' => 0,
             ];
 
             $record = TrainPredictionJobLog::create($arr);
@@ -52,7 +52,7 @@ trait PredictionAutomationTrait
                 'competition_run_counts' => 0,
                 'prediction_success_counts' => 0,
                 'prediction_failed_counts' => 0,
-                'average_minutes_per_run' => 0,
+                'average_seconds_per_run' => 0,
             ];
 
             $record = PredictionJobLog::create($arr);

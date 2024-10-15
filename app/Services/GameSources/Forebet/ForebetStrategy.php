@@ -2,6 +2,7 @@
 
 namespace App\Services\GameSources\Forebet;
 
+use App\Services\GameSources\Forebet\Match\MatchHandler;
 use App\Services\GameSources\GameSourceStrategyInterface;
 
 /**

@@ -225,7 +225,7 @@ class GameUtility
             ->addColumn('gg_votes', $ggVotes)
             ->addColumn('ng_votes', $ngVotes)
 
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Last_fetch', fn ($q) => Carbon::parse($q->last_fetch)->diffForHumans())
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Updated_at', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addColumnWhen(!request()->is_predictor, 'current_user_votes', fn ($q) => $this->currentUserVotes($q))
             ->addColumnWhen(!request()->is_predictor, 'Created_by', 'getUser')
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Competition', fn ($q) => $q->competition->name)

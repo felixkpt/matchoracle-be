@@ -14,6 +14,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CompetitionPredictionStatisticsJob implements ShouldQueue
@@ -25,16 +26,31 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
      *
      * @var int|null
      */
-    private $competitionId;
+    protected $task = 'stats';
+    private $ignore_timing = false;
+    private $competition_id;
 
     /**
      * Create a new job instance.
      *
      * @param int|null $competitionId
      */
-    public function __construct($competitionId = null)
+    public function __construct($task, $ignore_timing = false, $competition_id = null)
     {
-        $this->competitionId = $competitionId;
+
+        // Set the task property
+        if ($task) {
+            $this->task = $task;
+        }
+
+        if ($ignore_timing) {
+            $this->ignore_timing = $ignore_timing;
+        }
+
+        if ($competition_id) {
+            $this->competition_id = $competition_id;
+            request()->merge(['competition_id' => $competition_id]);
+        }
     }
 
     /**
@@ -42,6 +58,7 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->jobStartedLog();
 
         $prediction_types = GamePredictionType::all();
 
@@ -55,14 +72,15 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
             $lastFetchColumn = 'predictions_stats_last_done';
             // Set delay in minutes, 10 days is okay for this case
             $delay = 60 * 24 * 10;
+            if ($this->ignore_timing) $delay = 0;
 
             // Get competitions that need stats done
             $competitions = Competition::query()
                 ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
                 ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
                 ->where('games_counts', '>=', 500)
-                ->when($this->competitionId, function ($query) {
-                    $query->where('competitions.id', $this->competitionId);
+                ->when($this->competition_id, function ($query) {
+                    $query->where('competitions.id', $this->competition_id);
                 })
                 ->whereHas('games')
                 ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))

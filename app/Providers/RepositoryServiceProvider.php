@@ -14,6 +14,8 @@ use App\Repositories\Competition\CompetitionRepository;
 use App\Repositories\Competition\CompetitionRepositoryInterface;
 use App\Repositories\Competition\PredictionLog\CompetitionPredictionLogRepository;
 use App\Repositories\Competition\PredictionLog\CompetitionPredictionLogRepositoryInterface;
+use App\Repositories\Competition\UpdateCompetitionActionRepo;
+use App\Repositories\Competition\UpdateCompetitionActionRepoInterface;
 use App\Repositories\Continent\ContinentRepository;
 use App\Repositories\Continent\ContinentRepositoryInterface;
 use App\Repositories\Country\CountryRepository;
@@ -82,6 +84,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(CompetitionPredictionStatisticsRepositoryInterface::class, CompetitionPredictionStatisticsRepository::class);
         $this->app->singleton(OddsRepositoryInterface::class, OddsRepository::class);
         $this->app->singleton(CompetitionPredictionLogRepositoryInterface::class, CompetitionPredictionLogRepository::class);
+        $this->app->singleton(UpdateCompetitionActionRepoInterface::class, UpdateCompetitionActionRepo::class);
     }
 
     /**

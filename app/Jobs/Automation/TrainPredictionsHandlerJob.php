@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class TrainPredictionsHandlerJob implements ShouldQueue
@@ -25,11 +26,12 @@ class TrainPredictionsHandlerJob implements ShouldQueue
      */
     protected $task = 'train';
     protected $ignore_timing;
+    protected $competition_id;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $ignore_timing, $competition_id)
+    public function __construct($task, $ignore_timing = false, $competition_id = null)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 60;
@@ -45,12 +47,13 @@ class TrainPredictionsHandlerJob implements ShouldQueue
             $this->task = $task;
         }
 
-        if ($competition_id) {
-            request()->merge(['competition_id' => $competition_id]);
-        }
-
         if ($ignore_timing) {
             $this->ignore_timing = $ignore_timing;
+        }
+
+        if ($competition_id) {
+            $this->competition_id = $competition_id;
+            request()->merge(['competition_id' => $competition_id]);
         }
     }
 
@@ -59,6 +62,8 @@ class TrainPredictionsHandlerJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->jobStartedLog();
+
         $per_page = 1000;
         request()->merge(['prediction_type' => 'regular_prediction_12_6_4_' . $per_page]);
 
@@ -73,7 +78,6 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         // Default case for train 3 months
         $delay = 60 * 24 * 90;
         if ($this->ignore_timing) $delay = 0;
-
 
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
@@ -118,7 +122,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
                 $competition->id,
                 $competition->country->name,
                 $competition->name,
-                $last_action 
+                $last_action
             );
 
             $options['competition'] = $competition->id;
@@ -165,8 +169,8 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         $i = 0;
         $data = [];
         $endTime = Carbon::now();
-        $runTime = $endTime->diffInMinutes($start_time);
-        $data['minutes_taken'] = $runTime;
+        $runTime = $endTime->diffInSeconds($start_time);
+        $data['seconds_taken'] = $runTime;
 
 
         while (now()->diffInSeconds($startTime) < $maxWaitTime) {

@@ -110,7 +110,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
             ->orderby('id');
 
         $results = $single ? $results->first() : $results->paginate();
-
+        
         return response(['results' => $results]);
     }
 
@@ -147,6 +147,12 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
     public function show($id)
     {
+        $this->model->findOrFail($id)->lastAction()->firstOrCreate([], [
+            'competition_id' => $id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         return $this->index(true, $id);
     }
 

@@ -15,6 +15,7 @@ class OddsHandler
     static function updateOrCreate($data)
     {
 
+
         if (count($data['hda_odds']) !== 3)
             return false;
 
@@ -23,8 +24,10 @@ class OddsHandler
 
             $res = Odd::updateOrCreate(
                 [
-                    'home_team' => $data['home_team'], 'away_team' => $data['away_team'],
-                    'utc_date' => $data['utc_date'], 'game_id' => $data['game_id'] ?? null
+                    'home_team' => $data['home_team'],
+                    'away_team' => $data['away_team'],
+                    'utc_date' => $data['utc_date'],
+                    'game_id' => $data['game_id'] ?? null
                 ],
                 [
                     'utc_date' => $data['utc_date'],
@@ -58,7 +61,7 @@ class OddsHandler
 
         if (isset($data['competition']) && $data['competition']) {
             $competition = $data['competition'];
-            $predictionCount = Odd::whereHas('game', fn ($qry) => $qry->where('competition_id', $competition->id))->count();
+            $predictionCount = Odd::whereHas('game', fn($qry) => $qry->where('competition_id', $competition->id))->count();
             $competition->update([
                 'is_odds_enabled' => true,
                 'odds_counts' => $predictionCount

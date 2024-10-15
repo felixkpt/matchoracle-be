@@ -22,17 +22,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:standings-handler --task=recent_results')->everySixHours(10);
 
         // Matches commands
-        $schedule->command('app:matches-handler --task=historical_results')->everySixHours(15);
-        $schedule->command('app:matches-handler --task=recent_results')->hourly();
-        $schedule->command('app:matches-handler --task=shallow_fixtures')->hourly();
-        $schedule->command('app:matches-handler --task=fixtures')->everySixHours(20);
-
-        // Match commands
-        $schedule->command('app:match-handler --task=historical_results')->everySixHours(25);
-        $schedule->command('app:match-handler --task=recent_results')->hourly();
-        $schedule->command('app:match-handler --task=shallow_fixtures')->hourly();
-        $schedule->command('app:match-handler --task=fixtures')->everySixHours(30);
-
+        require('matches_commands.php');
+        
         // Statistics commands
         $schedule->command('app:competition-statistics')->everySixHours(35);
         $schedule->command('app:competition-prediction-statistics')->everySixHours(40);

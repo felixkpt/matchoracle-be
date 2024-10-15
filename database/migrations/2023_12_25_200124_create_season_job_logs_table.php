@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('fetch_success_counts')->default(0);
             $table->integer('fetch_failed_counts')->default(0);
 
-            $table->integer('average_minutes_per_run')->default(0);
+            $table->integer('average_seconds_per_run')->default(0);
             
             $table->timestamps();
         });

@@ -9,11 +9,13 @@ use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class MatchesHandlerJob implements ShouldQueue
 {
@@ -25,12 +27,13 @@ class MatchesHandlerJob implements ShouldQueue
      * @var string
      */
     protected $task = 'recent_results';
-    protected $ignore_timing;
+    protected $ignore_timing = false;
+    protected $competition_id;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $ignore_timing, $competition_id)
+    public function __construct($task, $ignore_timing = false, $competition_id = null)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
@@ -52,9 +55,9 @@ class MatchesHandlerJob implements ShouldQueue
         }
 
         if ($competition_id) {
+            $this->competition_id = $competition_id;
             request()->merge(['competition_id' => $competition_id]);
         }
-
     }
 
     /**
@@ -62,6 +65,7 @@ class MatchesHandlerJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->jobStartedLog();
 
         $this->loggerModel(true);
 
@@ -72,13 +76,14 @@ class MatchesHandlerJob implements ShouldQueue
 
         // Set delay in minutes based on the task type:
         // Default case for historical_results
-        $delay = 60 * 24 * 3;
-        if ($this->task == 'shallow_fixtures') {
-            $delay = 60 * 24 * 2;
+        $delay = 60 * 24 * 2;
+        if ($this->task == 'historical_results') {
+        } elseif ($this->task == 'shallow_fixtures') {
+            $delay = 60 * 24 * 1;
         } elseif ($this->task == 'fixtures') {
-            $delay = 60 * 24 * 3;
-        } elseif ($this->task == 'recent_results') {
             $delay = 60 * 24 * 2;
+        } elseif ($this->task == 'recent_results') {
+            $delay = 60 * 24 * 1;
         }
 
         if ($this->ignore_timing) $delay = 0;
@@ -92,7 +97,7 @@ class MatchesHandlerJob implements ShouldQueue
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('seasons')
-            ->when($this->task == 'recent_results', fn($q) => $q->whereHas('games', fn($q) => $q->where('utc_date', '>', Carbon::now()->subDays(5))->where('utc_date', '<', Carbon::now()->subHours(5))))
+            ->when($this->task == 'recent_results' && !$this->ignore_timing, fn($q) => $this->applyRecentResultsFilter($q))
             ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
             ->limit(700)
@@ -104,8 +109,13 @@ class MatchesHandlerJob implements ShouldQueue
         // Loop through each competition to fetch and update matches
         $should_sleep_for_competitions = false;
         $total = $competitions->count();
+        $run_time_exceeded = false;
         foreach ($competitions as $key => $competition) {
-            echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
+            if ($run_time_exceeded) break;
+
+            $last_action = $competition->lastAction->{$lastFetchColumn} ?? 'N/A';
+
+            echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name}) | Last fetch {$last_action} \n";
             $this->doCompetitionRunLogging();
 
             $seasons = $competition->seasons()
@@ -115,13 +125,17 @@ class MatchesHandlerJob implements ShouldQueue
                 ->take($this->task == 'historical_results' ? 15 : 1)
                 ->orderBy('updated_at', 'asc')->get();
 
+
             $total_seasons = $seasons->count();
 
             $should_sleep_for_seasons = false;
             $should_update_last_action = false;
             foreach ($seasons as $season_key => $season) {
 
-                if ($this->runTimeExceeded()) exit;
+                if ($this->runTimeExceeded()) {
+                    $run_time_exceeded = true;
+                    break;
+                }
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
@@ -133,6 +147,9 @@ class MatchesHandlerJob implements ShouldQueue
                     sleep(10);
                 }
 
+                // Capture start time
+                $requestStartTime = microtime(true);
+
                 // Obtain the specific handler for fetching matches based on the game source strategy
                 $matchesHandler = $this->sourceContext->matchesHandler();
 
@@ -141,6 +158,15 @@ class MatchesHandlerJob implements ShouldQueue
 
                 // Output the fetch result for logging
                 echo $data['message'] . "\n";
+
+                // Capture end time and calculate time taken
+                $requestEndTime = microtime(true);
+                $seconds_taken = $requestEndTime - $requestStartTime;
+
+                // Log time taken for this game request
+                echo "Time taken to process Compe #{$competition->id} - season #{$season->id}: " . round($seconds_taken / 60, 2) . " minutes\n";
+
+                $data['seconds_taken'] = round($seconds_taken);
 
                 $should_sleep_for_competitions = true;
                 $should_sleep_for_seasons = true;
@@ -164,6 +190,14 @@ class MatchesHandlerJob implements ShouldQueue
         }
     }
 
+    function applyRecentResultsFilter(Builder $query): Builder
+    {
+        return $query->whereHas('games', function ($q) {
+            $q->where('utc_date', '>', Carbon::now()->subDays(5))
+                ->where('utc_date', '<', Carbon::now()->subHours(5));
+        });
+    }
+
     private function doLogging($data = null)
     {
         $updated_matches_counts = $data['results']['saved_updated'] ?? 0;
@@ -173,11 +207,15 @@ class MatchesHandlerJob implements ShouldQueue
         $exists = $this->loggerModel();
 
         if ($exists) {
+            $fetch_run_counts = $exists->fetch_run_counts + 1;
+            $newAverageMinutes = (($exists->average_seconds_per_run * $exists->fetch_run_counts) + $data['seconds_taken']) / $fetch_run_counts;
+
             $arr = [
                 'fetch_run_counts' => $exists->fetch_run_counts + 1,
                 'fetch_success_counts' => $exists->fetch_success_counts + $fetch_success_counts,
                 'fetch_failed_counts' => $exists->fetch_failed_counts + $fetch_failed_counts,
                 'updated_matches_counts' => $exists->updated_matches_counts + $updated_matches_counts,
+                'average_seconds_per_run' => $newAverageMinutes,
             ];
 
             $exists->update($arr);
@@ -203,6 +241,7 @@ class MatchesHandlerJob implements ShouldQueue
                 'fetch_success_counts' => 0,
                 'fetch_failed_counts' => 0,
                 'updated_matches_counts' => 0,
+                'average_seconds_per_run' => 0,
             ];
 
             $record = MatchesJobLog::create($arr);

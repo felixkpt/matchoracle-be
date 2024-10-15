@@ -14,9 +14,7 @@ class OddsRepository implements OddsRepositoryInterface
 
     use CommonRepoActions;
 
-    function __construct(protected Odd $model)
-    {
-    }
+    function __construct(protected Odd $model) {}
 
     public function index($id = null)
     {
@@ -25,31 +23,31 @@ class OddsRepository implements OddsRepositoryInterface
         $to_date = request()->to_date ?? null;
 
         $odds = $this->model::query()
-            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
-            ->when(request()->competition_id, fn ($q) => $q->whereHas('game', fn ($q) => $q->where('competition_id', request()->competition_id)->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))))
-            ->when($from_date, fn ($q) => $q->whereDate('utc_date', '>=', Carbon::parse($from_date)->format('Y-m-d')))
-            ->when($to_date, fn ($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($to_date)->format('Y-m-d')))
-            ->when($date, fn ($q) => $q->whereDate('utc_date', '=', Carbon::parse($date)->format('Y-m-d')))->when(request()->yesterday, fn ($q) => $q->whereDate('utc_date', Carbon::yesterday()))
-            ->when(request()->today, fn ($q) => $q->whereDate('utc_date', Carbon::today()))
-            ->when(request()->tomorrow, fn ($q) => $q->whereDate('utc_date', Carbon::tomorrow()))
-            ->when(request()->year, fn ($q) => $q->whereYear('utc_date', request()->year))
-            ->when(request()->year && request()->month, fn ($q) => $this->yearMonthFilter($q))
-            ->when(request()->year && request()->month && request()->day, fn ($q) => $this->yearMonthDayFilter($q));
+            ->when(request()->status == 1, fn($q) => $q->where('status_id', activeStatusId()))
+            ->when(request()->competition_id, fn($q) => $q->whereHas('game', fn($q) => $q->where('competition_id', request()->competition_id)->when(request()->season_id, fn($q) => $q->where('season_id', request()->season_id))))
+            ->when($from_date, fn($q) => $q->whereDate('utc_date', '>=', Carbon::parse($from_date)->format('Y-m-d')))
+            ->when($to_date, fn($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($to_date)->format('Y-m-d')))
+            ->when($date, fn($q) => $q->whereDate('utc_date', '=', Carbon::parse($date)->format('Y-m-d')))->when(request()->yesterday, fn($q) => $q->whereDate('utc_date', Carbon::yesterday()))
+            ->when(request()->today, fn($q) => $q->whereDate('utc_date', Carbon::today()))
+            ->when(request()->tomorrow, fn($q) => $q->whereDate('utc_date', Carbon::tomorrow()))
+            ->when(request()->year, fn($q) => $q->whereYear('utc_date', request()->year))
+            ->when(request()->year && request()->month, fn($q) => $this->yearMonthFilter($q))
+            ->when(request()->year && request()->month && request()->day, fn($q) => $this->yearMonthDayFilter($q));
 
         if ($this->applyFiltersOnly) return $odds;
 
         $uri = '/dashboard/odds/';
-        $results = SearchRepo::of($odds, ['id', 'home_team', 'away_team'])
+        $results = SearchRepo::of($odds, ['id', 'utc_date', 'home_team', 'away_team'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
-            ->addColumn('Date', fn ($q) => Carbon::parse($q->utc_date)->format('Y-m-d'))
-            ->addColumn('home_win', fn ($q) => $q->home_win_odds ?? '-')
-            ->addColumn('draw', fn ($q) => $q->draw_odds ?? '-')
-            ->addColumn('away_win', fn ($q) => $q->away_win_odds ?? '-')
-            ->addColumn('over_25', fn ($q) => $q->over_25_odds ?? '-')
-            ->addColumn('under_25', fn ($q) => $q->under_25_odds ?? '-')
-            ->addColumn('GG', fn ($q) => $q->gg_odds ?? '-')
-            ->addColumn('NG', fn ($q) => $q->ng_odds ?? '-')
+            ->addColumn('Date', fn($q) => Carbon::parse($q->utc_date)->format('Y-m-d'))
+            ->addColumn('home_win', fn($q) => $q->home_win_odds ?? '-')
+            ->addColumn('draw', fn($q) => $q->draw_odds ?? '-')
+            ->addColumn('away_win', fn($q) => $q->away_win_odds ?? '-')
+            ->addColumn('over_25', fn($q) => $q->over_25_odds ?? '-')
+            ->addColumn('under_25', fn($q) => $q->under_25_odds ?? '-')
+            ->addColumn('GG', fn($q) => $q->gg_odds ?? '-')
+            ->addColumn('NG', fn($q) => $q->ng_odds ?? '-')
             ->orderBy('utc_date', 'desc')
             ->paginate();
 
@@ -108,9 +106,7 @@ class OddsRepository implements OddsRepositoryInterface
         return $this->index();
     }
 
-    public function store(Request $request, $data)
-    {
-    }
+    public function store(Request $request, $data) {}
 
     public function show($id)
     {

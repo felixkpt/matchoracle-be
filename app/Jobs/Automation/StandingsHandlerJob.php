@@ -9,11 +9,13 @@ use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class StandingsHandlerJob implements ShouldQueue
 {
@@ -25,12 +27,13 @@ class StandingsHandlerJob implements ShouldQueue
      * @var string
      */
     protected $task = 'recent_results';
-    protected $ignore_timing;
+    protected $ignore_timing = false;
+    protected $competition_id;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $ignore_timing)
+    public function __construct($task, $ignore_timing = false, $competition_id = null)
     {
 
         // Set the maximum execution time (seconds)
@@ -51,6 +54,11 @@ class StandingsHandlerJob implements ShouldQueue
         if ($ignore_timing) {
             $this->ignore_timing = $ignore_timing;
         }
+
+        if ($competition_id) {
+            $this->competition_id = $competition_id;
+            request()->merge(['competition_id' => $competition_id]);
+        }
     }
 
     /**
@@ -58,6 +66,8 @@ class StandingsHandlerJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->jobStartedLog();
+
         $this->loggerModel(true);
 
         // Set the request parameter to indicate no direct response is expected
@@ -71,20 +81,13 @@ class StandingsHandlerJob implements ShouldQueue
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
-            ->when(!request()->ignore_status, function ($query) {
-                $query->where('status_id', activeStatusId());
-            })
+            ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
+            ->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))
             ->whereHas('gameSources', function ($query) {
                 $query->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('seasons')
-            ->when($this->task == 'recent_results', function ($query) {
-                $query->whereHas('games', function ($subQuery) {
-                    $subQuery->where('utc_date', '>=', Carbon::now()->subDays(5))
-                        ->where('utc_date', '<', Carbon::now())
-                        ->where('game_score_status_id', gameScoresStatus('scheduled'));
-                });
-            })
+            ->when($this->task == 'recent_results' && !$this->ignore_timing, fn($q) => $this->applyRecentResultsFilter($q))
             ->where('has_standings', true)
             ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
@@ -95,9 +98,14 @@ class StandingsHandlerJob implements ShouldQueue
         // Loop through each competition to fetch and update standings
         $should_sleep_for_competitions = false;
         $total = $competitions->count();
+        $run_time_exceeded = false;
         foreach ($competitions as $key => $competition) {
+            if ($run_time_exceeded) break;
 
-            if ($this->runTimeExceeded()) exit;
+            if ($this->runTimeExceeded()) {
+                $run_time_exceeded = true;
+                break;
+            }
 
             echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
             $this->doCompetitionRunLogging();
@@ -153,6 +161,15 @@ class StandingsHandlerJob implements ShouldQueue
             sleep($should_sleep_for_competitions ? 15 : 0);
             $should_sleep_for_competitions = false;
         }
+    }
+
+    function applyRecentResultsFilter(Builder $query): Builder
+    {
+        return $query->whereHas('games', function ($subQuery) {
+            $subQuery->where('utc_date', '>=', Carbon::now()->subDays(5))
+                ->where('utc_date', '<', Carbon::now())
+                ->where('game_score_status_id', gameScoresStatus('scheduled'));
+        });
     }
 
     private function doLogging($data = null)

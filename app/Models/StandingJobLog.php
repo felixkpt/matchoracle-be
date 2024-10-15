@@ -13,6 +13,6 @@ class StandingJobLog extends Model
         'date', 'job_run_counts', 'competition_run_counts',
         'fetch_run_counts', 'fetch_success_counts', 'fetch_failed_counts', 'last_fail_message',
         'updated_standings_counts', 'source_id',
-        'average_minutes_per_run',
+        'average_seconds_per_run',
     ];
 }

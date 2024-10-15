@@ -38,6 +38,7 @@ Route::post('/{id}/do-statistics', [$controller, 'doStatistics']); // do stats f
 Route::get('/{id}/get-dates-with-unpredicted-games', [$controller, 'getDatesWithUnpredictedGames']); // getDatesWithUnpredictedGames
 Route::get('/{id}/tabs', [$controller, 'tabs'])->name('View compe tab counts'); // View tab counts for a competition
 
+Route::post('{id}/update-action/{action}', [$controller, 'updateAction']); // updateAction
 
 // Competition Matches routes
 Route::name('matches.')->group(function () {

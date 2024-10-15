@@ -17,6 +17,6 @@ class PredictionJobLog extends Model
         'competition_run_counts',
         'prediction_success_counts',
         'prediction_failed_counts',
-        'average_minutes_per_run',
+        'average_seconds_per_run',
     ];
 }

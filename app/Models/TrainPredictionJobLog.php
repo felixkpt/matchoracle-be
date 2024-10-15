@@ -15,6 +15,6 @@ class TrainPredictionJobLog extends Model
         'competition_run_counts',
         'train_success_counts', 
         'train_failed_counts',
-        'average_minutes_per_run',
+        'average_seconds_per_run',
     ];
 }

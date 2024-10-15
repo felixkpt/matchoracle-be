@@ -18,6 +18,7 @@ class MatchesJobLog extends Model
         'fetch_success_counts',
         'fetch_failed_counts',
         'last_fail_message',
-        'source_id'
+        'source_id',
+        'average_seconds_per_run',
     ];
 }

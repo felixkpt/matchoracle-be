@@ -151,13 +151,13 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
 
         if ($exists) {
             $competition_run_counts = $exists->competition_run_counts + 1;
-            $newAverageMinutes = (($exists->average_minutes_per_run * $exists->competition_run_counts) + $data['minutes_taken']) / $competition_run_counts;
+            $newAverageMinutes = (($exists->average_seconds_per_run * $exists->competition_run_counts) + $data['minutes_taken']) / $competition_run_counts;
 
             $arr = [
                 'competition_run_counts' => $competition_run_counts,
                 'prediction_success_counts' => $exists->prediction_success_counts + $predition_success_counts,
                 'prediction_failed_counts' => $exists->prediction_failed_counts + $predition_failed_counts,
-                'average_minutes_per_run' => $newAverageMinutes,
+                'average_seconds_per_run' => $newAverageMinutes,
             ];
 
             $exists->update($arr);

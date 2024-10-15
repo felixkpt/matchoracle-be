@@ -8,23 +8,25 @@ use App\Models\SeasonJobLog;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class SeasonsHandlerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
-    protected $ignore_timing;
+    protected $task = 'fetch';
+    protected $ignore_timing = false;
+    protected $competition_id;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($ignore_timing)
+    public function __construct($task, $ignore_timing = false, $competition_id = null)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
@@ -36,8 +38,18 @@ class SeasonsHandlerJob implements ShouldQueue
         // Set the initial game source strategy (can be switched dynamically)
         $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
 
+        // Set the task property
+        if ($task) {
+            $this->task = $task;
+        }
+
         if ($ignore_timing) {
             $this->ignore_timing = $ignore_timing;
+        }
+
+        if ($competition_id) {
+            $this->competition_id = $competition_id;
+            request()->merge(['competition_id' => $competition_id]);
         }
     }
 
@@ -46,6 +58,8 @@ class SeasonsHandlerJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->jobStartedLog();
+
         $this->loggerModel(true);
 
         // Set the request parameter to indicate no direct response is expected
@@ -56,11 +70,11 @@ class SeasonsHandlerJob implements ShouldQueue
         $delay = 60 * 24 * 15;
         if ($this->ignore_timing) $delay = 0;
 
-
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
+            ->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))
             ->whereHas('gameSources', function ($q) {
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
@@ -71,9 +85,14 @@ class SeasonsHandlerJob implements ShouldQueue
 
         // Loop through each competition to fetch and update seasons
         $total = $competitions->count();
+        $run_time_exceeded = false;
         foreach ($competitions as $key => $competition) {
+            if ($run_time_exceeded) break;
 
-            if ($this->runTimeExceeded()) exit;
+            if ($this->runTimeExceeded()) {
+                $run_time_exceeded = true;
+                break;
+            }
 
             echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
             $this->doCompetitionRunLogging();

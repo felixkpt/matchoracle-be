@@ -41,8 +41,8 @@ class ForebetTestController extends Controller
         $season = Season::find(1103);
         
         // return $this->fetchStandings($competition->id, $season->id);
-        return $this->fetchMatches($competition->id, $season->id, false);
-        // return $this->fetchMatch(request()->test_id ?? 1164);
+        // return $this->fetchMatches($competition->id, $season->id, false);
+        return $this->fetchMatch(request()->test_id ?? 1164);
     }
 
     function fetchSeasons($competition_id)

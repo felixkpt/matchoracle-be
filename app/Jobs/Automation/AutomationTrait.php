@@ -12,15 +12,20 @@ trait AutomationTrait
     protected $maxExecutionTime;
     protected $startTime;
 
+    protected function jobStartedLog(): void
+    {
+        Log::info(class_basename($this) . " was started, task: " . $this->task . ", competitionId: " . ($this->competition_id ?? 'N/A'));
+    }
+
     /**
      * Increment the competition run count in the logger model.
      */
     private function doCompetitionRunLogging($logger = null)
     {
         // Retrieve the logger model and update the competition run count.
-        if (!$logger){
+        if (!$logger) {
             $record = $this->loggerModel();
-        }else{
+        } else {
             $record = $this->$logger();
         }
 
@@ -90,7 +95,7 @@ trait AutomationTrait
         if (time() - $this->startTime >= $this->maxExecutionTime) {
 
             // Getting the class name dynamically
-            $className = get_class($this);
+            $className = class_basename($this);
 
             $msg = "Script execution time exceeded. Terminating...";
 

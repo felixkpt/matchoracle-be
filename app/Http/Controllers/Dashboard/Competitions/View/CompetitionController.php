@@ -6,12 +6,12 @@ use App\Http\Controllers\Dashboard\Competitions\CompetitionsController;
 use App\Http\Controllers\CommonControllerMethods;
 use App\Http\Controllers\Controller;
 use App\Repositories\Competition\CompetitionRepositoryInterface;
+use App\Repositories\Competition\UpdateCompetitionActionRepoInterface;
 use App\Services\Common;
 use App\Services\Games\Games;
 use App\Services\Validations\Competition\CompetitionValidationInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class CompetitionController extends Controller
 {
@@ -20,6 +20,7 @@ class CompetitionController extends Controller
     public function __construct(
         private CompetitionRepositoryInterface $competitionRepositoryInterface,
         private CompetitionValidationInterface $competitionValidationInterface,
+        private UpdateCompetitionActionRepoInterface $updateCompetitionActionRepoInterface,
     ) {
     }
 
@@ -208,6 +209,11 @@ class CompetitionController extends Controller
     function getDatesWithUnpredictedGames($id)
     {
         return $this->competitionRepositoryInterface->getDatesWithUnpredictedGames($id);
+    }
+
+    function updateAction($id, $action)
+    {
+        return $this->updateCompetitionActionRepoInterface->updateAction($id, $action);
     }
 
     function updateStatus($id)
