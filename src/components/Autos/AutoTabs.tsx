@@ -54,6 +54,7 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
     }
 
   }
+
   const [key, setKey] = useState<number>(0)
 
   // Effect to handle popstate event (back/forward navigation)
@@ -99,14 +100,14 @@ const AutoTabs: React.FC<Props> = ({ tabs, setCurrentTabName, active, title, act
 
   // Render the AutoTabs component
   return (
-    <div className="auto-tabs no-select" key={key}>
+    <div className="auto-tabs" key={key}>
       {
         title &&
         <PageHeader title={`${title} - ${localOpenTab?.label || localOpenTab?.name}`} action={action} actionText={actionText} actionLink={actionLink} permission={permission} method={method} actionTargetId={actionTargetId} listUrl={listUrl} setRecord={setRecord} />
       }
       <div className="tabs-section">
 
-        <ul className="nav nav-tabs" role="tablist">
+        <ul className="nav nav-tabs no-select" role="tablist">
 
           {tabs.map((tab) => (
             <li key={tab.name} className="nav-item" role="presentation">

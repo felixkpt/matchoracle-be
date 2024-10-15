@@ -20,9 +20,10 @@ import Loader from "@/components/Loader";
 import Error404 from "@/Pages/ErrorPages/Error404";
 import CompetitionHeader from "./Inlcudes/CompetitionHeader";
 import Odds from "./Tabs/Odds";
+import LastActions from "./Tabs/LastActions";
 
 const Index = () => {
-    const { id } = useParams<any>();
+    const { id } = useParams();
     const { get, loading } = useAxios();
 
     const [key, setMainKey] = useState<number>(0)
@@ -109,8 +110,8 @@ const Index = () => {
         },
         {
             name: "Past Matches",
-            component: <PastMatches 
-            record={record}
+            component: <PastMatches
+                record={record}
                 seasons={seasons}
                 selectedSeason={selectedSeason}
                 setSelectedSeason={setSelectedSeason}
@@ -119,8 +120,8 @@ const Index = () => {
         },
         {
             name: "Upcoming Matches",
-            component: <UpcomingMatches 
-            record={record}
+            component: <UpcomingMatches
+                record={record}
                 seasons={seasons}
                 selectedSeason={selectedSeason}
                 setSelectedSeason={setSelectedSeason}
@@ -129,8 +130,8 @@ const Index = () => {
         },
         {
             name: "Past Predictions",
-            component: <PastPredictions 
-            record={record}
+            component: <PastPredictions
+                record={record}
                 seasons={seasons}
                 selectedSeason={selectedSeason}
                 setSelectedSeason={setSelectedSeason}
@@ -139,8 +140,8 @@ const Index = () => {
         },
         {
             name: "Upcoming Predictions",
-            component: <UpcomingPredictions 
-            record={record}
+            component: <UpcomingPredictions
+                record={record}
                 seasons={seasons}
                 selectedSeason={selectedSeason}
                 setSelectedSeason={setSelectedSeason}
@@ -149,8 +150,8 @@ const Index = () => {
         },
         {
             name: "Odds",
-            component: <Odds 
-            record={record}
+            component: <Odds
+                record={record}
                 seasons={seasons}
                 selectedSeason={selectedSeason}
                 setSelectedSeason={setSelectedSeason}
@@ -178,6 +179,14 @@ const Index = () => {
         {
             name: "Details",
             component: <Details record={record} modelDetails={modelDetails} />,
+        },
+        {
+            name: "Last Actions",
+            component: <LastActions record={record}
+                seasons={seasons}
+                selectedSeason={selectedSeason}
+                getRecord={getRecord}
+                />,
         },
         {
             name: "Sources",

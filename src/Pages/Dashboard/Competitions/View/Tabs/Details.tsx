@@ -41,7 +41,7 @@ const Details = ({ record, modelDetails }: Props) => {
                 {
                     record ?
                         <>
-                            <SimpleTable exclude={['emblem']} modelDetails={modelDetails} record={record} listSources={listSources} />
+                            <SimpleTable exclude={['emblem', 'last_action', 'seasons', 'game_sources']} modelDetails={modelDetails} record={record} listSources={listSources} />
                             <button type="button" className="btn btn-primary d-none" id="addSourcesButton" data-bs-toggle="modal" data-bs-target="#addSources"></button>
                             <button type="button" className="btn btn-primary d-none" id="addSourcesButton" data-bs-toggle="modal" data-bs-target="#addSources"></button>
                             <GeneralModal title={`Add source for ${record.name || '#'}`} actionUrl={`dashboard/competitions/view/${record.id}/add-sources`} size={'modal-lg'} id={`addSources`}>

@@ -9,7 +9,6 @@ interface GameInterface {
     fetching_fixture_state: string;
     updated_at: string;
     created_at: string;
-    last_fetch: string
     action: string;
 }
 

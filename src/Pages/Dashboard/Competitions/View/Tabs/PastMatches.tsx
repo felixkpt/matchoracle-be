@@ -45,7 +45,7 @@ const PastMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
     { label: 'Status', key: 'Status' },
     { key: 'Created_by' },
     { key: 'utc_date' },
-    { label: 'Last Fetch', key: 'Last_fetch' },
+    { label: 'Updated', key: 'Updated_at' },
     { label: 'Action', key: 'action' },
   ]
 

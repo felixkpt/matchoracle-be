@@ -99,6 +99,30 @@ export interface SeasonInterface {
     updated_at: string;
 }
 
+export interface LastAction {
+    id: number;
+    competition_id: number;
+    seasons_last_fetch: string | null;
+    standings_recent_results_last_fetch: string | null;
+    standings_historical_results_last_fetch: string | null;
+    matches_recent_results_last_fetch: string | null;
+    matches_historical_results_last_fetch: string | null;
+    matches_fixtures_last_fetch: string | null;
+    matches_shallow_fixtures_last_fetch: string | null;
+    match_recent_results_last_fetch: string | null;
+    match_historical_results_last_fetch: string | null;
+    match_fixtures_last_fetch: string | null;
+    match_shallow_fixtures_last_fetch: string | null;
+    predictions_last_train: string | null;
+    predictions_trained_to: string | null;
+    predictions_last_done: string | null;
+    stats_last_done: string | null;
+    predictions_stats_last_done: string | null;
+    created_at: string;
+    updated_at: string;
+    [key: string]: string | number | null | undefined;
+}
+
 export interface CompetitionInterface {
     id: string;
     name: string;
@@ -129,6 +153,7 @@ export interface CompetitionInterface {
     seasons: SeasonInterface[];
     games_per_season: number;
     available_seasons: number;
+    last_action: LastAction
 }
 export interface ScoreInterface {
     id: string;
@@ -282,10 +307,11 @@ export interface CompetitionGameSourceInterface {
 
 export interface CompetitionTabInterface {
     record: CompetitionInterface | undefined;
+    getRecord?: () => void;
     seasons?: SeasonInterface[] | null
     selectedSeason?: SeasonInterface | null
-    setSelectedSeason: React.Dispatch<React.SetStateAction<SeasonInterface | null>>;
-    mainKey: any
+    setSelectedSeason?: React.Dispatch<React.SetStateAction<SeasonInterface | null>>;
+    mainKey?: number
     setMainKey?: React.Dispatch<React.SetStateAction<number>>;
     useDate?: boolean;
     isDisabled?: boolean
