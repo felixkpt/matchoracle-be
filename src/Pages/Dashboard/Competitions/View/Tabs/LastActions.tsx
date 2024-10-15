@@ -75,7 +75,11 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
                         {actionKeys.map((key) => (
                             <tr key={key}>
                                 <td>{(key.charAt(0).toLocaleUpperCase() + key.slice(1)).replace(/_/g, ' ')}</td>
-                                <td>{typeof lastAction[key] === 'string' ? <TimeAgo datetime={lastAction[key]} /> : 'N/A'}</td>
+                                <td>
+                                    {lastAction[key] && typeof lastAction[key] === 'string' && !isNaN(new Date(lastAction[key]!).getTime())
+                                        ? <TimeAgo datetime={new Date(lastAction[key]!)} />
+                                        : 'N/A'}
+                                </td>
                                 <td>
                                     <Button
                                         variant="primary"
