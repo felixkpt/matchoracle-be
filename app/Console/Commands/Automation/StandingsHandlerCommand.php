@@ -13,7 +13,7 @@ class StandingsHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:standings-handler {--task=} {--ignore-timing}';
+    protected $signature = 'app:standings-handler {--task=} {--ignore-timing} {--competition=}';
 
     /**
      * The console command description.
@@ -37,7 +37,9 @@ class StandingsHandlerCommand extends Command
 
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
 
-        dispatch(new StandingsHandlerJob($task, $ignore_timing));
+        $competition_id = $this->option('competition');
+
+        dispatch(new StandingsHandlerJob($task, null, $ignore_timing, $competition_id));
         $this->info('Standings handler command executed successfully!');
     }
 }

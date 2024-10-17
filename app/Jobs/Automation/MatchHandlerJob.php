@@ -144,10 +144,11 @@ class MatchHandlerJob implements ShouldQueue
 
             $seasons = $competition->seasons()
                 ->when($this->task == 'fixtures', fn($q) => $q->where('is_current', true))
-                ->whereDate('start_date', '>=', '2016-01-01')
+                ->whereDate('start_date', '>=', $this->historyStartDate)
                 ->where('fetched_all_single_matches', false)
                 ->take($this->task == 'historical_results' ? 15 : 1)
-                ->orderBy('start_date', 'desc')->get();
+                ->orderBy('start_date', 'desc')
+                ->get();
 
             $total_seasons = $seasons->count();
 
@@ -242,7 +243,6 @@ class MatchHandlerJob implements ShouldQueue
                     sleep(4);
                 }
 
-                $this->automationInfo("");
                 // Introduce a delay to avoid rapid consecutive requests
                 sleep($should_sleep_for_seasons ? 10 : 0);
                 $should_sleep_for_seasons = false;
@@ -250,7 +250,7 @@ class MatchHandlerJob implements ShouldQueue
 
             $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
-            $this->automationInfo("------------\n");
+            $this->automationInfo("------------");
 
             // Introduce a delay to avoid rapid consecutive requests
             sleep($should_sleep_for_competitions ? 10 : 0);

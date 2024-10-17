@@ -141,7 +141,7 @@ class CompetitionsHandler
      */
     function fetchMatches($id, $season = null, $matchday = null)
     {
-        Log::alert('Match day::', [$id, $matchday]);
+        Log::channel($this->logChannel)->alert('Match day::', [$id, $matchday]);
 
         $competition = Competition::whereHas('gameSources', function ($q) use ($id) {
             $q->where('competition_id', $id);
@@ -163,7 +163,7 @@ class CompetitionsHandler
 
         $matches = $this->findMatchesByCompetition($source->source_id, $season, $matchday);
 
-        Log::critical('MATCHES', [$matches]);
+        Log::channel($this->logChannel)->critical('MATCHES', [$matches]);
 
         return response(['message' => 'Matches for ' . $competition->name . ' updated.']);
     }

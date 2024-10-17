@@ -60,7 +60,7 @@ class SeasonsHandler
         if (!$competition->logo || request()->refetch_image == 1) {
 
             if (request()->refetch_image) {
-                Log::info('Refetching image...');
+                Log::channel($this->logChannel)->info('Refetching image...');
             }
 
             $elem = $crawler->filter('.contentmiddle h1.frontH img[alt="league_logo"]');
@@ -95,7 +95,7 @@ class SeasonsHandler
         }
 
         $message = 'Seasons for ' . $competition->name . ' saved/updated. ';
-        $message .= $saved . ' seasons saved, ' . $updated . ' seasons updated.';
+        $message .= $saved . ' saved, ' . $updated . ' updated.';
 
         $response = [
             'message' => $message,

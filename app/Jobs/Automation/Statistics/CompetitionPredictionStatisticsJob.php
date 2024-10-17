@@ -29,7 +29,7 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
      * @property int    $competition_id The identifier for the competition associated with the job.
      */
     protected $jobId;
-    protected $task = 'train';
+    protected $task = 'run';
     protected $ignore_timing;
     protected $competition_id;
 

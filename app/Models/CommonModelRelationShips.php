@@ -35,7 +35,7 @@ trait CommonModelRelationShips
     protected function flag(): Attribute
     {
         return $this->resolvePath();
-    } 
+    }
     /**
      * @param  string  $value
      * @return \Illuminate\Database\Eloquent\Casts\Attribute
@@ -52,7 +52,7 @@ trait CommonModelRelationShips
 
                 if ($value) {
                     if (env('FILESYSTEM_DRIVER', 'local') == 'local') {
-                        return env('APP_URL') . Storage::url($value);
+                        return env('APP_URL') . Storage::url(Str::replaceFirst('assets/', '', $value));
                     } else {
                         $path = Str::startsWith($value, config('app.gcs_project_folder')) ? $value : config('app.gcs_project_folder') . '/' . $value;
                         return Storage::url($path);
@@ -60,13 +60,13 @@ trait CommonModelRelationShips
                 }
                 return null;
             },
-            set: fn ($value) => strtolower($value),
+            set: fn($value) => strtolower($value),
         );
     }
 
     public static function boot()
     {
         parent::boot();
-        static::creating(fn ($model) => defaultColumns($model));
+        static::creating(fn($model) => defaultColumns($model));
     }
 }

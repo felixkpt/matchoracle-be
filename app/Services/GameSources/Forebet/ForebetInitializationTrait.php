@@ -49,6 +49,7 @@ trait ForebetInitializationTrait
      */
     public $sourceId;
 
+    public $logChannel = 'automation';
     /**
      * Constructor for ForebetInitializationTrait.
      */
@@ -304,7 +305,7 @@ trait ForebetInitializationTrait
                                 $home_team_not_found[$match['home_team']['name']] = $home_team_not_found[$match['home_team']['name']] + 1;
                             }
 
-                            Log::critical('homeTeam not found:', (array) $match['home_team']['name']);
+                            Log::channel($this->logChannel)->critical('homeTeam not found:', (array) $match['home_team']['name']);
                         }
 
                         if (!$awayTeam) {
@@ -315,7 +316,7 @@ trait ForebetInitializationTrait
                                 $away_team_not_found[$match['away_team']['name']] = $away_team_not_found[$match['away_team']['name']] + 1;
                             }
 
-                            Log::critical('awayTeam not found:', (array) $match['away_team']['name']);
+                            Log::channel($this->logChannel)->critical('awayTeam not found:', (array) $match['away_team']['name']);
                         }
                     }
 
@@ -325,12 +326,12 @@ trait ForebetInitializationTrait
                     $this->has_errors = true;
                     $msg = "Error during data import for compe#$competition->id: ";
 
-                    Log::error($msg . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
+                    Log::channel($this->logChannel)->error($msg . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
                 }
             } else {
                 $no_date_mgs = ['competition' => $competition->id ?? null, 'season' => $season ? $season->id : null, 'match' => $match];
                 $date_or_compe_not_found['match'][$key] = $match;
-                Log::critical('Match has no date or competition:', $no_date_mgs);
+                Log::channel($this->logChannel)->critical('Match has no date or competition:', $no_date_mgs);
             }
 
             sleep(0);
@@ -378,7 +379,7 @@ trait ForebetInitializationTrait
         $status_id = activeStatusId();
         $user_id = auth()->id();
 
-        // Log::alert('SAVING GAME...', ['match' => $match, 'date' => $date, 'has_time' => $has_time]);
+        // Log::channel($this->logChannel)->alert('SAVING GAME...', ['match' => $match, 'date' => $date, 'has_time' => $has_time]);
 
         // Prepare data array for creating or updating a game
         $arr = [

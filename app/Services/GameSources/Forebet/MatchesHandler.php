@@ -56,7 +56,7 @@ class MatchesHandler implements MatchesInterface
             $links = $this->getMatchesLinks($url);
 
         // if is not array then there could be an error that has occured
-        if (!is_array($links)) return $this->matchMessage('Links should be array.', 500);
+        if (!is_array($links)) $links = [];
 
         $links = array_unique(array_merge([$uri], $links));
 
@@ -77,7 +77,7 @@ class MatchesHandler implements MatchesInterface
 
                 sleep(5);
             } catch (Exception $e) {
-                Log::critical("fetchMatches Error {$i}: " . $e->getMessage());
+                Log::channel($this->logChannel)->critical("fetchMatches Error {$i}: " . $e->getMessage());
             }
         }
 
@@ -137,10 +137,8 @@ class MatchesHandler implements MatchesInterface
             abort(500, "Cannot get matches for: compe#$competition->id, season#$season->id");
         }
 
-        Log::info('matchesData: ' . count($matchesData));
 
         foreach ($matchesData as $key => $match) {
-
 
             if ($match['date']) {
 
@@ -165,12 +163,12 @@ class MatchesHandler implements MatchesInterface
                     $this->has_errors = true;
 
                     $msg = "Error during data import for compe#$competition->id, season#1363$season->id: ";
-                    Log::error($msg . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
+                    Log::channel($this->logChannel)->error($msg . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
                 }
             } else {
                 $no_date_msg = ['competition' => $competition->id, 'season' => $season->id, 'match' => $match];
                 $date_not_found['match'][$key] = $match;
-                Log::critical('Match has no date:', $no_date_msg);
+                Log::channel($this->logChannel)->critical('Match has no date:', $no_date_msg);
             }
         }
 
@@ -202,13 +200,11 @@ class MatchesHandler implements MatchesInterface
 
     private function handleTeam($teamData, $country, $competition, $season, &$teamNotFound)
     {
-        
+
         $team = Team::whereHas('gameSources', function ($q) use ($teamData) {
             $q->where('source_uri', $teamData['uri']);
         })->first();
-        
-        Log::info('Handling team',[$team]);
-        
+
         if (!$team) {
             $team = (new TeamsHandler())->updateOrCreate($teamData, $country, $competition, $season, true);
             if (!$team) {
@@ -218,7 +214,7 @@ class MatchesHandler implements MatchesInterface
                     $teamNotFound[$teamData['name']]++;
                 }
 
-                Log::critical('Team not found:', (array) $teamData['name']);
+                Log::channel($this->logChannel)->critical('Team not found:', (array) $teamData['name']);
             }
         }
 
@@ -261,6 +257,7 @@ class MatchesHandler implements MatchesInterface
                     $homeTeam = $crawler->filter('td.resLnameRTd a')->text();
                     $homeTeamUri = $crawler->filter('td.resLnameRTd a')->attr('href');
                     $gameResults = $crawler->filter('td.resLresLTd')->text();
+
                     $k = $crawler->filter('td.resLresLTd a');
                     $gameUri = null;
                     if ($k->count() === 1) {
@@ -299,6 +296,7 @@ class MatchesHandler implements MatchesInterface
 
     private function filterUpcomingMatches($crawler)
     {
+
         $chosen_crawler = null;
         $has_matches = false;
         $crawler->filter('.contentmiddle table[border="0"]')->each(function ($crawler) use (&$chosen_crawler, &$has_matches) {
@@ -325,8 +323,7 @@ class MatchesHandler implements MatchesInterface
                     if ($raw_date && $raw_date != $date) {
                         $date = Carbon::parse($raw_date)->format('Y-m-d');
                     }
-                } else if ($date) {
-
+                } else if ($date && Carbon::parse($date)->isFuture()) {
 
                     $match = [
                         'date' => $date,
@@ -346,25 +343,7 @@ class MatchesHandler implements MatchesInterface
                         ],
                     ];
 
-                    $crawler->filter('td')->each(function ($crawler, $i) use (&$match) {
-
-                        if ($i === 1) {
-                            $k = $crawler->filter('a');
-                            $match['home_team']['name'] = $k->text();
-                            $match['home_team']['uri'] = getUriFromUrl($k->attr('href'));
-                        } elseif ($i === 2) {
-                        } elseif ($i === 3) {
-                            $k = $crawler->filter('a');
-                            $match['away_team']['name'] = $k->text();
-                            $match['away_team']['uri'] = getUriFromUrl($k->attr('href'));
-                        } elseif ($i === 4) {
-                            $k = $crawler->filter('a');
-                            if ($k->count()) {
-                                $match['game_details']['full_time_results'] = null;
-                                $match['game_details']['uri'] = getUriFromUrl($k->attr('href'));
-                            }
-                        }
-                    });
+                    $this->addMatchDetails($crawler, $match);
 
                     return $match;
                 }
@@ -373,6 +352,31 @@ class MatchesHandler implements MatchesInterface
 
         $matches = array_values(array_filter($matches));
 
+        Log::channel($this->logChannel)->info('filterUpcomingMatches', $matches);
+
         return $matches;
+    }
+
+    function addMatchDetails($crawler, &$match)
+    {
+        $crawler->filter('td')->each(function ($crawler, $i) use (&$match) {
+
+            if ($i === 1) {
+                $k = $crawler->filter('a');
+                $match['home_team']['name'] = $k->text();
+                $match['home_team']['uri'] = getUriFromUrl($k->attr('href'));
+            } elseif ($i === 2) {
+            } elseif ($i === 3) {
+                $k = $crawler->filter('a');
+                $match['away_team']['name'] = $k->text();
+                $match['away_team']['uri'] = getUriFromUrl($k->attr('href'));
+            } elseif ($i === 4) {
+                $k = $crawler->filter('a');
+                if ($k->count()) {
+                    $match['game_details']['full_time_results'] = null;
+                    $match['game_details']['uri'] = getUriFromUrl($k->attr('href'));
+                }
+            }
+        });
     }
 }

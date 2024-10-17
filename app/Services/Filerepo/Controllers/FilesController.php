@@ -67,7 +67,7 @@ class FilesController extends Controller
                 $filePath = $file->getRealPath();
                 $relativePath = substr($filePath, strlen($directory) + 1);
                 
-                $path = 'assets/' . $relativePath;
+                $path = $relativePath;
         
                 if (!Str::startsWith($path, config('app.gcs_project_folder'))) {
                     $path = config('app.gcs_project_folder') . '/' . $path;

@@ -118,7 +118,7 @@ class StandingsHandlerJob implements ShouldQueue
             $this->doCompetitionRunLogging();
 
             $seasons = $competition->seasons()
-                ->whereDate('start_date', '>=', '2015-01-01')
+                ->whereDate('start_date', '>=', $this->historyStartDate)
                 ->where('fetched_standings', false)
                 ->take(15)
                 ->orderBy('start_date', 'desc')->get();

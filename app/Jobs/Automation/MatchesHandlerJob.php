@@ -125,14 +125,13 @@ class MatchesHandlerJob implements ShouldQueue
 
             $this->automationInfo(($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name}) | Last fetch {$last_action} ");
             $this->doCompetitionRunLogging();
-
             $seasons = $competition->seasons()
                 ->when(Str::endsWith($this->task, 'fixtures'), fn($q) => $q->where('is_current', true))
-                ->whereDate('start_date', '>=', '2015-01-01')
+                ->whereDate('start_date', '>=', $this->historyStartDate)
                 ->where('fetched_all_matches', false)
                 ->take($this->task == 'historical_results' ? 15 : 1)
-                ->orderBy('updated_at', 'asc')->get();
-
+                ->orderBy('start_date', 'asc')
+                ->get();
 
             $total_seasons = $seasons->count();
 

@@ -12,6 +12,7 @@ trait AutomationTrait
     protected $maxExecutionTime;
     protected $startTime;
     protected $channel = 'automation';
+    protected $historyStartDate = '2015-01-01';
 
     protected function jobStartEndLog($message, $competitions = null): void
     {

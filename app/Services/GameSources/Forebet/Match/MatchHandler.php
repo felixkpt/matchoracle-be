@@ -6,7 +6,6 @@ use App\Models\Game;
 use App\Services\ClientHelper\Client;
 use App\Services\Common;
 use App\Services\GameSources\Forebet\ForebetInitializationTrait;
-use App\Services\OddsHandler;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -68,7 +67,7 @@ class MatchHandler
     private function handleGame($game, $url)
     {
 
-        Log::channel('automation')->info('Handling game: ' . $game->id);
+        Log::channel($this->logChannel)->info('Handling game: ' . $game->id);
 
         $content = Client::get($url);
         if (!$content) return $this->matchMessage('Source inaccessible or not found.', 500);
@@ -146,7 +145,7 @@ class MatchHandler
             [$ht_hda_odds, $ht_hda_preds, $ht_hda_preds_pick] = $this->matchOdds->oddsAndPredictionsForHDAHT($crawler);
         } catch (Exception $e) {
             // Log any errors that occur while fetching the odds and predictions
-            Log::critical('MatchHandler, Odds error: ' . $e->getMessage());
+            Log::channel($this->logChannel)->critical('MatchHandler, Odds error: ' . $e->getMessage());
         }
 
         // Convert the predictions to numeric or appropriate values

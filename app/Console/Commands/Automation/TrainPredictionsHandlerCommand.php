@@ -40,7 +40,7 @@ class TrainPredictionsHandlerCommand extends Command
         $ignore_timing = $this->option('ignore-timing');
 
         $competition_id = $this->option('competition');
-        dispatch(new TrainPredictionsHandlerJob($task, $ignore_timing, $competition_id));
+        dispatch(new TrainPredictionsHandlerJob($task, null, $ignore_timing, $competition_id));
         $this->info('Train Predictions handler command executed successfully!');
     }
 }

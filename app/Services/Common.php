@@ -315,7 +315,7 @@ class Common
         $ext = pathinfo($source, PATHINFO_EXTENSION);
         $filename = "t" . $team->id . '.' . $ext;
 
-        $dest = "assets/images/teams/" . $filename; /* Complete path & file name */
+        $dest = "images/teams/" . $filename; /* Complete path & file name */
 
         $path = Client::downloadFileFromUrl($source, $dest);
         if ($path) {

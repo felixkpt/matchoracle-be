@@ -40,7 +40,7 @@ class MatchesHandlerCommand extends Command
         $competition_id = $this->option('competition');
 
 
-        dispatch(new MatchesHandlerJob($task, $ignore_timing,$competition_id));
+        dispatch(new MatchesHandlerJob($task, null, $ignore_timing, $competition_id));
         $this->info('Matches handler command executed successfully!');
     }
 }

@@ -22,14 +22,14 @@ class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterfac
     public function updateAction($competitionId, $action)
     {
         // Retrieve the competition by ID
-        $competition = request()->job_id ?? 'eeee';
+        $competition = $this->model->find($competitionId);
 
         if (!$competition) {
             return ['error' => 'Competition not found'];
         }
 
         // Set the jobID
-        $jobId = str()->random(6);
+        $jobId = request()->job_id ?? str()->random(6);
 
         $ignoreTiming = true;
 

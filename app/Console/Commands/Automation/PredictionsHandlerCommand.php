@@ -39,7 +39,7 @@ class PredictionsHandlerCommand extends Command
 
         $competition_id = $this->option('competition');
 
-        dispatch(new PredictionsHandlerJob($task, $ignore_timing, $competition_id));
+        dispatch(new PredictionsHandlerJob($task, null, $ignore_timing, $competition_id));
         $this->info('Predictions handler command executed successfully!');
 
         return 1;

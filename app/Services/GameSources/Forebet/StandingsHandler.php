@@ -128,7 +128,7 @@ class StandingsHandler
 
         // Prepare response message
         $message = 'Standings for ' . $competition->name . ', season ' . Carbon::parse($season->start_date)->format('Y') . '/' . Carbon::parse($season->end_date)->format('Y') . ' updated. ';
-        $message .= $saved . ' new standings added, and ' . $updated . ' existing standings updated. (winner ' . ($winner ? $winner->name : 'N/A') . ')';
+        $message .= $saved . ' new added, and ' . $updated . ' existing updated. (winner ' . ($winner ? $winner->name : 'N/A') . ')';
 
         // Prepare response data
         $response = [
@@ -316,7 +316,7 @@ class StandingsHandler
             $team = (new TeamsHandler())->updateOrCreate($teamData, $country, $competition, $season, false, $position);
 
             if (!$team) {
-                Log::critical("Team could not be created for compe: {$competition->id}, season {$season->id}", [$tableData]);
+                Log::channel($this->logChannel)->critical("Team could not be created for compe: {$competition->id}, season {$season->id}", [$tableData]);
                 continue;
             }
 

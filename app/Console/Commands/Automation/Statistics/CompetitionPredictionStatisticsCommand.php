@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Console\Commands\Statistics;
+namespace App\Console\Commands\Automation\Statistics;
 
-use App\Jobs\Statistics\CompetitionPredictionStatisticsJob;
+use App\Jobs\Automation\Statistics\CompetitionPredictionStatisticsJob;
 use Illuminate\Console\Command;
 
 class CompetitionPredictionStatisticsCommand extends Command
@@ -28,7 +28,7 @@ class CompetitionPredictionStatisticsCommand extends Command
     {
         $competitionId = $this->option('competition');
 
-        dispatch(new CompetitionPredictionStatisticsJob($competitionId));
+        dispatch(new CompetitionPredictionStatisticsJob(null, null, false, $competitionId));
         $this->info('Competition Prediction Statistics Job command executed successfully!');
     }
 }
