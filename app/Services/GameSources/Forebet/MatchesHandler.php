@@ -105,7 +105,7 @@ class MatchesHandler implements MatchesInterface
     private function getMatchesLinks($url)
     {
         $content = Client::get($url);
-        if (!$content) return $this->matchMessage('Source not accessible or not found.');
+        if (!$content) return $this->matchMessage('Source not accessible or not found.', 504);
 
         $crawler = new Crawler($content);
         // list-footer
@@ -136,6 +136,8 @@ class MatchesHandler implements MatchesInterface
         if (!is_array($matchesData)) {
             abort(500, "Cannot get matches for: compe#$competition->id, season#$season->id");
         }
+
+        Log::info('matchesData: ' . count($matchesData));
 
         foreach ($matchesData as $key => $match) {
 
@@ -200,10 +202,13 @@ class MatchesHandler implements MatchesInterface
 
     private function handleTeam($teamData, $country, $competition, $season, &$teamNotFound)
     {
+        
         $team = Team::whereHas('gameSources', function ($q) use ($teamData) {
             $q->where('source_uri', $teamData['uri']);
         })->first();
-
+        
+        Log::info('Handling team',[$team]);
+        
         if (!$team) {
             $team = (new TeamsHandler())->updateOrCreate($teamData, $country, $competition, $season, true);
             if (!$team) {

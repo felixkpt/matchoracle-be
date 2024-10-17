@@ -80,27 +80,37 @@ class Client
             return null;
         }
 
+
         try {
 
             // File::ensureDirectoryExists(storage_path() . '/app/' . dirname($destinationPath));
             // Store the downloaded file content to the specified path
             // Storage::disk('local')->put($filePath, $fileContent);
 
+            Log::info('filePath', [$filePath]);
 
             if (!str()->startsWith($filePath, 'assets/')) {
                 $filePath = 'assets/' . $filePath;
             }
-
             $path = $filePath;
+
             if (!str()->startsWith($path, config('app.gcs_project_folder'))) {
                 $path = config('app.gcs_project_folder') . '/' . $path;
                 // Remove repeated slashes
                 $path = preg_replace("#/+#", "/", $path);
             }
 
+            $disk = env('FILESYSTEM_DRIVER', 'local');
+
+            if ($disk === 'local') {
+                $path = str($path)->after('assets/');
+            }
+
+            Log::info('filePath after:', [$path]);
+
             // Store the downloaded file content to the specified path and set its visibility to public
-            Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->put($path, $fileContent);
-            Storage::disk(env('FILESYSTEM_DRIVER', 'local'))->setVisibility($path, 'public');
+            Storage::disk($disk)->put($path, $fileContent);
+            Storage::disk($disk)->setVisibility($path, 'public');
 
 
             // Return the filePath/path where the file is saved

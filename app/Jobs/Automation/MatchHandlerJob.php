@@ -22,20 +22,26 @@ class MatchHandlerJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
     /**
-     * The task to be performed by the job.
+     * Job details.
      *
-     * @var string
+     * @property string $jobId          The unique identifier for the job.
+     * @property string $task           The type of task to be performed by the job (default is 'train').
+     * @property bool   $ignore_timing  Whether to ignore timing constraints for the job.
+     * @property int    $competition_id The identifier for the competition associated with the job.
+     * @property int    $match_id The identifier for the match associated with the job.
      */
-    protected $task = 'recent_results';
-    protected $ignore_timing = false;
+    protected $jobId;
+    protected $task = 'train';
+    protected $ignore_timing;
     protected $competition_id;
     protected $match_id;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $ignore_timing = false, $competition_id = null, $match_id = null)
+    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null, $match_id = null)
     {
+
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
         $this->startTime = time();
@@ -45,6 +51,11 @@ class MatchHandlerJob implements ShouldQueue
 
         // Set the initial game source strategy (can be switched dynamically)
         $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
+
+
+        // Set the jobID
+        $this->jobId = $job_id ?? str()->random(6);
+
         // Set the task property
         if ($task) {
             $this->task = $task;
@@ -69,7 +80,6 @@ class MatchHandlerJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->jobStartedLog();
 
         $this->loggerModel(true);
 
@@ -120,14 +130,16 @@ class MatchHandlerJob implements ShouldQueue
             ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
             ->get();
 
+        $this->jobStartEndLog('started', $competitions);
+
         // Loop through each competition to fetch and update matches
         $should_sleep_for_competitions = false;
         $total = $competitions->count();
-        $run_time_exceeded = false;
+        $should_exit = false;
         foreach ($competitions as $key => $competition) {
-            if ($run_time_exceeded) break;
+            if ($should_exit) break;
 
-            echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
+            $this->automationInfo(($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})");
             $this->doCompetitionRunLogging();
 
             $seasons = $competition->seasons()
@@ -142,7 +154,7 @@ class MatchHandlerJob implements ShouldQueue
             $should_sleep_for_seasons = false;
             $should_update_last_action = false;
             foreach ($seasons as $season_key => $season) {
-                if ($run_time_exceeded) break;
+                if ($should_exit) break;
 
                 $season_games = $season->games()->count();
 
@@ -166,7 +178,7 @@ class MatchHandlerJob implements ShouldQueue
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
 
-                echo ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date}, unsettled games {$unsettled_games}/{$season_games} games)\n";
+                $this->automationInfo(($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date}, unsettled games {$unsettled_games}/{$season_games} games)");
                 if ($unsettled_games === 0) continue;
 
                 $delay_games = 90;
@@ -179,7 +191,7 @@ class MatchHandlerJob implements ShouldQueue
                     ->get();
 
                 $total_games = $games->count();
-                echo "After applying last action delay check >= {$delay_games} mins: {$total_games} games\n";
+                $this->automationInfo("After applying last action delay check >= {$delay_games} mins: {$total_games} games");
                 if ($total_games === 0) continue;
 
 
@@ -187,14 +199,14 @@ class MatchHandlerJob implements ShouldQueue
                 foreach ($games as $key => $game) {
 
                     if ($this->runTimeExceeded()) {
-                        $run_time_exceeded = true;
+                        $should_exit = true;
                         break;
                     }
 
-                    echo ($key + 1) . "/{$total_games}. Game: #{$game->id}, {$game->utc_date}, ({$game->homeTeam->name} vs {$game->awayTeam->name}, {$game->competition->name})\n";
+                    $this->automationInfo(($key + 1) . "/{$total_games}. Game: #{$game->id}, {$game->utc_date}, ({$game->homeTeam->name} vs {$game->awayTeam->name}, {$game->competition->name})");
 
                     while (!is_connected()) {
-                        echo "You are offline. Retrying in 10 secs...\n";
+                        $this->automationInfo("You are offline. Retrying in 10 secs...");
                         sleep(10);
                     }
 
@@ -208,14 +220,14 @@ class MatchHandlerJob implements ShouldQueue
                     $data = $matchHandler->fetchMatch($game->id);
 
                     // Output the fetch result for logging
-                    echo $data['message'] . "\n";
+                    $this->automationInfo($data['message'] . "");
 
                     // Capture end time and calculate time taken
                     $requestEndTime = microtime(true);
                     $seconds_taken = $requestEndTime - $requestStartTime;
 
                     // Log time taken for this game request
-                    echo "Time taken to process Game #{$game->id}: " . round($seconds_taken / 60, 2) . " minutes\n";
+                    $this->automationInfo("Time taken to process Game #{$game->id}: " . round($seconds_taken / 60, 2) . " minutes");
 
                     $data['seconds_taken'] = round($seconds_taken);
 
@@ -230,7 +242,7 @@ class MatchHandlerJob implements ShouldQueue
                     sleep(4);
                 }
 
-                echo "\n";
+                $this->automationInfo("");
                 // Introduce a delay to avoid rapid consecutive requests
                 sleep($should_sleep_for_seasons ? 10 : 0);
                 $should_sleep_for_seasons = false;
@@ -238,12 +250,14 @@ class MatchHandlerJob implements ShouldQueue
 
             $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
-            echo "------------\n\n";
+            $this->automationInfo("------------\n");
 
             // Introduce a delay to avoid rapid consecutive requests
             sleep($should_sleep_for_competitions ? 10 : 0);
             $should_sleep_for_competitions = false;
         }
+
+        $this->jobStartEndLog('END');
     }
 
     private function lastActionFilters($query)
@@ -251,8 +265,8 @@ class MatchHandlerJob implements ShouldQueue
         // Conditionally filter games based on the task being performed
         $query = $query
             ->when($this->task == 'historical_results', fn($q) => $q->where('utc_date', '<', Carbon::now()->subDays(5)))
-            ->when($this->task == 'recent_results' && !$this->ignore_timing, fn($q) => $this->applyRecentResultsFilter($q))
-            ->when($this->task == 'shallow_fixtures' && !$this->ignore_timing, fn($q) => $this->applyShallowFixturesFilter($q))
+            ->when($this->task == 'recent_results', fn($q) => $this->applyRecentResultsFilter($q))
+            ->when($this->task == 'shallow_fixtures', fn($q) => $this->applyShallowFixturesFilter($q))
             ->when($this->task == 'fixtures', fn($q) => $q->where('utc_date', '>', Carbon::now()->addDays(7)));
 
         return $query;
@@ -315,7 +329,6 @@ class MatchHandlerJob implements ShouldQueue
                 'fetch_run_counts' => 0,
                 'fetch_success_counts' => 0,
                 'fetch_failed_counts' => 0,
-                'updated_standings_counts' => 0,
                 'average_seconds_per_run' => 0,
             ];
 

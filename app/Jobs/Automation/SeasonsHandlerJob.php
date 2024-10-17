@@ -19,14 +19,23 @@ class SeasonsHandlerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
-    protected $task = 'fetch';
-    protected $ignore_timing = false;
+    /**
+     * Job details.
+     *
+     * @property string $jobId          The unique identifier for the job.
+     * @property string $task           The type of task to be performed by the job (default is 'train').
+     * @property bool   $ignore_timing  Whether to ignore timing constraints for the job.
+     * @property int    $competition_id The identifier for the competition associated with the job.
+     */
+    protected $jobId;
+    protected $task = 'train';
+    protected $ignore_timing;
     protected $competition_id;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $ignore_timing = false, $competition_id = null)
+    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
@@ -37,6 +46,9 @@ class SeasonsHandlerJob implements ShouldQueue
 
         // Set the initial game source strategy (can be switched dynamically)
         $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
+
+        // Set the jobID
+        $this->jobId = $job_id ?? str()->random(6);
 
         // Set the task property
         if ($task) {
@@ -58,7 +70,6 @@ class SeasonsHandlerJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->jobStartedLog();
 
         $this->loggerModel(true);
 
@@ -83,22 +94,24 @@ class SeasonsHandlerJob implements ShouldQueue
             ->limit(700)->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
             ->get();
 
+        $this->jobStartEndLog('START', $competitions);
+
         // Loop through each competition to fetch and update seasons
         $total = $competitions->count();
-        $run_time_exceeded = false;
+        $should_exit = false;
         foreach ($competitions as $key => $competition) {
-            if ($run_time_exceeded) break;
+            if ($should_exit) break;
 
             if ($this->runTimeExceeded()) {
-                $run_time_exceeded = true;
+                $should_exit = true;
                 break;
             }
 
-            echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
+            $this->automationInfo(($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})");
             $this->doCompetitionRunLogging();
 
             while (!is_connected()) {
-                echo "You are offline. Retrying in 10 secs...\n";
+                $this->automationInfo("You are offline. Retrying in 10 secs...");
                 sleep(10);
             }
 
@@ -109,23 +122,25 @@ class SeasonsHandlerJob implements ShouldQueue
             $data = $seasonsHandler->fetchSeasons($competition->id);
 
             // Output the fetch result for logging
-            echo $data['message'] . "\n";
+            $this->automationInfo($data['message'] . "");
 
             $this->updateLastAction($competition, true, $lastFetchColumn);
 
-            echo "------------\n";
+            $this->automationInfo("------------");
 
             $this->doLogging($data);
             // Introduce a delay to avoid rapid consecutive requests
             sleep(15);
         }
+
+        $this->jobStartEndLog('END');
     }
 
     private function doLogging($data = null)
     {
-        $updated_seasons_counts = $data['results']['saved_updated'] ?? 0;
-        $fetch_success_counts = $updated_seasons_counts > 0 ? 1 : 0;
-        $fetch_failed_counts = $data ? ($updated_seasons_counts === 0 ? 1 : 0) : 0;
+        $updated_counts = $data['results']['saved_updated'] ?? 0;
+        $fetch_success_counts = $updated_counts > 0 ? 1 : 0;
+        $fetch_failed_counts = $data ? ($updated_counts === 0 ? 1 : 0) : 0;
 
         $exists = $this->loggerModel();
 
@@ -134,7 +149,6 @@ class SeasonsHandlerJob implements ShouldQueue
                 'fetch_run_counts' => $exists->fetch_run_counts + 1,
                 'fetch_success_counts' => $exists->fetch_success_counts + $fetch_success_counts,
                 'fetch_failed_counts' => $exists->fetch_failed_counts + $fetch_failed_counts,
-                'updated_seasons_counts' => $exists->updated_seasons_counts + $updated_seasons_counts,
             ];
 
 
@@ -158,7 +172,6 @@ class SeasonsHandlerJob implements ShouldQueue
                 'fetch_run_counts' => 0,
                 'fetch_success_counts' => 0,
                 'fetch_failed_counts' => 0,
-                'updated_standings_counts' => 0,
             ];
 
             $record = SeasonJobLog::create($arr);

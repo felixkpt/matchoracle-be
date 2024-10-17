@@ -15,26 +15,30 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class MatchesHandlerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
     /**
-     * The task to be performed by the job.
+     * Job details.
      *
-     * @var string
+     * @property string $jobId          The unique identifier for the job.
+     * @property string $task           The type of task to be performed by the job (default is 'train').
+     * @property bool   $ignore_timing  Whether to ignore timing constraints for the job.
+     * @property int    $competition_id The identifier for the competition associated with the job.
      */
-    protected $task = 'recent_results';
-    protected $ignore_timing = false;
+    protected $jobId;
+    protected $task = 'train';
+    protected $ignore_timing;
     protected $competition_id;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $ignore_timing = false, $competition_id = null)
+    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null)
     {
+
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 10;
         $this->startTime = time();
@@ -44,6 +48,9 @@ class MatchesHandlerJob implements ShouldQueue
 
         // Set the initial game source strategy (can be switched dynamically)
         $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
+
+        // Set the jobID
+        $this->jobId = $job_id ?? str()->random(6);
 
         // Set the task property
         if ($task) {
@@ -65,7 +72,6 @@ class MatchesHandlerJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->jobStartedLog();
 
         $this->loggerModel(true);
 
@@ -97,25 +103,27 @@ class MatchesHandlerJob implements ShouldQueue
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('seasons')
-            ->when($this->task == 'recent_results' && !$this->ignore_timing, fn($q) => $this->applyRecentResultsFilter($q))
+            ->when($this->task == 'recent_results', fn($q) => $this->applyRecentResultsFilter($q))
             ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
             ->limit(700)
             ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
             ->get();
 
+        $this->jobStartEndLog('START', $competitions);
+
         // dd($lastFetchColumn,$competitions->count());
 
         // Loop through each competition to fetch and update matches
         $should_sleep_for_competitions = false;
         $total = $competitions->count();
-        $run_time_exceeded = false;
+        $should_exit = false;
         foreach ($competitions as $key => $competition) {
-            if ($run_time_exceeded) break;
+            if ($should_exit) break;
 
             $last_action = $competition->lastAction->{$lastFetchColumn} ?? 'N/A';
 
-            echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name}) | Last fetch {$last_action} \n";
+            $this->automationInfo(($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name}) | Last fetch {$last_action} ");
             $this->doCompetitionRunLogging();
 
             $seasons = $competition->seasons()
@@ -133,17 +141,17 @@ class MatchesHandlerJob implements ShouldQueue
             foreach ($seasons as $season_key => $season) {
 
                 if ($this->runTimeExceeded()) {
-                    $run_time_exceeded = true;
+                    $should_exit = true;
                     break;
                 }
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
 
-                echo ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date})\n";
+                $this->automationInfo(($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date})");
 
                 while (!is_connected()) {
-                    echo "You are offline. Retrying in 10 secs...\n";
+                    $this->automationInfo("You are offline. Retrying in 10 secs...");
                     sleep(10);
                 }
 
@@ -157,14 +165,14 @@ class MatchesHandlerJob implements ShouldQueue
                 $data = $matchesHandler->fetchMatches($competition->id, $season->id, Str::endsWith($this->task, 'fixtures'));
 
                 // Output the fetch result for logging
-                echo $data['message'] . "\n";
+                $this->automationInfo($data['message'] . "");
 
                 // Capture end time and calculate time taken
                 $requestEndTime = microtime(true);
                 $seconds_taken = $requestEndTime - $requestStartTime;
 
                 // Log time taken for this game request
-                echo "Time taken to process Compe #{$competition->id} - season #{$season->id}: " . round($seconds_taken / 60, 2) . " minutes\n";
+                $this->automationInfo("Time taken to process Compe #{$competition->id} - season #{$season->id}: " . round($seconds_taken / 60, 2) . " minutes");
 
                 $data['seconds_taken'] = round($seconds_taken);
 
@@ -173,6 +181,13 @@ class MatchesHandlerJob implements ShouldQueue
                 $should_update_last_action = true;
 
                 $this->doLogging($data);
+
+                if ($data['status'] === 504) {
+                    $should_exit = true;
+                    $should_update_last_action = false;
+                    break;
+                }
+
                 // Introduce a delay to avoid rapid consecutive requests
                 sleep($should_sleep_for_seasons ? 15 : 0);
                 $should_sleep_for_seasons = false;
@@ -182,12 +197,14 @@ class MatchesHandlerJob implements ShouldQueue
 
             $this->determineCompetitionGamesPerSeason($competition, $seasons);
 
-            echo "------------\n";
+            $this->automationInfo("------------");
 
             // Introduce a delay to avoid rapid consecutive requests
             sleep($should_sleep_for_competitions ? 15 : 0);
             $should_sleep_for_competitions = false;
         }
+
+        $this->jobStartEndLog('END');
     }
 
     function applyRecentResultsFilter(Builder $query): Builder
@@ -265,7 +282,7 @@ class MatchesHandlerJob implements ShouldQueue
 
             if ($expected_games_per_season === 0) continue;
 
-            echo "Season ID: {$season->id}, Teams counts: {$teams_counts}, Expected games per season: {$expected_games_per_season}\n";
+            $this->automationInfo("Season ID: {$season->id}, Teams counts: {$teams_counts}, Expected games per season: {$expected_games_per_season}");
 
             $start_date = Str::before($season->start_date, '-');
             $end_date = Str::before($season->end_date, '-');
@@ -273,14 +290,14 @@ class MatchesHandlerJob implements ShouldQueue
             $season_games = $season->games()->count();
             $season_matches_arr[] = $season_games;
 
-            echo "Season #{$season->id} ({$start_date}/{$end_date}, {$season_games} games)\n";
+            $this->automationInfo("Season #{$season->id} ({$start_date}/{$end_date}, {$season_games} games)");
         }
 
         // season average matches is count of most repeated match counts
         rsort($season_matches_arr);
         $season_matches_arr = array_filter($season_matches_arr, fn($val) => $val >= $expected_games_per_season);
 
-        echo "Counts after filtering >= expected_games_per_season: " . count($season_matches_arr) . "\n";
+        $this->automationInfo("Counts after filtering >= expected_games_per_season: " . count($season_matches_arr) . "");
 
         if (count($season_matches_arr) >= 3) {
             // Get the first three most repeated counts
@@ -290,13 +307,13 @@ class MatchesHandlerJob implements ShouldQueue
             // Check if the first two counts are the same
             if (count(array_count_values($most_repeated_counts)) == 1 || $games_per_season == $expected_games_per_season) {
                 if ($games_per_season > 0 && $competition->games_per_season != $games_per_season) {
-                    echo "Games per season: {$games_per_season} games\n";
+                    $this->automationInfo("Games per season: {$games_per_season} games");
 
                     $competition->games_per_season = $games_per_season;
                     $competition->save();
                 }
             } else {
-                echo "Games per season: could not be determined\n";
+                $this->automationInfo("Games per season: could not be determined");
             }
         }
     }

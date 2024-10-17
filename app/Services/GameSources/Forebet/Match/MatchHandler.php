@@ -68,6 +68,8 @@ class MatchHandler
     private function handleGame($game, $url)
     {
 
+        Log::channel('automation')->info('Handling game: ' . $game->id);
+
         $content = Client::get($url);
         if (!$content) return $this->matchMessage('Source inaccessible or not found.', 500);
 

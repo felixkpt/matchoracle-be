@@ -67,7 +67,7 @@ class StandingsHandler
         $content = Client::get($url);
         if (!$content) {
             // Return error message if content retrieval fails
-            return $this->matchMessage('Source not accessible or not found.');
+            return $this->matchMessage('Source not accessible or not found.', 504);
         }
 
         // Parse HTML content using Symfony DomCrawler

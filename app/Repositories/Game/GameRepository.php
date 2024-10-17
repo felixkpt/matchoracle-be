@@ -138,7 +138,7 @@ class GameRepository implements GameRepositoryInterface
         }
     }
 
-    private function updateOrCreatePredictorOptions()
+    public function updateOrCreatePredictorOptions()
     {
         $name = request()->prediction_type;
 

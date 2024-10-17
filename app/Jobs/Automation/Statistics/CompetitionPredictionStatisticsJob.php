@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\Statistics;
+namespace App\Jobs\Automation\Statistics;
 
 use App\Jobs\Automation\AutomationTrait;
 use App\Models\Competition;
@@ -14,7 +14,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CompetitionPredictionStatisticsJob implements ShouldQueue
@@ -22,21 +21,32 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
     /**
-     * The competition ID for which statistics should be generated.
+     * Job details.
      *
-     * @var int|null
+     * @property string $jobId          The unique identifier for the job.
+     * @property string $task           The type of task to be performed by the job (default is 'train').
+     * @property bool   $ignore_timing  Whether to ignore timing constraints for the job.
+     * @property int    $competition_id The identifier for the competition associated with the job.
      */
-    protected $task = 'stats';
-    private $ignore_timing = false;
-    private $competition_id;
+    protected $jobId;
+    protected $task = 'train';
+    protected $ignore_timing;
+    protected $competition_id;
 
     /**
      * Create a new job instance.
      *
      * @param int|null $competitionId
      */
-    public function __construct($task, $ignore_timing = false, $competition_id = null)
+    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null)
     {
+
+        // Set the maximum execution time (seconds)
+        $this->maxExecutionTime = 60 * 10;
+        $this->startTime = time();
+
+        // Set the jobID
+        $this->jobId = $job_id ?? str()->random(6);
 
         // Set the task property
         if ($task) {
@@ -58,7 +68,6 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->jobStartedLog();
 
         $prediction_types = GamePredictionType::all();
 
@@ -88,6 +97,8 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
                 ->limit(1000)
                 ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
                 ->get();
+
+            $this->jobStartEndLog('START', $competitions);
 
             // Loop through each competition & do stats
             $total = $competitions->count();
@@ -132,6 +143,8 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
 
                 echo "------------\n";
             }
+
+            $this->jobStartEndLog('END');
         }
     }
 

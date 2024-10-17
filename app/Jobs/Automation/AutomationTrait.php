@@ -11,10 +11,46 @@ trait AutomationTrait
     protected $sourceContext;
     protected $maxExecutionTime;
     protected $startTime;
+    protected $channel = 'automation';
 
-    protected function jobStartedLog(): void
+    protected function jobStartEndLog($message, $competitions = null): void
     {
-        Log::info(class_basename($this) . " was started, task: " . $this->task . ", competitionId: " . ($this->competition_id ?? 'N/A'));
+        // Getting the class name dynamically
+        $jobName = class_basename($this) . '-' . $this->jobId;
+
+        $competitionIds = $competitions ? $competitions->pluck('id')->implode(', ') : 'None';
+
+        $formattedMessage = sprintf(
+            "%s: %s, Task: %s%s",
+            $jobName,
+            $message,
+            $this->task,
+            ', Competition #' . ($this->competition_id ?? 'N/A'),
+        );
+
+        $competitionsMsg = $competitions ? $jobName . ': Working on competitions IDs: [' . $competitionIds . ']' : '';
+
+        echo $formattedMessage . "\n";
+        if ($competitionsMsg) {
+            echo $competitionsMsg;
+        }
+
+        if ($message == 'END') {
+            $formattedMessage .= "\n";
+        }
+
+        Log::channel($this->channel)->info($formattedMessage);
+        if ($competitionsMsg) {
+            Log::channel($this->channel)->info($competitionsMsg);
+        }
+    }
+
+    protected function automationInfo($message): void
+    {
+        $message = class_basename($this) . '-' . $this->jobId . ": " . $message;
+
+        echo $message;
+        Log::channel($this->channel)->info($message);
     }
 
     /**
@@ -42,8 +78,12 @@ trait AutomationTrait
      */
     private function logFailure($model, $data)
     {
-        // Create a failure log entry with the current date and provided message.
-        $model->create(['date' => Carbon::now(), 'message' => $data['message']]);
+        try {
+            // Create a failure log entry with the current date and provided message.
+            $model->create(['date' => Carbon::now(), 'message' => $data['message']]);
+        } catch (\Exception $e) {
+            Log::channel($this->channel)->error("Failed to log failure: " . $e->getMessage());
+        }
     }
 
     /**
@@ -84,7 +124,7 @@ trait AutomationTrait
                     }
                 });
             } catch (\Exception $e) {
-                Log::error("Failed to update last action: " . $e->getMessage());
+                Log::channel($this->channel)->error("Failed to update last action: " . $e->getMessage());
             }
         }
     }
@@ -95,12 +135,12 @@ trait AutomationTrait
         if (time() - $this->startTime >= $this->maxExecutionTime) {
 
             // Getting the class name dynamically
-            $className = class_basename($this);
+            $jobName = class_basename($this) . '-' . $this->jobId;
 
             $msg = "Script execution time exceeded. Terminating...";
 
-            Log::critical('Run Time Exceeded for ' . $className . ': ' . $msg);
-            echo $msg . "\n";
+            Log::channel($this->channel)->critical('Run Time Exceeded for ' . $jobName . ': ' . $msg);
+            echo $msg . "";
 
             return true;
         }

@@ -1370,8 +1370,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/cambodia\/c-league",
-                "name": "C-League",
+                "uri": "\/en\/cambodia\/premier-league",
+                "name": "Premier League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -1447,7 +1447,7 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-chile\/chile-segunda-division",
+                "uri": "\/en\/football-tips-and-predictions-for-chile\/segunda-division",
                 "name": "Segunda Division",
                 "category": "domestic",
                 "type": null,
@@ -1483,14 +1483,14 @@
             },
             {
                 "uri": "\/en\/football-tips-and-predictions-for-china\/league-one",
-                "name": "League one",
+                "name": "League One",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
                 "uri": "\/en\/football-tips-and-predictions-for-china\/league-two",
-                "name": "League two",
+                "name": "League Two",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -1538,8 +1538,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-colombia\/super-cup",
-                "name": "Super Cup",
+                "uri": "\/en\/football-tips-and-predictions-for-colombia\/superliga",
+                "name": "Superliga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -1580,63 +1580,63 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-croatia-1-hnl\/football-tips-and-predictions-for-croatia-1-hnl",
+                "uri": "\/en\/football-predictions-for-croatia\/hnl",
                 "name": "HNL",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-croatia-1-hnl\/football-tips-and-predictions-for-croatia-2-hnl",
-                "name": "First NL",
+                "uri": "\/en\/football-predictions-for-croatia\/prva-nl",
+                "name": "Prva NL",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-croatia-1-hnl\/croatia-3-nhl-center",
-                "name": "3. HNL Center",
+                "uri": "\/en\/football-predictions-for-croatia\/3-nl-center",
+                "name": "3. NL Center",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-croatia-1-hnl\/croatia-3-hnl-north",
-                "name": "3. HNL North",
+                "uri": "\/en\/football-predictions-for-croatia\/3-nl-north",
+                "name": "3. NL North",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-croatia-1-hnl\/croatia-3-hnl-south",
-                "name": "3. HNL South",
+                "uri": "\/en\/football-predictions-for-croatia\/3-nl-south",
+                "name": "3. NL South",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-croatia-1-hnl\/croatia-3-hnl-east",
-                "name": "3. HNL East",
+                "uri": "\/en\/football-predictions-for-croatia\/3-nl-east",
+                "name": "3. NL East",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-croatia-1-hnl\/croatia-3-hnl-west",
-                "name": "3. HNL West",
+                "uri": "\/en\/football-predictions-for-croatia\/3-nl-west",
+                "name": "3. NL West",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-croatia-1-hnl\/croatian-cup",
+                "uri": "\/en\/football-predictions-for-croatia\/croatian-cup",
                 "name": "Croatian Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-croatia-1-hnl\/croatia-super-cup",
+                "uri": "\/en\/football-predictions-for-croatia\/super-cup",
                 "name": "Super Cup",
                 "category": "domestic",
                 "type": null,
@@ -1650,8 +1650,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/predictions-cuba\/national-championship",
-                "name": "National Championship",
+                "uri": "\/en\/predictions-cuba\/liga-nacional",
+                "name": "Liga Nacional",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -1678,35 +1678,35 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-cyprus-first-division\/1-division",
-                "name": "1. Division",
+                "uri": "\/en\/football-tips-and-predictions-for-cyprus\/first-division",
+                "name": "First Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-cyprus-first-division\/2-division",
-                "name": "2. Division",
+                "uri": "\/en\/football-tips-and-predictions-for-cyprus\/second-division",
+                "name": "Second Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-cyprus-first-division\/3-division",
-                "name": "3. Division",
+                "uri": "\/en\/football-tips-and-predictions-for-cyprus\/third-division",
+                "name": "Third Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-cyprus-first-division\/cypriot-cup",
-                "name": "Cypriot Cup",
+                "uri": "\/en\/football-tips-and-predictions-for-cyprus\/cyprus-cup",
+                "name": "Cyprus Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-cyprus-first-division\/super-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-cyprus\/super-cup",
                 "name": "Super Cup",
                 "category": "domestic",
                 "type": null,
@@ -1720,98 +1720,98 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/chance-liga",
-                "name": "Chance liga",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/chance-liga",
+                "name": "Chance Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/druha-liga",
-                "name": "Druha Liga",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/fnl",
+                "name": "FNL",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/predictions-czech-fl",
-                "name": "CFL",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/3-cfl",
+                "name": "3. CFL",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/predictions-czech-msfl",
-                "name": "MSFL",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/3-msfl",
+                "name": "3. MSFL",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/pohar-cmfs",
-                "name": "Pohar CMFS",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/czech-cup",
+                "name": "Czech Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/division-a",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/division-a",
                 "name": "Division A",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/division-b",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/division-b",
                 "name": "Division B",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/division-c",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/division-c",
                 "name": "Division C",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/division-d",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/division-d",
                 "name": "Division D",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/division-e",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/division-e",
                 "name": "Division E",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/division-f",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/division-f",
                 "name": "Division F",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/1-liga-women",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/1-liga-women",
                 "name": "1. Liga Women",
                 "category": "domestic",
                 "type": null,
                 "gender": 2
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/u19-league",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/u19-league",
                 "name": "U19 League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-czech-rep-gambrinus-liga\/tipsport-liga",
+                "uri": "\/en\/football-tips-and-predictions-for-czech-rep\/tipsport-liga",
                 "name": "Tipsport liga",
                 "category": "domestic",
                 "type": null,
@@ -1825,8 +1825,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/predictions-dr-congo\/super-league",
-                "name": "Super League",
+                "uri": "\/en\/predictions-dr-congo\/ligue-1",
+                "name": "Ligue 1",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -1839,49 +1839,49 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-denmark-superliga\/super-league",
-                "name": "Super League",
+                "uri": "\/en\/football-tips-and-predictions-for-denmark\/superliga",
+                "name": "Superliga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-denmark-superliga\/first-division",
+                "uri": "\/en\/football-tips-and-predictions-for-denmark\/first-division",
                 "name": "1. Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-denmark-superliga\/2-division",
+                "uri": "\/en\/football-tips-and-predictions-for-denmark\/2-division",
                 "name": "2. Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-denmark-superliga\/dbus-landspokal",
+                "uri": "\/en\/football-tips-and-predictions-for-denmark\/dbus-landspokal",
                 "name": "DBUs Landspokal",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-denmark-superliga\/elitedivisionen-women",
+                "uri": "\/en\/football-tips-and-predictions-for-denmark\/elitedivisionen-women",
                 "name": "Elitedivisionen Women",
                 "category": "domestic",
                 "type": null,
                 "gender": 2
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-denmark-superliga\/danish-cup-women",
+                "uri": "\/en\/football-tips-and-predictions-for-denmark\/danish-cup-women",
                 "name": "Danish Cup Women",
                 "category": "domestic",
                 "type": null,
                 "gender": 2
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-denmark-superliga\/1st-division-women",
+                "uri": "\/en\/football-tips-and-predictions-for-denmark\/1st-division-women",
                 "name": "1st Division Women",
                 "category": "domestic",
                 "type": null,
@@ -1944,15 +1944,15 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-egypt\/premier",
-                "name": "Premier",
+                "uri": "\/en\/football-tips-and-predictions-for-egypt\/premier-league",
+                "name": "Premier League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-egypt\/second-league",
-                "name": "Second League",
+                "uri": "\/en\/football-tips-and-predictions-for-egypt\/second-division-a",
+                "name": "Second Division A",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -2008,34 +2008,34 @@
             },
             {
                 "uri": "\/en\/football-tips-and-predictions-for-england\/league-one",
-                "name": "League one",
+                "name": "League One",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
                 "uri": "\/en\/football-tips-and-predictions-for-england\/league-two",
-                "name": "League two",
+                "name": "League Two",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-england\/conference",
+                "uri": "\/en\/football-tips-and-predictions-for-england\/national-league",
                 "name": "National League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-england\/conference-north",
+                "uri": "\/en\/football-tips-and-predictions-for-england\/national-league-north",
                 "name": "National League N.",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-england\/conference-south",
+                "uri": "\/en\/football-tips-and-predictions-for-england\/national-league-south",
                 "name": "National League S.",
                 "category": "domestic",
                 "type": null,
@@ -2049,15 +2049,15 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-england\/capital-one-cup",
-                "name": "League Cup",
+                "uri": "\/en\/football-tips-and-predictions-for-england\/efl-cup",
+                "name": "EFL Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-england\/bostik-league",
-                "name": "Bostik League",
+                "uri": "\/en\/football-tips-and-predictions-for-england\/isthmian-league",
+                "name": "Isthmian League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -2071,21 +2071,21 @@
             },
             {
                 "uri": "\/en\/football-tips-and-predictions-for-england\/southern-league",
-                "name": "Southern League",
+                "name": "SPL Premier Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
                 "uri": "\/en\/football-tips-and-predictions-for-england\/northern-premier",
-                "name": "Northern Premier",
+                "name": "NPL Premier Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
                 "uri": "\/en\/football-tips-and-predictions-for-england\/womens-super-league",
-                "name": "Women SL",
+                "name": "Women's Super League",
                 "category": "domestic",
                 "type": null,
                 "gender": 2
@@ -2126,28 +2126,28 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-estonia-meistriliiga\/meistriliiga",
+                "uri": "\/en\/football-tips-and-predictions-for-estonia\/meistriliiga",
                 "name": "Meistriliiga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-estonia-meistriliiga\/esiliiga",
+                "uri": "\/en\/football-tips-and-predictions-for-estonia\/esiliiga",
                 "name": "Esiliiga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-estonia-meistriliiga\/estonian-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-estonia\/estonian-cup",
                 "name": "Estonian Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-estonia-meistriliiga\/super-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-estonia\/super-cup",
                 "name": "Super Cup",
                 "category": "domestic",
                 "type": null,
@@ -2203,8 +2203,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/predictions-fiji\/national-football-league",
-                "name": "National Football League",
+                "uri": "\/en\/predictions-fiji\/premier-league",
+                "name": "Premier League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -2441,8 +2441,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-georgia\/pirveli-liga",
-                "name": "Pirveli Liga",
+                "uri": "\/en\/football-tips-and-predictions-for-georgia\/erovnuli-liga-2",
+                "name": "Erovnuli Liga 2",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -2462,14 +2462,14 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-germany\/Bundesliga",
+                "uri": "\/en\/football-tips-and-predictions-for-germany\/bundesliga",
                 "name": "Bundesliga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-germany\/2-Bundesliga",
+                "uri": "\/en\/football-tips-and-predictions-for-germany\/2-bundesliga",
                 "name": "2. Bundesliga",
                 "category": "domestic",
                 "type": null,
@@ -2826,8 +2826,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/predictions-for-hong-kong\/second-division",
-                "name": "Second Division",
+                "uri": "\/en\/predictions-for-hong-kong\/first-division",
+                "name": "First Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -2861,8 +2861,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-hungary\/magyar-kupa",
-                "name": "Magyar Kupa",
+                "uri": "\/en\/football-tips-and-predictions-for-hungary\/hungarian-cup",
+                "name": "Hungarian Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -2875,35 +2875,35 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-iceland-premier\/premier-league",
-                "name": "Premier League",
+                "uri": "\/en\/football-tips-and-predictions-for-iceland\/besta-deild-karla",
+                "name": "Besta deild karla",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-iceland-premier\/1-division",
+                "uri": "\/en\/football-tips-and-predictions-for-iceland\/1-division",
                 "name": "1. Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-iceland-premier\/2-division",
+                "uri": "\/en\/football-tips-and-predictions-for-iceland\/2-division",
                 "name": "2. Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-iceland-premier\/icelandic-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-iceland\/icelandic-cup",
                 "name": "Icelandic Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-iceland-premier\/league-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-iceland\/league-cup",
                 "name": "League Cup",
                 "category": "domestic",
                 "type": null,
@@ -2917,14 +2917,14 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-india-i-league\/i-league",
+                "uri": "\/en\/football-tips-and-predictions-for-india\/i-league",
                 "name": "I-League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-india-i-league\/super-league",
+                "uri": "\/en\/football-tips-and-predictions-for-india\/super-league",
                 "name": "Super League",
                 "category": "domestic",
                 "type": null,
@@ -2938,14 +2938,14 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-indonesia-super-league\/liga-1",
+                "uri": "\/en\/football-tips-and-predictions-for-indonesia\/liga-1",
                 "name": "Liga 1",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-indonesia-super-league\/liga-2",
+                "uri": "\/en\/football-tips-and-predictions-for-indonesia\/liga-2",
                 "name": "Liga 2",
                 "category": "domestic",
                 "type": null,
@@ -2959,8 +2959,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-iran\/ipl",
-                "name": "IPL",
+                "uri": "\/en\/football-tips-and-predictions-for-iran\/persian-gulf-pro-league",
+                "name": "Persian Gulf Pro League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -2987,8 +2987,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/predictions-iraq\/premier-league",
-                "name": "Premier League",
+                "uri": "\/en\/predictions-iraq\/stars-league",
+                "name": "Stars League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -3029,35 +3029,35 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-israel-premier-league\/premier-league",
+                "uri": "\/en\/football-tips-and-predictions-for-israel\/premier-league",
                 "name": "Premier League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-israel-premier-league\/liga-leumit",
+                "uri": "\/en\/football-tips-and-predictions-for-israel\/liga-leumit",
                 "name": "Liga Leumit",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-israel-premier-league\/state-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-israel\/state-cup",
                 "name": "State Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-israel-premier-league\/toto-cup-al",
-                "name": "Toto Cup Al",
+                "uri": "\/en\/football-tips-and-predictions-for-israel\/toto-cup",
+                "name": "Toto Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-israel-premier-league\/super-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-israel\/super-cup",
                 "name": "Super Cup",
                 "category": "domestic",
                 "type": null,
@@ -3085,7 +3085,7 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-italy\/lega-pro",
+                "uri": "\/en\/football-tips-and-predictions-for-italy\/serie-c",
                 "name": "Serie C",
                 "category": "domestic",
                 "type": null,
@@ -3267,49 +3267,49 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-japan-j-league\/j-league",
-                "name": "J-League",
+                "uri": "\/en\/football-tips-and-predictions-for-japan\/j1-league",
+                "name": "J1 League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-japan-j-league\/j2-league",
-                "name": "J2-League",
+                "uri": "\/en\/football-tips-and-predictions-for-japan\/j2-league",
+                "name": "J2 League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-japan-j-league\/j3-league",
-                "name": "J3-League",
+                "uri": "\/en\/football-tips-and-predictions-for-japan\/j3-league",
+                "name": "J3 League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-japan-j-league\/football-league",
+                "uri": "\/en\/football-tips-and-predictions-for-japan\/football-league",
                 "name": "Football League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-japan-j-league\/j-league-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-japan\/j-league-cup",
                 "name": "J-League Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-japan-j-league\/emperor-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-japan\/emperor-cup",
                 "name": "Emperor Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-japan-j-league\/super-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-japan\/super-cup",
                 "name": "Super Cup",
                 "category": "domestic",
                 "type": null,
@@ -3414,8 +3414,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/predictions-kosovo\/superleague",
-                "name": "Superleague",
+                "uri": "\/en\/predictions-kosovo\/superliga",
+                "name": "Superliga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -3687,8 +3687,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-malta\/first-division",
-                "name": "First Division",
+                "uri": "\/en\/football-tips-and-predictions-for-malta\/challenge-league",
+                "name": "Challenge League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -3722,8 +3722,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/predictions-mauritius\/mauritian-league",
-                "name": "Mauritian League",
+                "uri": "\/en\/predictions-mauritius\/super-league",
+                "name": "Super League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -3736,15 +3736,15 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-mexico\/primera-division",
-                "name": "Primera Division",
+                "uri": "\/en\/football-tips-and-predictions-for-mexico\/liga-mx",
+                "name": "Liga MX",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-mexico\/liga-de-ascenso",
-                "name": "Liga de Ascenso",
+                "uri": "\/en\/football-tips-and-predictions-for-mexico\/liga-de-expansion-mx",
+                "name": "Liga de Expansion MX",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -3778,8 +3778,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/tips-and-predictions-for-moldova\/divizia-nationala",
-                "name": "Divizia Nationala",
+                "uri": "\/en\/tips-and-predictions-for-moldova\/super-liga",
+                "name": "Super Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -3820,15 +3820,15 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/tips-and-predictions-for-montenegro\/second-league",
-                "name": "Second League",
+                "uri": "\/en\/tips-and-predictions-for-montenegro\/druga-liga",
+                "name": "Druga Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/tips-and-predictions-for-montenegro\/crnogorski-kup",
-                "name": "Crnogorski Kup",
+                "uri": "\/en\/tips-and-predictions-for-montenegro\/montenegrin-cup",
+                "name": "Montenegrin Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -3841,8 +3841,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/tips-and-predictions-for-morocco\/botola-1",
-                "name": "Botola 1",
+                "uri": "\/en\/tips-and-predictions-for-morocco\/botola-pro",
+                "name": "Botola Pro",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -3874,41 +3874,6 @@
                 "category": "domestic",
                 "type": null,
                 "gender": 1
-            }
-        ]
-    },
-    {
-        "country": {
-            "name": "Northern Ireland"
-        },
-        "competitions": [
-            {
-                "uri": "\/en\/northern-ireland\/premiership",
-                "name": "Premiership",
-                "category": "domestic",
-                "type": null,
-                "gender": 1
-            },
-            {
-                "uri": "\/en\/northern-ireland\/championship",
-                "name": "Championship",
-                "category": "domestic",
-                "type": null,
-                "gender": 1
-            },
-            {
-                "uri": "\/en\/northern-ireland\/irish-cup",
-                "name": "Irish Cup",
-                "category": "domestic",
-                "type": null,
-                "gender": 1
-            },
-            {
-                "uri": "\/en\/northern-ireland\/premiership-women",
-                "name": "Premiership Women",
-                "category": "domestic",
-                "type": null,
-                "gender": 2
             }
         ]
     },
@@ -3967,8 +3932,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-netherlands\/super-cup",
-                "name": "Super Cup",
+                "uri": "\/en\/football-tips-and-predictions-for-netherlands\/johan-cruyff-shield",
+                "name": "Johan Cruyff Shield",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -4002,8 +3967,8 @@
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-new-zealand\/regional-leagues",
-                "name": "Regional Leagues",
+                "uri": "\/en\/football-tips-and-predictions-for-new-zealand\/national-league",
+                "name": "National League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -4037,8 +4002,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/nigeria\/premier-league",
-                "name": "Premier League",
+                "uri": "\/en\/nigeria\/npfl",
+                "name": "NPFL",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -4075,32 +4040,67 @@
     },
     {
         "country": {
+            "name": "Northern Ireland"
+        },
+        "competitions": [
+            {
+                "uri": "\/en\/northern-ireland\/nifl-premiership",
+                "name": "NIFL Premiership",
+                "category": "domestic",
+                "type": null,
+                "gender": 1
+            },
+            {
+                "uri": "\/en\/northern-ireland\/nifl-championship",
+                "name": "NIFL Championship",
+                "category": "domestic",
+                "type": null,
+                "gender": 1
+            },
+            {
+                "uri": "\/en\/northern-ireland\/irish-cup",
+                "name": "Irish Cup",
+                "category": "domestic",
+                "type": null,
+                "gender": 1
+            },
+            {
+                "uri": "\/en\/northern-ireland\/premiership-women",
+                "name": "Premiership Women",
+                "category": "domestic",
+                "type": null,
+                "gender": 2
+            }
+        ]
+    },
+    {
+        "country": {
             "name": "Norway"
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-norway-tippeligaen\/eliteserien",
+                "uri": "\/en\/football-tips-and-predictions-for-norway\/eliteserien",
                 "name": "Eliteserien",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-norway-tippeligaen\/1-division",
+                "uri": "\/en\/football-tips-and-predictions-for-norway\/1-division",
                 "name": "1. Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-norway-tippeligaen\/2-division",
+                "uri": "\/en\/football-tips-and-predictions-for-norway\/2-division",
                 "name": "2. Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-norway-tippeligaen\/nm-cupen",
+                "uri": "\/en\/football-tips-and-predictions-for-norway\/nm-cupen",
                 "name": "NM Cupen",
                 "category": "domestic",
                 "type": null,
@@ -4240,35 +4240,35 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-poland-ekstraklasa\/ekstraklasa",
+                "uri": "\/en\/football-tips-and-predictions-for-poland\/ekstraklasa",
                 "name": "Ekstraklasa",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-poland-ekstraklasa\/league-one",
+                "uri": "\/en\/football-tips-and-predictions-for-poland\/league-one",
                 "name": "1. Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-poland-ekstraklasa\/league-two",
+                "uri": "\/en\/football-tips-and-predictions-for-poland\/league-two",
                 "name": "2. Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-poland-ekstraklasa\/polish-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-poland\/polish-cup",
                 "name": "Polish Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-poland-ekstraklasa\/super-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-poland\/super-cup",
                 "name": "Super Cup",
                 "category": "domestic",
                 "type": null,
@@ -4282,49 +4282,49 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-portugal-superliga\/primeira-liga",
+                "uri": "\/en\/football-tips-and-predictions-for-portugal\/liga-portugal",
                 "name": "Liga Portugal",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-portugal-superliga\/segunda-liga",
-                "name": "Segunda Liga",
+                "uri": "\/en\/football-tips-and-predictions-for-portugal\/liga-portugal-2",
+                "name": "Liga Portugal 2",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-portugal-superliga\/liga-3",
+                "uri": "\/en\/football-tips-and-predictions-for-portugal\/liga-3",
                 "name": "Liga 3",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-portugal-superliga\/campeonato-de-portugal",
+                "uri": "\/en\/football-tips-and-predictions-for-portugal\/campeonato-de-portugal",
                 "name": "Campeonato",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-portugal-superliga\/taca-de-portugal",
+                "uri": "\/en\/football-tips-and-predictions-for-portugal\/taca-de-portugal",
                 "name": "Taca de Portugal",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-portugal-superliga\/league-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-portugal\/league-cup",
                 "name": "League Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-portugal-superliga\/super-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-portugal\/super-cup",
                 "name": "Super Cup",
                 "category": "domestic",
                 "type": null,
@@ -4380,8 +4380,8 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/predictions-republic-of-the-congo\/premier-league",
-                "name": "Premier League",
+                "uri": "\/en\/predictions-republic-of-the-congo\/ligue-1",
+                "name": "Ligue 1",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
@@ -4394,28 +4394,28 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-romania-divizia-a\/liga-1",
+                "uri": "\/en\/football-tips-and-predictions-for-romania\/liga-1",
                 "name": "Liga 1",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-romania-divizia-a\/liga-2",
+                "uri": "\/en\/football-tips-and-predictions-for-romania\/liga-2",
                 "name": "Liga 2",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-romania-divizia-a\/romanian-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-romania\/romanian-cup",
                 "name": "Romanian Cup",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-romania-divizia-a\/super-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-romania\/super-cup",
                 "name": "Super Cup",
                 "category": "domestic",
                 "type": null,
@@ -4429,77 +4429,77 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-russia-premier-league\/premier-liga",
+                "uri": "\/en\/football-tips-and-predictions-for-russia\/premier-liga",
                 "name": "Premier Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-russia-premier-league\/1-division",
+                "uri": "\/en\/football-tips-and-predictions-for-russia\/1-division",
                 "name": "1. Division",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-russia-premier-league\/fnl-2-division-g-gold",
+                "uri": "\/en\/football-tips-and-predictions-for-russia\/fnl-2-division-g-gold",
                 "name": "Fnl 2 - Division A Gold",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-russia-premier-league\/fnl-2-division-a-silver",
+                "uri": "\/en\/football-tips-and-predictions-for-russia\/fnl-2-division-a-silver",
                 "name": "Fnl 2 - Division A Silver",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-russia-premier-league\/pfl-west",
+                "uri": "\/en\/football-tips-and-predictions-for-russia\/pfl-west",
                 "name": "PFL - West",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-russia-premier-league\/pfl-center",
+                "uri": "\/en\/football-tips-and-predictions-for-russia\/pfl-center",
                 "name": "PFL - Center",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-russia-premier-league\/pfl-ural",
+                "uri": "\/en\/football-tips-and-predictions-for-russia\/pfl-ural",
                 "name": "PFL - Ural",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-russia-premier-league\/pfl-east",
+                "uri": "\/en\/football-tips-and-predictions-for-russia\/pfl-east",
                 "name": "PFL - East",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-russia-premier-league\/pfl-south",
+                "uri": "\/en\/football-tips-and-predictions-for-russia\/pfl-south",
                 "name": "PFL - South",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-russia-premier-league\/kubok-",
+                "uri": "\/en\/football-tips-and-predictions-for-russia\/kubok-",
                 "name": "Kubok",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-russia-premier-league\/super-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-russia\/super-cup",
                 "name": "Super Cup",
                 "category": "domestic",
                 "type": null,
@@ -4653,21 +4653,21 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-serbia-superliga\/superliga",
+                "uri": "\/en\/football-tips-and-predictions-for-serbia\/superliga",
                 "name": "Superliga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-serbia-superliga\/prva-liga",
+                "uri": "\/en\/football-tips-and-predictions-for-serbia\/prva-liga",
                 "name": "Prva Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-serbia-superliga\/serbian-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-serbia\/serbian-cup",
                 "name": "Serbian Cup",
                 "category": "domestic",
                 "type": null,
@@ -4695,14 +4695,14 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-singapore-s-league\/s-league",
+                "uri": "\/en\/football-tips-and-predictions-for-singapore\/s-league",
                 "name": "S-League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-singapore-s-league\/s-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-singapore\/s-cup",
                 "name": "S-Cup",
                 "category": "domestic",
                 "type": null,
@@ -4744,21 +4744,21 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-slovenia-prva-liga\/prva-liga",
+                "uri": "\/en\/football-tips-and-predictions-for-slovenia\/prva-liga",
                 "name": "Prva Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-slovenia-prva-liga\/2-liga",
+                "uri": "\/en\/football-tips-and-predictions-for-slovenia\/2-liga",
                 "name": "2. Liga",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-slovenia-prva-liga\/slovenian-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-slovenia\/slovenian-cup",
                 "name": "Slovenian Cup",
                 "category": "domestic",
                 "type": null,
@@ -5171,21 +5171,21 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-switzerland-super-league\/super-league",
+                "uri": "\/en\/football-tips-and-predictions-for-switzerland\/super-league",
                 "name": "Super League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-switzerland-super-league\/challenge-league",
+                "uri": "\/en\/football-tips-and-predictions-for-switzerland\/challenge-league",
                 "name": "Challenge League",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-switzerland-super-league\/swiss-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-switzerland\/swiss-cup",
                 "name": "Swiss Cup",
                 "category": "domestic",
                 "type": null,
@@ -5521,28 +5521,28 @@
         },
         "competitions": [
             {
-                "uri": "\/en\/football-tips-and-predictions-for-usa-major-league-soccer\/mls",
+                "uri": "\/en\/football-tips-and-predictions-for-usa\/mls",
                 "name": "MLS",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-usa-major-league-soccer\/nasl",
+                "uri": "\/en\/football-tips-and-predictions-for-usa\/nasl",
                 "name": "NASL",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-usa-major-league-soccer\/usl-pro",
+                "uri": "\/en\/football-tips-and-predictions-for-usa\/usl-pro",
                 "name": "USL Championship",
                 "category": "domestic",
                 "type": null,
                 "gender": 1
             },
             {
-                "uri": "\/en\/football-tips-and-predictions-for-usa-major-league-soccer\/us-open-cup",
+                "uri": "\/en\/football-tips-and-predictions-for-usa\/us-open-cup",
                 "name": "US Open Cup",
                 "category": "domestic",
                 "type": null,

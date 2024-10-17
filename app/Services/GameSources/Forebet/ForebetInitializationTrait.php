@@ -285,7 +285,7 @@ trait ForebetInitializationTrait
                         $match['home_team']['id'] = $homeTeam->id;
                         $match['away_team']['id'] = $awayTeam->id;
 
-                        // All is set can now save game!
+                        // All is set, can save game now!
                         $result = $this->saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam);
 
                         // Check the result of the save operation
@@ -377,6 +377,8 @@ trait ForebetInitializationTrait
         $group = null;
         $status_id = activeStatusId();
         $user_id = auth()->id();
+
+        // Log::alert('SAVING GAME...', ['match' => $match, 'date' => $date, 'has_time' => $has_time]);
 
         // Prepare data array for creating or updating a game
         $arr = [

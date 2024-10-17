@@ -2,21 +2,35 @@
 
 namespace App\Jobs\Automation;
 
-use App\Models\GamePredictionType;
+use App\Models\Game;
 use App\Models\PredictionJobLog;
 use App\Models\TrainPredictionJobLog;
+use App\Repositories\Game\GameRepository;
 use Illuminate\Support\Carbon;
 
 trait PredictionAutomationTrait
 {
+    protected function getPredictionLogRecord($logModel, $date)
+    {
+        $prediction_type = (new GameRepository(new Game()))->updateOrCreatePredictorOptions();
+
+        $record = $logModel::where('date', $date)
+            ->where('prediction_type_id', $prediction_type->id)
+            ->first();
+
+        return [
+            'prediction_type' => $prediction_type,
+            'record' => $record
+        ];
+    }
+
     protected function trainPredictionsLoggerModel($increment_job_run_counts = false)
     {
-        $prediction_type = request()->prediction_type;
-        
-        $prediction_type = GamePredictionType::where('name', $prediction_type)->first();
-
         $today = Carbon::now()->format('Y-m-d');
-        $record = TrainPredictionJobLog::where('date', $today)->where('prediction_type_id', $prediction_type->id)->first();
+
+        $result = $this->getPredictionLogRecord(TrainPredictionJobLog::class, $today);
+        $prediction_type = $result['prediction_type'];
+        $record = $result['record'];
 
         if (!$record) {
             $arr = [
@@ -39,10 +53,11 @@ trait PredictionAutomationTrait
 
     protected function predictionsLoggerModel($increment_job_run_counts = false)
     {
-        $prediction_type = GamePredictionType::where('name', request()->prediction_type)->first();
-
         $today = Carbon::now()->format('Y-m-d');
-        $record = PredictionJobLog::where('date', $today)->where('prediction_type_id', $prediction_type->id)->first();
+
+        $result = $this->getPredictionLogRecord(PredictionJobLog::class, $today);
+        $prediction_type = $result['prediction_type'];
+        $record = $result['record'];
 
         if (!$record) {
             $arr = [

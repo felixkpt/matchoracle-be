@@ -176,7 +176,7 @@ class CompetitionController extends Controller
         return $this->competitionRepositoryInterface->seasons($id);
     }
 
-    function teams($id, $season_id)
+    function teams($id, $season_id = null)
     {
         request()->merge(['season_id' => $season_id]);
         return $this->competitionRepositoryInterface->teams($id);
