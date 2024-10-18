@@ -94,13 +94,13 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
 
         if ($exists) {
             $competition_run_counts = $exists->competition_run_counts + 1;
-            $newAverageMinutes = (($exists->average_seconds_per_run * $exists->competition_run_counts) + $data['minutes_taken']) / $competition_run_counts;
+            $newAverageMinutes = (($exists->average_seconds_per_action_run * $exists->competition_run_counts) + $data['minutes_taken']) / $competition_run_counts;
 
             $arr = [
                 'competition_run_counts' => $competition_run_counts,
                 'train_success_counts' => $exists->train_success_counts + $train_success_counts,
                 'train_failed_counts' => $exists->train_failed_counts + $train_failed_counts,
-                'average_seconds_per_run' => $newAverageMinutes,
+                'average_seconds_per_action_run' => $newAverageMinutes,
             ];
 
             $exists->update($arr);

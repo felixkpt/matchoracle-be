@@ -103,6 +103,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         // Loop through each competition to fetch and update matches
         $options = [
             'target' => null,
+            // 'target' => 'ht-hda',
             'ignore_saved_matches' => true,
             'is_grid_search' => false,
             'retrain_if_last_train_is_before' => now()->subMinutes($delay)->toDateString(),

@@ -13,10 +13,13 @@ class PredictionJobLog extends Model
         'version',
         'prediction_type_id',
         'date',
+        
         'job_run_counts',
         'competition_run_counts',
-        'prediction_success_counts',
-        'prediction_failed_counts',
-        'average_seconds_per_run',
+        'action_run_counts',
+        'average_seconds_per_action_run',
+        'created_counts',
+        'updated_counts',
+        'failed_counts',
     ];
 }

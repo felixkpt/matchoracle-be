@@ -95,7 +95,7 @@ class MatchesHandler implements MatchesInterface
 
         $message = implode(', ', $messages);
 
-        $response = ['message' => $message, 'results' => ['saved_updated' => $saved + $updated], 'status' => 200];
+        $response = ['message' => $message, 'results' => ['created_counts' => $saved, 'updated_counts' => $updated,  'failed_counts' => 0], 'status' => 200];
 
         if (request()->without_response) return $response;
 
@@ -351,8 +351,6 @@ class MatchesHandler implements MatchesInterface
         });
 
         $matches = array_values(array_filter($matches));
-
-        Log::channel($this->logChannel)->info('filterUpcomingMatches', $matches);
 
         return $matches;
     }

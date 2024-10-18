@@ -33,7 +33,7 @@ trait AutomationTrait
 
         echo $formattedMessage . "\n";
         if ($competitionsMsg) {
-            echo $competitionsMsg;
+            echo $competitionsMsg."\n";
         }
 
         if ($message == 'END') {
@@ -50,7 +50,7 @@ trait AutomationTrait
     {
         $message = class_basename($this) . '-' . $this->jobId . ": " . $message;
 
-        echo $message;
+        echo $message."\n";
         Log::channel($this->channel)->info($message);
     }
 

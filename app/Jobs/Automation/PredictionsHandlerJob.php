@@ -103,10 +103,11 @@ class PredictionsHandlerJob implements ShouldQueue
         // predict for last 3 months plus 7 days from today
         $fromDate = Carbon::today()->subDays(30 * 3);
         $toDate = Carbon::today()->addDays(7);
-
+        
         // Loop through each competition to fetch and update matches
         $options = [
             'target' => null,
+            // 'target' => 'bts',
             'last_predict_date' => null,
             'prediction_type' => request()->prediction_type,
             'from_date' => $fromDate,

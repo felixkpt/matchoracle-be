@@ -213,7 +213,7 @@ class MatchHandler
         $response = [
             'message' => $message,
             'status' => $saved > 0 ? 200 : 201,
-            'results' => ['saved_updated' => $saved + $updated, 'handled_teams_games' => $handled_teams_games]
+            'results' => ['created' => $saved, 'updated' => $updated, 'handled_teams_games' => $handled_teams_games]
         ];
 
         if (request()->without_response) return $response;

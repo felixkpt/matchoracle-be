@@ -138,23 +138,27 @@ class SeasonsHandlerJob implements ShouldQueue
 
     private function doLogging($data = null)
     {
-        $updated_counts = $data['results']['saved_updated'] ?? 0;
-        $fetch_success_counts = $updated_counts > 0 ? 1 : 0;
-        $fetch_failed_counts = $data ? ($updated_counts === 0 ? 1 : 0) : 0;
+        $created_counts = $data['results']['created_counts'] ?? 0;
+        $updated_counts = $data['results']['updated_counts'] ?? 0;
+        $failed_counts = $data['results']['failed_counts'] ?? 0;
 
         $exists = $this->loggerModel();
 
         if ($exists) {
-            $arr = [
-                'fetch_run_counts' => $exists->fetch_run_counts + 1,
-                'fetch_success_counts' => $exists->fetch_success_counts + $fetch_success_counts,
-                'fetch_failed_counts' => $exists->fetch_failed_counts + $fetch_failed_counts,
-            ];
+            $action_run_counts = $exists->action_run_counts + 1;
+            $newAverageMinutes = (($exists->average_seconds_per_action_run * $exists->action_run_counts) + $data['seconds_taken']) / $action_run_counts;
 
+            $arr = [
+                'action_run_counts' => $action_run_counts,
+                'average_seconds_per_action_run' => $newAverageMinutes,
+                'created_counts' => $exists->created_counts + $created_counts,
+                'updated_counts' => $exists->updated_counts + $updated_counts,
+                'failed_counts' => $exists->failed_counts + $failed_counts,
+            ];
 
             $exists->update($arr);
 
-            if ($fetch_failed_counts || ($data && $data['status'] == 500)) $this->logFailure(new FailedSeasonLog(), $data);
+            if ($failed_counts || ($data && $data['status'] == 500)) $this->logFailure(new FailedSeasonLog(), $data);
         }
     }
 
@@ -168,10 +172,6 @@ class SeasonsHandlerJob implements ShouldQueue
                 'date' => $today,
                 'source_id' => $this->sourceContext->getId(),
                 'job_run_counts' => 1,
-                'competition_run_counts' => 0,
-                'fetch_run_counts' => 0,
-                'fetch_success_counts' => 0,
-                'fetch_failed_counts' => 0,
             ];
 
             $record = SeasonJobLog::create($arr);

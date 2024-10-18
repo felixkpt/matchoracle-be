@@ -27,11 +27,11 @@ class AutomationReportController extends Controller
         $tipsters = $this->getTipsterStats($activeStatusId);
         $today = now()->format('Y-m-d');
 
-        $seasonsJobLogs = $this->getJobLogsStats(SeasonJobLog::class, $today, 'updated_seasons');
+        $seasonsJobLogs = $this->getJobLogsStats(SeasonJobLog::class, $today, 'fetch_success');
 
         $standingsJobLogs = [
-            'historical_results' => $this->getJobLogsStats(StandingJobLog::class, $today, 'updated_standings'),
-            'recent_results' => $this->getJobLogsStats(StandingJobLog::class, $today, 'updated_standings'),
+            'historical_results' => $this->getJobLogsStats(StandingJobLog::class, $today, 'fetch_success'),
+            'recent_results' => $this->getJobLogsStats(StandingJobLog::class, $today, 'fetch_success'),
         ];
 
         $matchesJobLogs = [
@@ -154,7 +154,7 @@ class AutomationReportController extends Controller
 
     private function getJobLogsStats($modelClass, $date, $updated)
     {
-        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(fetch_run_counts) as total_fetch_run_counts, SUM(fetch_success_counts) as total_fetch_success_counts, SUM(fetch_failed_counts) as total_fetch_failed_counts, SUM(' . $updated . '_counts) as total_updated_items_counts';
+        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(action_run_counts) as total_action_run_counts, SUM(fetch_success_counts) as total_fetch_success_counts, SUM(fetch_failed_counts) as total_fetch_failed_counts, SUM(' . $updated . '_counts) as total_updated_items_counts';
 
         return [
             'all' => $modelClass::selectRaw($selects)->first(),
@@ -164,7 +164,7 @@ class AutomationReportController extends Controller
 
     private function getMatchJobLogsStats($model, $task, $date)
     {
-        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(fetch_run_counts) as total_fetch_run_counts, SUM(fetch_success_counts) as total_fetch_success_counts, SUM(fetch_failed_counts) as total_fetch_failed_counts, SUM(updated_matches_counts) as total_updated_items_counts';
+        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(action_run_counts) as total_action_run_counts, SUM(fetch_success_counts) as total_fetch_success_counts, SUM(fetch_failed_counts) as total_fetch_failed_counts';
 
         return [
             'all' => $model::where('task', $task)->selectRaw($selects)->first(),
@@ -199,7 +199,7 @@ class AutomationReportController extends Controller
 
     private function getTrainPredictionJobLogsStats($date)
     {
-        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(trained_counts) as total_fetch_run_counts, SUM(train_success_counts) as total_fetch_success_counts, SUM(train_failed_counts) as total_fetch_failed_counts, SUM(trained_counts) as total_updated_items_counts';
+        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(train_success_counts) as total_fetch_success_counts, SUM(train_failed_counts) as total_fetch_failed_counts';
 
         return [
             'all' => TrainPredictionJobLog::selectRaw($selects)->first(),
@@ -209,7 +209,7 @@ class AutomationReportController extends Controller
 
     private function getPredictionJobLogsStats($date)
     {
-        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(competition_run_counts) as total_fetch_run_counts, SUM(prediction_success_counts) as total_fetch_success_counts, SUM(prediction_failed_counts) as total_fetch_failed_counts, SUM(predicted_counts) as total_updated_items_counts';
+        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(competition_run_counts) as total_action_run_counts, SUM(prediction_success_counts) as total_fetch_success_counts, SUM(prediction_failed_counts) as total_fetch_failed_counts';
 
         return [
             'all' => PredictionJobLog::selectRaw($selects)->first(),

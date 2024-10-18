@@ -19,12 +19,12 @@ return new class extends Migration
 
             $table->integer('job_run_counts')->default(0);
             $table->integer('competition_run_counts')->default(0);
-            $table->integer('fetch_run_counts')->default(0);
-            $table->integer('fetch_success_counts')->default(0);
-            $table->integer('fetch_failed_counts')->default(0);
+            $table->integer('action_run_counts')->default(0);
+            $table->integer('average_seconds_per_action_run')->default(0);
+            $table->integer('created_counts')->default(0);
+            $table->integer('updated_counts')->default(0);
+            $table->integer('failed_counts')->default(0);
 
-            $table->integer('average_seconds_per_run')->default(0);
-            
             $table->timestamps();
         });
     }

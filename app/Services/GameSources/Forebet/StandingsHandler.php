@@ -133,7 +133,7 @@ class StandingsHandler
         // Prepare response data
         $response = [
             'message' => $message,
-            'results' => ['saved_updated' => $saved + $updated],
+            'results' => ['created_counts' => $saved, 'updated_counts' => $updated,  'failed_counts' => 0],
             'status' => $saved > 0 ? 200 : 201,
         ];
 

@@ -100,7 +100,7 @@ class SeasonsHandler
         $response = [
             'message' => $message,
             'status' => $saved > 0 ? 200 : 201,
-            'results' => ['saved_updated' => $saved + $updated]
+            'results' => ['created_counts' => $saved, 'updated_counts' => $updated,  'failed_counts' => 0]
         ];
 
         if (request()->without_response) return $response;
