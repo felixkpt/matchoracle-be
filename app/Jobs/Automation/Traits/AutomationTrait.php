@@ -14,6 +14,12 @@ trait AutomationTrait
     protected $channel = 'automation';
     protected $historyStartDate = '2015-01-01';
 
+    /**
+     * Logs the start and end messages for a job, including competition details.
+     *
+     * @param string $message The message to log.
+     * @param mixed|null $competitions The competitions associated with the job (optional).
+     */
     protected function jobStartEndLog($message, $competitions = null): void
     {
 
@@ -47,29 +53,17 @@ trait AutomationTrait
         }
     }
 
+    /**
+     * Logs an informational message for the automation job.
+     *
+     * @param string $message The message to log.
+     */
     protected function automationInfo($message): void
     {
         $message = class_basename($this) . '-' . $this->jobId . ": " . $message;
 
         echo $message . "\n";
         Log::channel($this->channel)->info($message);
-    }
-
-    /**
-     * Increment the competition run count in the logger model.
-     */
-    private function doCompetitionRunLogging($logger = null)
-    {
-        // Retrieve the logger model and update the competition run count.
-        if (!$logger) {
-            $record = $this->loggerModel();
-        } else {
-            $record = $this->$logger();
-        }
-
-        if ($record) {
-            // $record->update(['run_competition_counts' => $record->run_competition_counts + 1]);
-        }
     }
 
     /**
@@ -89,11 +83,12 @@ trait AutomationTrait
     }
 
     /**
-     * Apply a delay condition based on the last action column and specified delay in minutes.
+     * Applies a delay condition based on the last action column and the specified delay in minutes.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $column
-     * @param int $delay_in_minutes
+     * @param \Illuminate\Database\Eloquent\Builder $query The query to apply the delay condition to.
+     * @param string $column The column representing the last action time.
+     * @param int $delay_in_minutes The delay in minutes before an action can occur.
+     * @param string $table The table containing the last action (default: 'competition_last_actions').
      */
     private function lastActionDelay($query, $column, $delay_in_minutes, $table = 'competition_last_actions')
     {
@@ -103,11 +98,12 @@ trait AutomationTrait
     }
 
     /**
-     * Update or create the last action entry for the model and specified column.
+     * Updates or creates the last action entry for the given model and column.
      *
-     * @param $model
-     * @param mixed $should_update_last_action
-     * @param string $column
+     * @param mixed $model The model to update the last action for.
+     * @param mixed $should_update_last_action Whether to update the last action.
+     * @param string $column The column to update.
+     * @param string $field The field representing the model ID (default: 'competition_id').
      */
     private function updateLastAction($model, $should_update_last_action, $column, $field = 'competition_id')
     {
@@ -131,6 +127,25 @@ trait AutomationTrait
         }
     }
 
+    /**
+     * Increments the completed competition count for the logger model.
+     *
+     * @param mixed|null $loggerModel The logger model to increment the count for (optional).
+     */
+    private function incrementCompletedCompetitionCounts($loggerModel = null)
+    {
+        $exists = $loggerModel ? $this->$loggerModel() : $this->loggerModel();
+
+        if ($exists) {
+            $exists->update(['run_competition_counts' => $exists->run_competition_counts + 1]);
+        }
+    }
+
+    /**
+     * Checks if the maximum script execution time has been exceeded.
+     *
+     * @return bool True if the maximum execution time is exceeded, false otherwise.
+     */
     private function runTimeExceeded()
     {
         // Check elapsed time before the next iteration
@@ -142,19 +157,10 @@ trait AutomationTrait
             $msg = "Script execution time exceeded. Terminating...";
 
             Log::channel($this->channel)->critical('Run Time Exceeded for ' . $jobName . ': ' . $msg);
-            echo $msg . "";
+            echo $msg . "\n";
 
             return true;
         }
         return false;
-    }
-
-    private function incrementCompletedCompetitionCounts($loggerModel = null)
-    {
-        $exists = $loggerModel ? $this->$loggerModel() : $this->loggerModel();
-
-        if ($exists) {
-            $exists->update(['run_competition_counts' => $exists->run_competition_counts + 1]);
-        }
     }
 }
