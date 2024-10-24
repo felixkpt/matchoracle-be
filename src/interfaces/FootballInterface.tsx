@@ -324,13 +324,18 @@ export interface SeasonsListInterface {
     handleSeasonChange?: (season: SeasonInterface | null) => void;
 
 }
+
 export interface DashJobLogsInterface {
     total_job_run_counts: number;
-    total_competition_run_counts: number;
-    total_fetch_run_counts: number;
-    total_fetch_success_counts: number;
-    total_fetch_failed_counts: number;
-    total_updated_items_counts: number;
+    total_competition_counts: number;
+    total_run_competition_counts: number;
+    total_action_counts: number;
+    total_run_action_counts: number;
+    total_average_seconds_per_action: number;
+    total_created_counts: number;
+    total_updated_counts: number;
+    total_failed_counts: number;
+    remaining_time?: number;
 }
 
 export interface BettingTipsStatisticsInterface {

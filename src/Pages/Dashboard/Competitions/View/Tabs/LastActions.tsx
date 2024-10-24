@@ -24,9 +24,14 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
     const handleUpdateAction = async (action: string, shouldReloadState = true) => {
         setLoadingActions((prevState) => ({ ...prevState, [action]: true }));
         setLoading(true); // Prevent other actions
-
+    
+        // Generate a random job ID
+        const jobId = Math.random().toString(36).substring(2, 8);
+    
         try {
-            const response = await post(`dashboard/competitions/view/${competition.id}/update-action/${action}`);
+            const response = await post(`dashboard/competitions/view/${competition.id}/update-action/${action}`, {
+                job_id: jobId
+            });
             console.log(response);
             if (shouldReloadState && getRecord) getRecord();
         } catch (error) {
@@ -36,6 +41,7 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
             setLoading(false);
         }
     };
+    
 
     const handleUpdateAllActions = async () => {
         setLoading(true);
@@ -51,6 +57,19 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
             if (getRecord) getRecord();
         }
     };
+
+    type Prefix = {
+        name: string
+        color: string
+    }
+
+    const prefixes: Prefix[] = []
+
+    // Predefined colors to use for prefixes
+    const colors = ['blue', 'green', 'orange', 'purple', 'pink'];
+
+    // Keep track of the last assigned color for each prefix
+    const prefixColors: { [key: string]: string } = {};
 
     return (
         <Card>
@@ -72,25 +91,44 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {actionKeys.map((key) => (
-                            <tr key={key}>
-                                <td>{(key.charAt(0).toLocaleUpperCase() + key.slice(1)).replace(/_/g, ' ')}</td>
-                                <td>
-                                    {lastAction[key] && typeof lastAction[key] === 'string' && !isNaN(new Date(lastAction[key]!).getTime())
-                                        ? <TimeAgo datetime={new Date(lastAction[key]!)} />
-                                        : 'N/A'}
-                                </td>
-                                <td>
-                                    <Button
-                                        variant="primary"
-                                        onClick={() => handleUpdateAction(key)}
-                                        disabled={loading} // Disable all buttons when any action is loading
-                                    >
-                                        {loadingActions[key] ? <><Spinner animation="border" size="sm" /> Updating...</> : 'Update Action'}
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))}
+                        {actionKeys.map((key) => {
+
+                            const prefix = key.split('_')[0];
+
+                            // Check if the prefix already has an assigned color
+                            if (!prefixColors[prefix]) {
+                                // Assign the next color from the predefined array
+                                const colorIndex = Object.keys(prefixColors).length % colors.length;
+                                prefixColors[prefix] = colors[colorIndex];
+                            }
+
+                            // Find the corresponding color for the prefix
+                            const prefixColor = prefixColors[prefix];
+
+                            return (
+                                <tr key={key}>
+                                    <td>
+                                        <div style={{ borderLeft: `solid 5px ${prefixColor}`, padding: '0.5rem' }}>
+                                            {(key.charAt(0).toLocaleUpperCase() + key.slice(1)).replace(/_/g, ' ')}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {lastAction[key] && typeof lastAction[key] === 'string' && !isNaN(new Date(lastAction[key]!).getTime())
+                                            ? <TimeAgo datetime={new Date(lastAction[key]!)} />
+                                            : 'N/A'}
+                                    </td>
+                                    <td>
+                                        <Button
+                                            variant="primary"
+                                            onClick={() => handleUpdateAction(key)}
+                                            disabled={loading} // Disable all buttons when any action is loading
+                                        >
+                                            {loadingActions[key] ? <><Spinner animation="border" size="sm" /> Updating...</> : 'Update Action'}
+                                        </Button>
+                                    </td>
+                                </tr>
+                            )
+                        })}
                     </tbody>
                 </Table>
             </CardBody>

@@ -3,7 +3,6 @@ import { Icon } from '@iconify/react/dist/iconify.js'
 import { DashboardStatsInterface } from '@/interfaces/FootballInterface'
 import useAxios from '@/hooks/useAxios'
 import { useEffect, useState } from 'react'
-import DashJobLogsCard from '../Includes/DashJobLogsCard'
 import CompetitionStatsCard from '../Includes/StatisticsJobLogsCards/Competitions'
 import DashMatchJobLogsCard from './DashMatchJobLogsCard'
 
@@ -29,7 +28,7 @@ const Index = () => {
             <div className='col-12 col-xxl-10'>
                 <div className="row justify-content-center mb-4">
                     <h2 className="page-title">System automation report</h2>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=seasons`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -39,12 +38,12 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashJobLogsCard stats={stats ? stats.seasons_job_logs : null} jobMessage="Seasons" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors}stats={stats ? stats.seasons_job_logs : null} jobMessage="Seasons" />
                                 </div>
                             </NavLink>
                         </div>
                     </div>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=standings-historical-results`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -54,12 +53,12 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashJobLogsCard stats={stats?.standings_job_logs ? stats.standings_job_logs.recent_results : null} jobMessage="Standings" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors}stats={stats?.standings_job_logs ? stats.standings_job_logs.recent_results : null} jobMessage="Standings" />
                                 </div>
                             </NavLink>
                         </div>
                     </div>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=standings-recent-results`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -69,12 +68,12 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashJobLogsCard stats={stats?.standings_job_logs ? stats.standings_job_logs.recent_results : null} jobMessage="Standings" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors}stats={stats?.standings_job_logs ? stats.standings_job_logs.recent_results : null} jobMessage="Standings" />
                                 </div>
                             </NavLink>
                         </div>
                     </div>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=train-predictions`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -84,12 +83,12 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashJobLogsCard stats={stats ? stats.train_predictions_job_logs : null} jobMessage="Preds" jobActionMessage="Preds" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors}stats={stats ? stats.train_predictions_job_logs : null} jobMessage="Preds" jobActionMessage="Preds" />
                                 </div>
                             </NavLink>
                         </div>
                     </div>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=predictions`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -99,7 +98,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashJobLogsCard stats={stats ? stats.predictions_job_logs : null} jobMessage="Preds" jobActionMessage="Preds" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors}stats={stats ? stats.predictions_job_logs : null} jobMessage="Preds" jobActionMessage="Preds" />
                                 </div>
                             </NavLink>
                         </div>
@@ -109,7 +108,7 @@ const Index = () => {
 
                 <div className="row justify-content-center mb-4">
                     <h4>Matches Job Logs</h4>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=matches-historical-results`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -124,7 +123,7 @@ const Index = () => {
                             </NavLink>
                         </div>
                     </div>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=matches-recent-results`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -139,7 +138,7 @@ const Index = () => {
                             </NavLink>
                         </div>
                     </div>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=matches-shallow-fixtures`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -154,7 +153,7 @@ const Index = () => {
                             </NavLink>
                         </div>
                     </div>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=matches-fixtures`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -173,7 +172,7 @@ const Index = () => {
 
                 <div className="row justify-content-center mb-4">
                     <h4>Match Job Logs</h4>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=match-historical-results`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -188,7 +187,7 @@ const Index = () => {
                             </NavLink>
                         </div>
                     </div>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=match-recent-results`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -203,7 +202,7 @@ const Index = () => {
                             </NavLink>
                         </div>
                     </div>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=match-shallow-fixtures`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">
@@ -218,7 +217,7 @@ const Index = () => {
                             </NavLink>
                         </div>
                     </div>
-                    <div className="col-md-6 col-xl-4 col-xxl-4 mb-4">
+                    <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=match-fixtures`} className={'link-unstyled'}>
                                 <div className="card-header bg-secondary text-white">

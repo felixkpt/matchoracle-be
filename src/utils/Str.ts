@@ -95,6 +95,25 @@ class Str {
         return haystack.includes(needle);
     }
 
+    static formatTime = (totalSeconds: number) => {
+        const days = Math.floor(totalSeconds / 86400); // 86400 seconds in a day
+        const hours = Math.floor((totalSeconds % 86400) / 3600); // 3600 seconds in an hour
+        const minutes = Math.floor((totalSeconds % 3600) / 60); // 60 seconds in a minute
+    
+        let formattedTime = '';
+    
+        if (days > 0) {
+            formattedTime += `${days} day${days > 1 ? 's' : ''} `;
+        }
+        if (hours > 0) {
+            formattedTime += `${hours} hr${hours > 1 ? 's' : ''} `;
+        }
+        if (minutes > 0) {
+            formattedTime += `${minutes} min${minutes > 1 ? 's' : ''}`;
+        }
+    
+        return formattedTime.trim() || '0 min'; // Return '0 min' if no time is left
+    };
 }
 
 export default Str

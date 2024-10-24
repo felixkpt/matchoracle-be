@@ -1,5 +1,7 @@
 import { formatFTScores, formatHTScores, renderBTS, renderCS, renderFT1X2, renderFT1X2Pick, renderGameViewLink, renderHT1X2, renderHT1X2Pick, renderOver25, UTCDate } from "@/components/HtmlRenderers"
 import { ColumnInterface } from "@/interfaces/UncategorizedInterfaces"
+import Str from "@/utils/Str"
+import { NavLink } from "react-router-dom"
 
 export const predictionsColumns: ColumnInterface[] = [
     {
@@ -68,6 +70,33 @@ export const oddsColumns: ColumnInterface[] = [
     { key: 'GG' },
     { key: 'NG' },
     { label: 'Status', key: 'Status' },
-    { key: 'Game' },
+    {
+        key: 'Game', renderCell: (_: string, record: any) => {
+            return record.game_id ? <NavLink to={`/dashboard/matches/view/${record.game_id}`} target="_blank">#{record.game_id}</NavLink> : 'N/A'
+        }
+    },
 
 ]
+
+export const jobLogsColumns = [
+    { key: 'date' },
+    { key: 'job_run_counts', label: 'Job Runs' },
+    { key: 'competition_counts', label: 'Compe Counts' },
+    { key: 'run_competition_counts', label: 'Compe Runs' },
+    { key: 'action_counts', label: 'Action Counts' },
+    { key: 'run_action_counts', label: 'Action Runs' },
+    { key: 'average_seconds_per_action', label: 'Avg Secs/Action' },
+    { key: 'created_counts', label: 'Created' },
+    { key: 'updated_counts', label: 'Updated' },
+    { key: 'failed_counts', label: 'Failed' },
+    {
+        key: 'Remaining_time', label: 'Remaining Time',
+        renderCell: (_: string, record: any) => {
+            return record.Remaining_time >= 0 ? Str.formatTime(record.Remaining_time) : 'N/A'
+        }
+    },
+
+    { label: 'Last run', key: 'Last_run' },
+    { label: 'Created', key: 'Created_at' },
+]
+

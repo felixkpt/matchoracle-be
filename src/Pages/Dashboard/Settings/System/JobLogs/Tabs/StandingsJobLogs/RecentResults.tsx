@@ -1,25 +1,13 @@
 import AutoTable from '@/components/Autos/AutoTable'
+import { jobLogsColumns } from '@/components/TableColumns'
 
 const RecentResults = () => {
-
-  const columns = [
-    { key: 'id' },
-    { key: 'date' },
-    { key: 'job_run_counts', label: 'Job Runs', },
-    { key: 'competition_run_counts', label: 'Competition runs' },
-    { key: 'fetch_run_counts', label: 'Fetch runs' },
-    { key: 'fetch_success_counts', label: 'Fetch success' },
-    { key: 'fetch_failed_counts', label: 'Fetch failed' },
-    { key: 'updated_standings_counts', label: 'Updated standings' },
-    { label: 'Last run', key: 'Last_run' },
-    { label: 'Created At', key: 'created_at' },
-  ]
 
   return (
     <div>
       <AutoTable
         baseUri='/dashboard/settings/system/job-logs/standings?task=recent_results'
-        columns={columns}
+        columns={jobLogsColumns}
         search={true}
         tableId='RecentResultsStandingsJobLogs'
       />

@@ -1,138 +1,124 @@
 import React from 'react';
-import { Icon } from '@iconify/react/dist/iconify.js';
 import { DashJobLogsInterface } from '@/interfaces/FootballInterface';
 import NoContentMessage from '@/components/NoContentMessage';
 import Loader from '@/components/Loader';
+import RenderStatBlock from '../Includes/RenderStatBlock';
+import Str from '@/utils/Str';
 
 interface DashJobLogsMiniCardProps {
-    loading: boolean
-    errors: any
+    loading: boolean;
+    errors: string | null;
     stats: {
-        'today': DashJobLogsInterface;
-        'all': DashJobLogsInterface;
-    } | null
-    jobMessage?: string
-    jobActionMessage?: string
+        today: DashJobLogsInterface;
+        all: DashJobLogsInterface;
+    } | null;
 }
 
-const DashMatchJobLogsCard: React.FC<DashJobLogsMiniCardProps> = ({ loading, errors, stats, jobMessage, jobActionMessage }) => {
+const DashMatchJobLogsCard: React.FC<DashJobLogsMiniCardProps> = ({
+    loading,
+    errors,
+    stats,
+}) => {
 
-    let today_total_job_run_counts = 0
-    let total_job_run_counts = 0
-    let today_total_competition_run_counts = 0
-    let total_competition_run_counts = 0
-    let today_total_fetch_run_counts = 0
-    let total_fetch_run_counts = 0
-    let today_total_fetch_success_counts = 0
-    let total_fetch_success_counts = 0
-    let today_total_fetch_failed_counts = 0
-    let total_fetch_failed_counts = 0
-    let today_total_updated_items_counts = 0
-    let total_updated_items_counts = 0
+    // Function to initialize stats data
+    const initializeStatsData = (): DashJobLogsInterface => ({
+        total_job_run_counts: 0,
+        total_competition_counts: 0,
+        total_run_competition_counts: 0,
+        total_action_counts: 0,
+        total_run_action_counts: 0,
+        total_average_seconds_per_action: 0,
+        total_created_counts: 0,
+        total_updated_counts: 0,
+        total_failed_counts: 0,
+        remaining_time: 0,
+    });
 
-    if (stats) {
-        today_total_job_run_counts = stats.today.total_job_run_counts || 0;
-        total_job_run_counts = stats.all.total_job_run_counts || 0;
-        today_total_competition_run_counts = stats.today.total_competition_run_counts || 0;
-        total_competition_run_counts = stats.all.total_competition_run_counts || 0;
-        today_total_fetch_run_counts = stats.today.total_fetch_run_counts || 0;
-        total_fetch_run_counts = stats.all.total_fetch_run_counts || 0;
-        today_total_fetch_success_counts = stats.today.total_fetch_success_counts || 0;
-        total_fetch_success_counts = stats.all.total_fetch_success_counts || 0;
-        today_total_fetch_failed_counts = stats.today.total_fetch_failed_counts || 0;
-        total_fetch_failed_counts = stats.all.total_fetch_failed_counts || 0;
-        today_total_updated_items_counts = stats.today.total_updated_items_counts || 0;
-        total_updated_items_counts = stats.all.total_updated_items_counts || 0;
-    }
-
+    const statsData = {
+        today: stats?.today ? { ...initializeStatsData(), ...stats.today } : initializeStatsData(),
+        all: stats?.all ? { ...initializeStatsData(), ...stats.all } : initializeStatsData(),
+    };
 
     return (
         <>
-            {
-                loading ?
-                    <Loader />
-                    :
-                    <>
-                        {
-                            errors && stats ?
-                                <NoContentMessage message={errors} />
-                                :
-                                <>
-                                    <div className='d-flex align-items-center justify-content-between shadow-sm p-2 rounded text-muted'>
-                                        <div className='d-flex align-items-center gap-1 col-6'>
-                                            <h6>Description</h6>
-                                        </div>
-                                        <div className="row col-6">
-                                            <h6 className='col-6'>Today</h6>
-                                            <h6 className='col-6'>All time</h6>
-                                        </div>
-                                    </div>
-                                    <div className="d-flex flex-column gap-2 mt-3">
-                                        <div className='d-flex align-items-center justify-content-between shadow-sm p-2 rounded text-success'>
-                                            <div className='d-flex align-items-center gap-1 col-6'>
-                                                <Icon width={'1rem'} icon={`${'ic:sharp-published-with-changes'}`} />
-                                                Total Jobs Runs:
-                                            </div>
-                                            <div className="row col-6">
-                                                <div className="col-6">{today_total_job_run_counts}</div>
-                                                <div className="col-6">{total_job_run_counts}</div>
-                                            </div>
-                                        </div>
-                                        <div className='d-flex align-items-center justify-content-between shadow-sm p-2 rounded text-info'>
-                                            <div className='d-flex align-items-center gap-1 col-6'>
-                                                <Icon width={'1rem'} icon={`${'mdi:trophy'}`} />
-                                                Competition Runs:
-                                            </div>
-                                            <div className="row col-6">
-                                                <div className="col-6">{today_total_competition_run_counts}</div>
-                                                <div className="col-6">{total_competition_run_counts}</div>
-                                            </div>
-                                        </div>
-                                        <div className='d-flex align-items-center justify-content-between shadow-sm p-2 rounded text-warning'>
-                                            <div className='d-flex align-items-center gap-1 col-6'>
-                                                <Icon width={'1rem'} icon={`${'fa-solid:running'}`} />
-                                                {jobActionMessage || 'Fetch'} Runs:
-                                            </div>
-                                            <div className="row col-6">
-                                                <div className="col-6">{today_total_fetch_run_counts}</div>
-                                                <div className="col-6">{total_fetch_run_counts}</div>
-                                            </div>
-                                        </div>
-                                        <div className='d-flex align-items-center justify-content-between shadow-sm p-2 rounded text-success'>
-                                            <div className='d-flex align-items-center gap-1 col-6'>
-                                                <Icon width={'1rem'} icon={`${'carbon:checkmark-outline'}`} />
-                                                {jobActionMessage || 'Fetch'} Successes:
-                                            </div>
-                                            <div className="row col-6">
-                                                <div className="col-6">{today_total_fetch_success_counts}</div>
-                                                <div className="col-6">{total_fetch_success_counts}</div>
-                                            </div>
-                                        </div>
-                                        <div className='d-flex align-items-center justify-content-between shadow-sm p-2 rounded text-danger'>
-                                            <div className='d-flex align-items-center gap-1 col-6'>
-                                                <Icon width={'1rem'} icon={`${'ri:error-warning-line'}`} />
-                                                {jobActionMessage || 'Fetch'} Failures:
-                                            </div>
-                                            <div className="row col-6">
-                                                <div className="col-6">{today_total_fetch_failed_counts}</div>
-                                                <div className="col-6">{total_fetch_failed_counts}</div>
-                                            </div>
-                                        </div>
-                                        <div className='d-flex align-items-center justify-content-between shadow-sm p-2 rounded text-primary'>
-                                            <div className='d-flex align-items-center gap-1 col-6'>
-                                                <Icon width={'1rem'} icon={`${'bx:bxs-calendar-event'}`} />
-                                                Updated {jobMessage || 'Items'}:
-                                            </div>
-                                            <div className="row col-6">
-                                                <div className="col-6">{today_total_updated_items_counts}</div>
-                                                <div className="col-6">{total_updated_items_counts}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </>
-                        }
-                    </>
-            }
+            {loading ? (
+                <Loader />
+            ) : (
+                <>
+                    {errors ? (
+                        <NoContentMessage message={errors} />
+                    ) : (
+                        <div className='d-flex align-items-center justify-content-between shadow-sm px-1 py-2 mb-2 rounded bg-light'>
+                            <div className='d-flex align-items-center gap-2'>
+                                <h6 className='text-muted'>Description</h6>
+                            </div>
+                            <div className='d-flex w-50 justify-content-around'>
+                                <h6 className='text-muted'>Today</h6>
+                                <h6 className='text-muted'>All Time</h6>
+                            </div>
+                        </div>
+                    )}
+                    <div className='d-flex flex-column gap-2 w-100'>
+                        <RenderStatBlock
+                            icon='ic:sharp-published-with-changes'
+                            label='Job Runs'
+                            todayCount={statsData.today.total_job_run_counts}
+                            allTimeCount={statsData.all.total_job_run_counts}
+                            colorClass='text-success'
+                        />
+                        <RenderStatBlock
+                            icon='mdi:trophy'
+                            label='Competitions Done/Counts'
+                            todayCount={`${statsData.today.total_run_competition_counts}/${statsData.today.total_competition_counts}`}
+                            allTimeCount={`${statsData.all.total_run_competition_counts}/${statsData.all.total_competition_counts}`}
+                            colorClass='text-info'
+                        />
+                        <RenderStatBlock
+                            icon='fa-solid:running'
+                            label='Actions Done/Counts'
+                            todayCount={`${statsData.today.total_run_action_counts}/${statsData.today.total_action_counts}`}
+                            allTimeCount={`${statsData.all.total_run_action_counts}/${statsData.all.total_action_counts}`}
+                            colorClass='text-primary'
+                        />
+                        <RenderStatBlock
+                            icon='fa-solid:running'
+                            label='AVG Time / Action'
+                            todayCount={statsData.today.total_average_seconds_per_action}
+                            allTimeCount={statsData.all.total_average_seconds_per_action}
+                            colorClass='text-primary'
+                        />
+                        <RenderStatBlock
+                            icon='carbon:checkmark-outline'
+                            label='Created'
+                            todayCount={statsData.today.total_created_counts}
+                            allTimeCount={statsData.all.total_created_counts}
+                            colorClass='text-success'
+                        />
+                        <RenderStatBlock
+                            icon='carbon:checkmark-outline'
+                            label='Updated'
+                            todayCount={statsData.today.total_updated_counts}
+                            allTimeCount={statsData.all.total_updated_counts}
+                            colorClass='text-warning'
+                        />
+                        <RenderStatBlock
+                            icon='ri:error-warning-line'
+                            label='Failures'
+                            todayCount={statsData.today.total_failed_counts}
+                            allTimeCount={statsData.all.total_failed_counts}
+                            colorClass='text-danger'
+                        />
+                        {/* Estimated Remaining Time Block */}
+                        <RenderStatBlock
+                            icon='mdi:timer-sand'
+                            label='Remaining Time'
+                            todayCount={Str.formatTime(statsData.today.remaining_time || 0)}
+                            allTimeCount={Str.formatTime(statsData.all.remaining_time || 0)}
+                            colorClass='text-secondary'
+                        />
+                    </div>
+                </>
+            )}
         </>
     );
 };
