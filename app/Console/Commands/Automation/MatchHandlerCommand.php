@@ -27,7 +27,7 @@ class MatchHandlerCommand extends Command
      */
     public function handle()
     {
-        $task = $this->option('task') ?? 'recent_results';
+        $task = $this->option('task');
         $ignore_timing = $this->option('ignore-timing');
         $match_id = $this->option('match-id');
 

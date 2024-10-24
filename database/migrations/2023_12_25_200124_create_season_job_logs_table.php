@@ -17,9 +17,11 @@ return new class extends Migration
             $table->integer('source_id')->default(0);
 
             $table->integer('job_run_counts')->default(0);
-            $table->integer('competition_run_counts')->default(0);
-            $table->integer('action_run_counts')->default(0);
-            $table->integer('average_seconds_per_action_run')->default(0);
+            $table->integer('competition_counts')->default(0);
+            $table->integer('run_competition_counts')->default(0);
+            $table->integer('action_counts')->default(0);
+            $table->integer('run_action_counts')->default(0);
+            $table->integer('average_seconds_per_action')->default(0);
             $table->integer('created_counts')->default(0);
             $table->integer('updated_counts')->default(0);
             $table->integer('failed_counts')->default(0);

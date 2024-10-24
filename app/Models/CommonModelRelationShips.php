@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
@@ -52,7 +51,7 @@ trait CommonModelRelationShips
 
                 if ($value) {
                     if (env('FILESYSTEM_DRIVER', 'local') == 'local') {
-                        return env('APP_URL') . Storage::url(Str::replaceFirst('assets/', '', $value));
+                        return env('APP_URL') . Storage::url($value);
                     } else {
                         $path = Str::startsWith($value, config('app.gcs_project_folder')) ? $value : config('app.gcs_project_folder') . '/' . $value;
                         return Storage::url($path);

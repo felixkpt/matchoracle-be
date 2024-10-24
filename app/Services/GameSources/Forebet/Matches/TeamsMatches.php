@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Services\GameSources\Forebet\Match;
+namespace App\Services\GameSources\Forebet\Matches;
 
 use App\Models\Competition;
 use App\Models\CompetitionAbbreviation;
 use App\Models\Game;
 use App\Services\Common;
 use App\Services\GameSources\Forebet\ForebetInitializationTrait;
-use App\Services\OddsHandler;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class TeamsMatches
 {
-    use ForebetInitializationTrait;
+    use ForebetInitializationTrait, MatchesTrait;
 
     function fetchMatches($game, $crawler)
     {
@@ -32,8 +31,6 @@ class TeamsMatches
 
             $msg = "";
             $saved = $updated = 0;
-            $msg2 = "";
-            $saved2 = $updated2 = 0;
             if ($home_team_matches->count() > 0) {
                 $matches = $this->filterMatches($home_team_matches, $country);
                 if (count($matches) > 0) {
@@ -42,6 +39,8 @@ class TeamsMatches
                 }
             }
 
+            $msg2 = "";
+            $saved2 = $updated2 = 0;
             if ($away_team_matches->count() > 0) {
                 $matches = $this->filterMatches($away_team_matches, $country);
                 if (count($matches) > 0) {
@@ -52,9 +51,9 @@ class TeamsMatches
 
             $savedTotal = $saved + $saved2;
             $updatedTotal = $updated + $updated2;
-            $msg = "Fetching matches completed, (saved $savedTotal, updated: $updatedTotal).";
+            $msg = $msg . ' --- ' . $msg2;
 
-            [$saved2, $updated2, $msg];
+            [$savedTotal, $updatedTotal, $msg];
         }
     }
 
@@ -207,7 +206,6 @@ class TeamsMatches
             if ($game->season && $game->season->games()->whereIn('game_score_status_id', unsettledGameScoreStatuses())->count() === 0) {
                 $game->season->update(['fetched_all_single_matches' => true]);
             }
-
 
 
             return $msg;

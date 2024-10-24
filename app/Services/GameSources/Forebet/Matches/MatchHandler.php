@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\GameSources\Forebet\Match;
+namespace App\Services\GameSources\Forebet\Matches;
 
 use App\Models\Game;
 use App\Services\ClientHelper\Client;
@@ -205,7 +205,7 @@ class MatchHandler
         $this->matchOdds->saveOdds($this->sourceId, $game, $oddsAndPredsData, $competition);
 
         $saved = 0;
-        $updated = 1;
+        $updated = $message ? 1 : 0;
 
         // AOB taking advantage of matches on page
         $handled_teams_games = $this->teamsMatches->fetchMatches($game, $crawler);
@@ -213,7 +213,7 @@ class MatchHandler
         $response = [
             'message' => $message,
             'status' => $saved > 0 ? 200 : 201,
-            'results' => ['created' => $saved, 'updated' => $updated, 'handled_teams_games' => $handled_teams_games]
+            'results' => ['created_counts' => $saved, 'updated_counts' => $updated,  'failed_counts' => 0, 'handled_teams_games' => $handled_teams_games]
         ];
 
         if (request()->without_response) return $response;

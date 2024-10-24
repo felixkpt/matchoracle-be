@@ -29,7 +29,7 @@ class DashboardController extends Controller
 
     public function stats()
     {
-        sleep(1);
+        sleep(2);
         $activeStatusId = activeStatusId();
 
         $results = [
@@ -98,7 +98,7 @@ class DashboardController extends Controller
             'competition_prediction_statistics_logs' => $competitionPredictionStatisticsLogs,
 
             'predictions_job_logs' => $predictionsJobLogs,
-            
+
             'advanced_matches' => $matches,
         ];
 
@@ -224,7 +224,7 @@ class DashboardController extends Controller
 
     private function getJobLogsStats($modelClass, $date, $updated)
     {
-        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(action_run_counts) as total_action_run_counts, SUM(fetch_success_counts) as total_fetch_success_counts, SUM(fetch_failed_counts) as total_fetch_failed_counts';
+        $selects = $this->getSelects();
 
         return [
             'all' => $modelClass::selectRaw($selects)->first(),
@@ -234,7 +234,7 @@ class DashboardController extends Controller
 
     private function getMatchJobLogsStats($model, $task, $date)
     {
-        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(action_run_counts) as total_action_run_counts, SUM(fetch_success_counts) as total_fetch_success_counts, SUM(fetch_failed_counts) as total_fetch_failed_counts';
+        $selects = $this->getSelects();
 
         return [
             'all' => $model::where('task', $task)->selectRaw($selects)->first(),
@@ -249,7 +249,7 @@ class DashboardController extends Controller
 
     private function getCompetitionStatisticsStats($date)
     {
-        $selects = 'SUM(job_run_counts) as total_job_run_count, SUM(competition_run_counts) as total_competition_run_counts, SUM(seasons_run_counts) as total_seasons_run_counts, SUM(games_run_counts) as total_games_run_counts';
+        $selects = $this->getSelects();
 
         return [
             'all' => CompetitionStatisticJobLog::selectRaw($selects)->first(),
@@ -259,7 +259,7 @@ class DashboardController extends Controller
 
     private function getCompetitionPredictionStats($date)
     {
-        $selects = 'SUM(job_run_counts) as total_job_run_count, SUM(competition_run_counts) as total_competition_run_counts, SUM(seasons_run_counts) as total_seasons_run_counts, SUM(games_run_counts) as total_games_run_counts';
+        $selects = $this->getSelects();
 
         return [
             'all' => CompetitionPredictionStatisticJobLog::selectRaw($selects)->first(),
@@ -269,11 +269,23 @@ class DashboardController extends Controller
 
     private function getPredictionJobLogsStats($date)
     {
-        $selects = 'SUM(job_run_counts) as total_job_run_counts, SUM(competition_run_counts) as total_competition_run_counts, SUM(prediction_success_counts) as total_action_run_counts, SUM(prediction_success_counts) as total_fetch_success_counts, SUM(prediction_failed_counts) as total_fetch_failed_counts';
+        $selects = $this->getSelects();
 
         return [
             'all' => PredictionJobLog::selectRaw($selects)->first(),
             'today' => PredictionJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
         ];
+    }
+
+    // Reusable method to generate the base job logs query
+    private function getSelects()
+    {
+        return 'SUM(job_run_counts) as total_job_run_counts, 
+            SUM(competition_counts) as total_competition_counts, 
+            SUM(run_competition_counts) as total_run_competition_counts, 
+            SUM(action_counts) as total_action_counts, 
+            SUM(run_action_counts) as total_run_action_counts, 
+            SUM(created_counts) as total_created_counts, SUM(updated_counts) as total_updated_counts, 
+            SUM(failed_counts) as total_failed_counts';
     }
 }

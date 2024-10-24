@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Automation;
 
+use App\Jobs\Automation\Traits\AutomationTrait;
 use App\Models\Competition;
 use App\Models\FailedStandingLog;
 use App\Models\StandingJobLog;
@@ -73,8 +74,6 @@ class StandingsHandlerJob implements ShouldQueue
     public function handle(): void
     {
 
-        $this->loggerModel(true);
-
         // Set the request parameter to indicate no direct response is expected
         request()->merge(['without_response' => true]);
 
@@ -87,7 +86,6 @@ class StandingsHandlerJob implements ShouldQueue
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
-            ->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))
             ->whereHas('gameSources', function ($query) {
                 $query->where('game_source_id', $this->sourceContext->getId());
             })
@@ -96,11 +94,22 @@ class StandingsHandlerJob implements ShouldQueue
             ->where('has_standings', true)
             ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
-            ->limit(700)
-            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
-            ->get();
+            ->limit(1000)
+            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc');
 
+        // Process competitions to calculate action counts and log job details
+        $actionCounts = 0;
+        foreach ((clone $competitions)->get() as $key => $competition) {
+            $seasons = $this->seasonsFilter($competition);
+            $total_seasons = $seasons->count();
+            $actionCounts += $total_seasons;
+        }
+
+        $competition_counts = $competitions->count();
+        $competitions = $competitions->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))->get();
         $this->jobStartEndLog('START', $competitions);
+        // loggerModel competition_counts and Action Counts
+        $this->loggerModel(true, $competition_counts, $actionCounts);
 
         // Loop through each competition to fetch and update standings
         $should_sleep_for_competitions = false;
@@ -109,25 +118,20 @@ class StandingsHandlerJob implements ShouldQueue
         foreach ($competitions as $key => $competition) {
             if ($should_exit) break;
 
-            if ($this->runTimeExceeded()) {
-                $should_exit = true;
-                break;
-            }
-
             $this->automationInfo($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})";
-            $this->doCompetitionRunLogging();
 
-            $seasons = $competition->seasons()
-                ->whereDate('start_date', '>=', $this->historyStartDate)
-                ->where('fetched_standings', false)
-                ->take(15)
-                ->orderBy('start_date', 'desc')->get();
+            $seasons = $this->seasonsFilter($competition);
             $total_seasons = $seasons->count();
 
             $should_sleep_for_seasons = false;
             $should_update_last_action = false;
             foreach ($seasons as $season_key => $season) {
-
+                
+                if ($this->runTimeExceeded()) {
+                    $should_exit = true;
+                    break;
+                }
+    
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
 
@@ -137,6 +141,9 @@ class StandingsHandlerJob implements ShouldQueue
                     $this->automationInfo("You are offline. Retrying in 10 secs...");
                     sleep(10);
                 }
+
+                // Capture start time
+                $requestStartTime = microtime(true);
 
                 // Obtain the specific handler for fetching standings based on the game source strategy
                 $standingsHandler = $this->sourceContext->standingsHandler();
@@ -149,6 +156,15 @@ class StandingsHandlerJob implements ShouldQueue
 
                 // Output the fetch result for logging
                 $this->automationInfo($data['message'] . "");
+
+                // Capture end time and calculate time taken
+                $requestEndTime = microtime(true);
+                $seconds_taken = $requestEndTime - $requestStartTime;
+
+                // Log time taken for this game request
+                $this->automationInfo("Time taken to process Compe #{$competition->id} - season #{$season->id}: " . round($seconds_taken / 60, 2) . " minutes");
+
+                $data['seconds_taken'] = round($seconds_taken);
 
                 $should_sleep_for_competitions = true;
                 $should_sleep_for_seasons = true;
@@ -169,6 +185,8 @@ class StandingsHandlerJob implements ShouldQueue
 
             $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
+            // Increment Completed Competition Counts
+            $this->incrementCompletedCompetitionCounts();
             $this->automationInfo("------------");
 
             // Introduce a delay to avoid rapid consecutive requests
@@ -177,6 +195,14 @@ class StandingsHandlerJob implements ShouldQueue
         }
 
         $this->jobStartEndLog('END');
+    }
+
+    private function seasonsFilter($competition)
+    {
+        return $competition->seasons()
+            ->whereDate('start_date', '>=', $this->historyStartDate)
+            ->where('fetched_standings', false)
+            ->orderBy('start_date', 'desc')->get();
     }
 
     function applyRecentResultsFilter(Builder $query): Builder
@@ -197,12 +223,12 @@ class StandingsHandlerJob implements ShouldQueue
         $exists = $this->loggerModel();
 
         if ($exists) {
-            $action_run_counts = $exists->action_run_counts + 1;
-            $newAverageMinutes = (($exists->average_seconds_per_action_run * $exists->action_run_counts) + $data['seconds_taken']) / $action_run_counts;
+            $run_action_counts = $exists->run_action_counts + 1;
+            $newAverageSeconds = (($exists->average_seconds_per_action * $exists->run_action_counts) + $data['seconds_taken']) / $run_action_counts;
 
             $arr = [
-                'action_run_counts' => $action_run_counts,
-                'average_seconds_per_action_run' => $newAverageMinutes,
+                'run_action_counts' => $run_action_counts,
+                'average_seconds_per_action' => $newAverageSeconds,
                 'created_counts' => $exists->created_counts + $created_counts,
                 'updated_counts' => $exists->updated_counts + $updated_counts,
                 'failed_counts' => $exists->failed_counts + $failed_counts,
@@ -214,16 +240,25 @@ class StandingsHandlerJob implements ShouldQueue
         }
     }
 
-    private function loggerModel($increment_job_run_counts = false)
+    private function loggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
     {
+
+        $task = $this->task;
         $today = Carbon::now()->format('Y-m-d');
-        $record = StandingJobLog::where('date', $today)->where('source_id', $this->sourceContext->getId())->first();
+        $record = StandingJobLog::where('task', $task)->where('date', $today)->where('source_id', $this->sourceContext->getId())->first();
 
         if (!$record) {
+            if ($competition_counts <= 0) {
+                abort(422, 'Competition counts is needed');
+            }
+
             $arr = [
-                'date' => $today,
                 'source_id' => $this->sourceContext->getId(),
+                'task' => $task,
+                'date' => $today,
                 'job_run_counts' => 1,
+                'competition_counts' => $competition_counts,
+                'action_counts' => $action_counts,
             ];
 
             $record = StandingJobLog::create($arr);

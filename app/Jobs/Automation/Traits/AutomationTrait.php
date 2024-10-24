@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\Automation;
+namespace App\Jobs\Automation\Traits;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +16,7 @@ trait AutomationTrait
 
     protected function jobStartEndLog($message, $competitions = null): void
     {
+
         // Getting the class name dynamically
         $jobName = class_basename($this) . '-' . $this->jobId;
 
@@ -33,7 +34,7 @@ trait AutomationTrait
 
         echo $formattedMessage . "\n";
         if ($competitionsMsg) {
-            echo $competitionsMsg."\n";
+            echo $competitionsMsg . "\n";
         }
 
         if ($message == 'END') {
@@ -50,7 +51,7 @@ trait AutomationTrait
     {
         $message = class_basename($this) . '-' . $this->jobId . ": " . $message;
 
-        echo $message."\n";
+        echo $message . "\n";
         Log::channel($this->channel)->info($message);
     }
 
@@ -67,7 +68,7 @@ trait AutomationTrait
         }
 
         if ($record) {
-            $record->update(['competition_run_counts' => $record->competition_run_counts + 1]);
+            // $record->update(['run_competition_counts' => $record->run_competition_counts + 1]);
         }
     }
 
@@ -146,5 +147,14 @@ trait AutomationTrait
             return true;
         }
         return false;
+    }
+
+    private function incrementCompletedCompetitionCounts($loggerModel = null)
+    {
+        $exists = $loggerModel ? $this->$loggerModel() : $this->loggerModel();
+
+        if ($exists) {
+            $exists->update(['run_competition_counts' => $exists->run_competition_counts + 1]);
+        }
     }
 }

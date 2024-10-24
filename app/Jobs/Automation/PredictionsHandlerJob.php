@@ -2,6 +2,8 @@
 
 namespace App\Jobs\Automation;
 
+use App\Jobs\Automation\Traits\AutomationTrait;
+use App\Jobs\Automation\Traits\PredictionAutomationTrait;
 use App\Models\Competition;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
@@ -12,7 +14,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class PredictionsHandlerJob implements ShouldQueue
@@ -75,8 +76,6 @@ class PredictionsHandlerJob implements ShouldQueue
         $per_page = 1000;
         request()->merge(['prediction_type' => 'regular_prediction_12_6_4_' . $per_page]);
 
-        $this->predictionsLoggerModel(true);
-
         // Set the request parameter to indicate no direct response is expected
         request()->merge(['without_response' => true]);
 
@@ -91,19 +90,24 @@ class PredictionsHandlerJob implements ShouldQueue
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
-            ->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))
             ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->where(fn($query) => $query->whereNotNull('competition_last_actions.predictions_last_train'))
             ->select('competitions.*')
-            ->limit(1000)->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
-            ->get();
+            ->limit(1000)
+            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc');
 
+        // Process competitions to calculate action counts and log job details
+        $actionCounts = $competitions->count();
+        $competition_counts = $competitions->count();
+        $competitions = $competitions->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))->get();
         $this->jobStartEndLog('START', $competitions);
+        // loggerModel competition_counts and Action Counts
+        $this->predictionsLoggerModel(true, $competition_counts, $actionCounts);
 
         // predict for last 3 months plus 7 days from today
         $fromDate = Carbon::today()->subDays(30 * 3);
         $toDate = Carbon::today()->addDays(7);
-        
+
         // Loop through each competition to fetch and update matches
         $options = [
             'target' => null,
@@ -115,10 +119,18 @@ class PredictionsHandlerJob implements ShouldQueue
             'target_match' => null,
         ];
 
-        $should_sleep_for_competitions = false;
         $total = $competitions->count();
+        $should_sleep_for_competitions = false;
         $client = new Client();
+        $should_exit = false;
         foreach ($competitions as $key => $competition) {
+            if ($should_exit) break;
+
+            if ($this->runTimeExceeded()) {
+                $should_exit = true;
+                break;
+            }
+
             $compe_run_start_time = Carbon::now();
             // create a jobs table entity
             $processId = Str::random();
@@ -163,6 +175,8 @@ class PredictionsHandlerJob implements ShouldQueue
                 $this->automationInfo("  No data received, logging skipped.");
             }
 
+            // Increment Completed Competition Counts
+            $this->incrementCompletedCompetitionCounts('predictionsLoggerModel');
             $this->automationInfo("------------");
 
             // Introduce a delay to avoid rapid consecutive requests

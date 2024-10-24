@@ -27,7 +27,7 @@ class MatchesHandlerCommand extends Command
      */
     public function handle()
     {
-        $task = $this->option('task') ?? 'recent_results';
+        $task = $this->option('task');
 
         if ($task != 'recent_results' && $task != 'historical_results' && $task != 'shallow_fixtures' && $task != 'fixtures') {
             $this->warn('Task should be recent_results, historical_results, shallow_fixtures or fixtures');

@@ -95,3 +95,242 @@ Stack trace:
 2024/10/17 04:14:44 [error] 1230#1230: *1967 FastCGI sent in stderr: "PHP message: PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0". You are running 8.1.30. in /var/www/html/matchoracle-be/vendor/composer/platform_check.php on line 28" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "OPTIONS /api/auth/login HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"
 2024/10/17 04:16:11 [error] 1230#1230: *1973 FastCGI sent in stderr: "PHP message: PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0". You are running 8.1.30. in /var/www/html/matchoracle-be/vendor/composer/platform_check.php on line 28" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "OPTIONS /api/auth/user?verify=1 HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"
 2024/10/17 04:16:12 [error] 1230#1230: *1973 FastCGI sent in stderr: "PHP message: PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0". You are running 8.1.30. in /var/www/html/matchoracle-be/vendor/composer/platform_check.php on line 28" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "OPTIONS /api/auth/role-permissions/roles/get-user-roles-and-permissions?reason=10 HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"
+2024/10/19 14:36:43 [error] 1263#1263: *246 FastCGI sent in stderr: "PHP message: PHP Fatal error:  Cannot declare class App\Http\Controllers\Dashboard\JobLogsController, because the name is already in use in /var/www/html/matchoracle-be/app/Http/Controllers/Dashboard/DashboardController.php on line 0" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/dashboard/advanced-stats HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"
+2024/10/19 14:36:43 [error] 1263#1263: *245 FastCGI sent in stderr: "PHP message: PHP Fatal error:  Cannot declare class App\Http\Controllers\Dashboard\JobLogsController, because the name is already in use in /var/www/html/matchoracle-be/app/Http/Controllers/Dashboard/DashboardController.php on line 0" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/dashboard/stats HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"
+2024/10/19 14:36:43 [error] 1263#1263: *247 FastCGI sent in stderr: "PHP message: PHP Fatal error:  Cannot declare class App\Http\Controllers\Dashboard\JobLogsController, because the name is already in use in /var/www/html/matchoracle-be/app/Http/Controllers/Dashboard/DashboardController.php on line 0" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/dashboard/advanced-stats HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"
+2024/10/19 14:36:43 [error] 1263#1263: *247 FastCGI sent in stderr: "PHP message: PHP Fatal error:  Cannot declare class App\Http\Controllers\Dashboard\JobLogsController, because the name is already in use in /var/www/html/matchoracle-be/app/Http/Controllers/Dashboard/DashboardController.php on line 0" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/dashboard/advanced-stats HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"
+2024/10/22 12:31:13 [error] 1355#1355: *4030 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 14:25:52 [error] 1355#1355: *4055 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 14:54:02 [error] 1355#1355: *4061 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/store-competition-score-target-outcome HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 15:24:20 [error] 1355#1355: *4067 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/store-competition-score-target-outcome HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 15:55:30 [error] 1355#1355: *4089 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/store-competition-score-target-outcome HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 16:25:28 [error] 1355#1355: *4095 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/store-competition-score-target-outcome HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 16:35:36 [error] 1355#1355: *4101 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 16:54:44 [error] 1355#1355: *4107 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 17:04:40 [error] 1355#1355: *4113 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 17:25:14 [error] 1355#1355: *4125 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 17:35:20 [error] 1355#1355: *4131 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/store-competition-score-target-outcome HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 17:55:17 [error] 1355#1355: *4137 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 18:05:27 [error] 1355#1355: *4143 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/store-competition-score-target-outcome HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 18:25:35 [error] 1355#1355: *4149 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/store-competition-score-target-outcome HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 18:35:37 [error] 1355#1355: *4164 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 18:47:28 [error] 1355#1355: *4170 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/store-competition-score-target-outcome HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 18:59:03 [error] 1355#1355: *4176 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 19:09:06 [error] 1355#1355: *4182 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/store-competition-score-target-outcome HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 19:18:45 [error] 1355#1355: *4188 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 19:30:09 [error] 1355#1355: *4200 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 19:39:59 [error] 1355#1355: *4206 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/store-competition-score-target-outcome HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 19:49:33 [error] 1355#1355: *4212 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 19:59:04 [error] 1355#1355: *4218 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 20:10:32 [error] 1355#1355: *4230 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 20:21:01 [error] 1355#1355: *4236 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 20:32:03 [error] 1355#1355: *4242 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/store-competition-score-target-outcome HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 20:42:16 [error] 1355#1355: *4248 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 20:53:25 [error] 1355#1355: *4298 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 21:03:49 [error] 1355#1355: *4426 FastCGI sent in stderr: "PHP message: PHP Fatal error:  During class fetch: Uncaught ErrorException: include(/var/www/html/matchoracle-be/vendor/composer/../../app/Jobs/Automation/AutomationTrait.php): Failed to open stream: No such file or directory in /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php:576
+Stack trace:
+#0 /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(255): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError()
+#1 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): Illuminate\Foundation\Bootstrap\HandleExceptions->Illuminate\Foundation\Bootstrap\{closure}()
+#2 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(576): include('...')
+#3 /var/www/html/matchoracle-be/vendor/composer/ClassLoader.php(427): Composer\Autoload\{closure}()
+#4 /var/www/html/matchoracle-be/app/Repositories/GamePrediction/GamePredictionRepository.php(18): Composer\Autoload\ClassLoader->loadClass()
+#5 /var/www/html/matchoracle-be" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "POST /api/dashboard/predictions/from-python-app/update-competition-last-training HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local"
+2024/10/22 21:26:20 [error] 1355#1355: *4567 directory index of "/var/www/html/matchoracle-be/public/storage/" is forbidden, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /storage/ HTTP/1.1", host: "matchoracle-be.local"
+2024/10/22 21:27:52 [error] 1355#1355: *4596 directory index of "/var/www/html/matchoracle-be/public/storage/" is forbidden, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /storage/ HTTP/1.1", host: "matchoracle-be.local"
+2024/10/23 03:58:50 [error] 1252#1252: *322 FastCGI sent in stderr: "PHP message: PHP Fatal error:  Allowed memory size of 1073741824 bytes exhausted (tried to allocate 20480 bytes) in /var/www/html/matchoracle-be/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/HasAttributes.php on line 287" while reading response header from upstream, client: 127.0.0.1, server: matchoracle-be.local, request: "GET /api/dashboard/predictions?prediction_mode_id=1&search=&get_prediction_stats=true HTTP/1.1", upstream: "fastcgi://unix:/var/run/php/php8.1-fpm.sock:", host: "matchoracle-be.local", referrer: "http://localhost:5173/"

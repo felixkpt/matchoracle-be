@@ -2,14 +2,13 @@
 
 namespace App\Repositories\GamePrediction;
 
-use App\Jobs\Automation\AutomationTrait;
-use App\Jobs\Automation\PredictionAutomationTrait;
+use App\Jobs\Automation\Traits\AutomationTrait;
+use App\Jobs\Automation\Traits\PredictionAutomationTrait;
 use App\Models\Competition;
 use App\Models\CompetitionPredictionTypeStatistics;
 use App\Models\GamePrediction;
 use App\Repositories\CommonRepoActions;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInterface
 {
@@ -86,21 +85,22 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
     private function doLogging($data = null)
     {
 
-        $trained_counts = $data['results']['saved_updated'] ?? 0;
-        $train_success_counts = $trained_counts > 0 ? 1 : 0;
-        $train_failed_counts = $data ? ($trained_counts === 0 ? 1 : 0) : 0;
+        $created_counts = $data['results']['created_counts'] ?? 0;
+        $updated_counts = $data['results']['updated_counts'] ?? 0;
+        $failed_counts = $data['results']['failed_counts'] ?? 0;
 
         $exists = $this->trainPredictionsLoggerModel();
 
         if ($exists) {
-            $competition_run_counts = $exists->competition_run_counts + 1;
-            $newAverageMinutes = (($exists->average_seconds_per_action_run * $exists->competition_run_counts) + $data['minutes_taken']) / $competition_run_counts;
+            $run_action_counts = $exists->run_action_counts + 1;
+            $newAverageSeconds = (($exists->average_seconds_per_action * $exists->run_action_counts) + $data['seconds_taken']) / $run_action_counts;
 
             $arr = [
-                'competition_run_counts' => $competition_run_counts,
-                'train_success_counts' => $exists->train_success_counts + $train_success_counts,
-                'train_failed_counts' => $exists->train_failed_counts + $train_failed_counts,
-                'average_seconds_per_action_run' => $newAverageMinutes,
+                'run_action_counts' => $run_action_counts,
+                'average_seconds_per_action' => $newAverageSeconds,
+                'created_counts' => $exists->created_counts + $created_counts,
+                'updated_counts' => $exists->updated_counts + $updated_counts,
+                'failed_counts' => $exists->failed_counts + $failed_counts,
             ];
 
             $exists->update($arr);

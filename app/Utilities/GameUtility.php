@@ -28,7 +28,7 @@ class GameUtility
     private function configureExecutionSettings()
     {
         ini_set('max_execution_time', 60 * 10);
-        ini_set('memory_limit', '1024M');
+        ini_set('memory_limit', '2G');
     }
 
     function applyGameFilters($id = null)
@@ -43,7 +43,7 @@ class GameUtility
         request()->merge(['order_by' => $order_by, 'per_page' => $per_page, 'order_direction' => $order_direction]);
 
         $games = Game::query()
-            ->when(true, fn ($q) => $q->where('status_id', activeStatusId()));
+            ->when(true, fn($q) => $q->where('status_id', activeStatusId()));
 
         // Apply filters
         $this->applyTeamFilters($games, $params);
@@ -57,40 +57,49 @@ class GameUtility
 
     private function applyTeamFilters($query, $params)
     {
-        $query->when($params['team_id'] ?? null, fn ($q) => $q->where(fn ($q) => $q->where('home_team_id', $params['team_id'])->orWhere('away_team_id', $params['team_id'])))
-            ->when($params['team_ids'] ?? null, fn ($q) => $this->teamsMatch($q, $params['team_ids'], $params['playing'] ?? null))
-            ->when($params['currentground'] ?? null, fn ($q) => $this->filterByGround($q, $params['currentground'], $params['team_id']));
+        $query->when($params['team_id'] ?? null, fn($q) => $q->where(fn($q) => $q->where('home_team_id', $params['team_id'])->orWhere('away_team_id', $params['team_id'])))
+            ->when($params['team_ids'] ?? null, fn($q) => $this->teamsMatch($q, $params['team_ids'], $params['playing'] ?? null))
+            ->when($params['currentground'] ?? null, fn($q) => $this->filterByGround($q, $params['currentground'], $params['team_id']));
     }
 
     private function applyDateFilters($query, $params)
     {
-        $query->when($params['from_date'] ?? null, fn ($q) => $q->whereDate('utc_date', '>=', Carbon::parse($params['from_date'])->format('Y-m-d')))
-            ->when($params['to_date'] ?? null, fn ($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($params['to_date'])->format('Y-m-d')))
-            ->when($params['date'] ?? null, fn ($q) => $q->whereDate('utc_date', '=', Carbon::parse($params['date'])->format('Y-m-d')))
-            ->when(!($params['date'] ?? null) && !($params['to_date'] ?? null) && ($params['type'] ?? null), fn ($q) => $this->typeOrdering($q, $params['type'], $params['to_date'] ?? null));
+        $query
+            ->when($params['yesterday'] ?? null, fn($q) => $q->whereDate('utc_date', '=', Carbon::yesterday()->format('Y-m-d')))
+            ->when($params['today'] ?? null, fn($q) => $q->whereDate('utc_date', '=', Carbon::today()->format('Y-m-d')))
+            ->when($params['tomorrow'] ?? null, fn($q) => $q->whereDate('utc_date', '=', Carbon::tomorrow()->format('Y-m-d')))
+            ->when($params['from_date'] ?? null, fn($q) => $q->whereDate('utc_date', '>=', Carbon::parse($params['from_date'])->format('Y-m-d')))
+            ->when($params['to_date'] ?? null, fn($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($params['to_date'])->format('Y-m-d')))
+            ->when($params['date'] ?? null, fn($q) => $q->whereDate('utc_date', '=', Carbon::parse($params['date'])->format('Y-m-d')))
+            ->when(!($params['date'] ?? null) && !($params['to_date'] ?? null) && ($params['type'] ?? null), fn($q) => $this->typeOrdering($q, $params['type'], $params['to_date'] ?? null));
     }
 
     private function applyMiscFilters($query, $params, $id)
     {
-        $query->when($params['season_id'] ?? null, fn ($q) => $q->where('season_id', $params['season_id']))
-            ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
-            ->when(request()->country_id, fn ($q) => $q->where('country_id', request()->country_id))
-            ->when($id, fn ($q) => $q->where('games.id', $id))
-            ->when(request()->include_ids, fn ($q) => $q->whereIn('games.id', request()->include_ids))
-            ->when(request()->exclude_ids, fn ($q) => $q->whereNotIn('games.id', request()->exclude_ids))
-            ->when(request()->limit, fn ($q) => $q->limit(request()->limit));
+        $query->when($params['season_id'] ?? null, fn($q) => $q->where('season_id', $params['season_id']))
+            ->when(request()->competition_id, fn($q) => $q->where('competition_id', request()->competition_id))
+            ->when(request()->country_id, fn($q) => $q->where('country_id', request()->country_id))
+            ->when($id, fn($q) => $q->where('games.id', $id))
+            ->when(request()->include_ids, fn($q) => $q->whereIn('games.id', request()->include_ids))
+            ->when(request()->exclude_ids, fn($q) => $q->whereNotIn('games.id', request()->exclude_ids))
+            ->when(request()->limit, fn($q) => $q->limit(request()->limit));
     }
 
     private function applyWithRelations($query, $params)
     {
         $with = [
-            'competition' => fn ($q) => $q->with(['country', 'currentSeason']),
-            'homeTeam', 'awayTeam', 'score', 'votes', 'referees', 'odds'
+            'competition' => fn($q) => $q->with(['country', 'currentSeason']),
+            'homeTeam',
+            'awayTeam',
+            'score',
+            'votes',
+            'referees',
+            'odds'
         ];
 
         if (request()->include_preds || request()->requires_preds) {
             $with[] = $this->predictionTypeMode;
-            $query->when(request()->requires_preds, fn ($q) => $q->whereHas($this->predictionTypeMode));
+            $query->when(request()->requires_preds, fn($q) => $q->whereHas($this->predictionTypeMode));
         }
 
         return $query->with($with);
@@ -205,18 +214,18 @@ class GameUtility
         $uri = '/dashboard/matches/';
         $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name'], $search_builder)
             ->setModelUri($uri)
-            ->addColumn('is_future', fn ($q) => Carbon::parse($q->utc_date)->isFuture())
+            ->addColumn('is_future', fn($q) => Carbon::parse($q->utc_date)->isFuture())
 
-            ->addColumn('Winner', fn ($q) => $q->score ? GameComposer::winningSide($q) : null)
-            ->addColumn('winningSideHT', fn ($q) => $q->score ? GameComposer::winningSideHT($q, true) : null)
-            ->addColumn('hasResultsHT', fn ($q) => $q->score ? GameComposer::hasResultsHT($q, true) : null)
-            ->addColumn('winningSideFT', fn ($q) => $q->score ? GameComposer::winningSide($q, true) : null)
-            ->addColumn('hasResultsFT', fn ($q) => $q->score ? GameComposer::hasResults($q, true) : null)
+            ->addColumn('Winner', fn($q) => $q->score ? GameComposer::winningSide($q) : null)
+            ->addColumn('winningSideHT', fn($q) => $q->score ? GameComposer::winningSideHT($q, true) : null)
+            ->addColumn('hasResultsHT', fn($q) => $q->score ? GameComposer::hasResultsHT($q, true) : null)
+            ->addColumn('winningSideFT', fn($q) => $q->score ? GameComposer::winningSide($q, true) : null)
+            ->addColumn('hasResultsFT', fn($q) => $q->score ? GameComposer::hasResults($q, true) : null)
 
-            ->addColumn('BTS', fn ($q) => $q->score ? GameComposer::bts($q, true) : null)
-            ->addColumn('goalsCount', fn ($q) => $q->score ? GameComposer::goals($q, true) : null)
-            ->addColumn('full_time', fn ($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
-            ->addColumn('half_time', fn ($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
+            ->addColumn('BTS', fn($q) => $q->score ? GameComposer::bts($q, true) : null)
+            ->addColumn('goalsCount', fn($q) => $q->score ? GameComposer::goals($q, true) : null)
+            ->addColumn('full_time', fn($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
+            ->addColumn('half_time', fn($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
             ->addColumn('home_win_votes', $homeWinVotes)
             ->addColumn('draw_votes', $drawVotes)
             ->addColumn('away_win_votes', $awayWinVotes)
@@ -225,11 +234,11 @@ class GameUtility
             ->addColumn('gg_votes', $ggVotes)
             ->addColumn('ng_votes', $ngVotes)
 
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Updated_at', fn ($q) => Carbon::parse($q->updated_at)->diffForHumans())
-            ->addColumnWhen(!request()->is_predictor, 'current_user_votes', fn ($q) => $this->currentUserVotes($q))
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Updated_at', fn($q) => Carbon::parse($q->updated_at)->diffForHumans())
+            ->addColumnWhen(!request()->is_predictor, 'current_user_votes', fn($q) => $this->currentUserVotes($q))
             ->addColumnWhen(!request()->is_predictor, 'Created_by', 'getUser')
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Competition', fn ($q) => $q->competition->name)
-            ->addColumnWhen((!request()->is_predictor && !request()->without_response && request()->include_preds), ['prediction_strategy', 'Predicted'], fn ($q) => $this->prediction_strategy(clone $q));
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Competition', fn($q) => $q->competition->name)
+            ->addColumnWhen((!request()->is_predictor && !request()->without_response && request()->include_preds), ['prediction_strategy', 'Predicted'], fn($q) => $this->prediction_strategy(clone $q));
 
         if (!request()->order_by)
             $results = $results->orderby('utc_date', request()->type == 'upcoming' ? 'asc' : 'desc');
@@ -259,5 +268,63 @@ class GameUtility
         return $q->votes->where(function ($q) {
             return $q->where('user_id', auth()->id())->orWhere('user_ip', request()->ip());
         })->first();
+    }
+
+    function calculateRemainingTime($modelClass, $jobIntervalInMins, $scriptExecutionTimeInMins, $totalActions, $runActions, $avgSecondsPerAction)
+    {
+
+        // Handle potential division by zero cases
+        if ($totalActions == 0 || $avgSecondsPerAction == 0 || $scriptExecutionTimeInMins == 0) {
+            return 0;
+        }
+
+        $jobIntervalInSeconds = $jobIntervalInMins * 60;
+        $scriptExecutionTimeInSeconds = $scriptExecutionTimeInMins * 60;
+
+        // Calculate how many actions a single job can process within its execution time
+        $actionsPerJob = $scriptExecutionTimeInSeconds / $avgSecondsPerAction;
+
+        // Calculate base remaining actions
+        $remainingActions = $totalActions - $runActions;
+
+        // Calculate time since the last job ran
+        $timeSinceLastJob = now()->diffInSeconds($this->getLastJobRunTime($modelClass));
+
+        $remainingTime = 0;
+
+        // Loop to calculate how long it will take to complete the remaining actions over multiple job runs
+        while ($remainingActions > 0) {
+            if ($timeSinceLastJob < $jobIntervalInSeconds) {
+                // Time until the next job starts
+                $timeUntilNextJob = $jobIntervalInSeconds - $timeSinceLastJob;
+                $remainingTime += $timeUntilNextJob;
+                $timeSinceLastJob = $jobIntervalInSeconds; // Set to simulate next job interval
+            }
+
+            // Each job will process a number of actions in its execution time
+            if ($remainingActions > $actionsPerJob) {
+                $remainingActions -= $actionsPerJob;
+                $remainingTime += $scriptExecutionTimeInSeconds;
+            } else {
+                // Last job can process all remaining actions
+                $remainingTime += $remainingActions * $avgSecondsPerAction;
+                $remainingActions = 0;
+            }
+
+            // After each job completes, reset the timer for the next job interval
+            $timeSinceLastJob = 0;
+        }
+
+        return $remainingTime;
+    }
+
+    private function getLastJobRunTime($modelClass)
+    {
+        // Logic to retrieve the last job run time from the logs
+        if (is_string($modelClass)) {
+            return $modelClass::latest()->first()->updated_at ?? now();
+        }
+        
+        return $modelClass->latest()->first()->updated_at ?? now();
     }
 }

@@ -7,6 +7,7 @@ use App\Services\ClientHelper\Client;
 use App\Services\Common;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use stdClass;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -57,11 +58,7 @@ class SeasonsHandler
             }
         });
 
-        if (!$competition->logo || request()->refetch_image == 1) {
-
-            if (request()->refetch_image) {
-                Log::channel($this->logChannel)->info('Refetching image...');
-            }
+        if (!$competition->logo || !@file_get_contents($competition->logo)) {
 
             $elem = $crawler->filter('.contentmiddle h1.frontH img[alt="league_logo"]');
             if ($elem->count() == 1) {

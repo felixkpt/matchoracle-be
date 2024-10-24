@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\GameSources\Forebet\Match;
+namespace App\Services\GameSources\Forebet\Matches;
 
 use App\Services\OddsHandler;
 use Symfony\Component\DomCrawler\Crawler;

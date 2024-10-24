@@ -2,7 +2,8 @@
 
 namespace App\Services\GameSources\Forebet;
 
-use App\Services\GameSources\Forebet\Match\MatchHandler;
+use App\Services\GameSources\Forebet\Matches\MatchesHandler;
+use App\Services\GameSources\Forebet\Matches\MatchHandler;
 use App\Services\GameSources\GameSourceStrategyInterface;
 
 /**

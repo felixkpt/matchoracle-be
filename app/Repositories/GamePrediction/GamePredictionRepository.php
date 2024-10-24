@@ -2,14 +2,13 @@
 
 namespace App\Repositories\GamePrediction;
 
-use App\Jobs\Automation\AutomationTrait;
-use App\Jobs\Automation\PredictionAutomationTrait;
+use App\Jobs\Automation\Traits\AutomationTrait;
+use App\Jobs\Automation\Traits\PredictionAutomationTrait;
 use App\Models\Competition;
 use App\Models\CompetitionPredictionLog;
 use App\Models\GamePrediction;
 use App\Models\GamePredictionType;
 use App\Repositories\CommonRepoActions;
-use App\Repositories\SearchRepo\SearchRepo;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -28,9 +27,7 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
         $this->model = $model;
     }
 
-    function raw()
-    {
-    }
+    function raw() {}
 
     function storePredictions()
     {
@@ -143,21 +140,22 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
     private function doLogging($data = null)
     {
 
-        $predicted_counts = $data['results']['saved_updated'] ?? 0;
-        $predition_success_counts = $predicted_counts > 0 ? 1 : 0;
-        $predition_failed_counts = $data ? ($predicted_counts === 0 ? 1 : 0) : 0;
+        $created_counts = $data['results']['created_counts'] ?? 0;
+        $updated_counts = $data['results']['updated_counts'] ?? 0;
+        $failed_counts = $data['results']['failed_counts'] ?? 0;
 
         $exists = $this->predictionsLoggerModel();
 
         if ($exists) {
-            $competition_run_counts = $exists->competition_run_counts + 1;
-            $newAverageMinutes = (($exists->average_seconds_per_action_run * $exists->competition_run_counts) + $data['minutes_taken']) / $competition_run_counts;
+            $run_action_counts = $exists->run_action_counts + 1;
+            $newAverageSeconds = (($exists->average_seconds_per_action * $exists->run_action_counts) + $data['seconds_taken']) / $run_action_counts;
 
             $arr = [
-                'competition_run_counts' => $competition_run_counts,
-                'prediction_success_counts' => $exists->prediction_success_counts + $predition_success_counts,
-                'prediction_failed_counts' => $exists->prediction_failed_counts + $predition_failed_counts,
-                'average_seconds_per_action_run' => $newAverageMinutes,
+                'run_action_counts' => $run_action_counts,
+                'average_seconds_per_action' => $newAverageSeconds,
+                'created_counts' => $exists->created_counts + $created_counts,
+                'updated_counts' => $exists->updated_counts + $updated_counts,
+                'failed_counts' => $exists->failed_counts + $failed_counts,
             ];
 
             $exists->update($arr);
@@ -176,6 +174,8 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
                 'predictions_last_done' => now(),
             ]
         );
+
+        $this->doLogging(request()->all());
 
         return response(['message' => 'Successfully updated or created last prediction time.']);
     }

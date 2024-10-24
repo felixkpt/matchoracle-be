@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\Automation;
+namespace App\Jobs\Automation\Traits;
 
 use App\Models\Game;
 use App\Models\PredictionJobLog;
@@ -17,14 +17,14 @@ trait PredictionAutomationTrait
         $record = $logModel::where('date', $date)
             ->where('prediction_type_id', $prediction_type->id)
             ->first();
-
+ 
         return [
             'prediction_type' => $prediction_type,
             'record' => $record
         ];
     }
 
-    protected function trainPredictionsLoggerModel($increment_job_run_counts = false)
+    protected function trainPredictionsLoggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
     {
         $today = Carbon::now()->format('Y-m-d');
 
@@ -33,10 +33,16 @@ trait PredictionAutomationTrait
         $record = $result['record'];
 
         if (!$record) {
+            if ($competition_counts <= 0) {
+                abort(422, 'Competition counts is needed');
+            }
+
             $arr = [
                 'date' => $today,
                 'prediction_type_id' => $prediction_type->id,
                 'job_run_counts' => 1,
+                'competition_counts' => $competition_counts,
+                'action_counts' => $action_counts,
             ];
 
             $record = TrainPredictionJobLog::create($arr);
@@ -47,7 +53,7 @@ trait PredictionAutomationTrait
         return $record;
     }
 
-    protected function predictionsLoggerModel($increment_job_run_counts = false)
+    protected function predictionsLoggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
     {
         $today = Carbon::now()->format('Y-m-d');
 
@@ -56,10 +62,16 @@ trait PredictionAutomationTrait
         $record = $result['record'];
 
         if (!$record) {
+            if ($competition_counts <= 0) {
+                abort(422, 'Competition counts is needed');
+            }
+
             $arr = [
                 'date' => $today,
                 'prediction_type_id' => $prediction_type->id,
                 'job_run_counts' => 1,
+                'competition_counts' => $competition_counts,
+                'action_counts' => $action_counts,
             ];
 
             $record = PredictionJobLog::create($arr);

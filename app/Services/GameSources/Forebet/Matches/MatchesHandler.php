@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Services\GameSources\Forebet;
+namespace App\Services\GameSources\Forebet\Matches;
 
 use App\Models\Game;
 use App\Models\Season;
 use App\Models\Team;
 use App\Services\ClientHelper\Client;
+use App\Services\GameSources\Forebet\ForebetInitializationTrait;
+use App\Services\GameSources\Forebet\TeamsHandler;
 use App\Services\GameSources\Interfaces\MatchesInterface;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -18,7 +20,7 @@ class MatchesHandler implements MatchesInterface
     protected $is_fixtures = false;
     protected $has_errors = false;
 
-    use ForebetInitializationTrait;
+    use ForebetInitializationTrait, MatchesTrait;
     /**
      * Constructor for the CompetitionsHandler class.
      * 
@@ -125,100 +127,13 @@ class MatchesHandler implements MatchesInterface
         $msg = "";
         $saved = $updated = 0;
 
-        $country = $competition->country;
-
-        $date_not_found = [];
-        $country_not_found = [];
-        $competition_not_found = [];
-        $home_team_not_found = [];
-        $away_team_not_found = [];
-
         if (!is_array($matchesData)) {
             abort(500, "Cannot get matches for: compe#$competition->id, season#$season->id");
         }
 
-
-        foreach ($matchesData as $key => $match) {
-
-            if ($match['date']) {
-
-                try {
-                    DB::beginTransaction();
-
-                    $homeTeam = $this->handleTeam($match['home_team'], $country, $competition, $season, $home_team_not_found);
-                    $awayTeam = $this->handleTeam($match['away_team'], $country, $competition, $season, $away_team_not_found);
-
-                    if ($homeTeam && $awayTeam) {
-                        $result = $this->saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam);
-
-                        if ($result === 'saved') {
-                            $saved++;
-                        } elseif ($result === 'updated') {
-                            $updated++;
-                        }
-                    }
-                    DB::commit();
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    $this->has_errors = true;
-
-                    $msg = "Error during data import for compe#$competition->id, season#1363$season->id: ";
-                    Log::channel($this->logChannel)->error($msg . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
-                }
-            } else {
-                $no_date_msg = ['competition' => $competition->id, 'season' => $season->id, 'match' => $match];
-                $date_not_found['match'][$key] = $match;
-                Log::channel($this->logChannel)->critical('Match has no date:', $no_date_msg);
-            }
-        }
-
-        $msg = "Fetching matches completed, (saved $saved, updated: $updated).";
-
-        if (count($date_not_found) > 0) {
-            $msg .= ' ' . count($date_not_found) . ' dates were not found.';
-        }
-
-        if (count($country_not_found) > 0) {
-            $msg .= ' ' . count($country_not_found) . ' countries were not found.';
-        }
-
-        if (count($competition_not_found) > 0) {
-            $msg .= ' ' . count($competition_not_found) . ' competitions were not found.';
-        }
-
-        if (count($home_team_not_found) > 0) {
-            $msg .= ' ' . count($home_team_not_found) . ' home teams were not found.';
-        }
-
-        if (count($away_team_not_found) > 0) {
-            $msg .= ' ' . count($away_team_not_found) . ' away teams were not found.';
-        }
-
+        [$saved, $updated, $msg] = $this->saveGames($matchesData, $competition);
 
         return [$saved, $updated, $msg];
-    }
-
-    private function handleTeam($teamData, $country, $competition, $season, &$teamNotFound)
-    {
-
-        $team = Team::whereHas('gameSources', function ($q) use ($teamData) {
-            $q->where('source_uri', $teamData['uri']);
-        })->first();
-
-        if (!$team) {
-            $team = (new TeamsHandler())->updateOrCreate($teamData, $country, $competition, $season, true);
-            if (!$team) {
-                if (!isset($teamNotFound[$country->name])) {
-                    $teamNotFound[$teamData['name']] = 1;
-                } else {
-                    $teamNotFound[$teamData['name']]++;
-                }
-
-                Log::channel($this->logChannel)->critical('Team not found:', (array) $teamData['name']);
-            }
-        }
-
-        return $team;
     }
 
     private function filterPlayedMatches($crawler)

@@ -2,7 +2,7 @@
 
 namespace App\Jobs\Automation\Statistics;
 
-use App\Jobs\Automation\AutomationTrait;
+use App\Jobs\Automation\Traits\AutomationTrait;
 use App\Models\Competition;
 use App\Models\CompetitionStatisticJobLog;
 use App\Models\CompetitionStatistics;
@@ -68,8 +68,6 @@ class CompetitionStatisticsJob implements ShouldQueue
     public function handle(): void
     {
 
-        $this->loggerModel(true);
-
         $lastFetchColumn = 'stats_last_done';
         // Set delay in minutes, 10 days is okay for this case
         $delay = 60 * 24 * 10;
@@ -79,34 +77,45 @@ class CompetitionStatisticsJob implements ShouldQueue
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
-            ->when($this->competition_id, function ($query) {
-                $query->where('competitions.id', $this->competition_id);
-            })
             ->whereHas('games')
             ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
             ->select('competitions.*')
             ->limit(700)
-            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
-            ->get();
+            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc');
 
+        // Process competitions to calculate action counts and log job details
+        $actionCounts = 0;
+        foreach ((clone $competitions)->get() as $key => $competition) {
+            $seasons = $this->seasonsFilter($competition);
+            $total_seasons = $seasons->count();
+            $actionCounts += $total_seasons;
+        }
+
+        $competition_counts = $competitions->count();
+        $competitions = $competitions->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))->get();
         $this->jobStartEndLog('START', $competitions);
+        // loggerModel competition_counts and Action Counts
+        $this->loggerModel(true, $competition_counts, $actionCounts);
 
         // Loop through each competition
         $total = $competitions->count();
+        $should_exit = false;
         foreach ($competitions as $key => $competition) {
+            if ($should_exit) break;
+            
             echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
-            $this->doCompetitionRunLogging();
 
             request()->merge(['competition_id' => $competition->id]);
 
-            $seasons = $competition->seasons()
-                ->whereDate('start_date', '>=', '2020-01-01')
-                ->take(15)
-                ->orderBy('start_date', 'desc')->get();
+            $seasons = $this->seasonsFilter($competition);
 
             $should_update_last_action = true;
-
             foreach ($seasons as $season) {
+
+                if ($this->runTimeExceeded()) {
+                    $should_exit = true;
+                    break;
+                }
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
@@ -119,14 +128,23 @@ class CompetitionStatisticsJob implements ShouldQueue
                 $this->doLogging($data);
             }
 
-            Log::critical("should log....");
             $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
-            echo "------------\n";
+            // Increment Completed Competition Counts
+            $this->incrementCompletedCompetitionCounts();
+            $this->automationInfo("------------");
         }
 
         $this->jobStartEndLog('END');
     }
+
+    private function seasonsFilter($competition)
+    {
+        return $competition->seasons()
+            ->whereDate('start_date', '>=', $this->historyStartDate)
+            ->orderBy('start_date', 'desc')->get();
+    }
+
 
     private function doLogging($data = null)
     {
@@ -143,18 +161,21 @@ class CompetitionStatisticsJob implements ShouldQueue
             $exists->update($arr);
         }
     }
-    private function loggerModel($increment_job_run_counts = false)
+    private function loggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
     {
         $today = Carbon::now()->format('Y-m-d');
         $record = CompetitionStatisticJobLog::where('date', $today)->first();
 
         if (!$record) {
+            if ($competition_counts <= 0) {
+                abort(422, 'Competition counts is needed');
+            }
+
             $arr = [
                 'date' => $today,
                 'job_run_counts' => 1,
-                'competition_run_counts' => 0,
-                'seasons_run_counts' => 0,
-                'games_run_counts' => 0,
+                'competition_counts' => $competition_counts,
+                'action_counts' => $action_counts,
             ];
 
             $record = CompetitionStatisticJobLog::create($arr);
