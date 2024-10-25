@@ -44,10 +44,17 @@ class SeasonsHandler
 
         $crawler = new Crawler($content);
 
+        Log::channel($this->logChannel)->info("Getting seasons for compe #{$competition->id} ...");
+        if (strpos($crawler->text(), 'Attention Required!') !== false) {
+            $message = "Attention Required! Blocked while getting seasons for compe #{$competition->id}";
+            Log::channel($this->logChannel)->critical($message);
+            return $this->matchMessage($message, 500);
+        }
+
         // Extracted data from the HTML will be stored in this array
         $seasons = [];
         $crawler->filter('.contentmiddle .category_nav select#season option')->each(function ($crawler) use (&$seasons) {
-            if ($crawler->count() > 0) {
+            if ($crawler->count() === 1) {
                 $text = explode('/', $crawler->text());
                 $startDate = $text[0] . '-01-01';
                 $endDate = $text[1] . '-01-01';
@@ -57,6 +64,23 @@ class SeasonsHandler
                 $seasons[] = $season;
             }
         });
+
+
+        if (count($seasons) === 0) {
+            Log::channel($this->logChannel)->info("Getting seasons for compe #{$competition->id} using option 2 ...");
+
+            $crawler->filter('select.league_year_select option')->each(function ($crawler) use (&$seasons, $competition) {
+                if ($crawler->count() === 1) {
+                    $text = explode('/', $crawler->text());
+                    $startDate = $text[0] . '-01-01';
+                    $endDate = $text[1] . '-01-01';
+                    $season = new stdClass();
+                    $season->startDate = $startDate;
+                    $season->endDate = $endDate;
+                    $seasons[] = $season;
+                }
+            });
+        }
 
         if (!$competition->logo || !@file_get_contents($competition->logo)) {
 

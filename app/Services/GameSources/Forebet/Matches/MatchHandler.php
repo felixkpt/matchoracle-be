@@ -67,19 +67,28 @@ class MatchHandler
     private function handleGame($game, $url)
     {
 
-        Log::channel($this->logChannel)->info('Handling game: ' . $game->id);
 
         $content = Client::get($url);
         if (!$content) return $this->matchMessage('Source inaccessible or not found.', 500);
 
         $crawler = new Crawler($content);
 
+        Log::channel($this->logChannel)->info("Getting match #{$game->id} ...");
+        if (strpos($crawler->text(), 'Attention Required!') !== false) {
+            $message = "Attention Required! Blocked while getting match #{$game->id}";
+            Log::channel($this->logChannel)->critical($message);
+            return $this->matchMessage($message, 500);
+        }
+
+
         $header = $crawler->filter('div.predictioncontain');
         $l = $header->filter('div.lLogo a img.matchTLogo');
 
-        $temperatureElement = explode(', ', $header->filter('.weather_main_pr')->text());
+        $res = $header->filter('.weather_main_pr');
+        $temperature = null;
+        if ($res->count() > 0)
+            $temperature = $this->getTemperature($res);
 
-        $temperature = $this->getTemperature($temperatureElement);
 
         $wc = $header->filter('.weather_main_pr img.wthc');
         $weather_condition = null;
@@ -221,31 +230,33 @@ class MatchHandler
         return response($response);
     }
 
-    private function getTemperature($temperatureElement)
+    private function getTemperature($res)
     {
+        $temperatureElements = explode(', ', $res->text());
+
         $temperature = null;
-        if (count($temperatureElement) == 1) {
-            $temperatureElement = end($temperatureElement);
+        if (count($temperatureElements) == 1) {
+            $temperatureElements = end($temperatureElements);
             // Extract the single temperature if it's not a range
-            preg_match('/(\d+)°/', $temperatureElement, $matches);
+            preg_match('/(\d+)°/', $temperatureElements, $matches);
             if (isset($matches[1])) {
                 $temperatures = [$matches[1]];
             }
-        } elseif (count($temperatureElement) > 1) {
-            $temperatureElement = end($temperatureElement);
+        } elseif (count($temperatureElements) > 1) {
+            $temperatureElements = end($temperatureElements);
 
             $temperatures = [];
 
             // Check if the temperature element contains a temperature range
-            if (strpos($temperatureElement, ' - ') !== false) {
+            if (strpos($temperatureElements, ' - ') !== false) {
                 // Match both temperatures in the range
-                preg_match_all('/(\d+)°/', $temperatureElement, $matches);
+                preg_match_all('/(\d+)°/', $temperatureElements, $matches);
                 if (count($matches[1]) >= 2) {
                     $temperatures = $matches[1];
                 }
             } else {
                 // Extract the single temperature if it's not a range
-                preg_match('/(\d+)°/', $temperatureElement, $matches);
+                preg_match('/(\d+)°/', $temperatureElements, $matches);
                 if (isset($matches[1])) {
                     $temperatures = [$matches[1]];
                 }

@@ -53,14 +53,15 @@ class MatchesHandler implements MatchesInterface
         $uri = $source->source_uri . ($this->is_fixtures ? '/fixtures/' : '/results/') . $season_str;
         $url = $this->sourceUrl . ltrim($uri, '/');
 
-        $links = [];
-        if (!request()->shallow_fetch)
-            $links = $this->getMatchesLinks($url);
+        $links = ['data' => []];
+        if (!request()->shallow_fetch) {
+            $links = $this->getMatchesLinks($url, $competition);
+        }
 
         // if is not array then there could be an error that has occured
-        if (!is_array($links)) $links = [];
+        if (!isset($links['data'])) return $links;
 
-        $links = array_unique(array_merge([$uri], $links));
+        $links = array_unique(array_merge([$uri], $links['data']));
 
         $messages = [];
         $saved = $updated = 0;
@@ -72,6 +73,8 @@ class MatchesHandler implements MatchesInterface
                 if (!$content) $this->has_errors = true;
 
                 $crawler = new Crawler($content);
+
+                
                 [$saved_new, $updated_new, $msg_new] = $this->handleMatches($competition, $season, $crawler);
                 $saved = $saved + $saved_new;
                 $updated = $updated + $updated_new;
@@ -104,19 +107,28 @@ class MatchesHandler implements MatchesInterface
         return response($response);
     }
 
-    private function getMatchesLinks($url)
+    private function getMatchesLinks($url, $competition)
     {
         $content = Client::get($url);
         if (!$content) return $this->matchMessage('Source not accessible or not found.', 504);
 
         $crawler = new Crawler($content);
+
+        Log::channel($this->logChannel)->info("Getting matches for compe #{$competition->id} ...");
+        if (strpos($crawler->text(), 'Attention Required!') !== false) {
+            $message = "Attention Required! Blocked while getting matches for compe #{$competition->id}";
+            Log::channel($this->logChannel)->critical($message);
+            return $this->matchMessage($message, 500);
+        }
+
         // list-footer
         // Get all links inside the .list-footer element
         $links = $crawler->filter('.contentmiddle .list-footer a')->each(function ($crawler) {
             return $crawler->attr('href');
         });
         $links = array_values(array_filter(array_unique($links)));
-        return $links;
+        
+        return ['data' => $links];
     }
 
     private function handleMatches($competition, $season, $crawler)

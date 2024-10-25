@@ -73,6 +73,14 @@ class StandingsHandler
         // Parse HTML content using Symfony DomCrawler
         $crawler = new Crawler($content);
 
+        Log::channel($this->logChannel)->info("Getting standings for compe #{$competition->id} ...");
+        if (strpos($crawler->text(), 'Attention Required!') !== false) {
+            $message = "Attention Required! Blocked while getting standings for compe #{$competition->id}";
+            Log::channel($this->logChannel)->critical($message);
+            return $this->matchMessage($message, 500);
+        }
+
+
         // Extract standings tables from HTML
         $tables = $crawler->filter('.contentmiddle table.standings#standings');
         if ($tables->count() === 0)
