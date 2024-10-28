@@ -3,7 +3,7 @@
 namespace App\Services\ClientHelper;
 
 use Exception;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\BrowserKit\HttpBrowser;
@@ -11,6 +11,32 @@ use Symfony\Component\HttpClient\HttpClient;
 
 class Client
 {
+
+    /**
+     * Perform an HTTP request and return the content.
+     *
+     * @param mixed $request
+     * @return string|null
+     */
+    public static function get($request, $proxy = 'puppet')
+    {
+        $response = self::fetchContentFromPuppeteer($request);
+        return $response ? $response : null;
+    }
+
+    /**
+     * Perform an HTTP request and return the status code.
+     *
+     * @param mixed $request
+     * @return int|null
+     */
+    public static function requestStatus($request)
+    {
+        $response = self::fetchContentFromPuppeteer($request);
+        return $response ? $response : null;
+        return $response ? $response->getStatusCode() : null;
+    }
+
     /**
      * Perform an HTTP request and return the response.
      *
@@ -29,29 +55,21 @@ class Client
         }
     }
 
-    /**
-     * Perform an HTTP request and return the content.
-     *
-     * @param mixed $request
-     * @return string|null
-     */
-    public static function get($request)
+    public static function fetchContentFromPuppeteer($url)
     {
-        $response = self::sendRequest($request);
-        return $response ? $response->getContent() : null;
+        $response = Http::timeout(70)->get('http://localhost:3000/fetch', [
+            'url' => $url
+        ]);
+
+        if ($response->successful()) {
+            $content = $response->body();
+            return $content;
+        } else {
+            // Handle error response
+            return 'Error fetching content: ' . $response->body();
+        }
     }
 
-    /**
-     * Perform an HTTP request and return the status code.
-     *
-     * @param mixed $request
-     * @return int|null
-     */
-    public static function requestStatus($request)
-    {
-        $response = self::sendRequest($request);
-        return $response ? $response->getStatusCode() : null;
-    }
 
     /**
      * Download a file from a given URL and save it to a specified destination path.

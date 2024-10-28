@@ -130,9 +130,6 @@ class CompetitionsHandler
         return response(['message' => 'Successfully saved competition.']);
     }
 
-    
-
-    
 
     /**
      * @param int $id

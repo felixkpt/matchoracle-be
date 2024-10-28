@@ -95,9 +95,13 @@ class MatchHandler
         if ($wc->count() === 1)
             $weather_condition = $wc->attr('src');
 
-        $competition = $crawler->filter('center.leagpredlnk a');
-        $competition_url = $competition->attr('href');
-        $competition = $competition->text();
+        $competition_node = $crawler->filter('center.leagpredlnk a');
+        $competition_url = null;
+        $competition = null;
+        if ($competition_node->count() === 1) {
+            $competition_url = $competition_node->attr('href');
+            $competition = $competition_node->text();
+        }
 
         $l = $header->filter('div.rLogo a img.matchTLogo');
         $away_team_logo = null;

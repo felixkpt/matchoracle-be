@@ -184,7 +184,6 @@ trait MatchesTrait
         }
 
         $qry = [
-            ['competition_id', $competition_id],
             ['home_team_id', $homeTeam->id],
             ['away_team_id', $awayTeam->id],
         ];
@@ -193,6 +192,8 @@ trait MatchesTrait
         $game = Game::query()
             ->whereDate('date', $date->format('Y-m-d'))
             ->where($qry)->first();
+
+        $qry['competition_id'] = $competition_id;
 
         // If the game exists, update it; otherwise, create a new one
         if ($game) {

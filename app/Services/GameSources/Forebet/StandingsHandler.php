@@ -197,12 +197,17 @@ class StandingsHandler
      */
     private function createAbbreviation($tag, $competition, $country = null)
     {
-        CompetitionAbbreviation::create([
-            'name' => $tag,
-            'is_international' => $country->is_international ?? 0,
-            'country_id' => $country->id ?? null,
-            'competition_id' => $competition->id,
-        ]);
+        CompetitionAbbreviation::updateOrCreate(
+            [
+                'name' => $tag,
+            ],
+            [
+                'name' => $tag,
+                'is_international' => $country->is_international ?? 0,
+                'country_id' => $country->id ?? null,
+                'competition_id' => $competition->id,
+            ]
+        );
     }
 
     /**

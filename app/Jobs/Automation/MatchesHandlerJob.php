@@ -191,7 +191,7 @@ class MatchesHandlerJob implements ShouldQueue
                 }
 
                 // Introduce a delay to avoid rapid consecutive requests
-                sleep($should_sleep_for_seasons ? 15 : 0);
+                sleep($should_sleep_for_seasons ? $this->getRequestDelaySeasons() : 0);
                 $should_sleep_for_seasons = false;
 
                 $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
@@ -204,7 +204,8 @@ class MatchesHandlerJob implements ShouldQueue
             $this->automationInfo("------------");
 
             // Introduce a delay to avoid rapid consecutive requests
-            sleep($should_sleep_for_competitions ? 15 : 0);
+            sleep($should_sleep_for_competitions ? $this->getRequestDelayCompetitions() : 0);
+
             $should_sleep_for_competitions = false;
         }
 

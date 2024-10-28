@@ -195,7 +195,7 @@ class MatchHandlerJob implements ShouldQueue
                 [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit] = $this->workOnActions($games, $total_games, $lastFetchColumn);
 
                 // Introduce a delay to avoid rapid consecutive requests
-                sleep($should_sleep_for_seasons ? 10 : 0);
+                sleep($should_sleep_for_seasons ? $this->getRequestDelaySeasons() : 0);
                 $should_sleep_for_seasons = false;
             }
 
@@ -206,7 +206,7 @@ class MatchHandlerJob implements ShouldQueue
             $this->automationInfo("------------");
 
             // Introduce a delay to avoid rapid consecutive requests
-            sleep($should_sleep_for_competitions ? 10 : 0);
+            sleep($should_sleep_for_competitions ? $this->getRequestDelayCompetitions() : 0);
             $should_sleep_for_competitions = false;
         }
 
@@ -266,6 +266,8 @@ class MatchHandlerJob implements ShouldQueue
 
     private function workOnActions($games, $total_games, $lastFetchColumn)
     {
+
+        $should_sleep_for_competitions = false;
         $should_exit = false;
         // Loop through each game to fetch and update matches
         foreach ($games as $game_key => $game) {
@@ -305,15 +307,17 @@ class MatchHandlerJob implements ShouldQueue
 
             $should_sleep_for_competitions = true;
             $should_sleep_for_seasons = true;
+            $should_sleep_for_games = true;
             $should_update_last_action = true;
 
             $this->doLogging($data);
             $this->updateLastAction($game, $should_update_last_action, $lastFetchColumn, 'game_id');
 
             // Introduce a delay to avoid rapid consecutive requests
-            sleep(rand(3, 6));
+            sleep($should_sleep_for_games ? $this->getRequestDelayGames() : 0);
+            $should_sleep_for_games = false;
         }
-        
+
         return [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit];
     }
 

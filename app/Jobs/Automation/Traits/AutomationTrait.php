@@ -13,6 +13,9 @@ trait AutomationTrait
     protected $startTime;
     protected $channel = 'automation';
     protected $historyStartDate = '2015-01-01';
+    protected $requestDelayCompetitions = 40;
+    protected $requestDelaySeasons =  40;
+    protected $requestDelayGames = 40;
 
     /**
      * Logs the start and end messages for a job, including competition details.
@@ -162,5 +165,36 @@ trait AutomationTrait
             return true;
         }
         return false;
+    }
+
+
+    /**
+     * Get a random delay for competitions, between 10 and $requestDelayCompetitions.
+     *
+     * @return int
+     */
+    public function getRequestDelayCompetitions(): int
+    {
+        return rand(10, $this->getRequestDelayCompetitions());
+    }
+
+    /**
+     * Get a random delay for seasons, between 10 and $requestDelaySeasons.
+     *
+     * @return int
+     */
+    public function getRequestDelaySeasons(): int
+    {
+        return rand(10, $this->getRequestDelaySeasons());
+    }
+
+    /**
+     * Get a random delay for games, between 10 and $requestDelayGames.
+     *
+     * @return int
+     */
+    public function getRequestDelayGames(): int
+    {
+        return rand(10, $this->requestDelayGames);
     }
 }

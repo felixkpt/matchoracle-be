@@ -180,7 +180,7 @@ class PredictionsHandlerJob implements ShouldQueue
             $this->automationInfo("------------");
 
             // Introduce a delay to avoid rapid consecutive requests
-            sleep($should_sleep_for_competitions ? 10 : 0);
+            sleep($should_sleep_for_competitions ? $this->getRequestDelayCompetitions() : 0);
             $should_sleep_for_competitions = false;
         }
 

@@ -149,8 +149,11 @@ class SeasonsHandlerJob implements ShouldQueue
 
             $this->doLogging($data);
 
+            $should_sleep_for_competitions = true;
+
             // Introduce a delay to avoid rapid consecutive requests
-            sleep(15);
+            sleep($should_sleep_for_competitions ? $this->getRequestDelayCompetitions() : 0);
+            $should_sleep_for_competitions = false;
         }
 
         $this->jobStartEndLog('END');
