@@ -1,5 +1,5 @@
 type Props = {
-    message?: string
+    message?: string | undefined
     justify?: 'start' | 'center' | 'end'
     fullpage?: boolean
 }

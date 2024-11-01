@@ -514,10 +514,12 @@ export interface TodayMatchesInterface extends MatchesInterface { }
 
 export interface CompetitionStatsInterface {
     total_job_run_count: number;
-    total_competition_run_counts: number;
+    total_competition_counts: number;
+    total_run_competition_counts: number;
     total_seasons_run_counts: number;
     total_games_run_counts: number;
 }
+
 export interface BettingTipsStatsInterface {
     total_job_run_count: number;
     total_competition_run_counts: number;

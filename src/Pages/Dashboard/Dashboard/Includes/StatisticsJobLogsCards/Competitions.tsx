@@ -5,7 +5,7 @@ import RenderStatBlock from "../RenderStatBlock";
 
 interface CompetitionStatsCardProps {
     loading: boolean
-    errors: any
+    errors: string | undefined
     stats: {
         all: CompetitionStatsInterface;
         today: TodayCompetitionStatsInterface;

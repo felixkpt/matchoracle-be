@@ -7,7 +7,7 @@ import Str from '@/utils/Str';
 
 interface DashJobLogsMiniCardProps {
     loading: boolean;
-    errors: string | null;
+    errors: string | undefined;
     stats: {
         today: DashJobLogsInterface;
         all: DashJobLogsInterface;
