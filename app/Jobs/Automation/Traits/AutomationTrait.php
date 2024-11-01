@@ -13,9 +13,9 @@ trait AutomationTrait
     protected $startTime;
     protected $channel = 'automation';
     protected $historyStartDate = '2015-01-01';
-    protected $requestDelayCompetitions = 40;
-    protected $requestDelaySeasons =  40;
-    protected $requestDelayGames = 40;
+    protected $requestDelayCompetitions = 20;
+    protected $requestDelaySeasons =  20;
+    protected $requestDelayGames = 20;
 
     /**
      * Logs the start and end messages for a job, including competition details.

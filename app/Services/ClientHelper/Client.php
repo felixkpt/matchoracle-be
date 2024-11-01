@@ -22,6 +22,9 @@ class Client
     {
         $response = self::fetchContentFromPuppeteer($request);
         return $response ? $response : null;
+
+        $response = self::sendRequest($request);
+        return $response ? $response->getContent() : null;
     }
 
     /**
@@ -34,6 +37,9 @@ class Client
     {
         $response = self::fetchContentFromPuppeteer($request);
         return $response ? $response : null;
+
+        
+        $response = self::sendRequest($request);
         return $response ? $response->getStatusCode() : null;
     }
 
@@ -57,7 +63,7 @@ class Client
 
     public static function fetchContentFromPuppeteer($url)
     {
-        $response = Http::timeout(70)->get('http://localhost:3000/fetch', [
+        $response = Http::timeout(70)->get('http://localhost:3075/fetch', [
             'url' => $url
         ]);
 
