@@ -38,7 +38,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors}stats={stats ? stats.seasons_job_logs : null} jobMessage="Seasons" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats ? stats.seasons_job_logs : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -53,7 +53,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors}stats={stats?.standings_job_logs ? stats.standings_job_logs.recent_results : null} jobMessage="Standings" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.standings_job_logs ? stats.standings_job_logs.recent_results : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -68,7 +68,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors}stats={stats?.standings_job_logs ? stats.standings_job_logs.recent_results : null} jobMessage="Standings" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.standings_job_logs ? stats.standings_job_logs.recent_results : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -83,7 +83,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors}stats={stats ? stats.train_predictions_job_logs : null} jobMessage="Preds" jobActionMessage="Preds" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats ? stats.train_predictions_job_logs : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -98,7 +98,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors}stats={stats ? stats.predictions_job_logs : null} jobMessage="Preds" jobActionMessage="Preds" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats ? stats.predictions_job_logs : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -118,7 +118,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.historical_results : null} jobMessage="Matches" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.historical_results : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -133,7 +133,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.recent_results : null} jobMessage="Matches" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.recent_results : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -148,7 +148,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.shallow_fixtures : null} jobMessage="Matches" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.shallow_fixtures : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -163,7 +163,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.fixtures : null} jobMessage="Matches" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.matches_job_logs ? stats.matches_job_logs.fixtures : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -182,7 +182,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.historical_results : null} jobMessage="Match" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.historical_results : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -197,7 +197,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.recent_results : null} jobMessage="Match" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.recent_results : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -212,7 +212,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.shallow_fixtures : null} jobMessage="Match" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.shallow_fixtures : null} />
                                 </div>
                             </NavLink>
                         </div>
@@ -227,7 +227,7 @@ const Index = () => {
                                     </h5>
                                 </div>
                                 <div className="card-body text-center">
-                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.fixtures : null} jobMessage="Match" />
+                                    <DashMatchJobLogsCard loading={loading} errors={errors} stats={stats?.match_job_logs ? stats.match_job_logs.fixtures : null} />
                                 </div>
                             </NavLink>
                         </div>

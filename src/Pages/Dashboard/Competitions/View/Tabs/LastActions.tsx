@@ -58,12 +58,6 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
         }
     };
 
-    type Prefix = {
-        name: string
-        color: string
-    }
-
-    const prefixes: Prefix[] = []
 
     // Predefined colors to use for prefixes
     const colors = ['blue', 'green', 'orange', 'purple', 'pink'];

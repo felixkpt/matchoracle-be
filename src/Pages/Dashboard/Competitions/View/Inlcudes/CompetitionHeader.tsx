@@ -27,7 +27,7 @@ const CompetitionHeader = ({ competition, currentTab, seasons, selectedSeason, s
         }
     }
     return (
-        <div className='header-title shadow-sm p-3 rounded mb-4 row no-select'>
+        <div className='header-title shadow-sm p-3 rounded mb-4 row'>
             <div className="col-12">
                 <div className="d-flex gap-3">
                     <img className="compe-logo shadow-sm rounded" src={renderCompetitionLogo(competition.logo)} alt="" />
