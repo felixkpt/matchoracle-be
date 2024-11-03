@@ -1,27 +1,40 @@
-# Use a base image with PHP-FPM
+# Use the official PHP image as the base
 FROM php:8.1-fpm
 
-# Install Nginx
-# Install required dependencies, including MySQLi
-RUN apt-get update && \
-    apt-get install -y nginx libonig-dev && \
-    docker-php-ext-install mysqli && \
-    rm -rf /var/lib/apt/lists/*
+# Set working directory
+WORKDIR /var/www
 
-# Copy custom Nginx configuration
-COPY ./docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    curl
 
-# Copy the entrypoint script
-COPY ./docker/startup.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/startup.sh
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /app
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Copy the application code from the outer folder (project root)
-COPY . /app
-COPY ./docker/.env_sandbox /app/.env
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# RUN chown -R www-data: /app
+# Copy existing application directory contents
+COPY . /var/www
 
-# Use the entrypoint script to start services
-ENTRYPOINT ["/usr/local/bin/startup.sh"]
+# Copy existing application directory permissions
+COPY --chown=www-data:www-data . /var/www
+
+# Change the owner of the working directory
+RUN chown -R www-data:www-data /var/www
+
+# Expose port 9000 for PHP-FPM
+EXPOSE 9000
+
+CMD ["php-fpm"]

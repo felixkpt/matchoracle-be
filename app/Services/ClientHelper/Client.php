@@ -38,7 +38,7 @@ class Client
         $response = self::fetchContentFromPuppeteer($request);
         return $response ? $response : null;
 
-        
+
         $response = self::sendRequest($request);
         return $response ? $response->getStatusCode() : null;
     }
@@ -63,7 +63,9 @@ class Client
 
     public static function fetchContentFromPuppeteer($url)
     {
-        $response = Http::timeout(70)->get('http://localhost:3075/fetch', [
+        $url = env('CRAWLER_URL', 'http://localhost:3065') . '/fetch';
+
+        $response = Http::timeout(70)->get($url, [
             'url' => $url
         ]);
 
