@@ -16,6 +16,7 @@ trait AutomationTrait
     protected $requestDelayCompetitions = 20;
     protected $requestDelaySeasons =  20;
     protected $requestDelayGames = 20;
+    protected $predictorUrl = 'http://127.0.0.1:8085';
 
     /**
      * Logs the start and end messages for a job, including competition details.
@@ -167,6 +168,10 @@ trait AutomationTrait
         return false;
     }
 
+    public function timeTaken($seconds_taken): string
+    {
+        return round($seconds_taken) . " secs";
+    }
 
     /**
      * Get a random delay for competitions, between 10 and $requestDelayCompetitions.
@@ -175,7 +180,7 @@ trait AutomationTrait
      */
     public function getRequestDelayCompetitions(): int
     {
-        return rand(10, $this->getRequestDelayCompetitions());
+        return rand(10, $this->requestDelayCompetitions);
     }
 
     /**
@@ -185,7 +190,7 @@ trait AutomationTrait
      */
     public function getRequestDelaySeasons(): int
     {
-        return rand(10, $this->getRequestDelaySeasons());
+        return rand(10, $this->requestDelaySeasons);
     }
 
     /**

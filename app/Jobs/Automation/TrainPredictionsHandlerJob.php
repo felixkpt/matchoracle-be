@@ -154,7 +154,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
             try {
                 $should_update_last_action = true;
 
-                $response = $client->post('http://127.0.0.1:8000/train', [
+                $response = $client->post($this->predictorUrl . '/train', [
                     'json' => $options
                 ]);
 
@@ -190,6 +190,9 @@ class TrainPredictionsHandlerJob implements ShouldQueue
     private function pollJobCompletion($competition, $jobId, $lastFetchColumn, $last_action, $start_time, $options)
     {
         $startTime = now();
+        // Capture start time
+        $requestStartTime = microtime(true);
+
         $maxWaitTime = 60 * 30; // 30 minutes
         $checkInterval = 30; // Poll every 30 seconds
 
@@ -202,7 +205,6 @@ class TrainPredictionsHandlerJob implements ShouldQueue
 
         while (now()->diffInSeconds($startTime) < $maxWaitTime) {
             $i++;
-            $elapsedTime = now()->diffInMinutes($startTime);
 
             // Check if the process ID status is marked as "completed"
             $jobStatus = Competition::find($competition->id)
@@ -222,7 +224,12 @@ class TrainPredictionsHandlerJob implements ShouldQueue
                     $lastActionTime = Carbon::parse($checked_last_action)->diffForHumans();
                 }
 
-                $this->automationInfo("  Elapsed Time: {$elapsedTime} minutes | Updated Last Action: {$lastActionTime}.");
+                // Capture end time and calculate time taken
+                $requestEndTime = microtime(true);
+                $seconds_taken = intval($requestEndTime - $requestStartTime);
+
+                $this->automationInfo("Time taken to process Compe #{$competition->id}: " . $this->timeTaken($seconds_taken));
+                $this->automationInfo("Updated Last Action: {$lastActionTime}.");
 
                 if ($checked_last_action && $checked_last_action != $last_action) {
                 }

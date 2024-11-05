@@ -11,49 +11,49 @@ use Symfony\Component\HttpClient\HttpClient;
 
 class Client
 {
-
     /**
      * Perform an HTTP request and return the content.
      *
-     * @param mixed $request
+     * @param string $request_url
+     * @param boolean $external_crawler_key
      * @return string|null
      */
-    public static function get($request, $proxy = 'puppet')
+    public static function get($request_url, $external_crawler_key = null)
     {
-        $response = self::fetchContentFromPuppeteer($request);
-        return $response ? $response : null;
+        $response = $external_crawler_key
+            ? self::fetchContentFromPuppeteer($request_url, $external_crawler_key)
+            : self::sendRequest($request_url)->getContent();
 
-        $response = self::sendRequest($request);
-        return $response ? $response->getContent() : null;
+        return $response ?? null;
     }
 
     /**
      * Perform an HTTP request and return the status code.
      *
-     * @param mixed $request
+     * @param string $request_url
+     * @param boolean $external_crawler_key
      * @return int|null
      */
-    public static function requestStatus($request)
+    public static function requestStatus($request_url, $external_crawler_key = null)
     {
-        $response = self::fetchContentFromPuppeteer($request);
-        return $response ? $response : null;
+        $response = $external_crawler_key
+            ? self::fetchContentFromPuppeteer($request_url, $external_crawler_key)
+            : self::sendRequest($request_url)->getStatusCode();
 
-
-        $response = self::sendRequest($request);
-        return $response ? $response->getStatusCode() : null;
+        return $response ?? null;
     }
 
     /**
      * Perform an HTTP request and return the response.
      *
-     * @param mixed $request
+     * @param string $request_url
      * @return mixed|null
      */
-    public static function sendRequest($request)
+    public static function sendRequest($request_url)
     {
         try {
             $browser = new HttpBrowser(HttpClient::create());
-            $browser->request('GET', $request);
+            $browser->request('GET', $request_url);
             return $browser->getResponse();
         } catch (Exception $e) {
             Log::critical("Network error:", ['message' => $e->getMessage()]);
@@ -61,83 +61,68 @@ class Client
         }
     }
 
-    public static function fetchContentFromPuppeteer($url)
+    /**
+     * Fetch content using Puppeteer.
+     *
+     * @param string $request_url
+     * @return string|null
+     */
+    public static function fetchContentFromPuppeteer($request_url, $external_crawler_key = null)
     {
-        $url = env('CRAWLER_URL', 'http://localhost:3065') . '/fetch';
+        $external_crawler_urls = config('external_crawler_urls');
 
-        $response = Http::timeout(70)->get($url, [
-            'url' => $url
-        ]);
+        $crawler_url = $external_crawler_urls[$external_crawler_key] . '/fetch';
+
+        $response = Http::timeout(70)->get($crawler_url, ['url' => $request_url]);
 
         if ($response->successful()) {
-            $content = $response->body();
-            return $content;
+            return $response->body();
         } else {
             // Handle error response
-            return 'Error fetching content: ' . $response->body();
+            Log::error('Error fetching content: ' . $response->body());
+            return null;
         }
     }
-
 
     /**
      * Download a file from a given URL and save it to a specified destination path.
      *
-     * @param string $url               The URL of the file to be downloaded.
-     * @param string $destinationPath   The local destination path to save the downloaded file.
-     *
-     * @return string|null              The path where the file is saved, or null on failure.
+     * @param string $url
+     * @param string $destinationPath
+     * @return string|null
      */
     public static function downloadFileFromUrl($url, $destinationPath)
     {
-        // Combine destination path and filename
         $filePath = rtrim($destinationPath, '/');
 
         try {
-            // Download the file content
             $fileContent = file_get_contents($url);
-
             if ($fileContent === false) {
-                // Handle download failure
                 return null;
             }
         } catch (Exception $e) {
-            // Log the exception for further analysis
             Log::error('Error downloading content: ' . $e->getMessage());
             return null;
         }
 
-
         try {
-
             Log::info('filePath', [$filePath]);
 
-            $path = $filePath;
-
             $disk = env('FILESYSTEM_DRIVER', 'local');
-
-            if ($disk == 'gcs' && !str()->startsWith($path, config('app.gcs_project_folder'))) {
-                $path = config('app.gcs_project_folder') . '/' . $path;
-                // Remove repeated slashes
-                $path = preg_replace("#/+#", "/", $path);
+            if ($disk === 'gcs' && !str()->startsWith($filePath, config('app.gcs_project_folder'))) {
+                $filePath = config('app.gcs_project_folder') . '/' . $filePath;
+                $filePath = preg_replace("#/+#", "/", $filePath);
             }
 
-            Log::info('filePath after:', [$path]);
-
-            // Ensure the directory exists with the right permissions
-            $directory = dirname($path);
-            if (!Storage::disk($disk)->exists($directory)) {
-                Storage::disk($disk)->makeDirectory($directory, 0755, true);
+            if (!Storage::disk($disk)->exists(dirname($filePath))) {
+                Storage::disk($disk)->makeDirectory(dirname($filePath), 0755, true);
             }
 
-            // Store the downloaded file content to the specified path and set its visibility to public
-            Storage::disk($disk)->put($path, $fileContent);
-            Storage::disk($disk)->setVisibility($path, 'public');
+            Storage::disk($disk)->put($filePath, $fileContent);
+            Storage::disk($disk)->setVisibility($filePath, 'public');
 
-
-            // Return the filePath/path where the file is saved
             return $filePath;
         } catch (Exception $e) {
-            // Log the exception for further analysis
             Log::error('Error creating directory: ' . $e->getMessage());
             return null;
         }

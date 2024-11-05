@@ -14,7 +14,8 @@ class StandingsHandlerCommand extends Command
      * @var string
      */
     protected $signature = 'app:standings-handler {--task=} {--ignore-timing} {--competition=}';
-
+    // php artisan app:standings-handler --task=historical_results --ignore-timing --competition=1340
+    
     /**
      * The console command description.
      *

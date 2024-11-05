@@ -134,12 +134,12 @@ class SeasonsHandlerJob implements ShouldQueue
 
             // Capture end time and calculate time taken
             $requestEndTime = microtime(true);
-            $seconds_taken = $requestEndTime - $requestStartTime;
+            $seconds_taken = intval($requestEndTime - $requestStartTime);
 
             // Log time taken for this game request
-            $this->automationInfo("Time taken to process Compe #{$competition->id}: " . round($seconds_taken / 60, 2) . " minutes");
+            $this->automationInfo("Time taken to process Compe #{$competition->id}: " . $this->timeTaken($seconds_taken));
 
-            $data['seconds_taken'] = round($seconds_taken);
+            $data['seconds_taken'] = $seconds_taken;
 
             $this->updateLastAction($competition, true, $lastFetchColumn);
 
