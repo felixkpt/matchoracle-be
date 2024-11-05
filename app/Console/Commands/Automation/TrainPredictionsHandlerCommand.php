@@ -6,6 +6,7 @@ use App\Jobs\Automation\PredictionsHandlerJob;
 use App\Jobs\Automation\TrainPredictionsHandlerJob;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class TrainPredictionsHandlerCommand extends Command
 {
@@ -28,13 +29,20 @@ class TrainPredictionsHandlerCommand extends Command
      */
     public function handle()
     {
+        $currentHour = Carbon::now()->format('H');
+
+        // Restrict execution between 8 AM (08) and 4 PM (16)
+        if ($currentHour < 8 || $currentHour >= 16) {
+            $this->warn('This command can only be executed between 8 AM and 4 PM.');
+            return 1; // Return a non-zero status code for failure
+        }
+
         $task = $this->option('task') ?? 'train';
 
         if ($task != 'train') {
             $this->warn('Task should be train');
-            return 0;
+            return 1;
         }
-
 
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
         $ignore_timing = $this->option('ignore-timing');
@@ -42,5 +50,7 @@ class TrainPredictionsHandlerCommand extends Command
         $competition_id = $this->option('competition');
         dispatch(new TrainPredictionsHandlerJob($task, null, $ignore_timing, $competition_id));
         $this->info('Train Predictions handler command executed successfully!');
+
+        return 0;
     }
 }
