@@ -137,7 +137,7 @@ class SeasonsHandlerJob implements ShouldQueue
             $seconds_taken = intval($requestEndTime - $requestStartTime);
 
             // Log time taken for this game request
-            $this->automationInfo("Time taken to process Compe #{$competition->id}: " . $this->timeTaken($seconds_taken));
+            $this->automationInfo("Time taken working on  Compe #{$competition->id}: " . $this->timeTaken($seconds_taken));
 
             $data['seconds_taken'] = $seconds_taken;
 

@@ -474,4 +474,21 @@ class SearchRepo
 
         return $this;
     }
+
+    /**
+     * Exclude specified columns from the search results.
+     *
+     * @param array $columns The columns to exclude.
+     * @return $this The SearchRepo instance.
+     */
+    public function without(array $columns)
+    {
+        // Filter out columns that match those in the $columns array
+        $this->builder->select(array_diff(
+            Schema::getColumnListing($this->model->getTable()),
+            $columns
+        ));
+
+        return $this;
+    }
 }

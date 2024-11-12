@@ -14,14 +14,16 @@ use App\Services\GameSources\GameSourceStrategyInterface;
 class ForebetStrategy implements GameSourceStrategyInterface
 {
     use ForebetInitializationTrait;
+
     /**
      * Constructor for the ForebetStrategy class.
-     * 
+     * @property string $jobId          The unique identifier for the job.
      * Initializes the strategy and calls the trait's initialization method.
      */
-    public function __construct()
+    public function __construct($jobId = null)
     {
         $this->initialize();
+        $this->jobId = $jobId;
     }
 
     /**

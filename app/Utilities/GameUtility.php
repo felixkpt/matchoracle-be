@@ -50,7 +50,7 @@ class GameUtility
         $this->applyDateFilters($games, $params);
         $this->applyMiscFilters($games, $params, $id);
 
-        $games = $this->applyWithRelations($games, $params);
+        $games = $this->applyWithRelations($games);
 
         return $games;
     }
@@ -85,17 +85,24 @@ class GameUtility
             ->when(request()->limit, fn($q) => $q->limit(request()->limit));
     }
 
-    private function applyWithRelations($query, $params)
+    private function applyWithRelations($query)
     {
-        $with = [
-            'competition' => fn($q) => $q->with(['country', 'currentSeason']),
-            'homeTeam',
-            'awayTeam',
-            'score',
-            'votes',
-            'referees',
-            'odds'
-        ];
+        // Check if predictor mode is active
+        if (!request()->is_predictor) {
+            $with = [
+                'competition' => fn($q) => $q->with(['country', 'currentSeason']),
+                'homeTeam',
+                'awayTeam',
+                'score',
+                'votes',
+                'referees',
+                'odds'
+            ];
+        } else {
+            $with = [
+                'score',
+            ];
+        }
 
         if (request()->include_preds || request()->requires_preds) {
             $with[] = $this->predictionTypeMode;
@@ -193,10 +200,12 @@ class GameUtility
 
         $search_builder = null;
         $joiners = [' vs ', ' v '];
-        if (request()->search && Str::contains(request()->search, $joiners)) {
-            $search = array_values(array_filter(explode($joiners[0], request()->search)));
+        $req_search = request()->search ? trim(request()->search) : request()->search;
+
+        if ($req_search && Str::contains($req_search, $joiners)) {
+            $search = array_values(array_filter(explode($joiners[0], $req_search)));
             if (count($search) !== 2) {
-                $search = array_values(array_filter(explode($joiners[1], request()->search)));
+                $search = array_values(array_filter(explode($joiners[1], $req_search)));
             }
 
             if (count($search) === 2) {
@@ -214,25 +223,25 @@ class GameUtility
         $uri = '/dashboard/matches/';
         $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name'], $search_builder)
             ->setModelUri($uri)
-            ->addColumn('is_future', fn($q) => Carbon::parse($q->utc_date)->isFuture())
+            ->addColumnWhen(!request()->is_predictor, 'is_future', fn($q) => Carbon::parse($q->utc_date)->isFuture())
+            ->addColumnWhen(!request()->is_predictor, 'Winner', fn($q) => $q->score ? GameComposer::winningSide($q) : null)
+            ->addColumnWhen(!request()->is_predictor, 'winningSideHT', fn($q) => $q->score ? GameComposer::winningSideHT($q, true) : null)
+            ->addColumnWhen(!request()->is_predictor, 'hasResultsHT', fn($q) => $q->score ? GameComposer::hasResultsHT($q, true) : null)
+            ->addColumnWhen(!request()->is_predictor, 'winningSideFT', fn($q) => $q->score ? GameComposer::winningSide($q, true) : null)
+            ->addColumnWhen(!request()->is_predictor, 'hasResultsFT', fn($q) => $q->score ? GameComposer::hasResults($q, true) : null)
 
-            ->addColumn('Winner', fn($q) => $q->score ? GameComposer::winningSide($q) : null)
-            ->addColumn('winningSideHT', fn($q) => $q->score ? GameComposer::winningSideHT($q, true) : null)
-            ->addColumn('hasResultsHT', fn($q) => $q->score ? GameComposer::hasResultsHT($q, true) : null)
-            ->addColumn('winningSideFT', fn($q) => $q->score ? GameComposer::winningSide($q, true) : null)
-            ->addColumn('hasResultsFT', fn($q) => $q->score ? GameComposer::hasResults($q, true) : null)
+            ->addColumnWhen(!request()->is_predictor, 'BTS', fn($q) => $q->score ? GameComposer::bts($q, true) : null)
+            ->addColumnWhen(!request()->is_predictor, 'goalsCount', fn($q) => $q->score ? GameComposer::goals($q, true) : null)
+            ->addColumnWhen(!request()->is_predictor, 'full_time', fn($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
+            ->addColumnWhen(!request()->is_predictor, 'half_time', fn($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
 
-            ->addColumn('BTS', fn($q) => $q->score ? GameComposer::bts($q, true) : null)
-            ->addColumn('goalsCount', fn($q) => $q->score ? GameComposer::goals($q, true) : null)
-            ->addColumn('full_time', fn($q) => $q->score ? ($q->score->home_scores_full_time . ' - ' . $q->score->away_scores_full_time) : '-')
-            ->addColumn('half_time', fn($q) => $q->score ? ($q->score->home_scores_half_time . ' - ' . $q->score->away_scores_half_time) : '-')
-            ->addColumn('home_win_votes', $homeWinVotes)
-            ->addColumn('draw_votes', $drawVotes)
-            ->addColumn('away_win_votes', $awayWinVotes)
-            ->addColumn('over_votes', $overVotes)
-            ->addColumn('under_votes', $underVotes)
-            ->addColumn('gg_votes', $ggVotes)
-            ->addColumn('ng_votes', $ngVotes)
+            ->addColumnWhen(!request()->is_predictor, 'home_win_votes', $homeWinVotes)
+            ->addColumnWhen(!request()->is_predictor, 'draw_votes', $drawVotes)
+            ->addColumnWhen(!request()->is_predictor, 'away_win_votes', $awayWinVotes)
+            ->addColumnWhen(!request()->is_predictor, 'over_votes', $overVotes)
+            ->addColumnWhen(!request()->is_predictor, 'under_votes', $underVotes)
+            ->addColumnWhen(!request()->is_predictor, 'gg_votes', $ggVotes)
+            ->addColumnWhen(!request()->is_predictor, 'ng_votes', $ngVotes)
 
             ->addColumnWhen((!request()->is_predictor && !request()->without_response), 'Updated_at', fn($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addColumnWhen(!request()->is_predictor, 'current_user_votes', fn($q) => $this->currentUserVotes($q))
@@ -324,7 +333,7 @@ class GameUtility
         if (is_string($modelClass)) {
             return $modelClass::latest()->first()->updated_at ?? now();
         }
-        
+
         return $modelClass->latest()->first()->updated_at ?? now();
     }
 }

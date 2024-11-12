@@ -34,40 +34,40 @@ class AutomationReportController extends Controller
         $users = $this->getUserStats($activeStatusId);
         $subscribedUsers = $this->getUserStats($activeStatusId, true);
         $tipsters = $this->getTipsterStats($activeStatusId);
-        $today = now()->format('Y-m-d');
+
 
         $scriptExecutionTimeInMins = 60 * 10;
 
-        $seasonsJobLogs = $this->getJobLogsStats(SeasonJobLog::class, 'run', $today, 60 * 12, $scriptExecutionTimeInMins);
+        $seasonsJobLogs = $this->getJobLogsStats(SeasonJobLog::class, 'run', 60 * 12, $scriptExecutionTimeInMins);
 
         $standingsJobLogs = [
-            'historical_results' => $this->getJobLogsStats(StandingJobLog::class, 'historical_results', $today, 60 * 6, $scriptExecutionTimeInMins),
-            'recent_results' => $this->getJobLogsStats(StandingJobLog::class, 'recent_results', $today, 60 * 6, $scriptExecutionTimeInMins),
+            'historical_results' => $this->getJobLogsStats(StandingJobLog::class, 'historical_results', 60 * 6, $scriptExecutionTimeInMins),
+            'recent_results' => $this->getJobLogsStats(StandingJobLog::class, 'recent_results', 60 * 6, $scriptExecutionTimeInMins),
         ];
 
 
         $matchesJobLogs = [
-            'historical_results' => $this->getJobLogsStats(MatchesJobLog::class, 'historical_results', $today, 60 * 2, $scriptExecutionTimeInMins),
-            'recent_results' => $this->getJobLogsStats(MatchesJobLog::class, 'recent_results', $today, 60 * 1, $scriptExecutionTimeInMins),
-            'shallow_fixtures' => $this->getJobLogsStats(MatchesJobLog::class, 'shallow_fixtures', $today, 60 * 2, $scriptExecutionTimeInMins),
-            'fixtures' => $this->getJobLogsStats(MatchesJobLog::class, 'fixtures', $today, 60 * 6, $scriptExecutionTimeInMins),
+            'historical_results' => $this->getJobLogsStats(MatchesJobLog::class, 'historical_results', 60 * 2, $scriptExecutionTimeInMins),
+            'recent_results' => $this->getJobLogsStats(MatchesJobLog::class, 'recent_results', 60 * 1, $scriptExecutionTimeInMins),
+            'shallow_fixtures' => $this->getJobLogsStats(MatchesJobLog::class, 'shallow_fixtures', 60 * 2, $scriptExecutionTimeInMins),
+            'fixtures' => $this->getJobLogsStats(MatchesJobLog::class, 'fixtures', 60 * 6, $scriptExecutionTimeInMins),
         ];
 
         $scriptExecutionTimeInMins = 60 * 12;
         $matchJobLogs = [
-            'historical_results' => $this->getJobLogsStats(MatchJobLog::class, 'historical_results', $today, 60 * 2, $scriptExecutionTimeInMins),
-            'recent_results' => $this->getJobLogsStats(MatchJobLog::class, 'recent_results', $today, 60 * 1, $scriptExecutionTimeInMins),
-            'shallow_fixtures' => $this->getJobLogsStats(MatchJobLog::class, 'shallow_fixtures', $today, 60 * 2, $scriptExecutionTimeInMins),
-            'fixtures' => $this->getJobLogsStats(MatchJobLog::class, 'fixtures', $today, 60 * 6, $scriptExecutionTimeInMins),
+            'historical_results' => $this->getJobLogsStats(MatchJobLog::class, 'historical_results', 60 * 2, $scriptExecutionTimeInMins),
+            'recent_results' => $this->getJobLogsStats(MatchJobLog::class, 'recent_results', 60 * 1, $scriptExecutionTimeInMins),
+            'shallow_fixtures' => $this->getJobLogsStats(MatchJobLog::class, 'shallow_fixtures', 60 * 2, $scriptExecutionTimeInMins),
+            'fixtures' => $this->getJobLogsStats(MatchJobLog::class, 'fixtures', 60 * 6, $scriptExecutionTimeInMins),
         ];
 
         $scriptExecutionTimeInMins = 60 * 10;
-        $competitionStatisticsLogs = $this->getJobLogsStats(CompetitionStatisticJobLog::class, 'run', $today, 60 * 6, $scriptExecutionTimeInMins);
-        $competitionPredictionStatisticsLogs = $this->getJobLogsStats(CompetitionPredictionStatisticJobLog::class, 'run', $today, 60 * 6, $scriptExecutionTimeInMins);
+        $competitionStatisticsLogs = $this->getJobLogsStats(CompetitionStatisticJobLog::class, 'run', 60 * 6, $scriptExecutionTimeInMins);
+        $competitionPredictionStatisticsLogs = $this->getJobLogsStats(CompetitionPredictionStatisticJobLog::class, 'run', 60 * 6, $scriptExecutionTimeInMins);
 
         $scriptExecutionTimeInMins = 60 * 20;
-        $predictionsJobLogs = $this->getJobLogsStats(PredictionJobLog::class, 'run', $today, 60 * 2, $scriptExecutionTimeInMins);
-        $trainPredictionsJobLogs = $this->getJobLogsStats(TrainPredictionJobLog::class, 'run', $today, 60 * 2, $scriptExecutionTimeInMins);
+        $predictionsJobLogs = $this->getJobLogsStats(PredictionJobLog::class, 'run', 60 * 2, $scriptExecutionTimeInMins);
+        $trainPredictionsJobLogs = $this->getJobLogsStats(TrainPredictionJobLog::class, 'run', 60 * 2, $scriptExecutionTimeInMins);
 
 
         $matches = $this->getAdvancedMatchesStats();
@@ -121,11 +121,11 @@ class AutomationReportController extends Controller
     private function getAdvancedMatchesStats()
     {
         $matches = $this->prepareGetAdvancedMatchesStats();
-        $todayMatches = $this->prepareGetAdvancedMatchesStats(Carbon::today());
+        $customMatches = $this->prepareGetAdvancedMatchesStats(Carbon::today());
 
         return [
             'all' => $matches,
-            'today' => $todayMatches,
+            'custom' => $customMatches,
         ];
     }
 
@@ -158,8 +158,11 @@ class AutomationReportController extends Controller
         );
     }
 
-    private function getJobLogsStats($modelClass, $task, $date, $jobIntervalInMins, $scriptExecutionTimeInMins)
+    private function getJobLogsStats($modelClass, $task, $jobIntervalInMins, $scriptExecutionTimeInMins, $fromDate = null, $toDate = null)
     {
+        $fromDate = request()->input('from_date');
+        $toDate = request()->input('to_date');
+        $today = now()->format('Y-m-d');
 
         $selects = $this->getSelects();
 
@@ -174,20 +177,25 @@ class AutomationReportController extends Controller
             $allStats->total_average_seconds_per_action
         );
 
-        // Get today's stats
-        $todayStats = $modelClass::when($task !== 'run', fn($q) => $q->where('task', $task))->whereDate('date', $date)->selectRaw($selects)->first();
-        $todayStats->remaining_time = $this->gameUtility->calculateRemainingTime(
+        $customStats = $modelClass::when($task !== 'run', fn($q) => $q->where('task', $task))
+            ->when($fromDate, fn($q) => $q->whereDate('date', '>=', $fromDate))
+            ->when($toDate, fn($q) => $q->whereDate('date', '<=', $toDate))
+            ->when(!$fromDate && !$toDate, fn($q) => $q->whereDate('date', $today))
+            ->selectRaw($selects)
+            ->first();
+
+        $customStats->remaining_time = $this->gameUtility->calculateRemainingTime(
             $modelClass,
             $jobIntervalInMins,
             $scriptExecutionTimeInMins,
-            $todayStats->total_action_counts,
-            $todayStats->total_run_action_counts,
-            $todayStats->total_average_seconds_per_action
+            $customStats->total_action_counts,
+            $customStats->total_run_action_counts,
+            $customStats->total_average_seconds_per_action
         );
 
         return [
             'all' => $allStats,
-            'today' => $todayStats,
+            'custom' => $customStats,
         ];
     }
 

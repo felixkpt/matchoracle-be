@@ -48,7 +48,7 @@ class GameStatsUtility
 
         $cs_target = game_scores($matchData->score);
 
-        $referees_ids = array_reduce($matchData->referees()->pluck('referees.id')->toArray(), fn ($p, $c) => $p + $c, 0);
+        $referees_ids = array_reduce($matchData->referees()->pluck('referees.id')->toArray(), fn($p, $c) => $p + $c, 0);
 
         // Get home and away team matches and calculate statistics
 
@@ -94,6 +94,7 @@ class GameStatsUtility
             $teamsHead2HeadStats,
             [
                 'has_results' => GameComposer::hasResults($matchData),
+                'has_results_ht' => GameComposer::hasResultsHT($matchData),
                 'ft_hda_target' => $ft_hda_target,
                 'ht_hda_target' => $ht_hda_target,
                 'over15_target' => $over15_target,
@@ -206,6 +207,7 @@ class GameStatsUtility
 
     private function teamStatsCurrentground($to_date, $home_team_id, $away_team_id)
     {
+        return [];
 
         $per_page = 4;
         if (request()->current_ground_limit_per_match)
@@ -229,18 +231,18 @@ class GameStatsUtility
         request()->merge(['all_params' => $all_params]);
         $threshold = floor($per_page * .8);
 
-        // $home_team_matches = app(TeamController::class)->matches($home_team_id)['data'];
-        // if (count($home_team_matches) < $threshold) return null;
+        $home_team_matches = app(TeamController::class)->matches($home_team_id)['data'];
+        if (count($home_team_matches) < $threshold) return null;
 
         $all_params['currentground'] = 'away';
         $all_params['team_id'] = $home_team_id;
         request()->merge(['all_params' => $all_params]);
 
-        // $away_team_matches = app(TeamController::class)->matches($away_team_id)['data'];
-        // if (count($away_team_matches) < $threshold) return null;
+        $away_team_matches = app(TeamController::class)->matches($away_team_id)['data'];
+        if (count($away_team_matches) < $threshold) return null;
 
-        // $home_team_matches_with_stats = $this->calculateTeamStats($home_team_matches, $home_team_id);
-        // $away_team_matches_with_stats = $this->calculateTeamStats($away_team_matches, $away_team_id);
+        $home_team_matches_with_stats = $this->calculateTeamStats($home_team_matches, $home_team_id);
+        $away_team_matches_with_stats = $this->calculateTeamStats($away_team_matches, $away_team_id);
         $home_team_matches_with_stats = [];
         $away_team_matches_with_stats = [];
 
@@ -421,7 +423,6 @@ class GameStatsUtility
 
                 if ($hasResults) {
                     $totals += 1;
-                    $ht_totals += 1;
 
                     $winningSide = GameComposer::winningSide($game, true);
                     if ($winningSide === 1) {
@@ -453,51 +454,57 @@ class GameStatsUtility
                     $over25_games += $over25_target;
                     $over35_games += $over35_target;
 
-                    // for ht
-                    $winningSide = GameComposer::winningSideHT($game, true);
-                    if ($winningSide === 1) {
-                        // $ht_draws += $increment;
-                    } elseif ($winningSide === 0 || $winningSide === 2) {
-                        $winnerId = GameComposer::winnerId($game);
-                        if ($winnerId == $teamId) {
-                            $ht_teamWins += $increment;
-                        } else {
-                            $ht_teamLoses += $increment;
+                    $hasResultsHT = GameComposer::hasResultsHT($game);
+                    if ($hasResultsHT) {
+                        $ht_totals += 1;
+
+                        // for ht
+                        $winningSide = GameComposer::winningSideHT($game, true);
+                        if ($winningSide === 1) {
+                            $ht_draws += $increment;
+                        } elseif ($winningSide === 0 || $winningSide === 2) {
+                            $winnerId = GameComposer::winnerIdHT($game);
+                            if ($winnerId == $teamId) {
+                                $ht_teamWins += $increment;
+                            } else {
+                                $ht_teamLoses += $increment;
+                            }
                         }
+
+                        // Calculate if both teams scored (bts)
+                        $bts = GameComposer::btsHT($game);
+
+                        $bts_target = $bts ? 1 : 0;
+
+                        // Calculate the total number of goals
+                        $goals = GameComposer::goalsHT($game);
+
+                        $over15_target = ($goals > 1) ? 1 : 0;
+                        $over25_target = ($goals > 2) ? 1 : 0;
+                        $over35_target = ($goals > 3) ? 1 : 0;
+
+
+                        $ht_bts_games += $bts_target;
+                        $ht_over15_games += $over15_target;
+                        $ht_over25_games += $over25_target;
+                        $ht_over35_games += $over35_target;
+
+                        // Get goals for and goals against
+                        $goalsFor += (GameComposer::getScores($game, $teamId) * $increment);
+                        $goalsAgainst += (GameComposer::getScores($game, $teamId, true) * $increment);
+                        $ht_goalsFor += (GameComposer::getScoresHT($game, $teamId) * $increment);
+                        $ht_goalsAgainst += (GameComposer::getScoresHT($game, $teamId, true) * $increment);
                     }
-
-                    // Calculate if both teams scored (bts)
-                    $bts = GameComposer::btsHT($game);
-
-                    $bts_target = $bts ? 1 : 0;
-
-                    // Calculate the total number of goals
-                    $goals = GameComposer::goalsHT($game);
-
-                    $over15_target = ($goals > 1) ? 1 : 0;
-                    $over25_target = ($goals > 2) ? 1 : 0;
-                    $over35_target = ($goals > 3) ? 1 : 0;
-
-
-                    $ht_bts_games += $bts_target;
-                    $ht_over15_games += $over15_target;
-                    $ht_over25_games += $over25_target;
-                    $ht_over35_games += $over35_target;
-
-                    // Get goals for and goals against
-                    $goalsFor += (GameComposer::getScores($game, $teamId) * $increment);
-                    $goalsAgainst += (GameComposer::getScores($game, $teamId, true) * $increment);
-                    $ht_goalsFor += (GameComposer::getScoresHT($game, $teamId) * $increment);
-                    $ht_goalsAgainst += (GameComposer::getScoresHT($game, $teamId, true) * $increment);
                 }
             }
 
             // Calculate averages
             $goalsForAvg = $totals > 0 ? round($goalsFor / $totals, 2) : 0;
             $goalsAgainstAvg = $totals > 0 ? round($goalsAgainst / $totals, 2) : 0;
+
             // averages for ht
-            $ht_goalsForAvg = $totals > 0 ? round($ht_goalsFor / $ht_totals, 2) : 0;
-            $ht_goalsAgainstAvg = $totals > 0 ? round($ht_goalsAgainst / $ht_totals, 2) : 0;
+            $ht_goalsForAvg = $ht_totals > 0 ? round($ht_goalsFor / $ht_totals, 2) : 0;
+            $ht_goalsAgainstAvg = $ht_totals > 0 ? round($ht_goalsAgainst / $ht_totals, 2) : 0;
         }
 
         return [

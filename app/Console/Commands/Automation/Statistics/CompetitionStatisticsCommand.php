@@ -12,7 +12,7 @@ class CompetitionStatisticsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:competition-statistics {--competition=}';
+    protected $signature = 'app:competition-statistics {--competition=} {--ignore-timing}';
 
     /**
      * The console command description.
@@ -29,7 +29,9 @@ class CompetitionStatisticsCommand extends Command
         $this->info('Competition Statistics Job Started Successfully.');
 
         $competitionId = $this->option('competition');
-        dispatch(new CompetitionStatisticsJob(null, null, false, $competitionId));
+        $ignore_timing = $this->option('ignore-timing');
+
+        dispatch(new CompetitionStatisticsJob(null, null, $ignore_timing, $competitionId));
         $this->info('Competition Statistics Job command executed successfully!');
     }
 }

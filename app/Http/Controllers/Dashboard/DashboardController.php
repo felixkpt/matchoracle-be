@@ -54,32 +54,32 @@ class DashboardController extends Controller
         $users = $this->getUserStats($activeStatusId);
         $subscribedUsers = $this->getUserStats($activeStatusId, true);
         $tipsters = $this->getTipsterStats($activeStatusId);
-        $today = now()->format('Y-m-d');
+        $custom = now()->format('Y-m-d');
 
-        $seasonsJobLogs = $this->getJobLogsStats(SeasonJobLog::class, $today, 'updated_seasons');
+        $seasonsJobLogs = $this->getJobLogsStats(SeasonJobLog::class, $custom, 'updated_seasons');
 
         $standingsJobLogs = [
-            'historical_results' => $this->getJobLogsStats(StandingJobLog::class, $today, 'updated_standings'),
-            'recent_results' => $this->getJobLogsStats(StandingJobLog::class, $today, 'updated_standings'),
+            'historical_results' => $this->getJobLogsStats(StandingJobLog::class, $custom, 'updated_standings'),
+            'recent_results' => $this->getJobLogsStats(StandingJobLog::class, $custom, 'updated_standings'),
         ];
 
         $matchesJobLogs = [
-            'historical_results' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'historical_results', $today),
-            'recent_results' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'recent_results', $today),
-            'shallow_fixtures' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'shallow_fixtures', $today),
-            'fixtures' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'fixtures', $today),
+            'historical_results' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'historical_results', $custom),
+            'recent_results' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'recent_results', $custom),
+            'shallow_fixtures' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'shallow_fixtures', $custom),
+            'fixtures' => $this->getMatchesJobLogsStats(MatchesJobLog::class, 'fixtures', $custom),
         ];
 
         $matchJobLogs = [
-            'historical_results' => $this->getMatchJobLogsStats(MatchJobLog::class, 'historical_results', $today),
-            'recent_results' => $this->getMatchJobLogsStats(MatchJobLog::class, 'recent_results', $today),
-            'shallow_fixtures' => $this->getMatchJobLogsStats(MatchJobLog::class, 'shallow_fixtures', $today),
-            'fixtures' => $this->getMatchJobLogsStats(MatchJobLog::class, 'fixtures', $today),
+            'historical_results' => $this->getMatchJobLogsStats(MatchJobLog::class, 'historical_results', $custom),
+            'recent_results' => $this->getMatchJobLogsStats(MatchJobLog::class, 'recent_results', $custom),
+            'shallow_fixtures' => $this->getMatchJobLogsStats(MatchJobLog::class, 'shallow_fixtures', $custom),
+            'fixtures' => $this->getMatchJobLogsStats(MatchJobLog::class, 'fixtures', $custom),
         ];
 
-        $competitionStatisticsLogs = $this->getCompetitionStatisticsStats($today);
-        $competitionPredictionStatisticsLogs = $this->getCompetitionPredictionStats($today);
-        $predictionsJobLogs = $this->getPredictionJobLogsStats($today);
+        $competitionStatisticsLogs = $this->getCompetitionStatisticsStats($custom);
+        $competitionPredictionStatisticsLogs = $this->getCompetitionPredictionStats($custom);
+        $predictionsJobLogs = $this->getPredictionJobLogsStats($custom);
 
         $matches = $this->getAdvancedMatchesStats();
 
@@ -167,11 +167,11 @@ class DashboardController extends Controller
     private function getAdvancedMatchesStats()
     {
         $matches = $this->prepareGetAdvancedMatchesStats();
-        $todayMatches = $this->prepareGetAdvancedMatchesStats(Carbon::today());
+        $customMatches = $this->prepareGetAdvancedMatchesStats(Carbon::today());
 
         return [
             'all' => $matches,
-            'today' => $todayMatches,
+            'custom' => $customMatches,
         ];
     }
 
@@ -228,7 +228,7 @@ class DashboardController extends Controller
 
         return [
             'all' => $modelClass::selectRaw($selects)->first(),
-            'today' => $modelClass::whereDate('date', $date)->selectRaw($selects)->first(),
+            'custom' => $modelClass::whereDate('date', $date)->selectRaw($selects)->first(),
         ];
     }
 
@@ -238,7 +238,7 @@ class DashboardController extends Controller
 
         return [
             'all' => $model::where('task', $task)->selectRaw($selects)->first(),
-            'today' => $model::where('task', $task)->whereDate('date', $date)->selectRaw($selects)->first(),
+            'custom' => $model::where('task', $task)->whereDate('date', $date)->selectRaw($selects)->first(),
         ];
     }
 
@@ -253,7 +253,7 @@ class DashboardController extends Controller
 
         return [
             'all' => CompetitionStatisticJobLog::selectRaw($selects)->first(),
-            'today' => CompetitionStatisticJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
+            'custom' => CompetitionStatisticJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
         ];
     }
 
@@ -263,7 +263,7 @@ class DashboardController extends Controller
 
         return [
             'all' => CompetitionPredictionStatisticJobLog::selectRaw($selects)->first(),
-            'today' => CompetitionPredictionStatisticJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
+            'custom' => CompetitionPredictionStatisticJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
         ];
     }
 
@@ -273,7 +273,7 @@ class DashboardController extends Controller
 
         return [
             'all' => PredictionJobLog::selectRaw($selects)->first(),
-            'today' => PredictionJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
+            'custom' => PredictionJobLog::whereDate('date', $date)->selectRaw($selects)->first(),
         ];
     }
 

@@ -36,9 +36,7 @@ class MatchHandler
 
     function fetchMatch($game_id)
     {
-        $game = Game::query()
-            ->where('id', $game_id)
-            ->firstOrFail();
+        $game = Game::query()->where('id', $game_id)->firstOrFail();
 
         if (!request()->ignore_results && !in_array($game->game_score_status_id, unsettledGameScoreStatuses())) {
             return $this->matchMessage('Update status is satisfied.');
@@ -73,9 +71,8 @@ class MatchHandler
 
         $crawler = new Crawler($content);
 
-        Log::channel($this->logChannel)->info("Getting match #{$game->id} ...");
         if (strpos($crawler->text(), 'Attention Required!') !== false) {
-            $message = "Attention Required! Blocked while getting match #{$game->id}";
+            $message = "Attention Required! Blocked while getting game #{$game->id}";
             Log::channel($this->logChannel)->critical($message);
             return $this->matchMessage($message, 500);
         }
@@ -108,7 +105,8 @@ class MatchHandler
         if ($l->count() === 1)
             $away_team_logo = $l->attr('src');
 
-        $postponed = false;
+        $postponed = $cancelled = false;
+
         $full_time_results = $half_time_results = null;
 
         $res = $crawler->filter('div#m1x2_table .rcnt')->filter('.lscr_td')->first();
@@ -123,6 +121,7 @@ class MatchHandler
                 $res = $crawler->filter('div#m1x2_table .rcnt')->filter('.lmin_td .l_min')->first();
                 if ($res->count() > 0) {
                     $postponed = $res->text() == 'Postp.';
+                    $cancelled = $res->text() == 'Cancl.';
                 }
             }
 
@@ -182,6 +181,7 @@ class MatchHandler
             'full_time_results' => $full_time_results,
             'half_time_results' => $half_time_results,
             'postponed' => $postponed,
+            'cancelled' => $cancelled,
 
             'temperature' => $temperature,
             'weather_condition' => $weather_condition,

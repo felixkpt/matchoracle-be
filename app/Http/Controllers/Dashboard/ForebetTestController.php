@@ -24,25 +24,32 @@ class ForebetTestController extends Controller
 
     function index()
     {
-    //    $countries = DB::connection('mysql2')->table('countries')->where('has_competitions', true)->pluck('id');
-       
-    //    Country::query()->whereIn('id', $countries)->update(['has_competitions' => true]);
+        //    $countries = DB::connection('mysql2')->table('countries')->where('has_competitions', true)->pluck('id');
 
-    //    dd($countries);
+        //    Country::query()->whereIn('id', $countries)->update(['has_competitions' => true]);
+
+        //    dd($countries);
 
         // request()->merge(['shallow_fetch' => true]);
 
         $competition_id = request()->test_id ?? 1340;
-        // return $this->fetchSeasons($competition_id);
 
         $competition = Competition::find($competition_id);
         // $season = Season::where('competition_id', $competition->id)->where('is_current', false)->first();
         // $season = Season::where('competition_id', $competition->id)->whereYear('start_date', '2024')->first();
         $season = Season::find(1100);
-        
-        // return $this->fetchStandings($competition->id, $season->id);
-        return $this->fetchMatches($competition->id, $season->id, false);
-        return $this->fetchMatch(request()->test_id ?? 1164);
+
+        if (request()->job == 'match') {
+            return $this->fetchMatch(request()->test_id ?? 1164);
+        } elseif (request()->job == 'matches') {
+            return $this->fetchMatches($competition->id, $season->id, false);
+        } elseif (request()->job == 'seasons') {
+            return $this->fetchSeasons($competition_id);
+        } elseif (request()->job == 'standings') {
+            return $this->fetchStandings($competition->id, $season->id);
+        } else {
+            return 'No job selected.';
+        }
     }
 
     function fetchSeasons($competition_id)

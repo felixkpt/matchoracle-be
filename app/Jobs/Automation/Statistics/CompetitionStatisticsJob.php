@@ -103,7 +103,7 @@ class CompetitionStatisticsJob implements ShouldQueue
         foreach ($competitions as $key => $competition) {
             if ($should_exit) break;
             
-            echo ($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})\n";
+            $this->automationinfo(($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})");
 
             request()->merge(['competition_id' => $competition->id]);
 
@@ -119,12 +119,12 @@ class CompetitionStatisticsJob implements ShouldQueue
 
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
-                echo "Season #{$season->id} ({$start_date}/{$end_date})\n";
+                $this->automationinfo("Season #{$season->id} ({$start_date}/{$end_date})");
 
                 request()->merge(['season_id' => $season->id]);
                 $data = (new CompetitionStatisticsRepository(new CompetitionStatistics()))->store();
 
-                echo $data['message'] . "\n";
+                $this->automationinfo($data['message'] . "");
                 $this->doLogging($data);
             }
 

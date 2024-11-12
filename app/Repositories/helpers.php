@@ -328,7 +328,7 @@ if (!function_exists('current_prediction_type_id')) {
     {
         $prediction_type_id = request()->prediction_type_id ?? request()->current_prediction_type;
         if (!$prediction_type_id) {
-            $prediction_type_id = GamePredictionType::find(1101)->id ?? GamePredictionType::first()->id ?? 0;
+            $prediction_type_id = GamePredictionType::where('name', 'regular_prediction_12_6_4_1000')->first()->id ?? GamePredictionType::first()->id ?? 0;
         }
 
         return $prediction_type_id;

@@ -33,12 +33,12 @@ trait MatchesTrait
 
             if ($competition && $country && $match['date']) {
 
+                $homeTeam = $this->handleTeam($match['home_team'], $country, $competition, $season, $home_team_not_found);
+                $awayTeam = $this->handleTeam($match['away_team'], $country, $competition, $season, $away_team_not_found);
+
                 try {
 
                     DB::beginTransaction();
-
-                    $homeTeam = $this->handleTeam($match['home_team'], $country, $competition, $season, $home_team_not_found);
-                    $awayTeam = $this->handleTeam($match['away_team'], $country, $competition, $season, $away_team_not_found);
 
                     if ($homeTeam && $awayTeam) {
 
@@ -46,7 +46,7 @@ trait MatchesTrait
                         $match['home_team']['id'] = $homeTeam->id;
                         $match['away_team']['id'] = $awayTeam->id;
 
-                        // All is set, can save game now!
+                        // All is set, can save/update game now!
                         $result = $this->saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam);
 
                         // Check the result of the save operation
@@ -84,7 +84,7 @@ trait MatchesTrait
                 } catch (\Exception $e) {
                     DB::rollBack();
                     $this->has_errors = true;
-                    $msg = "Error during data import for compe#$competition->id: ";
+                    $msg = "SaveGames > Error during data import for compe#$competition->id: ";
 
                     Log::channel($this->logChannel)->error($msg . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
                 }
@@ -162,7 +162,7 @@ trait MatchesTrait
         $status_id = activeStatusId();
         $user_id = auth()->id();
 
-        // Log::channel($this->logChannel)->alert('SAVING GAME...', ['match' => $match, 'date' => $date, 'has_time' => $has_time]);
+        Log::channel($this->logChannel)->alert('SAVING GAME...', ['match' => $match, 'date' => $date, 'has_time' => $has_time]);
 
         // Prepare data array for creating or updating a game
         $arr = [

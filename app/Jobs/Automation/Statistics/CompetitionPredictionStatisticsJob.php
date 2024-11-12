@@ -76,8 +76,6 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
         foreach ($prediction_types as $index => $prediction_type) {
             request()->merge(['prediction_type_id' => $prediction_type->id]);
 
-            $this->loggerModel(true);
-
             $lastFetchColumn = 'predictions_stats_last_done';
             // Set delay in minutes, 10 days is okay for this case
             $delay = 60 * 24 * 10;
@@ -114,8 +112,8 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
             foreach ($competitions as $key => $competition) {
                 if ($should_exit) break;
 
-                echo sprintf(
-                    "[Pred %d/%d] - %d/%d. Competition: #%s, (%s - %s)\n",
+                $this->automationinfo(sprintf(
+                    "[Pred %d/%d] - %d/%d. Competition: #%s, (%s - %s)",
                     $index + 1,
                     count($prediction_types),
                     $key + 1,
@@ -123,7 +121,7 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
                     $competition->id,
                     $competition->country->name,
                     $competition->name,
-                );
+                ));
 
                 request()->merge(['competition_id' => $competition->id]);
 
@@ -140,13 +138,13 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
 
                     $start_date = Str::before($season->start_date, '-');
                     $end_date = Str::before($season->end_date, '-');
-                    echo "Season #{$season->id} ({$start_date}/{$end_date}), Pred type: {$prediction_type->id}\n";
+                    $this->automationinfo("Season #{$season->id} ({$start_date}/{$end_date}), Pred type: {$prediction_type->id}");
 
                     request()->merge(['season_id' => $season->id]);
                     $data = (new CompetitionPredictionStatisticsRepository(new CompetitionPredictionStatistic()))->store();
 
 
-                    echo $data['message'] . "\n";
+                    $this->automationinfo($data['message'] . "");
                     $this->doLogging($data);
                 }
 

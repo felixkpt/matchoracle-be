@@ -32,11 +32,14 @@ class TrainPredictionsHandlerJob implements ShouldQueue
     protected $task = 'train';
     protected $ignore_timing;
     protected $competition_id;
+    protected $prefer_saved_matches = false;
+    protected $is_grid_search = true;
+    protected $target;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null)
+    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null, $options = [])
     {
 
         // Set the maximum execution time (seconds)
@@ -65,6 +68,23 @@ class TrainPredictionsHandlerJob implements ShouldQueue
             $this->competition_id = $competition_id;
             request()->merge(['competition_id' => $competition_id]);
         }
+
+        if (isset($options['prefer_saved_matches'])) {
+            $this->prefer_saved_matches = $options['prefer_saved_matches'];
+        }
+
+        if (isset($options['is_grid_search'])) {
+            $this->is_grid_search = $options['is_grid_search'];
+        }
+
+        if (isset($options['predictor_url']) && $options['predictor_url']) {
+            $this->predictorUrl = $options['predictor_url'];
+        }
+
+        if (isset($options['target']) && $options['target']) {
+            $this->target = $options['target'];
+        }
+
     }
 
     /**
@@ -101,15 +121,17 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         $competition_counts = $competitions->count();
         $competitions = $competitions->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))->get();
         $this->jobStartEndLog('START', $competitions);
+        $this->automationInfo("Predictor URL: {$this->predictorUrl}");
+        
         // loggerModel competition_counts and Action Counts
         $this->trainPredictionsLoggerModel(true, $competition_counts, $actionCounts);
 
         // Loop through each competition to fetch and update matches
         $options = [
             'target' => null,
-            // 'target' => 'ht-hda',
-            'ignore_saved_matches' => true,
-            'is_grid_search' => false,
+            'target' => $this->target,
+            'prefer_saved_matches' => $this->prefer_saved_matches,
+            'is_grid_search' => $this->is_grid_search,
             'retrain_if_last_train_is_before' => now()->subMinutes($delay)->toDateString(),
             'ignore_trained' => true,
             'per_page' => $per_page,
@@ -169,7 +191,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
                 // Call the polling function
                 $this->pollJobCompletion($competition, $job->id, $lastFetchColumn, $last_action, $compe_run_start_time, $options);
             } else {
-                $this->automationInfo("  No data received, logging skipped.");
+                $this->automationInfo("***No data received, logging skipped.");
             }
 
             // Increment Completed Competition Counts
@@ -193,8 +215,9 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         // Capture start time
         $requestStartTime = microtime(true);
 
-        $maxWaitTime = 60 * 30; // 30 minutes
-        $checkInterval = 30; // Poll every 30 seconds
+        $maxWaitTime = 60 * 30; // Max wait time in secs
+        $checkInterval = 60; // Poll every x secs
+        $totalPolls = ceil($maxWaitTime / $checkInterval); // Calculate total polls
 
         $i = 0;
         $data = [];
@@ -212,10 +235,11 @@ class TrainPredictionsHandlerJob implements ShouldQueue
                 ->where('id', $jobId)
                 ->first();
 
-            $this->automationInfo("  Polling #{$i} & checking process status...");
+            // Log the polling attempt message
+            $this->logPollingAttempt($i, $totalPolls, $startTime, $maxWaitTime);
 
             if ($jobStatus && $jobStatus->status == 'completed') {
-                $this->automationInfo("  Job ID #{$jobId} marked as completed {$jobStatus->updated_at->diffForHumans()}.");
+                $this->automationInfo("***Job ID #{$jobId} marked as completed {$jobStatus->updated_at->diffForHumans()}.");
 
                 $checked_last_action = Competition::find($competition->id)->lastAction->{$lastFetchColumn} ?? null;
                 $lastActionTime = 'N/A';
@@ -228,8 +252,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
                 $requestEndTime = microtime(true);
                 $seconds_taken = intval($requestEndTime - $requestStartTime);
 
-                $this->automationInfo("Time taken to process Compe #{$competition->id}: " . $this->timeTaken($seconds_taken));
-                $this->automationInfo("Updated Last Action: {$lastActionTime}.");
+                $this->automationInfo("***Time taken working on  Compe #{$competition->id}: " . $this->timeTaken($seconds_taken).", new updated Last Action: {$lastActionTime}.");
 
                 if ($checked_last_action && $checked_last_action != $last_action) {
                 }
@@ -243,7 +266,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
 
         // Log timeout if training did not complete
         if (now()->diffInSeconds($startTime) >= $maxWaitTime) {
-            $this->automationInfo("  Timeout: Training for Competition #{$competition->id} did not complete within the expected time.");
+            $this->automationInfo("***Timeout: Training for Competition #{$competition->id} did not complete within the expected time.");
         }
 
         $this->updateLastAction($competition, $jobStatus == 'completed', $lastFetchColumn);

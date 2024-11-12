@@ -25,8 +25,8 @@ class MatchHandlerJob implements ShouldQueue
     /**
      * Job details.
      *
-     * @property string $jobId          The unique identifier for the job.
      * @property string $task           The type of task to be performed by the job (default is 'train').
+     * @property string $jobId          The unique identifier for the job.
      * @property bool   $ignore_timing  Whether to ignore timing constraints for the job.
      * @property int    $competition_id The identifier for the competition associated with the job.
      * @property int    $match_id The identifier for the match associated with the job.
@@ -44,18 +44,18 @@ class MatchHandlerJob implements ShouldQueue
     {
 
         // Set the maximum execution time (seconds)
-        $this->maxExecutionTime = 60 * 15;
+        $this->maxExecutionTime = 60 * 20;
         $this->startTime = time();
+
+        // Set the jobID
+        $this->jobId = $job_id ?? str()->random(6);
 
         // Instantiate the context class for handling game sources
         $this->sourceContext = new GameSourceStrategy();
 
         // Set the initial game source strategy (can be switched dynamically)
-        $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
+        $this->sourceContext->setGameSourceStrategy(new ForebetStrategy($this->jobId));
 
-
-        // Set the jobID
-        $this->jobId = $job_id ?? str()->random(6);
 
         // Set the task property
         if ($task) {
@@ -88,19 +88,74 @@ class MatchHandlerJob implements ShouldQueue
         $lastFetchColumn = 'match_' . $this->task . '_last_fetch';
 
         // Set delay in minutes based on the task type:
-        // Default case for historical_results
-        $delay = 60 * 24 * 2;
-        if ($this->task == 'shallow_fixtures') {
-            $delay = 60 * 24;
-        } elseif ($this->task == 'fixtures') {
-            $delay = 60 * 24 * 4;
-        } elseif ($this->task == 'recent_results') {
-            $delay = 60;
-        }
-
+        $delay = $this->getDelay();
         if ($this->ignore_timing) $delay = 0;
 
-        // Fetch competitions that need season data updates
+        // Get competitions that need season data updates
+        $competitions = $this->getCompetitions($lastFetchColumn, $delay,);
+
+        // Process competitions to calculate action counts and log job details
+        $actionCounts = 0;
+        foreach ((clone $competitions)->get() as $key => $competition) {
+            $seasons = $this->seasonsFilter($competition);
+            foreach ($seasons as $season) {
+                $games = $this->filterGames($season);
+                $games = $this->lastActionFilters($games->whereIn('game_score_status_id', unsettledGameScoreStatuses()));
+                $total_games = $games->count();
+                $actionCounts += $total_games;
+            }
+        }
+
+        $competition_counts = $competitions->count();
+        $competitions = $competitions->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))->get();
+        $this->jobStartEndLog('START', $competitions);
+        // loggerModel competition_counts and Action Counts
+        $this->loggerModel(true, $competition_counts, $actionCounts);
+
+        // Loop through each competition to fetch and update matches
+        $should_sleep_for_competitions = false;
+        $total = $competitions->count();
+        $should_exit = false;
+        foreach ($competitions as $key => $competition) {
+            if ($should_exit) break;
+
+            $this->automationInfo(($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})");
+
+            $seasons = $this->seasonsFilter($competition);
+
+            $should_update_last_action = false;
+            [$should_sleep_for_competitions, $should_exit] = $this->workOnSeasons($seasons, $lastFetchColumn);
+
+            $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
+
+            // Increment Completed Competition Counts
+            $this->incrementCompletedCompetitionCounts();
+            $this->automationInfo("------------");
+
+            // Introduce a delay to avoid rapid consecutive requests
+            sleep($should_sleep_for_competitions ? $this->getRequestDelayCompetitions() : 0);
+            $should_sleep_for_competitions = false;
+        }
+
+        $this->jobStartEndLog('END');
+    }
+
+    private function getDelay(): int
+    {
+        switch ($this->task) {
+            case 'shallow_fixtures':
+                return 60 * 24;
+            case 'fixtures':
+                return 60 * 24 * 4;
+            case 'recent_results':
+                return 60;
+            default:
+                return 60 * 24 * 2;
+        }
+    }
+
+    private function getCompetitions($lastFetchColumn, $delay)
+    {
         $competitions = Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
             ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
@@ -127,90 +182,7 @@ class MatchHandlerJob implements ShouldQueue
             ->limit(1000)
             ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc');
 
-        // Process competitions to calculate action counts and log job details
-        $actionCounts = 0;
-        foreach ((clone $competitions)->get() as $key => $competition) {
-            $seasons = $this->seasonsFilter($competition);
-            foreach ($seasons as $season_key => $season) {
-                $games = $this->filterGames($season);
-                $games = $this->lastActionFilters($games->whereIn('game_score_status_id', unsettledGameScoreStatuses()));
-                $total_games = $games->count();
-                $actionCounts += $total_games;
-            }
-        }
-
-        $competition_counts = $competitions->count();
-        $competitions = $competitions->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))->get();
-        $this->jobStartEndLog('START', $competitions);
-        // loggerModel competition_counts and Action Counts
-        $this->loggerModel(true, $competition_counts, $actionCounts);
-
-        // Loop through each competition to fetch and update matches
-        $should_sleep_for_competitions = false;
-        $total = $competitions->count();
-        $should_exit = false;
-        foreach ($competitions as $key => $competition) {
-            if ($should_exit) break;
-
-            $this->automationInfo(($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})");
-
-            $seasons = $this->seasonsFilter($competition);
-            $total_seasons = $seasons->count();
-
-            $should_sleep_for_seasons = false;
-            $should_update_last_action = false;
-            foreach ($seasons as $season_key => $season) {
-                if ($should_exit) break;
-
-                if ($season_key >= ($this->task == 'historical_results' ? 15 : 1)) break;
-
-                $start_date = Str::before($season->start_date, '-');
-                $end_date = Str::before($season->end_date, '-');
-
-                $season_games = $season->games()->count();
-
-                $games = $this->filterGames($season);
-                $games = $this->lastActionFilters($games->whereIn('game_score_status_id', unsettledGameScoreStatuses()));
-
-                $unsettled_games = $games->count();
-
-                $this->automationInfo(($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date}, unsettled games {$unsettled_games}/{$season_games} games)");
-                if ($unsettled_games === 0) continue;
-
-                $delay_games = 90;
-                if ($this->ignore_timing) $delay_games = 0;
-
-                $games = $games
-                    ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay_games, 'game_last_actions'))
-                    ->select('games.*')
-                    ->limit(1000)->orderBy('game_last_actions.' . $lastFetchColumn, 'asc')
-                    ->get();
-
-                $total_games = $games->count();
-
-                $this->automationInfo("After applying last action delay check >= {$delay_games} mins: {$total_games} games");
-                if ($total_games === 0) continue;
-
-                // Work on actions
-                [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit] = $this->workOnActions($games, $total_games, $lastFetchColumn);
-
-                // Introduce a delay to avoid rapid consecutive requests
-                sleep($should_sleep_for_seasons ? $this->getRequestDelaySeasons() : 0);
-                $should_sleep_for_seasons = false;
-            }
-
-            $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
-
-            // Increment Completed Competition Counts
-            $this->incrementCompletedCompetitionCounts();
-            $this->automationInfo("------------");
-
-            // Introduce a delay to avoid rapid consecutive requests
-            sleep($should_sleep_for_competitions ? $this->getRequestDelayCompetitions() : 0);
-            $should_sleep_for_competitions = false;
-        }
-
-        $this->jobStartEndLog('END');
+        return $competitions;
     }
 
     private function seasonsFilter($competition)
@@ -264,23 +236,77 @@ class MatchHandlerJob implements ShouldQueue
             ->where('utc_date', '<=', Carbon::now()->addDays(7));
     }
 
-    private function workOnActions($games, $total_games, $lastFetchColumn)
+    private function workOnSeasons($seasons, $lastFetchColumn)
     {
+        $limit = $this->task == 'historical_results' ? 15 : 1;
+
+        $total_seasons = $limit == 1 ? 1 : $seasons->count();
 
         $should_sleep_for_competitions = false;
+        $should_sleep_for_seasons = false;
         $should_exit = false;
-        // Loop through each game to fetch and update matches
-        foreach ($games as $game_key => $game) {
 
+        foreach ($seasons as $season_key => $season) {
+            if ($should_exit) break;
+
+            if ($season_key >= $limit) break;
+
+            $season_games = $season->games()->count();
+
+            $games = $this->filterGames($season);
+            $games = $this->lastActionFilters($games->whereIn('game_score_status_id', unsettledGameScoreStatuses()));
+
+            $start_date = Str::before($season->start_date, '-');
+            $end_date = Str::before($season->end_date, '-');
+            $unsettled_games = $games->count();
+
+            $this->automationInfo("***" . ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date}, unsettled games {$unsettled_games}/{$season_games} games)");
+            if ($unsettled_games === 0) continue;
+
+            $delay_games = 90;
+            if ($this->ignore_timing) $delay_games = 0;
+
+            $games = $games
+                ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay_games, 'game_last_actions'))
+                ->select('games.*')
+                ->limit(1000)->orderBy('game_last_actions.' . $lastFetchColumn, 'asc')
+                ->get();
+
+            $total_games = $games->count();
+
+            $this->automationInfo("***After applying last action delay check >= {$delay_games} mins: {$total_games} games");
+            if ($total_games === 0) continue;
+
+            // Work on games
+            [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit] = $this->workOnGames($games, $total_games, $lastFetchColumn);
+
+            // Introduce a delay to avoid rapid consecutive requests
+            sleep($should_sleep_for_seasons ? $this->getRequestDelaySeasons() : 0);
+            $should_sleep_for_seasons = false;
+        }
+
+        return [$should_sleep_for_competitions, $should_exit];
+    }
+
+    private function workOnGames($games, $total_games, $lastFetchColumn)
+    {
+
+        $gamesProcessed = 0;
+        $totalTimeTaken = 0;  // Tracks the cumulative time taken for processed games
+        $should_sleep_for_competitions = false;
+        $should_sleep_for_seasons = false;
+        $should_exit = false;
+
+        foreach ($games as $game_key => $game) {
             if ($this->runTimeExceeded()) {
                 $should_exit = true;
                 break;
             }
 
-            $this->automationInfo(($game_key + 1) . "/{$total_games}. Game: #{$game->id}, {$game->utc_date}, ({$game->homeTeam->name} vs {$game->awayTeam->name}, {$game->competition->name})");
+            $this->automationInfo("***".($game_key + 1) . "/{$total_games}. Game #{$game->id}, {$game->utc_date}, ({$game->homeTeam->name} vs {$game->awayTeam->name}, {$game->competition->name})");
 
             while (!is_connected()) {
-                $this->automationInfo("You are offline. Retrying in 10 secs...");
+                $this->automationInfo("***You are offline. Retrying in 10 secs...");
                 sleep(10);
             }
 
@@ -289,22 +315,33 @@ class MatchHandlerJob implements ShouldQueue
 
             // Obtain the specific handler for fetching match based on the game source strategy
             $matchHandler = $this->sourceContext->matchHandler();
-
-            // Fetch matches for the current competition
             $data = $matchHandler->fetchMatch($game->id);
 
             // Output the fetch result for logging
-            $this->automationInfo($data['message'] . "");
+            $this->automationInfo("***" . $data['message'] . "");
 
-            // Capture end time and calculate time taken
-            $requestEndTime = microtime(true);
-            $seconds_taken = $requestEndTime - $requestStartTime;
+            // Calculate time taken for this request
+            $seconds_taken = microtime(true) - $requestStartTime;
+            $totalTimeTaken += $seconds_taken;  // Update total time taken for average calculation
+            $gamesProcessed++;
 
-            // Log time taken for this game request
-            $this->automationInfo("Time taken to process Game #{$game->id}: " . $this->timeTaken($seconds_taken));
+            // Re-estimate average time per game based on cumulative time taken so far
+            $estimatedTimePerGame = $totalTimeTaken / $gamesProcessed;
+
+            // Calculate remaining games and estimated remaining time
+            $remainingGames = $total_games - $gamesProcessed;
+            $estimatedRemainingTime = round($remainingGames * $estimatedTimePerGame / 60);
+
+            // Calculate total elapsed time and remaining job time
+            $elapsedTime = time() - $this->startTime;  // Total time passed since the start of the job
+            $remainingJobTime = round(($this->maxExecutionTime - $elapsedTime) / 60);  // Remaining time for the job in seconds
+
+            // Log timing estimation
+            $this->automationInfo(
+                "***Working on Game #{$game->id} took " . $this->timeTaken($seconds_taken) . " (~{$estimatedRemainingTime} mins for remaining games, job will terminate in {$remainingJobTime} mins)."
+            );
 
             $data['seconds_taken'] = $seconds_taken;
-
 
             $should_sleep_for_competitions = true;
             $should_sleep_for_seasons = true;

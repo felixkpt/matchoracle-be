@@ -177,19 +177,18 @@ class TeamsMatches
             ];
 
             $results_status = gameScoresStatus('scheduled');
-            if ($data['full_time_results'] || $data['postponed']) {
+            if ($data['full_time_results'] || $data['postponed'] || $data['cancelled']) {
                 $scores = $data;
                 $results_status = $this->storeScores($game, $scores);
             }
 
-            if ($stadium)
+            if ($stadium) {
                 $arr['stadium_id'] = $stadium->id;
+            }
 
-            if ($weather_condition)
+            if ($weather_condition) {
                 $arr['weather_condition_id'] = $weather_condition->id;
-
-            // add abbr if not exists
-            $this->handleCompetitionAbbreviation($competition);
+            }
 
             $msg = 'Game updated successfully, (results status ' . ($results_status > -1 ? ($game_results_status . ' > ' . $results_status) : 'unchanged') . ').';
 
@@ -202,6 +201,10 @@ class TeamsMatches
 
 
             $game->update($arr);
+
+            // add abbr if not exists
+            $this->handleCompetitionAbbreviation($competition);
+
             // update season fetched_all_single_matches
             if ($game->season && $game->season->games()->whereIn('game_score_status_id', unsettledGameScoreStatuses())->count() === 0) {
                 $game->season->update(['fetched_all_single_matches' => true]);
