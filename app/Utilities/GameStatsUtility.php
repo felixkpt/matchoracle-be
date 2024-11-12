@@ -302,7 +302,7 @@ class GameStatsUtility
         ];
     }
 
-    private function teamsHead2HeadStats($to_date, $home_team_id, $away_team_id, $match_id)
+    private function teamsHead2HeadStats($to_date, $home_team_id, $away_team_id, $game_id)
     {
         $per_page = 4;
         if (request()->h2h_limit_per_match)
@@ -325,7 +325,7 @@ class GameStatsUtility
 
         request()->merge(['all_params' => $all_params]);
 
-        $matches = app(TeamController::class)->head2head($match_id)['data'];
+        $matches = app(TeamController::class)->head2head($game_id)['data'];
 
         $home_team_matches_with_stats = $this->calculateTeamStats($matches, $home_team_id);
         $away_team_matches_with_stats = $this->calculateTeamStats($matches, $away_team_id);

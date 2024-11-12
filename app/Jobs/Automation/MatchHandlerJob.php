@@ -29,18 +29,18 @@ class MatchHandlerJob implements ShouldQueue
      * @property string $jobId          The unique identifier for the job.
      * @property bool   $ignore_timing  Whether to ignore timing constraints for the job.
      * @property int    $competition_id The identifier for the competition associated with the job.
-     * @property int    $match_id The identifier for the match associated with the job.
+     * @property int    $game_id The identifier for the match associated with the job.
      */
     protected $jobId;
     protected $task = 'train';
     protected $ignore_timing;
     protected $competition_id;
-    protected $match_id;
+    protected $game_id;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null, $match_id = null)
+    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null, $game_id = null)
     {
 
         // Set the maximum execution time (seconds)
@@ -71,8 +71,8 @@ class MatchHandlerJob implements ShouldQueue
             request()->merge(['competition_id' => $competition_id]);
         }
 
-        if ($match_id) {
-            $this->match_id = $match_id;
+        if ($game_id) {
+            $this->game_id = $game_id;
         }
     }
 
@@ -163,19 +163,19 @@ class MatchHandlerJob implements ShouldQueue
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('games', function ($q) {
-                $q->when(!$this->match_id, function ($q) {
-                    // Exclude action filters when match_id is not null
+                $q->when(!$this->game_id, function ($q) {
+                    // Exclude action filters when game_id is not null
                     $q->whereNotIn('game_score_status_id', settledGameScoreStatuses());
 
                     $this->lastActionFilters($q);
                 })
-                    ->when($this->match_id, function ($q) {
-                        // Apply game ID filter when match_id is provided
-                        $q->where('games.id', $this->match_id);
+                    ->when($this->game_id, function ($q) {
+                        // Apply game ID filter when game_id is provided
+                        $q->where('games.id', $this->game_id);
                     });
             })
-            ->when(!$this->match_id, function ($q) use ($lastFetchColumn, $delay) {
-                // Apply last action delay when match_id is not provided
+            ->when(!$this->game_id, function ($q) use ($lastFetchColumn, $delay) {
+                // Apply last action delay when game_id is not provided
                 $q->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay));
             })
             ->select('competitions.*')
@@ -198,9 +198,9 @@ class MatchHandlerJob implements ShouldQueue
     private function filterGames($season)
     {
         return $season->games()
-            ->when($this->match_id, function ($q) {
-                // Apply game ID filter when match_id is provided
-                $q->where('games.id', $this->match_id);
+            ->when($this->game_id, function ($q) {
+                // Apply game ID filter when game_id is provided
+                $q->where('games.id', $this->game_id);
             })
             ->leftJoin('game_last_actions', 'games.id', 'game_last_actions.game_id')
             ->whereHas('gameSources', function ($q) {

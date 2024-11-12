@@ -4,14 +4,12 @@ namespace App\Services\GameSources\Forebet\Matches;
 
 use App\Models\Game;
 use App\Models\Season;
-use App\Models\Team;
 use App\Services\ClientHelper\Client;
 use App\Services\GameSources\Forebet\ForebetInitializationTrait;
-use App\Services\GameSources\Forebet\TeamsHandler;
 use App\Services\GameSources\Interfaces\MatchesInterface;
 use Exception;
+use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -73,13 +71,26 @@ class MatchesHandler implements MatchesInterface
 
             $crawler = new Crawler($content);
 
+            // Season integrity test
+            $season_start_end = null;
+            if ($season) {
+                $season_start_end = Str::before($season->start_date, '-') . '-' . Str::before($season->end_date, '-');
+
+                // Remove query parameters and hash
+                $test_url = strtok($url, '?');
+                $test_url = strtok($test_url, '#');
+                if (!Str::endsWith($test_url, $season_start_end)) {
+                    Log::channel($this->logChannel)->critical('Season miss-match: #' . $competition->id . ', #' . $season->id);
+                    $season = null;
+                }
+            }
+
 
             [$saved_new, $updated_new, $msg_new] = $this->handleMatches($competition, $season, $crawler);
             $saved = $saved + $saved_new;
             $updated = $updated + $updated_new;
             $messages[] = $msg_new;
 
-            break;
             sleep(5);
         }
 
@@ -139,7 +150,7 @@ class MatchesHandler implements MatchesInterface
             abort(500, "Cannot get matches for: compe#$competition->id, season#$season->id");
         }
 
-        [$saved, $updated, $msg] = $this->saveGames($matchesData, $competition);
+        [$saved, $updated, $msg] = $this->saveGames($matchesData, $competition, $season);
 
         return [$saved, $updated, $msg];
     }

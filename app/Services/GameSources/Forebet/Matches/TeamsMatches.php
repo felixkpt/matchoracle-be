@@ -8,6 +8,7 @@ use App\Models\Game;
 use App\Services\Common;
 use App\Services\GameSources\Forebet\ForebetInitializationTrait;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class TeamsMatches
@@ -141,6 +142,8 @@ class TeamsMatches
                         // Return only if competition exists
                         return $match;
                     }
+                } else {
+                    Log::info("Missing competition abbreviation: '{$abbrv}', country: {$country->name}, match will not be saved");
                 }
             }
 

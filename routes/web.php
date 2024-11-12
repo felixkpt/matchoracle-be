@@ -31,4 +31,8 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__ . '/auth.php';
 
-Route::get('/sources/fb', [ForebetTestController::class, 'index']);
+Route::prefix('/sources',function(){
+    Route::get('/', [ForebetTestController::class, 'index']);
+    Route::get('/fb', [ForebetTestController::class, 'index']);
+
+});

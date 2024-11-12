@@ -29,7 +29,7 @@ class MatchHandlerCommand extends Command
     {
         $task = $this->option('task');
         $ignore_timing = $this->option('ignore-timing');
-        $match_id = $this->option('match-id');
+        $game_id = $this->option('match-id');
 
         if ($task != 'recent_results' && $task != 'historical_results' && $task != 'shallow_fixtures' && $task != 'fixtures') {
             $this->warn('Task should be recent_results, historical_results, shallow_fixtures or fixtures');
@@ -40,7 +40,7 @@ class MatchHandlerCommand extends Command
 
         $competition_id = $this->option('competition');
 
-        dispatch(new MatchHandlerJob($task, null, $ignore_timing, null, $competition_id, $match_id));
+        dispatch(new MatchHandlerJob($task, null, $ignore_timing, null, $competition_id, $game_id));
         $this->info('Match handler command executed successfully!');
 
         return 1;

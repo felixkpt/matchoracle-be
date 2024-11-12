@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 trait MatchesTrait
 {
 
-    function saveGames(&$matches, $competition = null)
+    function saveGames(&$matches, $competition = null, $season = null)
     {
         $msg = "";
         $saved = $updated = 0;
@@ -28,19 +28,18 @@ trait MatchesTrait
 
             $competition = $competition ?? $match['competition'];
             $country = $competition->country ?? null;
-            $season = null;
-
 
             if ($competition && $country && $match['date']) {
 
                 $homeTeam = $this->handleTeam($match['home_team'], $country, $competition, $season, $home_team_not_found);
                 $awayTeam = $this->handleTeam($match['away_team'], $country, $competition, $season, $away_team_not_found);
 
-                try {
 
-                    DB::beginTransaction();
+                if ($homeTeam && $awayTeam) {
 
-                    if ($homeTeam && $awayTeam) {
+                    try {
+
+                        DB::beginTransaction();
 
                         // Update the home_team and away_team IDs in the $matches array
                         $match['home_team']['id'] = $homeTeam->id;
@@ -55,38 +54,38 @@ trait MatchesTrait
                         } elseif ($result === 'updated') {
                             $updated++;
                         }
-                    } else {
 
-                        if (!$homeTeam) {
+                        DB::commit();
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        $this->has_errors = true;
+                        $msg = "SaveGames > Error during data import for compe#$competition->id: ";
 
-                            if (!isset($home_team_not_found[$country->name])) {
-                                $home_team_not_found[$match['home_team']['name']] = 1;
-                            } else {
-                                $home_team_not_found[$match['home_team']['name']] = $home_team_not_found[$match['home_team']['name']] + 1;
-                            }
+                        Log::channel($this->logChannel)->error($msg . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
+                    }
+                } else {
 
-                            Log::channel($this->logChannel)->critical('homeTeam not found:', (array) $match['home_team']['name']);
+                    if (!$homeTeam) {
+
+                        if (!isset($home_team_not_found[$country->name])) {
+                            $home_team_not_found[$match['home_team']['name']] = 1;
+                        } else {
+                            $home_team_not_found[$match['home_team']['name']] = $home_team_not_found[$match['home_team']['name']] + 1;
                         }
 
-                        if (!$awayTeam) {
-
-                            if (!isset($away_team_not_found[$country->name])) {
-                                $away_team_not_found[$match['away_team']['name']] = 1;
-                            } else {
-                                $away_team_not_found[$match['away_team']['name']] = $away_team_not_found[$match['away_team']['name']] + 1;
-                            }
-
-                            Log::channel($this->logChannel)->critical('awayTeam not found:', (array) $match['away_team']['name']);
-                        }
+                        Log::channel($this->logChannel)->critical('HomeTeam not found:', (array) $match['home_team']['name']);
                     }
 
-                    DB::commit();
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    $this->has_errors = true;
-                    $msg = "SaveGames > Error during data import for compe#$competition->id: ";
+                    if (!$awayTeam) {
 
-                    Log::channel($this->logChannel)->error($msg . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
+                        if (!isset($away_team_not_found[$country->name])) {
+                            $away_team_not_found[$match['away_team']['name']] = 1;
+                        } else {
+                            $away_team_not_found[$match['away_team']['name']] = $away_team_not_found[$match['away_team']['name']] + 1;
+                        }
+
+                        Log::channel($this->logChannel)->critical('AwayTeam not found:', (array) $match['away_team']['name']);
+                    }
                 }
             } else {
                 $no_date_mgs = ['competition' => $competition->id ?? null, 'season' => $season ? $season->id : null, 'match' => $match];
@@ -162,8 +161,6 @@ trait MatchesTrait
         $status_id = activeStatusId();
         $user_id = auth()->id();
 
-        Log::channel($this->logChannel)->alert('SAVING GAME...', ['match' => $match, 'date' => $date, 'has_time' => $has_time]);
-
         // Prepare data array for creating or updating a game
         $arr = [
             'competition_id' => $competition_id,
@@ -193,7 +190,7 @@ trait MatchesTrait
             ->whereDate('date', $date->format('Y-m-d'))
             ->where($qry)->first();
 
-        $qry['competition_id'] = $competition_id;
+        // $qry['competition_id'] = $competition_id;
 
         // If the game exists, update it; otherwise, create a new one
         if ($game) {
