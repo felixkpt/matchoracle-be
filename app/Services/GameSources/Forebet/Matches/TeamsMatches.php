@@ -61,7 +61,7 @@ class TeamsMatches
 
     private function getMatchesFromDOM($crawler, $competition, $country, $source_uri)
     {
- 
+
         $chosen_crawler = $crawler;
 
         if (!$chosen_crawler) return [];
@@ -152,6 +152,9 @@ class TeamsMatches
                 if ($competition_abbrv->count() === 1) {
                     $competition_abbrv = $competition_abbrv->first();
                     $competition = Competition::find($competition_abbrv->competition_id);
+                    if ($competition->name == 'FA Trophy') {
+                        Log::info("FA Trophy--->::", $match);
+                    }
                     // Check if competition exists
                     if ($competition) {
                         $match['competition'] = $competition;

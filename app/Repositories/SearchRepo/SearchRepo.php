@@ -127,15 +127,11 @@ class SearchRepo
                     }
 
                     foreach ($searchable as $column) {
-                        // Log::info('Searching:', ['term' => $term, 'model_table' => $model_table, 'col' => $column]);
-
                         if (Str::contains($column, '.')) {
                             self::applyNestedWhereHas($q, $column, $term, $strategy);
                         } else {
                             // Apply search condition on the main table
                             $q->orWhere($model_table . '.' . $column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
-
-                            Log::critical("Search results:", ['tbl' => $model_table . '.' . $column, 'res' => $q->first()]);
                         }
                     }
                 });
@@ -187,11 +183,6 @@ class SearchRepo
         }, []);
 
         $relation = implode('.', $relation);
-
-
-        Log::info("relation: " . $relation);
-        Log::info("column: " . $column);
-
 
         $query->orWhereHas($relation, function ($subQuery) use ($column, $term, $strategy) {
             // Relation level, apply the condition
