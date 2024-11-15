@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Automation\Traits;
 
+use App\Models\Competition;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -12,7 +13,7 @@ trait AutomationTrait
     protected $maxExecutionTime;
     protected $startTime;
     protected $channel = 'automation';
-    protected $historyStartDate = '2015-01-01';
+    protected $historyStartDate = '2018-01-01';
     protected $requestDelayCompetitions = 20;
     protected $requestDelaySeasons =  20;
     protected $requestDelayGames = 20;
@@ -37,7 +38,7 @@ trait AutomationTrait
             $jobName,
             $message,
             $this->task,
-            ', Competition #' . ($this->competition_id ?? 'N/A'),
+            ', Competition #' . ($this->competitionId ?? 'N/A'),
         );
 
         $competitionsMsg = $competitions ? $jobName . ': Working on competitions IDs: [' . $competitionIds . ']' : '';
@@ -55,6 +56,11 @@ trait AutomationTrait
         if ($competitionsMsg) {
             Log::channel($this->channel)->info($competitionsMsg);
         }
+    }
+
+    protected function getCompetition()
+    {
+        return Competition::find($this->competitionId);
     }
 
     /**
@@ -112,6 +118,14 @@ trait AutomationTrait
     private function updateLastAction($model, $should_update_last_action, $column, $field = 'competition_id')
     {
         if ($column && $should_update_last_action) {
+
+            if ($field === 'competition_id') {
+                // Getting the class name dynamically
+                $jobName = class_basename($this) . '-' . $this->jobId;
+                $model_id = $model->id;
+                Log::channel($this->channel)->info("{$jobName}: ***UpdateLastAction ({$column}) for Compe #{$model_id}");
+            }
+
             try {
                 DB::transaction(function () use ($model, $column, $field) {
                     $lastAction = $model->lastAction()->where($field, $model->id)->first();

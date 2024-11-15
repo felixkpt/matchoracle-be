@@ -7,6 +7,7 @@ use App\Models\CompetitionAbbreviation;
 use App\Models\Game;
 use App\Services\Common;
 use App\Services\GameSources\Forebet\ForebetInitializationTrait;
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -15,7 +16,7 @@ class TeamsMatches
 {
     use ForebetInitializationTrait, MatchesTrait;
 
-    function fetchMatches($game, $crawler)
+    function fetchMatches($game, $competition, $crawler, $source_uri)
     {
         $html = $crawler->filter('table.stat-content tr td.floatLeft.statWidth div.moduletable div.st_scrblock');
 
@@ -33,7 +34,7 @@ class TeamsMatches
             $msg = "";
             $saved = $updated = 0;
             if ($home_team_matches->count() > 0) {
-                $matches = $this->filterMatches($home_team_matches, $country);
+                $matches = $this->getMatchesFromDOM($home_team_matches, $competition, $country, $source_uri);
                 if (count($matches) > 0) {
                     [$saved, $updated, $msg] = $this->saveGames($matches);
                     $this->deactivateGames($game, $matches, 'home');
@@ -43,7 +44,7 @@ class TeamsMatches
             $msg2 = "";
             $saved2 = $updated2 = 0;
             if ($away_team_matches->count() > 0) {
-                $matches = $this->filterMatches($away_team_matches, $country);
+                $matches = $this->getMatchesFromDOM($away_team_matches, $competition, $country, $source_uri);
                 if (count($matches) > 0) {
                     [$saved2, $updated2, $msg2] = $this->saveGames($matches);
                     $this->deactivateGames($game, $matches, 'away');
@@ -58,8 +59,9 @@ class TeamsMatches
         }
     }
 
-    private function filterMatches($crawler, $country)
+    private function getMatchesFromDOM($crawler, $competition, $country, $source_uri)
     {
+ 
         $chosen_crawler = $crawler;
 
         if (!$chosen_crawler) return [];
@@ -67,17 +69,24 @@ class TeamsMatches
         // Now $chosen_crawler contains the desired crawler
         $matches = [];
         // Extracted data from the HTML will be stored in this array
-        $matches = $chosen_crawler->each(function ($crawler) use ($country) {
+        $matches = $chosen_crawler->each(function ($crawler) use ($competition, $country, $source_uri) {
 
             $date = null;
             $raw_date = $crawler->filter('div.st_date div');
             $day_month = $raw_date->eq(0);
             $year = $raw_date->eq(1);
             if ($day_month->count() === 1 && $year->count() === 1) {
-                $day_month = implode('/', array_reverse(explode('/', $day_month->text())));
-                $year = $year->text();
-                $date = Carbon::parse($year . '/' . $day_month)->toDateString();
+                try {
+                    $day_month = implode('/', array_reverse(explode('/', $day_month->text())));
+                    $year = $year->text();
+                    $date = Carbon::parse($year . '/' . $day_month)->toDateString();
+                } catch (InvalidFormatException $e) {
+                    Log::error("Date parsing error for competition #{$competition->id}, source_uri: {$source_uri} : " . $e->getMessage());
+                    $date = null;
+                }
             }
+
+            if (!$date) return null;
 
             $match = [
                 'date' => $date,
@@ -115,6 +124,13 @@ class TeamsMatches
                 $k = $crawler->filter('span.st_res');
                 if ($k->count()) {
                     $match['game_details']['full_time_results'] = $k->text();
+                }
+
+                // If match is historical (older than 5 days) and has no results, skip it
+                $parsed_date = Carbon::parse($date);
+                if (($parsed_date->isPast() && Carbon::now()->diffInDays($parsed_date) > 5) && $match['game_details']['full_time_results'] === null) {
+                    Log::error("Historical game has no results, competition #{$competition->id}, source_uri: {$source_uri} : " . $e->getMessage());
+                    return null;
                 }
 
                 $k = $crawler->filter('span.st_htscr');

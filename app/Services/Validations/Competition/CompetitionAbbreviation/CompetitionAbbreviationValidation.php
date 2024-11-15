@@ -2,6 +2,7 @@
 
 namespace App\Services\Validations\Competition\CompetitionAbbreviation;
 
+use App\Models\Competition;
 use App\Services\Validations\CommonValidations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,8 +13,14 @@ class CompetitionAbbreviationValidation implements CompetitionAbbreviationValida
 
     public function store(Request $request): mixed
     {
+        $validateData = request()->validate([
+            'competition_id' => 'required|exists:competitions,id',
+        ]);
+
+        request()->merge(['country_id' => Competition::find($validateData['competition_id'])->country_id ?? 0]);
 
         $validateData = request()->validate([
+            'competition_id' => 'required|exists:competitions,id',
             'name' => [
                 'required',
                 function ($attribute, $value, $fail) use ($request) {
@@ -29,10 +36,10 @@ class CompetitionAbbreviationValidation implements CompetitionAbbreviationValida
                     }
                 },
             ],
+            'country_id' => 'required|exists:countries,id',
             'is_international' => 'nullable',
-            'country_id' => 'nullable|exists:countries,id',
-            'competition_id' => 'required|exists:competitions,id',
         ]);
+
 
         $validateData['is_international'] = $validateData['is_international'] ?? 0;
 

@@ -2,28 +2,17 @@
 
 namespace App\Repositories\Competition\CompetitionAbbreviation;
 
-use App\Http\Controllers\Dashboard\Odds\OddsController;
-use App\Http\Controllers\Dashboard\Statistics\CompetitionsPredictionsStatisticsController;
-use App\Http\Controllers\Dashboard\Statistics\CompetitionsStatisticsController;
-use App\Http\Controllers\Dashboard\Teams\TeamsController;
 use App\Models\CompetitionAbbreviation;
-use App\Models\CompetitionPredictionStatistic;
-use App\Models\CompetitionStatistic;
-use App\Models\GameSource;
-use App\Models\Season;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 
 class CompetitionAbbreviationRepository implements CompetitionAbbreviationRepositoryInterface
 {
 
     use CommonRepoActions;
 
-    function __construct(protected CompetitionAbbreviation $model)
-    {
-    }
+    function __construct(protected CompetitionAbbreviation $model) {}
 
     public function index()
     {
@@ -35,9 +24,10 @@ class CompetitionAbbreviationRepository implements CompetitionAbbreviationReposi
 
         $uri = '/dashboard/competitions/competition-abbreviations/';
         $statuses = SearchRepo::of($statuses, ['id', 'name'])
+            ->fillable(['competition_id', 'name', 'is_international'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
-            ->addColumn('Is_intl', fn ($q) => $q->is_international ? 'Yes' : 'No')
+            ->addColumn('Is_intl', fn($q) => $q->is_international ? 'Yes' : 'No')
             ->paginate();
 
         return response(['results' => $statuses]);

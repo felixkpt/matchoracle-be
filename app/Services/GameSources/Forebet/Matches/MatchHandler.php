@@ -57,14 +57,14 @@ class MatchHandler
             return $this->matchMessage('Last fetch is ' . (Carbon::parse($game->last_fetch)->diffForHumans()));
         }
 
-        $url = $this->sourceUrl . ltrim($source_uri, '/');
 
-        return $this->handleGame($game, $url);
+        return $this->handleGame($game, $source_uri);
     }
 
-    private function handleGame($game, $url)
+    private function handleGame($game, $source_uri)
     {
 
+        $url = $this->sourceUrl . ltrim($source_uri, '/');
 
         $content = Client::get($url);
         if (!$content) return $this->matchMessage('Source inaccessible or not found.', 500);
@@ -221,7 +221,7 @@ class MatchHandler
         $updated = $message ? 1 : 0;
 
         // AOB taking advantage of matches on page
-        $handled_teams_games = $this->teamsMatches->fetchMatches($game, $crawler);
+        $handled_teams_games = $this->teamsMatches->fetchMatches($game, $competition, $crawler, $source_uri);
 
         $response = [
             'message' => $message,

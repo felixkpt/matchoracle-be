@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Dashboard\ForebetTestController;
+use App\Http\Controllers\SourcesTest\SourcesTestController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,8 +31,7 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__ . '/auth.php';
 
-Route::prefix('/sources',function(){
-    Route::get('/', [ForebetTestController::class, 'index']);
-    Route::get('/fb', [ForebetTestController::class, 'index']);
-
+Route::prefix('/sources-test')->group(function () {
+    Route::get('/', [SourcesTestController::class, 'index']);
+    Route::get('/run', [SourcesTestController::class, 'run']);
 });

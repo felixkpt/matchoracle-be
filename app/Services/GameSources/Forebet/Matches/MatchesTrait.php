@@ -26,7 +26,7 @@ trait MatchesTrait
 
         foreach ($matches as $key => &$match) {
 
-            $competition = $competition ?? $match['competition'];
+            $competition = $match['competition'] ?? $competition;
             $country = $competition->country ?? null;
 
             if ($competition && $country && $match['date']) {

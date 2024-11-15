@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Repositories\GameComposer;
 use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -203,10 +204,12 @@ class GameUtility
         $req_search = request()->search ? trim(request()->search) : request()->search;
 
         if ($req_search && Str::contains($req_search, $joiners)) {
-            $search = array_values(array_filter(explode($joiners[0], $req_search)));
+            $search = array_values(array_map('trim', array_filter(explode($joiners[0], $req_search))));
             if (count($search) !== 2) {
-                $search = array_values(array_filter(explode($joiners[1], $req_search)));
+                $search = array_values(array_map('trim', array_filter(explode($joiners[1], $req_search))));
             }
+
+            Log::info("SEarc", $search);
 
             if (count($search) === 2) {
 
@@ -221,7 +224,7 @@ class GameUtility
         }
 
         $uri = '/dashboard/matches/';
-        $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name'], $search_builder)
+        $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name', 'competition.name', 'competition.country.name'], $search_builder)
             ->setModelUri($uri)
             ->addColumnWhen(!request()->is_predictor, 'is_future', fn($q) => Carbon::parse($q->utc_date)->isFuture())
             ->addColumnWhen(!request()->is_predictor, 'Winner', fn($q) => $q->score ? GameComposer::winningSide($q) : null)

@@ -30,8 +30,8 @@ class PredictionsHandlerJob implements ShouldQueue
      */
     protected $jobId;
     protected $task = 'train';
-    protected $ignore_timing;
-    protected $competition_id;
+    protected $ignoreTiming;
+    protected $competitionId;
     protected $target;
 
     /**
@@ -59,11 +59,11 @@ class PredictionsHandlerJob implements ShouldQueue
         }
 
         if ($ignore_timing) {
-            $this->ignore_timing = $ignore_timing;
+            $this->ignoreTiming = $ignore_timing;
         }
 
         if ($competition_id) {
-            $this->competition_id = $competition_id;
+            $this->competitionId = $competition_id;
             request()->merge(['competition_id' => $competition_id]);
         }
 
@@ -93,7 +93,7 @@ class PredictionsHandlerJob implements ShouldQueue
         // Set delay in minutes based on the task type:
         // Default case for prediction 3 days
         $delay = 60 * 24 * 3;
-        if ($this->ignore_timing) $delay = 0;
+        if ($this->ignoreTiming) $delay = 0;
 
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
@@ -195,6 +195,10 @@ class PredictionsHandlerJob implements ShouldQueue
             $should_sleep_for_competitions = false;
         }
 
+        if ($this->competitionId && $competitions->count() === 0) {
+            $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
+        }
+
         $this->jobStartEndLog('END');
     }
 
@@ -243,7 +247,7 @@ class PredictionsHandlerJob implements ShouldQueue
                 $requestEndTime = microtime(true);
                 $seconds_taken = intval($requestEndTime - $requestStartTime);
 
-                $this->automationInfo("***Time taken working on Compe #{$competition->id}: " . $this->timeTaken($seconds_taken).", new updated Last Action: {$lastActionTime}.");
+                $this->automationInfo("***Time taken working on Compe #{$competition->id}: " . $this->timeTaken($seconds_taken) . ", new updated Last Action: {$lastActionTime}.");
 
 
                 if ($checked_last_action && $checked_last_action != $last_action) {

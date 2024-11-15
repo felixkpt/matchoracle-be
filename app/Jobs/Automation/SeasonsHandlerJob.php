@@ -29,8 +29,8 @@ class SeasonsHandlerJob implements ShouldQueue
      */
     protected $jobId;
     protected $task = 'run';
-    protected $ignore_timing;
-    protected $competition_id;
+    protected $ignoreTiming;
+    protected $competitionId;
 
     /**
      * Create a new job instance.
@@ -56,11 +56,11 @@ class SeasonsHandlerJob implements ShouldQueue
         }
 
         if ($ignore_timing) {
-            $this->ignore_timing = $ignore_timing;
+            $this->ignoreTiming = $ignore_timing;
         }
 
         if ($competition_id) {
-            $this->competition_id = $competition_id;
+            $this->competitionId = $competition_id;
             request()->merge(['competition_id' => $competition_id]);
         }
     }
@@ -77,7 +77,7 @@ class SeasonsHandlerJob implements ShouldQueue
         $lastFetchColumn = 'seasons_last_fetch';
 
         $delay = 60 * 24 * 15;
-        if ($this->ignore_timing) $delay = 0;
+        if ($this->ignoreTiming) $delay = 0;
 
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
@@ -156,6 +156,10 @@ class SeasonsHandlerJob implements ShouldQueue
             $should_sleep_for_competitions = false;
         }
 
+        if ($this->competitionId && $competitions->count() === 0) {
+            $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
+        }
+
         $this->jobStartEndLog('END');
     }
 
@@ -187,6 +191,8 @@ class SeasonsHandlerJob implements ShouldQueue
 
     private function loggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
     {
+        if ($this->competitionId) return;
+
         $today = Carbon::now()->format('Y-m-d');
         $record = SeasonJobLog::where('date', $today)->where('source_id', $this->sourceContext->getId())->first();
 

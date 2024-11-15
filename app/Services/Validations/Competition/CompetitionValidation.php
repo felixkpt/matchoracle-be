@@ -8,7 +8,7 @@ use App\Models\Season;
 use App\Rules\ValidGameSourceUri;
 use App\Services\Validations\CommonValidations;
 use App\Services\Validations\ValidationFormatter;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class CompetitionValidation implements CompetitionValidationInterface
 {
@@ -23,7 +23,12 @@ class CompetitionValidation implements CompetitionValidationInterface
 
         $validateData = $request->validate(
             [
-                'name' => 'required|unique:countries,name,' . $request->id . ',id',
+                'name' => [
+                    'required',
+                    Rule::unique('competitions')->where(function ($query) use ($request) {
+                        return $query->where('country_id', $request->country_id);
+                    })->ignore($request->id)
+                ],
                 'slug' => 'nullable|unique:countries,slug,' . $request->id . ',id',
                 'abbreviation' => 'nullable|string',
                 'code' => 'nullable|string',
@@ -33,7 +38,7 @@ class CompetitionValidation implements CompetitionValidationInterface
                 'last_updated' => 'nullable|date',
                 'last_fetch' => 'nullable|date',
                 'last_detailed_fetch' => 'nullable|date',
-                'emblem' => $this->imageRules(),
+                'logo' => $this->imageRules(),
                 'plan' => 'nullable|string',
                 'has_teams' => 'required|integer',
                 'priority_number' => 'nullable|integer|between:1,99999999',
@@ -42,6 +47,7 @@ class CompetitionValidation implements CompetitionValidationInterface
 
         return $validateData;
     }
+
 
     public function storeFromSource()
     {

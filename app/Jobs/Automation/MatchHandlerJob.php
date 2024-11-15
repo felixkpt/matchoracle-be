@@ -33,8 +33,8 @@ class MatchHandlerJob implements ShouldQueue
      */
     protected $jobId;
     protected $task = 'train';
-    protected $ignore_timing;
-    protected $competition_id;
+    protected $ignoreTiming;
+    protected $competitionId;
     protected $game_id;
 
     /**
@@ -63,11 +63,11 @@ class MatchHandlerJob implements ShouldQueue
         }
 
         if ($ignore_timing) {
-            $this->ignore_timing = $ignore_timing;
+            $this->ignoreTiming = $ignore_timing;
         }
 
         if ($competition_id) {
-            $this->competition_id = $competition_id;
+            $this->competitionId = $competition_id;
             request()->merge(['competition_id' => $competition_id]);
         }
 
@@ -89,7 +89,7 @@ class MatchHandlerJob implements ShouldQueue
 
         // Set delay in minutes based on the task type:
         $delay = $this->getDelay();
-        if ($this->ignore_timing) $delay = 0;
+        if ($this->ignoreTiming) $delay = 0;
 
         // Get competitions that need season data updates
         $competitions = $this->getCompetitions($lastFetchColumn, $delay,);
@@ -123,9 +123,9 @@ class MatchHandlerJob implements ShouldQueue
 
             $seasons = $this->seasonsFilter($competition);
 
-            $should_update_last_action = false;
-            [$should_sleep_for_competitions, $should_exit] = $this->workOnSeasons($seasons, $lastFetchColumn);
+            [$should_sleep_for_competitions, $should_exit, $has_errors] = $this->workOnSeasons($seasons, $lastFetchColumn);
 
+            $should_update_last_action = $has_errors;
             $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
             // Increment Completed Competition Counts
@@ -135,6 +135,10 @@ class MatchHandlerJob implements ShouldQueue
             // Introduce a delay to avoid rapid consecutive requests
             sleep($should_sleep_for_competitions ? $this->getRequestDelayCompetitions() : 0);
             $should_sleep_for_competitions = false;
+        }
+
+        if ($this->competitionId && $competitions->count() === 0) {
+            $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
         }
 
         $this->jobStartEndLog('END');
@@ -209,20 +213,10 @@ class MatchHandlerJob implements ShouldQueue
                         $q->whereNotNull('source_id')
                             ->orWhereNotNull('source_uri');
                     });
-            });
+            })
+            ->orderBy('utc_date', $this->task == 'historical_results' ? 'desc' : 'asc');
     }
 
-    private function lastActionFilters($query)
-    {
-        // Conditionally filter games based on the task being performed
-        $query = $query
-            ->when($this->task == 'historical_results', fn($q) => $q->where('utc_date', '<', Carbon::now()->subDays(5)))
-            ->when($this->task == 'recent_results', fn($q) => $this->applyRecentResultsFilter($q))
-            ->when($this->task == 'shallow_fixtures', fn($q) => $this->applyShallowFixturesFilter($q))
-            ->when($this->task == 'fixtures', fn($q) => $q->where('utc_date', '>', Carbon::now()->addDays(7)));
-
-        return $query;
-    }
 
     function applyRecentResultsFilter(Builder $query): Builder
     {
@@ -245,6 +239,7 @@ class MatchHandlerJob implements ShouldQueue
         $should_sleep_for_competitions = false;
         $should_sleep_for_seasons = false;
         $should_exit = false;
+        $has_errors = false;
 
         foreach ($seasons as $season_key => $season) {
             if ($should_exit) break;
@@ -264,7 +259,7 @@ class MatchHandlerJob implements ShouldQueue
             if ($unsettled_games === 0) continue;
 
             $delay_games = 90;
-            if ($this->ignore_timing) $delay_games = 0;
+            if ($this->ignoreTiming) $delay_games = 0;
 
             $games = $games
                 ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay_games, 'game_last_actions'))
@@ -278,14 +273,26 @@ class MatchHandlerJob implements ShouldQueue
             if ($total_games === 0) continue;
 
             // Work on games
-            [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit] = $this->workOnGames($games, $total_games, $lastFetchColumn);
+            [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit, $has_errors] = $this->workOnGames($games, $total_games, $lastFetchColumn);
 
             // Introduce a delay to avoid rapid consecutive requests
             sleep($should_sleep_for_seasons ? $this->getRequestDelaySeasons() : 0);
             $should_sleep_for_seasons = false;
         }
 
-        return [$should_sleep_for_competitions, $should_exit];
+        return [$should_sleep_for_competitions, $should_exit, $has_errors];
+    }
+
+    private function lastActionFilters($query)
+    {
+        // Conditionally filter games based on the task being performed
+        $query = $query
+            ->when($this->task == 'historical_results', fn($q) => $q->where('utc_date', '<', Carbon::now()->subDays(5)))
+            ->when($this->task == 'recent_results', fn($q) => $this->applyRecentResultsFilter($q))
+            ->when($this->task == 'shallow_fixtures', fn($q) => $this->applyShallowFixturesFilter($q))
+            ->when($this->task == 'fixtures', fn($q) => $q->where('utc_date', '>', Carbon::now()->addDays(7)));
+
+        return $query;
     }
 
     private function workOnGames($games, $total_games, $lastFetchColumn)
@@ -296,6 +303,7 @@ class MatchHandlerJob implements ShouldQueue
         $should_sleep_for_competitions = false;
         $should_sleep_for_seasons = false;
         $should_exit = false;
+        $has_errors = false;
 
         foreach ($games as $game_key => $game) {
             if ($this->runTimeExceeded()) {
@@ -303,7 +311,7 @@ class MatchHandlerJob implements ShouldQueue
                 break;
             }
 
-            $this->automationInfo("***".($game_key + 1) . "/{$total_games}. Game #{$game->id}, {$game->utc_date}, ({$game->homeTeam->name} vs {$game->awayTeam->name}, {$game->competition->name})");
+            $this->automationInfo("***" . ($game_key + 1) . "/{$total_games}. Game #{$game->id}, {$game->utc_date}, ({$game->homeTeam->name} vs {$game->awayTeam->name}, {$game->competition->name})");
 
             while (!is_connected()) {
                 $this->automationInfo("***You are offline. Retrying in 10 secs...");
@@ -356,7 +364,7 @@ class MatchHandlerJob implements ShouldQueue
             $should_sleep_for_games = false;
         }
 
-        return [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit];
+        return [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit, $has_errors];
     }
 
     private function doLogging($data = null)
@@ -390,6 +398,8 @@ class MatchHandlerJob implements ShouldQueue
 
     private function loggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
     {
+        if ($this->competitionId) return;
+
         $task = $this->task;
         $today = Carbon::now()->format('Y-m-d');
         $record = MatchJobLog::where('task', $task)->where('date', $today)->where('source_id', $this->sourceContext->getId())->first();

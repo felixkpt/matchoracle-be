@@ -31,8 +31,8 @@ class StandingsHandlerJob implements ShouldQueue
      */
     protected $jobId;
     protected $task = 'train';
-    protected $ignore_timing;
-    protected $competition_id;
+    protected $ignoreTiming;
+    protected $competitionId;
 
     /**
      * Create a new job instance.
@@ -59,11 +59,11 @@ class StandingsHandlerJob implements ShouldQueue
         }
 
         if ($ignore_timing) {
-            $this->ignore_timing = $ignore_timing;
+            $this->ignoreTiming = $ignore_timing;
         }
 
         if ($competition_id) {
-            $this->competition_id = $competition_id;
+            $this->competitionId = $competition_id;
             request()->merge(['competition_id' => $competition_id]);
         }
     }
@@ -80,7 +80,7 @@ class StandingsHandlerJob implements ShouldQueue
         $lastFetchColumn = 'standings_' . $this->task . '_last_fetch';
 
         $delay = 60 * 24 * 15;
-        if ($this->ignore_timing) $delay = 0;
+        if ($this->ignoreTiming) $delay = 0;
 
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
@@ -126,12 +126,12 @@ class StandingsHandlerJob implements ShouldQueue
             $should_sleep_for_seasons = false;
             $should_update_last_action = false;
             foreach ($seasons as $season_key => $season) {
-                
+
                 if ($this->runTimeExceeded()) {
                     $should_exit = true;
                     break;
                 }
-    
+
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
 
@@ -163,7 +163,7 @@ class StandingsHandlerJob implements ShouldQueue
 
                 // Log time taken for this game request
                 $this->automationInfo("Time taken working on  Compe #{$competition->id} - season #{$season->id}: " . $this->timeTaken($seconds_taken));
-           
+
                 $data['seconds_taken'] = $seconds_taken;
 
                 $should_sleep_for_competitions = true;
@@ -192,6 +192,10 @@ class StandingsHandlerJob implements ShouldQueue
             // Introduce a delay to avoid rapid consecutive requests
             sleep($should_sleep_for_competitions ? $this->getRequestDelayCompetitions() : 0);
             $should_sleep_for_competitions = false;
+        }
+
+        if ($this->competitionId && $competitions->count() === 0) {
+            $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
         }
 
         $this->jobStartEndLog('END');
@@ -243,6 +247,7 @@ class StandingsHandlerJob implements ShouldQueue
 
     private function loggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
     {
+        if ($this->competitionId) return;
 
         $task = $this->task;
         $today = Carbon::now()->format('Y-m-d');

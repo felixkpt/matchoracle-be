@@ -12,6 +12,7 @@ use App\Jobs\Automation\Statistics\CompetitionStatisticsJob;
 use App\Jobs\Automation\TrainPredictionsHandlerJob;
 use App\Models\Competition;
 use App\Repositories\CommonRepoActions;
+use Illuminate\Support\Facades\Log;
 
 class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterface
 {
@@ -22,10 +23,17 @@ class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterfac
     public function updateAction($competitionId, $action)
     {
         // Retrieve the competition by ID
-        $competition = $this->model->find($competitionId);
+        $competition = $this->model->where('id', $competitionId);
+        Log::info('competitionId:', [$competitionId]);
+
+        if ($competition->count() == 0) {
+            return response(['message' => "Competition #{$competitionId} not found."], 422);
+        }
+
+        $competition = $competition->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))->first();
 
         if (!$competition) {
-            return ['error' => 'Competition not found'];
+            return response(['message' => "Competition #{$competitionId} is not active."], 422);
         }
 
         // Set the jobID
@@ -104,11 +112,11 @@ class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterfac
                 break;
 
             default:
-                return ['error' => 'Invalid action'];
+                return response(['message' => 'Invalid action'], 422);
         }
 
         sleep(2);
 
-        return ['message' => ucfirst(str_replace('_', ' ', $action)) . ' updated successfully'];
+        return response(['message' => ucfirst(str_replace('_', ' ', $action)) . ' updated successfully'], 200);
     }
 }

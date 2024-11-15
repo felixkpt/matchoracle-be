@@ -31,8 +31,8 @@ class MatchesHandlerJob implements ShouldQueue
      */
     protected $jobId;
     protected $task = 'train';
-    protected $ignore_timing;
-    protected $competition_id;
+    protected $ignoreTiming;
+    protected $competitionId;
 
     /**
      * Create a new job instance.
@@ -59,11 +59,11 @@ class MatchesHandlerJob implements ShouldQueue
         }
 
         if ($ignore_timing) {
-            $this->ignore_timing = $ignore_timing;
+            $this->ignoreTiming = $ignore_timing;
         }
 
         if ($competition_id) {
-            $this->competition_id = $competition_id;
+            $this->competitionId = $competition_id;
             request()->merge(['competition_id' => $competition_id]);
         }
     }
@@ -81,7 +81,7 @@ class MatchesHandlerJob implements ShouldQueue
 
         // Set delay in minutes based on the task type:
         $delay = $this->getDelay();
-        if ($this->ignore_timing) $delay = 0;
+        if ($this->ignoreTiming) $delay = 0;
 
         // Get competitions that need matches data updates
         $competitions = $this->getCompetitions($lastFetchColumn, $delay);
@@ -127,9 +127,12 @@ class MatchesHandlerJob implements ShouldQueue
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
 
-                $this->automationInfo("***".($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date})");
+                $this->automationInfo("***" . ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date})");
 
-                [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit] = $this->workOnSeason($competition, $season, $lastFetchColumn);
+                [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit, $has_errors] = $this->workOnSeason($competition, $season, $lastFetchColumn);
+
+                $should_update_last_action = $has_errors;
+                $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
                 // Introduce a delay to avoid rapid consecutive requests
                 sleep($should_sleep_for_seasons ? $this->getRequestDelaySeasons() : 0);
@@ -146,6 +149,10 @@ class MatchesHandlerJob implements ShouldQueue
             sleep($should_sleep_for_competitions ? $this->getRequestDelayCompetitions() : 0);
 
             $should_sleep_for_competitions = false;
+        }
+
+        if ($this->competitionId && $competitions->count() === 0) {
+            $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
         }
 
         $this->jobStartEndLog('END');
@@ -199,6 +206,7 @@ class MatchesHandlerJob implements ShouldQueue
         $should_sleep_for_competitions = false;
         $should_sleep_for_seasons = false;
         $should_exit = false;
+        $has_errors = false;
 
         while (!is_connected()) {
             $this->automationInfo("You are offline. Retrying in 10 secs...");
@@ -228,18 +236,15 @@ class MatchesHandlerJob implements ShouldQueue
 
         $should_sleep_for_competitions = true;
         $should_sleep_for_seasons = true;
-        $should_update_last_action = true;
 
         $this->doLogging($data);
 
         if ($data['status'] === 504) {
             $should_exit = true;
-            $should_update_last_action = false;
+            $has_errors = true;
         }
 
-        $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
-
-        return [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit];
+        return [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit, $has_errors];
     }
 
     private function doLogging($data = null)
@@ -270,6 +275,8 @@ class MatchesHandlerJob implements ShouldQueue
 
     private function loggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
     {
+        if ($this->competitionId) return;
+
         $task = $this->task;
         $today = Carbon::now()->format('Y-m-d');
         $record = MatchesJobLog::where('task', $task)->where('date', $today)->where('source_id', $this->sourceContext->getId())->first();

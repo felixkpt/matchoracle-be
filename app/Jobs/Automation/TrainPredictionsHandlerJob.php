@@ -30,8 +30,8 @@ class TrainPredictionsHandlerJob implements ShouldQueue
      */
     protected $jobId;
     protected $task = 'train';
-    protected $ignore_timing;
-    protected $competition_id;
+    protected $ignoreTiming;
+    protected $competitionId;
     protected $prefer_saved_matches = false;
     protected $is_grid_search = true;
     protected $target;
@@ -61,11 +61,11 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         }
 
         if ($ignore_timing) {
-            $this->ignore_timing = $ignore_timing;
+            $this->ignoreTiming = $ignore_timing;
         }
 
         if ($competition_id) {
-            $this->competition_id = $competition_id;
+            $this->competitionId = $competition_id;
             request()->merge(['competition_id' => $competition_id]);
         }
 
@@ -104,7 +104,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         // Set delay in minutes based on the task type:
         // Default case for train 3 months
         $delay = 60 * 24 * 90;
-        if ($this->ignore_timing) $delay = 0;
+        if ($this->ignoreTiming) $delay = 0;
 
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
@@ -201,6 +201,10 @@ class TrainPredictionsHandlerJob implements ShouldQueue
             // Introduce a delay to avoid rapid consecutive requests
             sleep($should_sleep_for_competitions ? $this->getRequestDelayCompetitions() : 0);
             $should_sleep_for_competitions = false;
+        }
+
+        if ($this->competitionId && $competitions->count() === 0) {
+            $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
         }
 
         $this->jobStartEndLog('END');

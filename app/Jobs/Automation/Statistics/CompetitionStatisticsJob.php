@@ -13,7 +13,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CompetitionStatisticsJob implements ShouldQueue
@@ -30,8 +29,8 @@ class CompetitionStatisticsJob implements ShouldQueue
      */
     protected $jobId;
     protected $task = 'run';
-    protected $ignore_timing;
-    protected $competition_id;
+    protected $ignoreTiming;
+    protected $competitionId;
 
     /**
      * Create a new job instance.
@@ -53,11 +52,11 @@ class CompetitionStatisticsJob implements ShouldQueue
         }
 
         if ($ignore_timing) {
-            $this->ignore_timing = $ignore_timing;
+            $this->ignoreTiming = $ignore_timing;
         }
 
         if ($competition_id) {
-            $this->competition_id = $competition_id;
+            $this->competitionId = $competition_id;
             request()->merge(['competition_id' => $competition_id]);
         }
     }
@@ -71,7 +70,7 @@ class CompetitionStatisticsJob implements ShouldQueue
         $lastFetchColumn = 'stats_last_done';
         // Set delay in minutes, 10 days is okay for this case
         $delay = 60 * 24 * 10;
-        if ($this->ignore_timing) $delay = 0;
+        if ($this->ignoreTiming) $delay = 0;
 
         // Get competitions that need stats done
         $competitions = Competition::query()
@@ -135,6 +134,10 @@ class CompetitionStatisticsJob implements ShouldQueue
             $this->automationInfo("------------");
         }
 
+        if ($this->competitionId && $competitions->count() === 0) {
+            $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
+        }
+
         $this->jobStartEndLog('END');
     }
 
@@ -163,6 +166,8 @@ class CompetitionStatisticsJob implements ShouldQueue
     }
     private function loggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
     {
+        if ($this->competitionId) return;
+
         $today = Carbon::now()->format('Y-m-d');
         $record = CompetitionStatisticJobLog::where('date', $today)->first();
 
