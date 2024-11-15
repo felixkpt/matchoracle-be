@@ -367,19 +367,19 @@ export interface BettingTipsTotalsInterface {
 export interface DashboardStatsMatchJobLogsInterface {
 
     historical_results: {
-        'today': DashJobLogsInterface;
+        'custom': DashJobLogsInterface;
         'all': DashJobLogsInterface;
     };
     recent_results: {
-        'today': DashJobLogsInterface;
+        'custom': DashJobLogsInterface;
         'all': DashJobLogsInterface;
     };
     shallow_fixtures: {
-        'today': DashJobLogsInterface;
+        'custom': DashJobLogsInterface;
         'all': DashJobLogsInterface;
     };
     fixtures: {
-        'today': DashJobLogsInterface;
+        'custom': DashJobLogsInterface;
         'all': DashJobLogsInterface;
     };
 }
@@ -446,20 +446,20 @@ export interface DashboardStatsInterface {
     };
 
     advanced_matches: {
-        'today': MatchesInterface;
-        'all': TodayMatchesInterface;
+        'custom': MatchesInterface;
+        'all': CustomMatchesInterface;
     };
     seasons_job_logs: {
-        'today': DashJobLogsInterface;
+        'custom': DashJobLogsInterface;
         'all': DashJobLogsInterface;
     };
     standings_job_logs: {
         historical_results: {
-            'today': DashJobLogsInterface;
+            'custom': DashJobLogsInterface;
             'all': DashJobLogsInterface;
         };
         recent_results: {
-            'today': DashJobLogsInterface;
+            'custom': DashJobLogsInterface;
             'all': DashJobLogsInterface;
         };
     };
@@ -469,19 +469,19 @@ export interface DashboardStatsInterface {
     match_job_logs: DashboardStatsMatchJobLogsInterface
 
     predictions_job_logs: {
-        'today': DashJobLogsInterface;
+        'custom': DashJobLogsInterface;
         'all': DashJobLogsInterface;
     };
     train_predictions_job_logs: {
-        'today': DashJobLogsInterface;
+        'custom': DashJobLogsInterface;
         'all': DashJobLogsInterface;
     };
     competition_statistics_logs: {
-        'today': CompetitionPredictionStatsInterface;
+        'custom': CompetitionPredictionStatsInterface;
         'all': CompetitionPredictionStatsInterface;
     }
     competition_prediction_statistics_logs: {
-        'today': CompetitionPredictionStatsInterface;
+        'custom': CompetitionPredictionStatsInterface;
         'all': CompetitionPredictionStatsInterface;
     }
 
@@ -489,13 +489,13 @@ export interface DashboardStatsInterface {
 
     {
         all: BettingTipsStatsInterface;
-        today: BettingTipsStatsInterface;
+        custom: BettingTipsStatsInterface;
     } | null | undefined
 
     stats?:
     {
         all: BettingTipsStatsInterface;
-        today: BettingTipsStatsInterface;
+        custom: BettingTipsStatsInterface;
     } | null | undefined
 
 
@@ -510,7 +510,7 @@ export interface MatchesInterface {
     without_results: number;
 }
 
-export interface TodayMatchesInterface extends MatchesInterface { }
+export interface CustomMatchesInterface extends MatchesInterface { }
 
 export interface CompetitionStatsInterface {
     total_job_run_count: number;
@@ -527,11 +527,11 @@ export interface BettingTipsStatsInterface {
     total_games_run_counts: number;
 }
 
-export interface TodayCompetitionStatsInterface extends CompetitionStatsInterface { }
+export interface CustomCompetitionStatsInterface extends CompetitionStatsInterface { }
 
 export interface CompetitionPredictionStatsInterface extends CompetitionStatsInterface { }
 
-export interface TodayCompetitionPredictionStatsInterface extends CompetitionStatsInterface { }
+export interface CustomCompetitionPredictionStatsInterface extends CompetitionStatsInterface { }
 
 export interface PredictionModeInterface {
     id: string | number

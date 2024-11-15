@@ -1,6 +1,6 @@
 import Loader from "@/components/Loader";
 import NoContentMessage from "@/components/NoContentMessage";
-import { CompetitionStatsInterface, TodayCompetitionStatsInterface } from "@/interfaces/FootballInterface";
+import { CompetitionStatsInterface, CustomCompetitionStatsInterface } from "@/interfaces/FootballInterface";
 import RenderStatBlock from "../RenderStatBlock";
 
 interface CompetitionStatsCardProps {
@@ -8,7 +8,7 @@ interface CompetitionStatsCardProps {
     errors: string | undefined
     stats: {
         all: CompetitionStatsInterface;
-        today: TodayCompetitionStatsInterface;
+        custom: CustomCompetitionStatsInterface;
     } | null | undefined;
 }
 
@@ -39,35 +39,35 @@ const Competitions: React.FC<CompetitionStatsCardProps> = ({ loading, errors, st
                                     <div className="d-flex flex-column gap-2 mt-3">
                                         <RenderStatBlock
                                             label="Job Run Count"
-                                            todayCount={stats.today.total_job_run_count}
+                                            customCount={stats.custom.total_job_run_count}
                                             allTimeCount={stats.all.total_job_run_count}
                                             icon="ic:sharp-published-with-changes"
                                             colorClass="text-success"
                                         />
                                         <RenderStatBlock
                                             label="Competition Counts"
-                                            todayCount={stats.today.total_competition_counts}
+                                            customCount={stats.custom.total_competition_counts}
                                             allTimeCount={stats.all.total_competition_counts}
                                             icon="mdi:trophy"
                                             colorClass="text-info"
                                         />
                                         <RenderStatBlock
                                             label="Completed Competition Counts"
-                                            todayCount={stats.today.total_run_competition_counts}
+                                            customCount={stats.custom.total_run_competition_counts}
                                             allTimeCount={stats.all.total_run_competition_counts}
                                             icon="mdi:trophy"
                                             colorClass="text-info"
                                         />
                                         <RenderStatBlock
                                             label="Seasons Run Counts"
-                                            todayCount={stats.today.total_seasons_run_counts}
+                                            customCount={stats.custom.total_seasons_run_counts}
                                             allTimeCount={stats.all.total_seasons_run_counts}
                                             icon="fa-solid:running"
                                             colorClass="text-warning"
                                         />
                                         <RenderStatBlock
                                             label="Games Run Counts"
-                                            todayCount={stats.today.total_games_run_counts}
+                                            customCount={stats.custom.total_games_run_counts}
                                             allTimeCount={stats.all.total_games_run_counts}
                                             icon="carbon:checkmark-outline"
                                             colorClass="text-success"

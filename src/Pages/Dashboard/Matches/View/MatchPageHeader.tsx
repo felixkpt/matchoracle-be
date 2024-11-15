@@ -47,7 +47,7 @@ const MatchPageHeader = ({ game, homeTeam, awayTeam, homeTeamRecentResults, away
               <div className="d-flex gap-2 justify-content-center justify-content-xxl-start">
                 <span>Results:</span>
                 <span className="d-flex gap-1">{
-                  game.Winner == 'POSTPONED' ? 'PST' :
+                  ['PST', 'CANC', 'ABN'].includes(game.Winner) ? game.Winner :
                     <>
                       FT: <b>{ftRes}</b> {htRes && <span>HT: <b>({htRes})</b></span>}
                     </>

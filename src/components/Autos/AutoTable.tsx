@@ -100,8 +100,8 @@ const AutoTable = ({ baseUri, search, columns: initCols, actions, exclude, getMo
         }
     }, [tableData]);
 
-    const debouncedSearch = debounce(handleSearch, 400);
-    const debouncedSearch2 = debounce(setQuery, 400);
+    const debouncedSearch = debounce(handleSearch, 700);
+    const debouncedSearch2 = debounce(setQuery, 700);
 
     const [columns, setColumns] = useState(initCols)
 

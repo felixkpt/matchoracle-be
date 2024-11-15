@@ -65,12 +65,12 @@ const useListSources = (params?: string) => {
     },
     async continentId(search?: string) {
       const resp = await get('/dashboard/continents' + prepareParams(search)).then((response) => response.results || [])
-      return resp.results?.data || []
+      return resp?.data || []
 
     },
     async countryId(search?: string) {
       const resp = await get('/dashboard/countries' + prepareParams(search)).then((response) => response.results || [])
-      return resp.results?.data || []
+      return resp?.data || []
 
     },
     async nationalityId(search?: string) {
@@ -91,7 +91,7 @@ const useListSources = (params?: string) => {
     },
     async competitionId(search?: string) {
       const resp = await get('/dashboard/competitions' + prepareParams(search)).then((response) => response.results || [])
-      return resp.results?.data || []
+      return resp?.data || []
     },
     async teamId(search?: string) {
       const resp = await get('/dashboard/teams' + prepareParams(search)).then((response) => response.results || [])
