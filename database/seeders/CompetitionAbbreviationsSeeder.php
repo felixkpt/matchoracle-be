@@ -3,11 +3,10 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Competition;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 
-class CompetitionSeeder extends Seeder
+class CompetitionAbbreviationsSeeder extends Seeder
 {
     protected $sourceContext;
 
@@ -22,6 +21,6 @@ class CompetitionSeeder extends Seeder
 
     public function run()
     {
-        $this->sourceContext->initialCompetitionsHandler()->seedCompetitions();
+        $this->sourceContext->competitionAbbreviationsHandler()->fetch();
     }
 }

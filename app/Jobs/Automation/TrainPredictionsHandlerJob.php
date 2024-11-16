@@ -46,6 +46,8 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         $this->maxExecutionTime = 60 * 60;
         $this->startTime = time();
 
+        $this->initializeSettings();
+
         // Instantiate the context class for handling game sources
         $this->sourceContext = new GameSourceStrategy();
 

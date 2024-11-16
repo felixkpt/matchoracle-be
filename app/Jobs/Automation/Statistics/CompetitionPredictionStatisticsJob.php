@@ -158,7 +158,7 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
             if ($this->competitionId && $competitions->count() === 0) {
                 $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
             }
-    
+
             $this->jobStartEndLog('END');
         }
     }
@@ -166,7 +166,6 @@ class CompetitionPredictionStatisticsJob implements ShouldQueue
     private function seasonsFilter($competition)
     {
         return $competition->seasons()
-            ->whereDate('start_date', '>=', $this->historyStartDate)
             ->orderBy('start_date', 'desc')->get();
     }
 

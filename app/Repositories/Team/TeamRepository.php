@@ -49,6 +49,7 @@ class TeamRepository implements TeamRepositoryInterface
         $results = SearchRepo::of($teams, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
+            ->addColumn('Updated_at', fn($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addFillable('website', ['input' => 'input', 'type' => 'url'], 'website')
             ->addFillable('tla', ['input' => 'input', 'type' => 'text', 'capitalize' => true], 'tla')
             ->addFillable('founded', ['input' => 'input', 'type' => 'number'], 'founded')

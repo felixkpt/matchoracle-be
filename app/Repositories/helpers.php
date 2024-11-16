@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\AppSetting;
 use App\Models\Continent;
 use App\Models\Game;
 use App\Models\GamePredictionType;
@@ -361,3 +362,20 @@ if (!function_exists('get_world_id')) {
         return Continent::where('name', 'World')->first()->id ?? 0;
     }
 }
+
+if (!function_exists('getAppSettingValue')) {
+    /**
+     * Retrieve an application setting by its name.
+     *
+     * @param string $name The name of the setting.
+     * @param mixed|null $default A default value to return if the setting is not found.
+     * @return mixed
+     */
+    function getAppSettingValue(string $name, $default = null)
+    {
+        $setting = AppSetting::where('name', $name)->first();
+
+        return $setting ? $setting->value : $default;
+    }
+}
+

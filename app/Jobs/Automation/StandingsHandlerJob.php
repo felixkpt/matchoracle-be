@@ -44,6 +44,8 @@ class StandingsHandlerJob implements ShouldQueue
         $this->maxExecutionTime = 60 * 10;
         $this->startTime = time();
 
+        $this->initializeSettings();
+
         // Instantiate the context class for handling game sources
         $this->sourceContext = new GameSourceStrategy();
 
@@ -204,7 +206,6 @@ class StandingsHandlerJob implements ShouldQueue
     private function seasonsFilter($competition)
     {
         return $competition->seasons()
-            ->whereDate('start_date', '>=', $this->historyStartDate)
             ->where('fetched_standings', false)
             ->orderBy('start_date', 'desc')->get();
     }

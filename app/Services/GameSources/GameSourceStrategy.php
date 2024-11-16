@@ -47,6 +47,17 @@ class GameSourceStrategy
     }
 
     /**
+     * Get the handler for initial competitions data.
+     *
+     * @return CompetitionAbbreviationsHandler
+     * @inheritdoc
+     */
+    public function competitionAbbreviationsHandler()
+    {
+        return $this->gameSourceStrategyInterface->competitionAbbreviationsHandler();
+    }
+
+    /**
      * Get the handler for competitions data.
      *
      * @return CompetitionsHandler

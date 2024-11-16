@@ -15,14 +15,13 @@ return new class extends Migration
             $table->bigIncrements('id')->startingValue(1100);
             $table->uuid('uuid')->unique();
             $table->string('name');
-            $table->boolean('is_international')->default(0);
             $table->unsignedBigInteger('country_id')->nullable();
             $table->unsignedBigInteger('competition_id')->nullable();
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();
-            // Unique combination of name and country_id
-            $table->unique(['name', 'country_id']);
+            // Unique combination of name, country_id and compe_id
+            $table->unique(['name', 'country_id', 'competition_id']);
         });
     }
 

@@ -5,6 +5,7 @@ namespace App\Repositories\Competition\CompetitionAbbreviation;
 use App\Models\CompetitionAbbreviation;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo\SearchRepo;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CompetitionAbbreviationRepository implements CompetitionAbbreviationRepositoryInterface
@@ -23,11 +24,11 @@ class CompetitionAbbreviationRepository implements CompetitionAbbreviationReposi
             return response(['results' => $statuses->get()]);
 
         $uri = '/dashboard/competitions/competition-abbreviations/';
-        $statuses = SearchRepo::of($statuses, ['id', 'name'])
-            ->fillable(['competition_id', 'name', 'is_international'])
+        $statuses = SearchRepo::of($statuses, ['id', 'name', 'country.name'])
+            ->fillable(['competition_id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
-            ->addColumn('Is_intl', fn($q) => $q->is_international ? 'Yes' : 'No')
+            ->addColumn('Updated_at', fn($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->paginate();
 
         return response(['results' => $statuses]);

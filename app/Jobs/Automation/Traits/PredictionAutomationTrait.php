@@ -10,6 +10,8 @@ use Illuminate\Support\Carbon;
 
 trait PredictionAutomationTrait
 {
+    protected $competitionId;
+
     /**
      * Retrieves or creates a prediction log record for a given date and model.
      *

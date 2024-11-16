@@ -44,6 +44,8 @@ class MatchesHandlerJob implements ShouldQueue
         $this->maxExecutionTime = 60 * 10;
         $this->startTime = time();
 
+        $this->initializeSettings();
+
         // Instantiate the context class for handling game sources
         $this->sourceContext = new GameSourceStrategy();
 
@@ -305,7 +307,6 @@ class MatchesHandlerJob implements ShouldQueue
     {
         return $competition->seasons()
             ->when(Str::endsWith($this->task, 'fixtures'), fn($q) => $q->where('is_current', true))
-            ->whereDate('start_date', '>=', $this->historyStartDate)
             ->where('fetched_all_matches', false)
             ->orderBy('start_date', 'asc')
             ->get();

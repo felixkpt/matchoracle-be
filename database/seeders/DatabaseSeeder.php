@@ -25,9 +25,8 @@ class DatabaseSeeder extends Seeder
             ContinentsTableSeeder::class,
             CountriesSeeder::class,
             CompetitionSeeder::class,
+            AppSettingSeeder::class,
         ];
-
-        // shuffle($arr);
 
         $this->call($arr);
 

@@ -9,6 +9,7 @@ use App\Services\GameSources\Forebet\ForebetInitializationTrait;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -69,6 +70,8 @@ class MatchHandler
         $content = Client::get($url);
         if (!$content) return $this->matchMessage('Source inaccessible or not found.', 500);
 
+        // $content = file_get_contents(Storage::path('tests/index.html'));
+        
         $crawler = new Crawler($content);
 
         if (strpos($crawler->text(), 'Attention Required!') !== false) {
@@ -76,7 +79,6 @@ class MatchHandler
             Log::channel($this->logChannel)->critical($message);
             return $this->matchMessage($message, 500);
         }
-
 
         $header = $crawler->filter('div.predictioncontain');
         $l = $header->filter('div.lLogo a img.matchTLogo');

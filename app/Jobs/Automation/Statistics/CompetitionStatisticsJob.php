@@ -101,7 +101,7 @@ class CompetitionStatisticsJob implements ShouldQueue
         $should_exit = false;
         foreach ($competitions as $key => $competition) {
             if ($should_exit) break;
-            
+
             $this->automationinfo(($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})");
 
             request()->merge(['competition_id' => $competition->id]);
@@ -144,7 +144,6 @@ class CompetitionStatisticsJob implements ShouldQueue
     private function seasonsFilter($competition)
     {
         return $competition->seasons()
-            ->whereDate('start_date', '>=', $this->historyStartDate)
             ->orderBy('start_date', 'desc')->get();
     }
 

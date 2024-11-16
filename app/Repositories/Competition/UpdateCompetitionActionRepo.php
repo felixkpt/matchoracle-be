@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Competition;
 
+use App\Jobs\Automation\CompetitionAbbreviationsJob;
 use App\Jobs\Automation\MatchesHandlerJob;
 use App\Jobs\Automation\MatchHandlerJob;
 use App\Jobs\Automation\PredictionsHandlerJob;
@@ -43,6 +44,10 @@ class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterfac
 
         // Switch based on the action to update specific fields in lastAction
         switch ($action) {
+            case 'abbreviation_last_fetch':
+                dispatch(new CompetitionAbbreviationsJob('fetch', $jobId, $ignoreTiming, $competitionId));
+                break;
+
             case 'seasons_last_fetch':
                 dispatch(new SeasonsHandlerJob('fetch', $jobId, $ignoreTiming, $competitionId));
                 break;

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('competition_last_actions', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('competition_id')->unique();
+            $table->dateTime('abbreviation_last_fetch')->nullable();
             $table->dateTime('seasons_last_fetch')->nullable();
 
             $table->dateTime('standings_recent_results_last_fetch')->nullable();

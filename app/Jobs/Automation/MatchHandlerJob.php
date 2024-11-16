@@ -47,6 +47,8 @@ class MatchHandlerJob implements ShouldQueue
         $this->maxExecutionTime = 60 * 20;
         $this->startTime = time();
 
+        $this->initializeSettings();
+
         // Set the jobID
         $this->jobId = $job_id ?? str()->random(6);
 
@@ -193,7 +195,6 @@ class MatchHandlerJob implements ShouldQueue
     {
         return $competition->seasons()
             ->when($this->task == 'fixtures', fn($q) => $q->where('is_current', true))
-            ->whereDate('start_date', '>=', $this->historyStartDate)
             ->where('fetched_all_single_matches', false)
             ->orderBy('start_date', 'desc')
             ->get();
@@ -356,8 +357,18 @@ class MatchHandlerJob implements ShouldQueue
             $should_sleep_for_games = true;
             $should_update_last_action = true;
 
+            if ($data['status'] === 422) {
+                $should_sleep_for_games = false;
+            }
+
+            if ($data['status'] === 504) {
+                $should_exit = true;
+                $has_errors = true;
+            }
+
             $this->doLogging($data);
             $this->updateLastAction($game, $should_update_last_action, $lastFetchColumn, 'game_id');
+
 
             // Introduce a delay to avoid rapid consecutive requests
             sleep($should_sleep_for_games ? $this->getRequestDelayGames() : 0);

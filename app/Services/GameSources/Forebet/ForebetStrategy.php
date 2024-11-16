@@ -47,6 +47,15 @@ class ForebetStrategy implements GameSourceStrategyInterface
     /**
      * {@inheritdoc}
      */
+    public function competitionAbbreviationsHandler()
+    {
+        // Method to get the handler for competitions abbreviations data.
+        return new CompetitionAbbreviationsHandler();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function competitionsHandler()
     {
         // Method to get the handler for competitions data.

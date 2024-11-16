@@ -44,6 +44,8 @@ class PredictionsHandlerJob implements ShouldQueue
         $this->maxExecutionTime = 60 * 60;
         $this->startTime = time();
 
+        $this->initializeSettings();
+
         // Instantiate the context class for handling game sources
         $this->sourceContext = new GameSourceStrategy();
 
@@ -115,9 +117,9 @@ class PredictionsHandlerJob implements ShouldQueue
         // loggerModel competition_counts and Action Counts
         $this->predictionsLoggerModel(true, $competition_counts, $actionCounts);
 
-        // predict for last 3 months plus 7 days from today
-        $fromDate = Carbon::today()->subDays(30 * 3);
-        $toDate = Carbon::today()->addDays(7);
+        // predict for last 3 months plus 10 days from today
+        $fromDate = Carbon::today()->subDays(30 * 3)->format('Y-m-d');
+        $toDate = Carbon::today()->addDays(10)->format('Y-m-d');
 
         // Loop through each competition to fetch and update matches
         $options = [

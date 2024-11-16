@@ -24,6 +24,13 @@ interface GameSourceStrategyInterface
     public function initialCompetitionsHandler();
 
     /**
+     * Get the handler for competitions abbreviations data.
+     * 
+     * @return CompetitionAbbreviationsHandler
+     */
+    public function competitionAbbreviationsHandler();
+
+    /**
      * Get the handler for competitions data.
      * 
      * @return CompetitionsHandler
