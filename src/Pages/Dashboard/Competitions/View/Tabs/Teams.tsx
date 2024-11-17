@@ -33,8 +33,7 @@ const Index: React.FC<Props> = ({ record, selectedSeason }) => {
         { label: 'Priority Number', key: 'priority_number' },
         { label: 'Last Updated', key: 'last_updated' },
         { label: 'Status', key: 'Status' },
-        { key: 'Created_by' },
-        { label: 'Created At', key: 'created_at' },
+        { label: 'Updated', key: 'Updated_at' },
         { label: 'Action', key: 'action' },
     ];
 

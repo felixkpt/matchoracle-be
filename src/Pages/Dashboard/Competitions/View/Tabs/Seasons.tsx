@@ -19,8 +19,7 @@ const Seasons: React.FC<Props> = ({ record, selectedSeason }) => {
     { key: 'Fetched_standings' },
     { key: 'Fetched_all_matches' },
     { key: 'Fetched_all_single_matches' },
-    { key: 'Created_by' },
-    { label: 'Created At', key: 'created_at' },
+    { label: 'Updated', key: 'Updated_at' },
     { label: 'Action', key: 'action' },
   ]
 

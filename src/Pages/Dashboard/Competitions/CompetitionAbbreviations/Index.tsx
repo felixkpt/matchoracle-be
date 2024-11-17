@@ -28,10 +28,6 @@ const Index = () => {
                             key: 'name',
                         },
                         {
-                            label: 'Is Int?',
-                            key: 'Is_intl',
-                        },
-                        {
                             label: 'Country',
                             key: 'country.name',
                         },
@@ -43,6 +39,10 @@ const Index = () => {
                         {
                             label: 'Created At',
                             key: 'created_at',
+                        },
+                        {
+                            label: 'Updated',
+                            key: 'Updated_at',
                         },
                         {
                             label: 'Action',

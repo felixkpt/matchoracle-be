@@ -15,7 +15,7 @@ import Str from '../../utils/Str';
 import useAutoAction from '@/hooks/autos/useAutoAction';
 import AutoAction from './AutoActions';
 import RecordStatus from './RecordStatus';
-import { renderImage, renderTableId, renderTime } from '../HtmlRenderers';
+import { renderDateTime, renderImage, renderTableId } from '../HtmlRenderers';
 
 const AutoTable = ({ baseUri, search, columns: initCols, actions, exclude, getModelDetails, listSources, tableId, modalSize, customModalId, perPage }: AutoTableInterface) => {
     const localTableId = tableId || 'AutoTable'
@@ -199,9 +199,13 @@ const AutoTable = ({ baseUri, search, columns: initCols, actions, exclude, getMo
         } else if (column.key === 'id') {
             return renderTableId(value, moduleUri)
         } else if (column.key === 'created_at') {
-            return renderTime(value)
+            return renderDateTime(value)
+        }else if (column.key === 'created') {
+            return renderDateTime(value, true)
         } else if (column.key === 'updated_at') {
-            return renderTime(value)
+            return renderDateTime(value)
+        }else if (column.key === 'updated') {
+            return renderDateTime(value, true)
         } else if (column.key === 'action') {
             return <AutoAction row={row} moduleUri={moduleUri} />;
         } else if (['image', 'logo', 'flag'].includes(column.key)) {

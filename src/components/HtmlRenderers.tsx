@@ -3,6 +3,7 @@ import { scores } from "@/utils/constants"
 import { renderDefaultImage } from "@/utils/helpers"
 import { NavLink } from "react-router-dom"
 import TimeAgo from "timeago-react"
+import { format } from "date-fns";
 
 export function resolveURI(uri: string) {
   return uri.replace(/\/+/g, '/')
@@ -14,8 +15,8 @@ export const renderTableId = (value: string, uri: string) => {
   )
 }
 
-export const renderTime = (value: string) => {
-  return <TimeAgo datetime={value} />
+export const renderDateTime = (value: string, realTime: boolean = false) => {
+  return realTime === false ? <span>{format(new Date(value), "dd MMM yyyy, HH:mm")}</span> : <TimeAgo datetime={value} />;
 }
 
 export const renderImage = (value: string) => {
