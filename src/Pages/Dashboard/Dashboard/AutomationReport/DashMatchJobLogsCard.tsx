@@ -9,7 +9,7 @@ interface DashJobLogsMiniCardProps {
     loading: boolean;
     errors: string | undefined;
     stats: {
-        today: DashJobLogsInterface;
+        custom: DashJobLogsInterface;
         all: DashJobLogsInterface;
     } | null;
 }
@@ -35,7 +35,7 @@ const DashMatchJobLogsCard: React.FC<DashJobLogsMiniCardProps> = ({
     });
 
     const statsData = {
-        today: stats?.today ? { ...initializeStatsData(), ...stats.today } : initializeStatsData(),
+        custom: stats?.custom ? { ...initializeStatsData(), ...stats.custom } : initializeStatsData(),
         all: stats?.all ? { ...initializeStatsData(), ...stats.all } : initializeStatsData(),
     };
 
@@ -62,49 +62,49 @@ const DashMatchJobLogsCard: React.FC<DashJobLogsMiniCardProps> = ({
                         <RenderStatBlock
                             icon='ic:sharp-published-with-changes'
                             label='Job Runs'
-                            todayCount={statsData.today.total_job_run_counts}
+                            customCount={statsData.custom.total_job_run_counts}
                             allTimeCount={statsData.all.total_job_run_counts}
                             colorClass='text-success'
                         />
                         <RenderStatBlock
                             icon='mdi:trophy'
                             label='Competitions Done/Counts'
-                            todayCount={`${statsData.today.total_run_competition_counts}/${statsData.today.total_competition_counts}`}
+                            customCount={`${statsData.custom.total_run_competition_counts}/${statsData.custom.total_competition_counts}`}
                             allTimeCount={`${statsData.all.total_run_competition_counts}/${statsData.all.total_competition_counts}`}
                             colorClass='text-info'
                         />
                         <RenderStatBlock
                             icon='fa-solid:running'
                             label='Actions Done/Counts'
-                            todayCount={`${statsData.today.total_run_action_counts}/${statsData.today.total_action_counts}`}
+                            customCount={`${statsData.custom.total_run_action_counts}/${statsData.custom.total_action_counts}`}
                             allTimeCount={`${statsData.all.total_run_action_counts}/${statsData.all.total_action_counts}`}
                             colorClass='text-primary'
                         />
                         <RenderStatBlock
                             icon='fa-solid:running'
                             label='AVG Time / Action'
-                            todayCount={statsData.today.total_average_seconds_per_action}
+                            customCount={statsData.custom.total_average_seconds_per_action}
                             allTimeCount={statsData.all.total_average_seconds_per_action}
                             colorClass='text-primary'
                         />
                         <RenderStatBlock
                             icon='carbon:checkmark-outline'
                             label='Created'
-                            todayCount={statsData.today.total_created_counts}
+                            customCount={statsData.custom.total_created_counts}
                             allTimeCount={statsData.all.total_created_counts}
                             colorClass='text-success'
                         />
                         <RenderStatBlock
                             icon='carbon:checkmark-outline'
                             label='Updated'
-                            todayCount={statsData.today.total_updated_counts}
+                            customCount={statsData.custom.total_updated_counts}
                             allTimeCount={statsData.all.total_updated_counts}
                             colorClass='text-warning'
                         />
                         <RenderStatBlock
                             icon='ri:error-warning-line'
                             label='Failures'
-                            todayCount={statsData.today.total_failed_counts}
+                            customCount={statsData.custom.total_failed_counts}
                             allTimeCount={statsData.all.total_failed_counts}
                             colorClass='text-danger'
                         />
@@ -112,7 +112,7 @@ const DashMatchJobLogsCard: React.FC<DashJobLogsMiniCardProps> = ({
                         <RenderStatBlock
                             icon='mdi:timer-sand'
                             label='Remaining Time'
-                            todayCount={Str.formatTime(statsData.today.remaining_time || 0)}
+                            customCount={Str.formatTime(statsData.custom.remaining_time || 0)}
                             allTimeCount={Str.formatTime(statsData.all.remaining_time || 0)}
                             colorClass='text-secondary'
                         />

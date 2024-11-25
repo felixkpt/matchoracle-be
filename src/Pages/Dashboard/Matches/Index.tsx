@@ -7,7 +7,8 @@ import useFromToDates from '@/hooks/useFromToDates';
 import { useEffect, useState } from 'react';
 import { PredictionModeInterface } from '@/interfaces/FootballInterface';
 import { predictionModes } from '@/utils/constants';
-import { ActionsType } from '@/interfaces/UncategorizedInterfaces';
+import { ActionsType, ColumnInterface } from '@/interfaces/UncategorizedInterfaces';
+import { renderDateTime } from '@/components/HtmlRenderers';
 
 const Index = () => {
 
@@ -25,7 +26,7 @@ const Index = () => {
         }
     }, [predictionModes])
 
-    const columns = [
+    const columns: ColumnInterface[] = [
         { key: 'id' },
         { key: 'Competition' },
         { key: 'home_team.name' },
@@ -34,7 +35,9 @@ const Index = () => {
         { label: 'full_time', key: 'full_time' },
         { key: 'utc_date' },
         { label: 'Status', key: 'Status' },
-        { label: 'Created At', key: 'created_at' },
+        {
+            label: 'Updated', key: 'updated_at', renderCell: (key, _) => renderDateTime(key, true),
+        },
         { label: 'Action', key: 'action' },
     ]
 

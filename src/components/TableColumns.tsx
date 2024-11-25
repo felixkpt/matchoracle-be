@@ -1,4 +1,4 @@
-import { formatFTScores, formatHTScores, renderBTS, renderCS, renderFT1X2, renderFT1X2Pick, renderGameViewLink, renderHT1X2, renderHT1X2Pick, renderOver25, UTCDate } from "@/components/HtmlRenderers"
+import { formatFTScores, formatHTScores, renderBTS, renderCS, renderFT1X2, renderFT1X2Pick, renderGameViewLink, renderHT1X2, renderHT1X2Pick, renderOver25, UTCDate, renderDateTime } from "@/components/HtmlRenderers"
 import { ColumnInterface } from "@/interfaces/UncategorizedInterfaces"
 import Str from "@/utils/Str"
 import { NavLink } from "react-router-dom"
@@ -69,6 +69,9 @@ export const oddsColumns: ColumnInterface[] = [
     { key: 'under_25' },
     { key: 'GG' },
     { key: 'NG' },
+    {
+        label: 'Updated', key: 'updated_at', renderCell: (key, _) => renderDateTime(key, true),
+    },
     { label: 'Status', key: 'Status' },
     {
         key: 'Game', renderCell: (_: string, record: any) => {

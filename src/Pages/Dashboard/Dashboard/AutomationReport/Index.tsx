@@ -5,29 +5,38 @@ import useAxios from '@/hooks/useAxios'
 import { useEffect, useState } from 'react'
 import CompetitionStatsCard from '../Includes/StatisticsJobLogsCards/Competitions'
 import DashMatchJobLogsCard from './DashMatchJobLogsCard'
+import MatchesPageHeader from '@/components/Matches/MatchesPageHeader'
 
 const Index = () => {
 
     const { get, loading, errors } = useAxios();
     const [stats, setStats] = useState<DashboardStatsInterface | null | undefined>(null);
+    const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>([]);
 
     useEffect(() => {
         getStats()
-    }, [])
+    }, [fromToDates])
 
     async function getStats() {
-        get(`dashboard/automation-report`).then((response) => {
+        const [fromDate, toDate] = fromToDates;
+        get(`dashboard/automation-report`, {
+            params: {
+                from_date: fromDate,
+                to_date: toDate,
+            },
+        }).then((response) => {
             if (response.results) {
-                setStats(response.results)
+                setStats(response.results);
             }
-        })
+        });
     }
 
     return (
         <div className="row">
             <div className='col-12 col-xxl-10'>
                 <div className="row justify-content-center mb-4">
-                    <h2 className="page-title">System automation report</h2>
+                    <MatchesPageHeader title={'System automation report'} fromToDates={fromToDates} setFromToDates={setFromToDates} className="shadow-none" />
+
                     <div className="col-md-6 col-xl-6 mb-4">
                         <div className="card shadow h-100">
                             <NavLink to={`/dashboard/settings/system/job-logs?tab=seasons`} className={'link-unstyled'}>

@@ -11,6 +11,7 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
     const { post } = useAxios();
     const [loadingActions, setLoadingActions] = useState<{ [key: string]: boolean }>({});
     const [loading, setLoading] = useState(false); // Global loading state for any action
+    const [selectedActions, setSelectedActions] = useState<string[]>([]);
 
     const competition = record;
 
@@ -23,14 +24,13 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
 
     const handleUpdateAction = async (action: string, shouldReloadState = true) => {
         setLoadingActions((prevState) => ({ ...prevState, [action]: true }));
-        setLoading(true); // Prevent other actions
-    
-        // Generate a random job ID
+        setLoading(true);
+
         const jobId = Math.random().toString(36).substring(2, 8);
-    
+
         try {
             const response = await post(`dashboard/competitions/view/${competition.id}/update-action/${action}`, {
-                job_id: jobId
+                job_id: jobId,
             });
             console.log(response);
             if (shouldReloadState && getRecord) getRecord();
@@ -41,23 +41,29 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
             setLoading(false);
         }
     };
-    
 
-    const handleUpdateAllActions = async () => {
+    const handleUpdateSelectedActions = async () => {
         setLoading(true);
 
         try {
-            for (const action of actionKeys) {
-                await handleUpdateAction(action, false); // Wait for each action to complete
+            for (const action of selectedActions) {
+                await handleUpdateAction(action, false);
             }
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false); // Re-enable the button after all actions are completed
+            setLoading(false);
             if (getRecord) getRecord();
         }
     };
 
+    const toggleActionSelection = (action: string) => {
+        setSelectedActions((prevState) =>
+            prevState.includes(action)
+                ? prevState.filter((item) => item !== action)
+                : [...prevState, action]
+        );
+    };
 
     // Predefined colors to use for prefixes
     const colors = ['blue', 'green', 'orange', 'purple', 'pink'];
@@ -65,21 +71,41 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
     // Keep track of the last assigned color for each prefix
     const prefixColors: { [key: string]: string } = {};
 
+
     return (
         <Card>
             <CardBody>
                 <Row className="d-flex justify-content-between align-items-center my-2">
                     <Col>Last actions ID: #{lastAction.id}</Col>
                     <Col className="col-5 col-md-4 col-lg-3 text-end">
-                        <Button variant="success" onClick={handleUpdateAllActions} disabled={loading}>
-                            {loading ? 'Updating All...' : 'Update All Actions'}
+                        <Button
+                            variant="success"
+                            onClick={handleUpdateSelectedActions}
+                            disabled={loading || selectedActions.length === 0}
+                        >
+                            {loading ? 'Updating Selected...' : 'Update Selected'}
                         </Button>
                     </Col>
                 </Row>
                 <Table striped bordered hover>
                     <thead>
                         <tr>
-                            <th>Action Type</th>
+                            <th>
+                                <div style={{ borderLeft: `solid 5px #333`, padding: '0.5rem' }}>
+
+                                    <input
+                                        type="checkbox"
+                                        onChange={(e) =>
+                                            setSelectedActions(
+                                                e.target.checked ? actionKeys : []
+                                            )
+                                        }
+                                        checked={selectedActions.length === actionKeys.length}
+                                        disabled={loading}
+                                    />
+                                    <span className='ms-2'>Action Type</span>
+                                </div>
+                            </th>
                             <th>Updated Date</th>
                             <th>Update Action</th>
                         </tr>
@@ -102,10 +128,18 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
                             return (
                                 <tr key={key}>
                                     <td>
+
                                         <div style={{ borderLeft: `solid 5px ${prefixColor}`, padding: '0.5rem' }}>
-                                            {(key.charAt(0).toLocaleUpperCase() + key.slice(1)).replace(/_/g, ' ')}
+                                            <input
+                                                type="checkbox"
+                                                onChange={() => toggleActionSelection(key)}
+                                                checked={selectedActions.includes(key)}
+                                                disabled={loading}
+                                            />
+                                            <span className='ms-2'>{(key.charAt(0).toLocaleUpperCase() + key.slice(1)).replace(/_/g, ' ')}</span>
                                         </div>
                                     </td>
+
                                     <td>
                                         {lastAction[key] && typeof lastAction[key] === 'string' && !isNaN(new Date(lastAction[key]!).getTime())
                                             ? <TimeAgo datetime={new Date(lastAction[key]!)} />
@@ -115,7 +149,7 @@ const LastActions: React.FC<Props> = ({ record, getRecord }) => {
                                         <Button
                                             variant="primary"
                                             onClick={() => handleUpdateAction(key)}
-                                            disabled={loading} // Disable all buttons when any action is loading
+                                            disabled={loadingActions[key] || loading}
                                         >
                                             {loadingActions[key] ? <><Spinner animation="border" size="sm" /> Updating...</> : 'Update Action'}
                                         </Button>

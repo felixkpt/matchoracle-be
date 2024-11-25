@@ -59,7 +59,7 @@ const UpcomingMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) =
         competition &&
         <div>
           <div className='shadow-sm'>
-            <CompetitionHeader actionTitle="Fetch Upcoming Matches" actionButton="fetchUpcomingMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+            <CompetitionHeader record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
           </div>
           {baseUri &&
             <AutoTable key={baseUri} columns={columns} actions={actions} baseUri={baseUri} search={true} tableId={'competitionUpcomingMatchesTable'} customModalId="teamModal" />

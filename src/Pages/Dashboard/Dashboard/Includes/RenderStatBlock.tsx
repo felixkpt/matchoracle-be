@@ -2,13 +2,13 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 
 interface RenderStatBlockProps {
     label: string;
-    todayCount: number | string;
+    customCount: number | string;
     allTimeCount: number | string;
     icon: string;
     colorClass: string;
 }
 
-const RenderStatBlock: React.FC<RenderStatBlockProps> = ({ label, todayCount, allTimeCount, icon, colorClass }) => (
+const RenderStatBlock: React.FC<RenderStatBlockProps> = ({ label, customCount, allTimeCount, icon, colorClass }) => (
     <div className={`w-100`} style={{ fontSize: '80%' }}>
         <div className={`row overflow-auto shadow-sm p-2 rounded justify-content-between ${colorClass}`}>
             <div className='col-6'>
@@ -19,7 +19,7 @@ const RenderStatBlock: React.FC<RenderStatBlockProps> = ({ label, todayCount, al
             </div>
             <div className="col-6">
                 <div className="d-flex gap-3">
-                    <div className="col-6 text-center">{todayCount || 0}</div>
+                    <div className="col-6 text-center">{customCount || 0}</div>
                     <div className="col-6 text-center">{allTimeCount || 0}</div>
                 </div>
             </div>

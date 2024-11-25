@@ -62,7 +62,7 @@ const PastMatches: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
         competition &&
         <div>
           <div className='shadow-sm'>
-            <CompetitionSubHeader actionTitle="Fetch Results" actionButton="fetchPastMatches" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+            <CompetitionSubHeader record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
           </div>
 
           {baseUri &&

@@ -42,7 +42,7 @@ const UpcomingPredictions: React.FC<Props> = ({ record, seasons, selectedSeason 
                 competition &&
                 <div>
                     <div className='shadow-sm'>
-                        <CompetitionSubHeader actionTitle="Do Predictions" actionButton="doPredictions" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+                        <CompetitionSubHeader record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
                     </div>
                     {baseUri &&
                         <AutoTable key={baseUri} columns={predictionsColumns} actions={actions} baseUri={baseUri} search={true} tableId={'competitionUpcomingPredictionsTable'} customModalId="teamModal" />

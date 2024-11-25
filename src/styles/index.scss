@@ -68,7 +68,7 @@ a:focus {
 }
 
 .page-title {
-  margin-top: .2rem;
+  margin-top: 0.2rem;
   margin-bottom: 1.5rem;
 }
 
@@ -113,7 +113,6 @@ p {
 
 .auto-tabs {
   .tabs-section {
-
     h3.heading {
       font-size: 22px !important;
     }
@@ -149,7 +148,6 @@ p {
       .tab-name {
         vertical-align: bottom;
         display: table-cell;
-
       }
     }
   }
@@ -159,6 +157,11 @@ p {
   vertical-align: middle;
   width: 80px;
   height: 80px;
+
+  @media (max-width: 768px) {
+    width: 60px;
+    height: 80px;
+  }
 }
 
 .symbol-image-md {
@@ -184,7 +187,6 @@ p {
   border-radius: 50%;
   border: 1px solid var(--bs-gray-400);
   padding: 0.1rem;
-
 }
 
 .symbol-image-xm {
@@ -194,31 +196,43 @@ p {
   border-radius: 50%;
   border: 1px solid var(--bs-gray-400);
   padding: 0.06rem;
-
 }
 
 .compe-logo {
-  min-width: 66px;
-  max-width: 220px;
-  min-height: 66px;
-  max-height: 50px;
+  min-width: 56px;
+  max-width: 180px;
+  min-height: 45px;
+  max-height: 55px;
   padding: 2px 0;
   vertical-align: middle;
   overflow-clip-margin: content-box;
   overflow: clip;
+  object-fit: contain;
+}
+
+.team-logo {
+  min-width: 68px;
+  max-width: 220px;
+  min-height: 66px;
+  max-height: 65px;
+  padding: 2px 0;
+  vertical-align: middle;
+  overflow-clip-margin: content-box;
+  overflow: clip;
+  object-fit: contain;
 }
 
 .fs-small {
   font-size: small;
 }
 
-.striped-section>div:nth-of-type(odd),
-.striped-section>a:nth-of-type(odd)>div {
+.striped-section > div:nth-of-type(odd),
+.striped-section > a:nth-of-type(odd) > div {
   background: var(--bs-gray-200);
 }
 
-.striped-section>div:hover,
-.striped-section>a>div:hover {
+.striped-section > div:hover,
+.striped-section > a > div:hover {
   background: var(--bs-gray-300);
 }
 
@@ -246,7 +260,6 @@ p {
   height: 30px;
   font-size: normal;
   line-height: 1.4;
-
 }
 
 .results-icon-sm {
@@ -307,7 +320,6 @@ p {
       &.shown {
         padding: 5px !important;
         font-size: initial !important;
-
       }
     }
   }
@@ -479,13 +491,11 @@ p {
 }
 
 @media (min-width: 540px) {
-
   .flatpickr-input,
   .tips-mode-input {
     width: 220px !important;
     text-wrap: nowrap;
   }
-
 }
 
 .scores-outcome {
@@ -502,7 +512,6 @@ p {
     .score {
       width: auto;
     }
-
   }
 
   @media (min-width: 768px) {
@@ -511,7 +520,6 @@ p {
     .score {
       width: auto;
     }
-
   }
 
   @media (min-width: 1280px) {
@@ -520,14 +528,12 @@ p {
     .score {
       width: 50%;
     }
-
   }
 }
 
 .scores-sec {
   min-width: 40px;
 }
-
 
 .card-primary {
   border-color: var(--bs-gray-700) !important;
@@ -549,7 +555,6 @@ p {
     .card-text {
       color: var(--bs-gray-100) !important;
     }
-
   }
 }
 

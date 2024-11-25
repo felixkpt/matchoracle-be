@@ -1,20 +1,14 @@
 import { CompetitionTabInterface, SeasonsListInterface } from "@/interfaces/FootballInterface"
-import CompetitionSubHeader from "../Inlcudes/CompetitionSubHeader"
 import GeneralModal from "@/components/Modals/GeneralModal"
-import { useState } from "react"
-import Composer from "@/utils/Composer"
 import PredictionsStats from "../Inlcudes/PredictionsStats"
-import Stats from "../Inlcudes/Stats"
+import ResultsStats from "../Inlcudes/ResultsStats"
 import Str from "@/utils/Str"
 
 interface Props extends CompetitionTabInterface, SeasonsListInterface { }
 
-const Statistics: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
+const Statistics: React.FC<Props> = ({ record, selectedSeason }) => {
 
     const competition = record
-
-    const [useDate, setUseDates] = useState(false);
-    const [fromToDates, setFromToDates] = useState<Array<Date | string | undefined>>([undefined, undefined]);
 
     if (!competition) return null
 
@@ -23,29 +17,13 @@ const Statistics: React.FC<Props> = ({ record, seasons, selectedSeason }) => {
             {
                 competition
                 &&
-                <div>
-                    <div className='shadow-sm'>
-                        <CompetitionSubHeader actionTitle="Do Stats" actionButton="doStats" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
-                    </div>
-                    <div className="card mt-3">
-                        <div className="card-header">
-                            <h6 className="d-flex gap-2 justify-content-between">
-                                <div>
-                                    <span>Stats for: </span>
-                                    <span>{`${selectedSeason ? 'Season ' + Composer.season(selectedSeason) : fromToDates}`}</span>
-                                </div>
-
-                            </h6>
+                <div className="mt-3">
+                    <div key={selectedSeason?.id} className="row gap-4 gap-md-0">
+                        <div className="col-md-6">
+                            <ResultsStats competition={competition} selectedSeason={selectedSeason} />
                         </div>
-                        <div className="card-body">
-                            <div key={selectedSeason?.id} className="row gap-4 gap-md-0">
-                                <div className="col-md-6">
-                                    <Stats competition={competition} selectedSeason={selectedSeason} fromToDates={fromToDates} useDate={useDate} />
-                                </div>
-                                <div className="col-md-6">
-                                    <PredictionsStats competition={competition} selectedSeason={selectedSeason} fromToDates={fromToDates} useDate={useDate} />
-                                </div>
-                            </div>
+                        <div className="col-md-6">
+                            <PredictionsStats competition={competition} selectedSeason={selectedSeason} />
                         </div>
                     </div>
 

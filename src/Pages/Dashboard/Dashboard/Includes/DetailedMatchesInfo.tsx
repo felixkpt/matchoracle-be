@@ -1,13 +1,13 @@
 import Loader from "@/components/Loader";
 import NoContentMessage from "@/components/NoContentMessage";
-import { MatchesInterface, TodayMatchesInterface } from "@/interfaces/FootballInterface";
+import { MatchesInterface, CustomMatchesInterface } from "@/interfaces/FootballInterface";
 import RenderStatBlock from "./RenderStatBlock";
 
 interface MatchesCardProps {
     loading: boolean;
-    errors: any;
+    errors: string | undefined;
     stats: {
-        today: TodayMatchesInterface;
+        custom: CustomMatchesInterface;
         all: MatchesInterface;
     } | null | undefined;
 }
@@ -15,7 +15,7 @@ interface MatchesCardProps {
 const DetailedMatchesInfo: React.FC<MatchesCardProps> = ({ loading, errors, stats }) => {
     // Default stats object with zeros
     const defaultStats = {
-        today: {
+        custom: {
             totals: 0,
             past: 0,
             upcoming: 0,
@@ -57,42 +57,42 @@ const DetailedMatchesInfo: React.FC<MatchesCardProps> = ({ loading, errors, stat
                     <div className="d-flex flex-column gap-2 mt-3">
                         <RenderStatBlock
                             label="Matches"
-                            todayCount={statsData.today.totals}
+                            customCount={statsData.custom.totals}
                             allTimeCount={statsData.all.totals}
                             icon="ic:sharp-published-with-changes"
                             colorClass="text-success"
                         />
                         <RenderStatBlock
                             label="Played"
-                            todayCount={statsData.today.past}
+                            customCount={statsData.custom.past}
                             allTimeCount={statsData.all.past}
                             icon="mdi:trophy"
                             colorClass="text-info"
                         />
                         <RenderStatBlock
                             label="Fixtures"
-                            todayCount={statsData.today.upcoming}
+                            customCount={statsData.custom.upcoming}
                             allTimeCount={statsData.all.upcoming}
                             icon="fa-solid:running"
                             colorClass="text-warning"
                         />
                         <RenderStatBlock
                             label="Full time results only"
-                            todayCount={statsData.today.with_full_time_results_only}
+                            customCount={statsData.custom.with_full_time_results_only}
                             allTimeCount={statsData.all.with_full_time_results_only}
                             icon="mdi:clock-warning"
                             colorClass="text-primary"
                         />
                         <RenderStatBlock
                             label="Half & full time results"
-                            todayCount={statsData.today.with_half_and_time_results}
+                            customCount={statsData.custom.with_half_and_time_results}
                             allTimeCount={statsData.all.with_half_and_time_results}
                             icon="carbon:time-filled"
                             colorClass="text-success"
                         />
                         <RenderStatBlock
                             label="Without results"
-                            todayCount={statsData.today.without_results}
+                            customCount={statsData.custom.without_results}
                             allTimeCount={statsData.all.without_results}
                             icon="ri:error-warning-line"
                             colorClass="text-danger"
