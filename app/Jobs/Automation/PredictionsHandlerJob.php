@@ -30,18 +30,21 @@ class PredictionsHandlerJob implements ShouldQueue
      */
     protected $jobId;
     protected $task = 'train';
-    protected $ignore_timing;
-    protected $competition_id;
+    protected $ignoreTiming;
+    protected $competitionId;
+    protected $target;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null)
+    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null, $options = [])
     {
 
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 60;
         $this->startTime = time();
+
+        $this->initializeSettings();
 
         // Instantiate the context class for handling game sources
         $this->sourceContext = new GameSourceStrategy();
@@ -58,12 +61,20 @@ class PredictionsHandlerJob implements ShouldQueue
         }
 
         if ($ignore_timing) {
-            $this->ignore_timing = $ignore_timing;
+            $this->ignoreTiming = $ignore_timing;
         }
 
         if ($competition_id) {
-            $this->competition_id = $competition_id;
+            $this->competitionId = $competition_id;
             request()->merge(['competition_id' => $competition_id]);
+        }
+
+        if (isset($options['predictor_url']) && $options['predictor_url']) {
+            $this->predictorUrl = $options['predictor_url'];
+        }
+
+        if (isset($options['target']) && $options['target']) {
+            $this->target = $options['target'];
         }
     }
 
@@ -84,7 +95,7 @@ class PredictionsHandlerJob implements ShouldQueue
         // Set delay in minutes based on the task type:
         // Default case for prediction 3 days
         $delay = 60 * 24 * 3;
-        if ($this->ignore_timing) $delay = 0;
+        if ($this->ignoreTiming) $delay = 0;
 
         // Fetch competitions that need season data updates
         $competitions = Competition::query()
@@ -101,12 +112,14 @@ class PredictionsHandlerJob implements ShouldQueue
         $competition_counts = $competitions->count();
         $competitions = $competitions->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))->get();
         $this->jobStartEndLog('START', $competitions);
+        $this->automationInfo("Predictor URL: {$this->predictorUrl}");
+
         // loggerModel competition_counts and Action Counts
         $this->predictionsLoggerModel(true, $competition_counts, $actionCounts);
 
-        // predict for last 3 months plus 7 days from today
-        $fromDate = Carbon::today()->subDays(30 * 3);
-        $toDate = Carbon::today()->addDays(7);
+        // predict for last 3 months plus 10 days from today
+        $fromDate = Carbon::today()->subDays(30 * 3)->format('Y-m-d');
+        $toDate = Carbon::today()->addDays(10)->format('Y-m-d');
 
         // Loop through each competition to fetch and update matches
         $options = [
@@ -172,7 +185,7 @@ class PredictionsHandlerJob implements ShouldQueue
                 // Call the polling function
                 $this->pollJobCompletion($competition, $job->id, $lastFetchColumn, $last_action, $compe_run_start_time, $options);
             } else {
-                $this->automationInfo("  No data received, logging skipped.");
+                $this->automationInfo("***No data received, logging skipped.");
             }
 
             // Increment Completed Competition Counts
@@ -182,6 +195,10 @@ class PredictionsHandlerJob implements ShouldQueue
             // Introduce a delay to avoid rapid consecutive requests
             sleep($should_sleep_for_competitions ? $this->getRequestDelayCompetitions() : 0);
             $should_sleep_for_competitions = false;
+        }
+
+        if ($this->competitionId && $competitions->count() === 0) {
+            $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
         }
 
         $this->jobStartEndLog('END');
@@ -196,8 +213,9 @@ class PredictionsHandlerJob implements ShouldQueue
         // Capture start time
         $requestStartTime = microtime(true);
 
-        $maxWaitTime = 60 * 20; // 20 minutes
-        $checkInterval = 30; // Poll every 30 seconds
+        $maxWaitTime = 60 * 20; // Max wait time in secs
+        $checkInterval = 60; // Poll every x secs
+        $totalPolls = ceil($maxWaitTime / $checkInterval); // Calculate total polls
 
         $i = 0;
         $data = [];
@@ -214,10 +232,11 @@ class PredictionsHandlerJob implements ShouldQueue
                 ->where('id', $jobId)
                 ->first();
 
-            $this->automationInfo("  Polling #{$i} & checking process status...");
+            // Log the polling attempt message
+            $this->logPollingAttempt($i, $totalPolls, $startTime, $maxWaitTime);
 
             if ($jobStatus && $jobStatus->status == 'completed') {
-                $this->automationInfo("  Job ID #{$jobId} marked as completed {$jobStatus->updated_at->diffForHumans()}.");
+                $this->automationInfo("***Job ID #{$jobId} marked as completed {$jobStatus->updated_at->diffForHumans()}.");
 
                 $checked_last_action = Competition::find($competition->id)->lastAction->{$lastFetchColumn} ?? null;
                 $lastActionTime = 'N/A';
@@ -230,8 +249,7 @@ class PredictionsHandlerJob implements ShouldQueue
                 $requestEndTime = microtime(true);
                 $seconds_taken = intval($requestEndTime - $requestStartTime);
 
-                $this->automationInfo("Time taken to process Compe #{$competition->id}: " . $this->timeTaken($seconds_taken));
-                $this->automationInfo("Updated Last Action: {$lastActionTime}.");
+                $this->automationInfo("***Time taken working on Compe #{$competition->id}: " . $this->timeTaken($seconds_taken) . ", new updated Last Action: {$lastActionTime}.");
 
 
                 if ($checked_last_action && $checked_last_action != $last_action) {
@@ -246,7 +264,7 @@ class PredictionsHandlerJob implements ShouldQueue
 
         // Log timeout if predictioning did not complete
         if (now()->diffInSeconds($startTime) >= $maxWaitTime) {
-            $this->automationInfo("  Timeout: Prediction for Competition #{$competition->id} did not complete within the expected time.");
+            $this->automationInfo("***Timeout: Prediction for Competition #{$competition->id} did not complete within the expected time.");
         }
 
         $this->updateLastAction($competition, $jobStatus == 'completed', $lastFetchColumn);

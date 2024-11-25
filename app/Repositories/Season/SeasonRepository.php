@@ -7,8 +7,8 @@ use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo\SearchRepo;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class SeasonRepository implements SeasonRepositoryInterface
 {
@@ -29,11 +29,12 @@ class SeasonRepository implements SeasonRepositoryInterface
     public function index($id = null)
     {
         $seasons = $this->model::query()
-            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
+            ->whereDate('start_date', '>=', getAppSettingValue('history_start_date', '2018-01-01'))
+            ->when(request()->status == 1, fn($q) => $q->where('status_id', activeStatusId()))
             ->with(['competition', 'winner'])
-            ->when(!request()->ignore_status, fn ($q) => $q->where('status_id', activeStatusId()))
-            ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id))
-            ->when($id, fn ($q) => $q->where('id', $id));
+            ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
+            ->when(request()->competition_id, fn($q) => $q->where('competition_id', request()->competition_id))
+            ->when($id, fn($q) => $q->where('id', $id));
 
         if ($this->applyFiltersOnly) return $seasons;
 
@@ -41,11 +42,12 @@ class SeasonRepository implements SeasonRepositoryInterface
         $results = SearchRepo::of($seasons, ['start_date'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
-            ->addColumn('Winner', fn ($q) => $q->winner->name ?? '-')
-            ->addColumn('Played', fn ($q) => '-')
-            ->addColumn('Fetched_standings', fn ($q) => $q->fetched_standings ?  'Yes' : 'No')
-            ->addColumn('Fetched_all_matches', fn ($q) => $q->fetched_all_matches ?  'Yes' : 'No')
-            ->addColumn('Fetched_all_single_matches', fn ($q) => $q->fetched_all_single_matches ?  'Yes' : 'No')
+            ->addColumn('Updated_at', fn($q) => Carbon::parse($q->updated_at)->diffForHumans())
+            ->addColumn('Winner', fn($q) => $q->winner->name ?? '-')
+            ->addColumn('Played', fn($q) => '-')
+            ->addColumn('Fetched_standings', fn($q) => $q->fetched_standings ?  'Yes' : 'No')
+            ->addColumn('Fetched_all_matches', fn($q) => $q->fetched_all_matches ?  'Yes' : 'No')
+            ->addColumn('Fetched_all_single_matches', fn($q) => $q->fetched_all_single_matches ?  'Yes' : 'No')
             ->orderby('start_date', 'desc');
 
         $results = false ? $results->first() : $results->paginate();

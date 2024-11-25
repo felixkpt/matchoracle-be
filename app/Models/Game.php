@@ -75,9 +75,8 @@ class Game extends Model
 
     public function odds()
     {
-        return $this->belongsToMany(Odd::class)->withTimestamps();
+        return $this->hasMany(Odd::class);
     }
-
 
     public function referees()
     {

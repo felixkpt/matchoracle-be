@@ -3,12 +3,10 @@
 namespace App\Services\GameSources\Forebet;
 
 use App\Models\Address;
-use App\Models\Country;
 use App\Models\Coach;
 use App\Models\Team;
 use App\Models\Venue;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class TeamsHandler
@@ -24,6 +22,10 @@ class TeamsHandler
     public function __construct()
     {
         $this->initialize();
+
+        if (!$this->jobId) {
+            $this->jobId = str()->random(6);
+        }
     }
 
     function updateOrCreate($teamData, $country, $competition = null, $season = null, $ignore_competition = false, $position = null)

@@ -7,10 +7,8 @@ use App\Models\Game;
 use App\Models\Season;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\Game\GameRepository;
-use App\Repositories\Game\GameRepositoryInterface;
 use App\Utilities\GamePredictionStatsUtility;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class CompetitionPredictionStatisticsRepository implements CompetitionPredictionStatisticsRepositoryInterface
 {
@@ -19,8 +17,7 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
 
     function __construct(
         protected CompetitionPredictionStatistic $model
-    ) {
-    }
+    ) {}
 
     function index()
     {
@@ -30,9 +27,9 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
         $results = $this->model
             ->where('prediction_type_id', current_prediction_type_id())
             ->where('competition_id', request()->competition_id)
-            ->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))
-            ->when(request()->from_date, fn ($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
-            ->when(request()->to_date, fn ($q) => $q->whereDate('date', '<=', Carbon::parse(request()->to_date)->format('Y-m-d')))
+            ->when(request()->season_id, fn($q) => $q->where('season_id', request()->season_id))
+            ->when(request()->from_date, fn($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
+            ->when(request()->to_date, fn($q) => $q->whereDate('date', '<=', Carbon::parse(request()->to_date)->format('Y-m-d')))
             ->first();
 
         return response(['results' => $results]);
@@ -46,8 +43,11 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
         $season_id = $season->id ?? 0;
 
         request()->merge([
-            'prediction_type_id' => current_prediction_type_id(), 'per_page' => 5000,
-            'order_by' => 'utc_date', 'order_direction' => 'asc', 'to_date' => Carbon::now()->format('Y-m-d'),
+            'prediction_type_id' => current_prediction_type_id(),
+            'per_page' => 5000,
+            'order_by' => 'utc_date',
+            'order_direction' => 'asc',
+            'to_date' => Carbon::now()->format('Y-m-d'),
             'without_response' => true,
             'requires_preds' => true,
         ]);
@@ -59,7 +59,7 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
         $ct = count($games);
 
         $unique_dates_counts = count(array_unique(
-            array_map(fn ($c) => Carbon::parse($c)->format('Y-m-d'), array_column($games, 'utc_date'))
+            array_map(fn($c) => Carbon::parse($c)->format('Y-m-d'), array_column($games, 'utc_date'))
         ));
         // Log::info("Unique date counts: {$unique_dates_counts}");
 
@@ -75,6 +75,7 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
 
             $arr = [
                 'ft_counts' => $ftArr['counts'],
+
                 'ft_home_wins_counts' => $ftArr['home_wins']['counts'],
                 'ft_home_wins_preds' => $ftArr['home_wins']['preds'],
                 'ft_home_wins_preds_true' => $ftArr['home_wins']['preds_true'],
@@ -131,6 +132,7 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
                 'ft_under35_preds_true_percentage' => $ftArr['under35']['preds_true_percentage'],
 
                 'ht_counts' => $htArr['counts'],
+
                 'ht_home_wins_counts' => $htArr['home_wins']['counts'],
                 'ht_home_wins_preds' => $htArr['home_wins']['preds'],
                 'ht_home_wins_preds_true' => $htArr['home_wins']['preds_true'],
@@ -145,6 +147,46 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
                 'ht_away_wins_preds' => $htArr['away_wins']['preds'],
                 'ht_away_wins_preds_true' => $htArr['away_wins']['preds_true'],
                 'ht_away_wins_preds_true_percentage' => $htArr['away_wins']['preds_true_percentage'],
+
+                'ht_gg_counts' => $htArr['gg']['counts'],
+                'ht_gg_preds' => $htArr['gg']['preds'],
+                'ht_gg_preds_true' => $htArr['gg']['preds_true'],
+                'ht_gg_preds_true_percentage' => $htArr['gg']['preds_true_percentage'],
+
+                'ht_ng_counts' => $htArr['ng']['counts'],
+                'ht_ng_preds' => $htArr['ng']['preds'],
+                'ht_ng_preds_true' => $htArr['ng']['preds_true'],
+                'ht_ng_preds_true_percentage' => $htArr['ng']['preds_true_percentage'],
+
+                'ht_over15_counts' => $htArr['over15']['counts'],
+                'ht_over15_preds' => $htArr['over15']['preds'],
+                'ht_over15_preds_true' => $htArr['over15']['preds_true'],
+                'ht_over15_preds_true_percentage' => $htArr['over15']['preds_true_percentage'],
+
+                'ht_under15_counts' => $htArr['under15']['counts'],
+                'ht_under15_preds' => $htArr['under15']['preds'],
+                'ht_under15_preds_true' => $htArr['under15']['preds_true'],
+                'ht_under15_preds_true_percentage' => $htArr['under15']['preds_true_percentage'],
+
+                'ht_over25_counts' => $htArr['over25']['counts'],
+                'ht_over25_preds' => $htArr['over25']['preds'],
+                'ht_over25_preds_true' => $htArr['over25']['preds_true'],
+                'ht_over25_preds_true_percentage' => $htArr['over25']['preds_true_percentage'],
+
+                'ht_under25_counts' => $htArr['under25']['counts'],
+                'ht_under25_preds' => $htArr['under25']['preds'],
+                'ht_under25_preds_true' => $htArr['under25']['preds_true'],
+                'ht_under25_preds_true_percentage' => $htArr['under25']['preds_true_percentage'],
+
+                'ht_over35_counts' => $htArr['over35']['counts'],
+                'ht_over35_preds' => $htArr['over35']['preds'],
+                'ht_over35_preds_true' => $htArr['over35']['preds_true'],
+                'ht_over35_preds_true_percentage' => $htArr['over35']['preds_true_percentage'],
+
+                'ht_under35_counts' => $htArr['under35']['counts'],
+                'ht_under35_preds' => $htArr['under35']['preds'],
+                'ht_under35_preds_true' => $htArr['under35']['preds_true'],
+                'ht_under35_preds_true_percentage' => $htArr['under35']['preds_true_percentage'],
 
                 'average_score' => $arr['average_score'],
 

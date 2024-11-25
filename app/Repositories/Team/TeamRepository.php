@@ -24,8 +24,6 @@ class TeamRepository implements TeamRepositoryInterface
     public function index($id = null)
     {
 
-        Log::info("(message)", [request()->season_id]);
-
         $teams = $this->model::query()
             ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->with(['country', 'competition', 'address', 'venue', 'coachContract' => fn ($q) => $q->with('coach'), 'gameSources'])
@@ -49,6 +47,7 @@ class TeamRepository implements TeamRepositoryInterface
         $results = SearchRepo::of($teams, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
+            ->addColumn('Updated_at', fn($q) => Carbon::parse($q->updated_at)->diffForHumans())
             ->addFillable('website', ['input' => 'input', 'type' => 'url'], 'website')
             ->addFillable('tla', ['input' => 'input', 'type' => 'text', 'capitalize' => true], 'tla')
             ->addFillable('founded', ['input' => 'input', 'type' => 'number'], 'founded')

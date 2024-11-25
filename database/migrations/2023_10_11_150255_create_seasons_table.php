@@ -26,6 +26,7 @@ return new class extends Migration
             $table->boolean('fetched_standings')->default(false);
             $table->boolean('fetched_all_matches')->default(false);
             $table->boolean('fetched_all_single_matches')->default(false);
+            $table->boolean('fetched_all_single_matches_odds')->default(false);
 
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();

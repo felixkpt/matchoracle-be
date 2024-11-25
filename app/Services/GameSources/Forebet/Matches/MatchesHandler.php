@@ -4,14 +4,12 @@ namespace App\Services\GameSources\Forebet\Matches;
 
 use App\Models\Game;
 use App\Models\Season;
-use App\Models\Team;
 use App\Services\ClientHelper\Client;
 use App\Services\GameSources\Forebet\ForebetInitializationTrait;
-use App\Services\GameSources\Forebet\TeamsHandler;
 use App\Services\GameSources\Interfaces\MatchesInterface;
 use Exception;
+use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -66,24 +64,34 @@ class MatchesHandler implements MatchesInterface
         $messages = [];
         $saved = $updated = 0;
         foreach ($links as $i => $link) {
-            try {
-                $url = $this->sourceUrl . ltrim($link, '/');
+            $url = $this->sourceUrl . ltrim($link, '/');
 
-                $content = Client::get($url);
-                if (!$content) $this->has_errors = true;
+            $content = Client::get($url);
+            if (!$content) $this->has_errors = true;
 
-                $crawler = new Crawler($content);
+            $crawler = new Crawler($content);
 
-                
-                [$saved_new, $updated_new, $msg_new] = $this->handleMatches($competition, $season, $crawler);
-                $saved = $saved + $saved_new;
-                $updated = $updated + $updated_new;
-                $messages[] = $msg_new;
+            // Season integrity test
+            $season_start_end = null;
+            if ($season) {
+                $season_start_end = Str::before($season->start_date, '-') . '-' . Str::before($season->end_date, '-');
 
-                sleep(5);
-            } catch (Exception $e) {
-                Log::channel($this->logChannel)->critical("fetchMatches Error {$i}: " . $e->getMessage());
+                // Remove query parameters and hash
+                $test_url = strtok($url, '?');
+                $test_url = strtok($test_url, '#');
+                if (!Str::endsWith($test_url, $season_start_end)) {
+                    Log::channel($this->logChannel)->critical('Season miss-match: #' . $competition->id . ', #' . $season->id);
+                    $season = null;
+                }
             }
+
+
+            [$saved_new, $updated_new, $msg_new] = $this->handleMatches($competition, $season, $crawler);
+            $saved = $saved + $saved_new;
+            $updated = $updated + $updated_new;
+            $messages[] = $msg_new;
+
+            sleep(5);
         }
 
         if ($saved > 0) {
@@ -114,7 +122,6 @@ class MatchesHandler implements MatchesInterface
 
         $crawler = new Crawler($content);
 
-        Log::channel($this->logChannel)->info("Getting matches for compe #{$competition->id} ...");
         if (strpos($crawler->text(), 'Attention Required!') !== false) {
             $message = "Attention Required! Blocked while getting matches for compe #{$competition->id}";
             Log::channel($this->logChannel)->critical($message);
@@ -127,14 +134,14 @@ class MatchesHandler implements MatchesInterface
             return $crawler->attr('href');
         });
         $links = array_values(array_filter(array_unique($links)));
-        
+
         return ['data' => $links];
     }
 
     private function handleMatches($competition, $season, $crawler)
     {
 
-        $matchesData = $this->is_fixtures ? $this->filterUpcomingMatches($crawler) : $this->filterPlayedMatches($crawler);
+        $matchesData = $this->is_fixtures ? $this->filterUpcomingMatches($competition, $season, $crawler) : $this->filterPlayedMatches($competition, $season, $crawler);
 
         $msg = "";
         $saved = $updated = 0;
@@ -143,141 +150,163 @@ class MatchesHandler implements MatchesInterface
             abort(500, "Cannot get matches for: compe#$competition->id, season#$season->id");
         }
 
-        [$saved, $updated, $msg] = $this->saveGames($matchesData, $competition);
+        [$saved, $updated, $msg] = $this->saveGames($matchesData, $competition, $season);
 
         return [$saved, $updated, $msg];
     }
 
-    private function filterPlayedMatches($crawler)
+    private function filterPlayedMatches($competition, $season, $crawler)
     {
-        $chosen_crawler = null;
-        $has_matches = false;
-        $crawler->filter('.contentmiddle table[border="0"]')->each(function ($crawler) use (&$chosen_crawler, &$has_matches) {
-            $has_matches = true;
-            if ($crawler->filter('tr.heading')->count() > 0) {
-                $chosen_crawler = $crawler;
-                return false;
-            }
-        });
-
-        if (!$chosen_crawler) return $has_matches ? [] : null;
-
-        // Now $chosen_crawler contains the desired crawler
         $matches = [];
-        $date = null;
 
+        try {
 
-        // Extracted data from the HTML will be stored in this array
-        $matches = $chosen_crawler->filter('tr')->each(function ($crawler) use (&$date) {
-
-            if ($crawler->count() > 0) {
-                $heading = $crawler->filter('.heading');
-                if ($heading->count() > 0) {
-                    $raw_date = $heading->filter('td b')->text();
-
-                    if ($raw_date && $raw_date != $date) {
-                        $date = Carbon::parse($raw_date)->format('Y-m-d');
-                    }
-                } else if ($date) {
-
-                    $time = $crawler->filter('td.resLdateTd')->text();
-                    $homeTeam = $crawler->filter('td.resLnameRTd a')->text();
-                    $homeTeamUri = $crawler->filter('td.resLnameRTd a')->attr('href');
-                    $gameResults = $crawler->filter('td.resLresLTd')->text();
-
-                    $k = $crawler->filter('td.resLresLTd a');
-                    $gameUri = null;
-                    if ($k->count() === 1) {
-                        $gameUri = $k->attr('href');
-                    }
-                    $awayTeam = $crawler->filter('td.resLnameLTd a')->text();
-                    $awayTeamUri = $crawler->filter('td.resLnameLTd a')->attr('href');
-
-                    $match = [
-                        'date' => $date,
-                        'time' => $time,
-                        'has_time' => !!$time,
-                        'home_team' => [
-                            'name' => $homeTeam,
-                            'uri' => $homeTeamUri,
-                        ],
-                        'game_details' => [
-                            'full_time_results' => $gameResults,
-                            'uri' => $gameUri,
-                        ],
-                        'away_team' => [
-                            'name' => $awayTeam,
-                            'uri' => $awayTeamUri,
-                        ],
-                    ];
-
-                    return $match;
+            $chosen_crawler = null;
+            $has_matches = false;
+            $crawler->filter('.contentmiddle table[border="0"]')->each(function ($crawler) use (&$chosen_crawler, &$has_matches) {
+                $has_matches = true;
+                if ($crawler->filter('tr.heading')->count() > 0) {
+                    $chosen_crawler = $crawler;
+                    return false;
                 }
-            }
-        });
+            });
 
-        $matches = array_values(array_filter($matches));
+            if (!$chosen_crawler) {
+                Log::critical('MatchesHandler Error: No chosen_crawler!! Competition #' . $competition->id . ', season #' . $season->id);
+                return $has_matches ? [] : null;
+            };
+
+            // Now $chosen_crawler contains the desired crawler
+            $matches = [];
+            $date = null;
+
+
+            // Extracted data from the HTML will be stored in this array
+            $matches = $chosen_crawler->filter('tr')->each(function ($crawler, $index) use (&$date) {
+
+                if ($crawler->count() > 0) {
+                    $heading = $crawler->filter('.heading');
+                    if ($heading->count() > 0) {
+                        $raw_date = $heading->filter('td b')->text();
+
+                        if ($raw_date && $raw_date != $date) {
+                            $date = Carbon::parse($raw_date)->setTimezone('UTC')->format('Y-m-d');
+                        }
+                    } else if ($date) {
+
+                        $time = $crawler->filter('td.resLdateTd')->text();
+                        $homeTeam = $crawler->filter('td.resLnameRTd a')->text();
+                        $homeTeamUri = $crawler->filter('td.resLnameRTd a')->attr('href');
+                        $gameResults = $crawler->filter('td.resLresLTd')->text();
+
+                        $k = $crawler->filter('td.resLresLTd a');
+                        $gameUri = null;
+                        if ($k->count() === 1) {
+                            $gameUri = $k->attr('href');
+                        }
+                        $awayTeam = $crawler->filter('td.resLnameLTd a')->text();
+                        $awayTeamUri = $crawler->filter('td.resLnameLTd a')->attr('href');
+
+                        $utc_date = $date . ' ' . $time;
+
+                        $match = [
+                            'date' => $date,
+                            'utc_date' => $utc_date,
+                            'time' => $time,
+                            'has_time' => !!$time,
+                            'home_team' => [
+                                'name' => $homeTeam,
+                                'uri' => $homeTeamUri,
+                            ],
+                            'game_details' => [
+                                'full_time_results' => $gameResults,
+                                'uri' => $gameUri,
+                            ],
+                            'away_team' => [
+                                'name' => $awayTeam,
+                                'uri' => $awayTeamUri,
+                            ],
+                        ];
+
+                        return $match;
+                    }
+                }
+            });
+
+            $matches = array_values(array_filter($matches));
+        } catch (Exception $e) {
+            Log::channel($this->logChannel)->critical("FetchMatches > filterPlayedMatches Error : " . $e->getMessage());
+        }
 
         return $matches;
     }
 
-    private function filterUpcomingMatches($crawler)
+    private function filterUpcomingMatches($competition, $season, $crawler)
     {
-
-        $chosen_crawler = null;
-        $has_matches = false;
-        $crawler->filter('.contentmiddle table[border="0"]')->each(function ($crawler) use (&$chosen_crawler, &$has_matches) {
-            $has_matches = true;
-            if ($crawler->filter('tr.heading')->count() > 0) {
-                $chosen_crawler = $crawler;
-                return false;
-            }
-        });
-
-        if (!$chosen_crawler) return $has_matches ? [] : null;
-
-        // Now $chosen_crawler contains the desired crawler
         $matches = [];
-        $date = null;
-        // Extracted data from the HTML will be stored in this array
-        $matches = $chosen_crawler->filter('tr')->each(function ($crawler) use (&$date) {
 
-            if ($crawler->count() > 0) {
-                $heading = $crawler->filter('.heading');
-                if ($heading->count() > 0) {
-                    $raw_date = $heading->filter('td b')->text();
+        try {
 
-                    if ($raw_date && $raw_date != $date) {
-                        $date = Carbon::parse($raw_date)->format('Y-m-d');
-                    }
-                } else if ($date && Carbon::parse($date)->isFuture()) {
-
-                    $match = [
-                        'date' => $date,
-                        'time' => '00:00:00',
-                        'has_time' => false,
-                        'home_team' => [
-                            'name' => null,
-                            'uri' => null,
-                        ],
-                        'game_details' => [
-                            'full_time_results' => null,
-                            'uri' => null,
-                        ],
-                        'away_team' => [
-                            'name' => null,
-                            'uri' => null,
-                        ],
-                    ];
-
-                    $this->addMatchDetails($crawler, $match);
-
-                    return $match;
+            $chosen_crawler = null;
+            $has_matches = false;
+            $crawler->filter('.contentmiddle table[border="0"]')->each(function ($crawler) use (&$chosen_crawler, &$has_matches) {
+                $has_matches = true;
+                if ($crawler->filter('tr.heading')->count() > 0) {
+                    $chosen_crawler = $crawler;
+                    return false;
                 }
-            }
-        });
+            });
 
-        $matches = array_values(array_filter($matches));
+            if (!$chosen_crawler) return $has_matches ? [] : null;
+
+            // Now $chosen_crawler contains the desired crawler
+            $date = null;
+            // Extracted data from the HTML will be stored in this array
+            $matches = $chosen_crawler->filter('tr')->each(function ($crawler) use (&$date) {
+
+                if ($crawler->count() > 0) {
+                    $heading = $crawler->filter('.heading');
+                    if ($heading->count() > 0) {
+                        $raw_date = $heading->filter('td b')->text();
+
+                        if ($raw_date && $raw_date != $date) {
+                            $date = Carbon::parse($raw_date)->setTimezone('UTC')->format('Y-m-d');
+                        }
+                    } else if ($date && Carbon::parse($date)->setTimezone('UTC')->isFuture()) {
+
+                        $time = '00:00:00';
+                        $utc_date = $date . ' ' . $time;
+
+                        $match = [
+                            'date' => $date,
+                            'utc_date' => $utc_date,
+                            'time' => $time,
+                            'has_time' => false,
+                            'home_team' => [
+                                'name' => null,
+                                'uri' => null,
+                            ],
+                            'game_details' => [
+                                'full_time_results' => null,
+                                'uri' => null,
+                            ],
+                            'away_team' => [
+                                'name' => null,
+                                'uri' => null,
+                            ],
+                        ];
+
+                        $this->addMatchDetails($crawler, $match);
+
+                        return $match;
+                    }
+                }
+            });
+
+            $matches = array_values(array_filter($matches));
+        } catch (Exception $e) {
+            Log::channel($this->logChannel)->critical("FetchMatches > filterUpcomingMatches Error : " . $e->getMessage());
+        }
 
         return $matches;
     }

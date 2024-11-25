@@ -96,7 +96,7 @@ class Competition extends Model
 
   public function seasons()
   {
-    return $this->hasMany(Season::class, 'competition_id');
+    return $this->hasMany(Season::class, 'competition_id')->whereDate('start_date', '>=', getAppSettingValue('history_start_date', '2018-01-01'));
   }
 
   public function stages()
@@ -121,7 +121,11 @@ class Competition extends Model
 
   public function jobs()
   {
-      return $this->morphMany(Job::class, 'morphable');
+    return $this->morphMany(Job::class, 'morphable');
   }
 
+  public function abbreviation()
+  {
+    return $this->hasOne(CompetitionAbbreviation::class);
+  }
 }

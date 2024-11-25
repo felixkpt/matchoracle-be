@@ -52,6 +52,22 @@ class GameScoreStatusSeeder extends Seeder
                 'class' => 'text-dark',
             ],
             [
+                'name' => 'Cancelled',
+                'slug' => 'cancelled',
+                'description' => 'Cancelled',
+                'is_fully_settled' => true,
+                'icon' => 'material-symbols:cancel-outline',
+                'class' => 'text-dark',
+            ],
+            [
+                'name' => 'Abandoned',
+                'slug' => 'abandoned',
+                'description' => 'Abandoned',
+                'is_fully_settled' => true,
+                'icon' => 'mdi:cancel-box-outline',
+                'class' => 'text-muted',
+            ],
+            [
                 'name' => 'Deactivated',
                 'slug' => 'deactivated',
                 'description' => 'Deactivated',

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('competition_last_actions', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('competition_id')->unique();
+            $table->dateTime('abbreviation_last_fetch')->nullable();
             $table->dateTime('seasons_last_fetch')->nullable();
 
             $table->dateTime('standings_recent_results_last_fetch')->nullable();
@@ -28,6 +29,11 @@ return new class extends Migration
             $table->dateTime('match_historical_results_last_fetch')->nullable();
             $table->dateTime('match_fixtures_last_fetch')->nullable();
             $table->dateTime('match_shallow_fixtures_last_fetch')->nullable();
+
+            $table->dateTime('odd_recent_results_last_fetch')->nullable();
+            $table->dateTime('odd_historical_results_last_fetch')->nullable();
+            $table->dateTime('odd_fixtures_last_fetch')->nullable();
+            $table->dateTime('odd_shallow_fixtures_last_fetch')->nullable();
 
             $table->dateTime('predictions_last_train')->nullable();
             $table->date('predictions_trained_to')->nullable();

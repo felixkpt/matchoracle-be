@@ -127,23 +127,11 @@ class SearchRepo
                     }
 
                     foreach ($searchable as $column) {
-                        // Log::info('Searching:', ['term' => $term, 'model_table' => $model_table, 'col' => $column]);
-
                         if (Str::contains($column, '.')) {
-
-                            [$relation, $column] = explode('.', $column, 2);
-
-                            $relation = Str::camel($relation);
-
-                            // Apply search condition within the relation
-                            $q->orWhereHas($relation, function (EloquentBuilder $query) use ($column, $term, $strategy) {
-                                $query->where($column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
-                            });
+                            self::applyNestedWhereHas($q, $column, $term, $strategy);
                         } else {
                             // Apply search condition on the main table
                             $q->orWhere($model_table . '.' . $column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
-
-                            Log::critical("Search results:", ['tbl' => $model_table . '.' . $column, 'res' => $q->first()]);
                         }
                     }
                 });
@@ -171,6 +159,35 @@ class SearchRepo
         }
 
         return $self;
+    }
+
+
+    /**
+     * Recursively apply `orWhereHas` for nested relations.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @param  string $column
+     * @param  string $term
+     * @param  string $strategy
+     * @return void
+     */
+    protected static function applyNestedWhereHas($query, $column, $term, $strategy)
+    {
+        $segments = explode('.', $column);
+        $column = end($segments);
+        $segments = array_slice($segments, 0, -1);
+
+        $relation = array_reduce($segments, function ($prev, $curr) {
+            $prev[] = Str::camel($curr);
+            return $prev;
+        }, []);
+
+        $relation = implode('.', $relation);
+
+        $query->orWhereHas($relation, function ($subQuery) use ($column, $term, $strategy) {
+            // Relation level, apply the condition
+            $subQuery->where($column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
+        });
     }
 
     public function setModelUri($uri)
@@ -471,6 +488,23 @@ class SearchRepo
     public function removeFillable($fields = [])
     {
         $this->removedFillable = $fields;
+
+        return $this;
+    }
+
+    /**
+     * Exclude specified columns from the search results.
+     *
+     * @param array $columns The columns to exclude.
+     * @return $this The SearchRepo instance.
+     */
+    public function without(array $columns)
+    {
+        // Filter out columns that match those in the $columns array
+        $this->builder->select(array_diff(
+            Schema::getColumnListing($this->model->getTable()),
+            $columns
+        ));
 
         return $this;
     }

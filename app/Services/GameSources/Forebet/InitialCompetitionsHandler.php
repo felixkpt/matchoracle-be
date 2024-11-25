@@ -12,14 +12,20 @@ class InitialCompetitionsHandler
 {
 
     use ForebetInitializationTrait;
+    protected $jobId;
+
     /**
      * Constructor for the CompetitionsHandler class.
-     * 
+     * @property string $jobId          The unique identifier for the job.
      * Initializes the strategy and calls the trait's initialization method.
      */
     public function __construct()
     {
         $this->initialize();
+
+        if (!$this->jobId) {
+            $this->jobId = str()->random(6);
+        }
     }
 
     public function seedCompetitions()

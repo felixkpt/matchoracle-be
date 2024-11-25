@@ -2,8 +2,10 @@
 
 namespace App\Repositories\Competition;
 
+use App\Jobs\Automation\CompetitionAbbreviationsJob;
 use App\Jobs\Automation\MatchesHandlerJob;
 use App\Jobs\Automation\MatchHandlerJob;
+use App\Jobs\Automation\OddHandlerJob;
 use App\Jobs\Automation\PredictionsHandlerJob;
 use App\Jobs\Automation\SeasonsHandlerJob;
 use App\Jobs\Automation\StandingsHandlerJob;
@@ -12,6 +14,7 @@ use App\Jobs\Automation\Statistics\CompetitionStatisticsJob;
 use App\Jobs\Automation\TrainPredictionsHandlerJob;
 use App\Models\Competition;
 use App\Repositories\CommonRepoActions;
+use Illuminate\Support\Facades\Log;
 
 class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterface
 {
@@ -22,10 +25,17 @@ class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterfac
     public function updateAction($competitionId, $action)
     {
         // Retrieve the competition by ID
-        $competition = $this->model->find($competitionId);
+        $competition = $this->model->where('id', $competitionId);
+        Log::info('competitionId:', [$competitionId]);
+
+        if ($competition->count() == 0) {
+            return response(['message' => "Competition #{$competitionId} not found."], 422);
+        }
+
+        $competition = $competition->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))->first();
 
         if (!$competition) {
-            return ['error' => 'Competition not found'];
+            return response(['message' => "Competition #{$competitionId} is not active."], 422);
         }
 
         // Set the jobID
@@ -35,6 +45,10 @@ class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterfac
 
         // Switch based on the action to update specific fields in lastAction
         switch ($action) {
+            case 'abbreviation_last_fetch':
+                dispatch(new CompetitionAbbreviationsJob('fetch', $jobId, $ignoreTiming, $competitionId));
+                break;
+
             case 'seasons_last_fetch':
                 dispatch(new SeasonsHandlerJob('fetch', $jobId, $ignoreTiming, $competitionId));
                 break;
@@ -87,6 +101,26 @@ class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterfac
                 dispatch(new MatchHandlerJob('shallow_fixtures', $jobId, $ignoreTiming, $competitionId));
                 break;
 
+            case 'odd_recent_results_last_fetch':
+                // Dispatch job for recent results
+                dispatch(new OddHandlerJob('recent_results', $jobId, $ignoreTiming, $competitionId));
+                break;
+
+            case 'odd_historical_results_last_fetch':
+                // Dispatch job for historical results
+                dispatch(new OddHandlerJob('historical_results', $jobId, $ignoreTiming, $competitionId));
+                break;
+
+            case 'odd_fixtures_last_fetch':
+                // Dispatch job for fixtures
+                dispatch(new OddHandlerJob('fixtures', $jobId, $ignoreTiming, $competitionId));
+                break;
+
+            case 'odd_shallow_fixtures_last_fetch':
+                // Dispatch job for shallow fixtures
+                dispatch(new OddHandlerJob('shallow_fixtures', $jobId, $ignoreTiming, $competitionId));
+                break;
+
             case 'predictions_last_train':
                 dispatch(new TrainPredictionsHandlerJob('train', $jobId, $ignoreTiming, $competitionId));
                 break;
@@ -104,11 +138,11 @@ class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterfac
                 break;
 
             default:
-                return ['error' => 'Invalid action'];
+                return response(['message' => 'Invalid action'], 422);
         }
 
         sleep(2);
 
-        return ['message' => ucfirst(str_replace('_', ' ', $action)) . ' updated successfully'];
+        return response(['message' => ucfirst(str_replace('_', ' ', $action)) . ' updated successfully'], 200);
     }
 }

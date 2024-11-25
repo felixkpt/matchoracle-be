@@ -187,9 +187,9 @@ class CompetitionController extends Controller
         return $this->competitionRepositoryInterface->odds($id);
     }
 
-    function statistics($id)
+    function resultsStatistics($id)
     {
-        return $this->competitionRepositoryInterface->statistics($id);
+        return $this->competitionRepositoryInterface->resultsStatistics($id);
     }
 
     function predictionStatistics($id)

@@ -48,6 +48,9 @@ trait ForebetInitializationTrait
     public $sourceId;
 
     public $logChannel = 'automation';
+
+    protected $jobId;
+
     /**
      * Constructor for ForebetInitializationTrait.
      */
@@ -103,7 +106,10 @@ trait ForebetInitializationTrait
             return false;
         }
 
-        $winner = isset($score['postponed']) ? Str::upper('postponed') : null;
+        $winner = ($score['postponed'] ?? false) ? Str::upper('PST') : null;
+        if (!$winner) {
+            $winner = ($score['cancelled'] ?? false) ? Str::upper('CANC') : null;
+        }
 
         $home_scores_full_time = null;
         $away_scores_full_time = null;
@@ -137,6 +143,7 @@ trait ForebetInitializationTrait
             );
 
             $game_score_status_id = $this->determineGameScoreStatus($game, $data, $score);
+
             $game->update(['game_score_status_id' => $game_score_status_id, 'status' => GameScoreStatus::find($game_score_status_id)->name]);
         }
 
@@ -161,6 +168,8 @@ trait ForebetInitializationTrait
                 return gameScoresStatus('ft-and-ht-results');
             } elseif ($score->winner == Str::upper('postponed')) {
                 return gameScoresStatus('postponed');
+            } elseif ($score->winner == Str::upper('cancelled')) {
+                return gameScoresStatus('cancelled');
             } elseif ($score->home_scores_half_time === null) {
                 return gameScoresStatus('ft-results-only');
             }
@@ -168,7 +177,6 @@ trait ForebetInitializationTrait
 
         return gameScoresStatus('ft-and-ht-results');
     }
-
 
     private function syncReferees($game, $match)
     {

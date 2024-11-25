@@ -2,6 +2,8 @@
 
 namespace App\Jobs\Automation\Traits;
 
+use App\Models\AppSetting;
+use App\Models\Competition;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -12,11 +14,31 @@ trait AutomationTrait
     protected $maxExecutionTime;
     protected $startTime;
     protected $channel = 'automation';
-    protected $historyStartDate = '2015-01-01';
-    protected $requestDelayCompetitions = 20;
-    protected $requestDelaySeasons =  20;
-    protected $requestDelayGames = 20;
-    protected $predictorUrl = 'http://127.0.0.1:8085';
+    protected $historyStartDate;
+    protected $delayCompetitions;
+    protected $delaySeasons;
+    protected $delayGames;
+    protected $predictorUrl;
+
+    /**
+     * Load settings from the database and initialize the properties.
+     */
+    protected function initializeSettings(): void
+    {
+        $settings = AppSetting::whereIn('name', [
+            'history_start_date',
+            'predictor_url',
+            'delay_competitions',
+            'delay_seasons',
+            'delay_games',
+        ])->pluck('value', 'name');
+
+        $this->historyStartDate = $settings['history_start_date'] ?? '2018-01-01';
+        $this->predictorUrl = $settings['predictor_url'] ?? 'http://127.0.0.1:8085';
+        $this->delayCompetitions = $settings['delay_competitions'] ?? 20;
+        $this->delaySeasons = $settings['delay_seasons'] ?? 20;
+        $this->delayGames = $settings['delay_games'] ?? 20;
+    }
 
     /**
      * Logs the start and end messages for a job, including competition details.
@@ -37,7 +59,7 @@ trait AutomationTrait
             $jobName,
             $message,
             $this->task,
-            ', Competition #' . ($this->competition_id ?? 'N/A'),
+            ', Competition #' . ($this->competitionId ?? 'N/A'),
         );
 
         $competitionsMsg = $competitions ? $jobName . ': Working on competitions IDs: [' . $competitionIds . ']' : '';
@@ -55,6 +77,11 @@ trait AutomationTrait
         if ($competitionsMsg) {
             Log::channel($this->channel)->info($competitionsMsg);
         }
+    }
+
+    protected function getCompetition()
+    {
+        return Competition::find($this->competitionId);
     }
 
     /**
@@ -111,7 +138,15 @@ trait AutomationTrait
      */
     private function updateLastAction($model, $should_update_last_action, $column, $field = 'competition_id')
     {
-        if ($column && $should_update_last_action) {
+        if ($model && $column && $should_update_last_action) {
+
+            if ($field === 'competition_id') {
+                // Getting the class name dynamically
+                $jobName = class_basename($this) . '-' . $this->jobId;
+                $model_id = $model->id;
+                Log::channel($this->channel)->info("{$jobName}: ***UpdateLastAction ({$column}) for Compe #{$model_id}");
+            }
+
             try {
                 DB::transaction(function () use ($model, $column, $field) {
                     $lastAction = $model->lastAction()->where($field, $model->id)->first();
@@ -152,15 +187,19 @@ trait AutomationTrait
      */
     private function runTimeExceeded()
     {
-        // Check elapsed time before the next iteration
-        if (time() - $this->startTime >= $this->maxExecutionTime) {
+        // Calculate elapsed time
+        $elapsedTime = time() - $this->startTime;
 
-            // Getting the class name dynamically
+        if ($elapsedTime >= $this->maxExecutionTime) {
+            // Convert elapsed time to seconds or minutes
+            $formattedTime = round($elapsedTime / 60) . ' mins';
+
+            // Get the class name dynamically
             $jobName = class_basename($this) . '-' . $this->jobId;
 
-            $msg = "Script execution time exceeded. Terminating...";
+            $msg = "{$jobName}: ***Script execution time exceeded ({$formattedTime}). Terminating...";
 
-            Log::channel($this->channel)->critical('Run Time Exceeded for ' . $jobName . ': ' . $msg);
+            Log::channel($this->channel)->info($msg);
             echo $msg . "\n";
 
             return true;
@@ -174,32 +213,32 @@ trait AutomationTrait
     }
 
     /**
-     * Get a random delay for competitions, between 10 and $requestDelayCompetitions.
+     * Get a random delay for competitions, between 10 and $delayCompetitions.
      *
      * @return int
      */
     public function getRequestDelayCompetitions(): int
     {
-        return rand(10, $this->requestDelayCompetitions);
+        return rand(10, $this->delayCompetitions);
     }
 
     /**
-     * Get a random delay for seasons, between 10 and $requestDelaySeasons.
+     * Get a random delay for seasons, between 10 and $delaySeasons.
      *
      * @return int
      */
     public function getRequestDelaySeasons(): int
     {
-        return rand(10, $this->requestDelaySeasons);
+        return rand(10, $this->delaySeasons);
     }
 
     /**
-     * Get a random delay for games, between 10 and $requestDelayGames.
+     * Get a random delay for games, between 10 and $delayGames.
      *
      * @return int
      */
     public function getRequestDelayGames(): int
     {
-        return rand(10, $this->requestDelayGames);
+        return rand(10, $this->delayGames);
     }
 }

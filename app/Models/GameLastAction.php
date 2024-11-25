@@ -16,6 +16,12 @@ class GameLastAction extends Model
         'match_historical_results_last_fetch',
         'match_fixtures_last_fetch',
         'match_shallow_fixtures_last_fetch',
+
+        'odd_recent_results_last_fetch',
+        'odd_historical_results_last_fetch',
+        'odd_fixtures_last_fetch',
+        'odd_shallow_fixtures_last_fetch',
+
     ];
 
     public function game()

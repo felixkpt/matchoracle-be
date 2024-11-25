@@ -22,7 +22,7 @@ class OddsHandler
         try {
             DB::beginTransaction();
 
-            $res = Odd::updateOrCreate(
+            $odd = Odd::updateOrCreate(
                 [
                     'home_team' => $data['home_team'],
                     'away_team' => $data['away_team'],
@@ -49,8 +49,15 @@ class OddsHandler
                 ]
             );
 
-            if (isset($data['game_id'])) {
-                Game::find($data['game_id'])->odds()->sync($res);
+            // Associate the Odd with the Game if a game_id is provided
+            if (!empty($data['game_id'])) {
+                $game = Game::find($data['game_id']);
+                if ($game) {
+                    // Check if the odd is already linked to the game
+                    if (!$game->odds()->where('odds.id', $odd->id)->exists()) {
+                        $game->odds()->save($odd); // Save only if not already associated
+                    }
+                }
             }
 
             DB::commit();

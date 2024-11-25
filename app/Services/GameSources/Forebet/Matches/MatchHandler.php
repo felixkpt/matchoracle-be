@@ -9,6 +9,7 @@ use App\Services\GameSources\Forebet\ForebetInitializationTrait;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -36,11 +37,9 @@ class MatchHandler
 
     function fetchMatch($game_id)
     {
-        $game = Game::query()
-            ->where('id', $game_id)
-            ->firstOrFail();
+        $game = Game::query()->where('id', $game_id)->firstOrFail();
 
-        if (!request()->ignore_results && !in_array($game->game_score_status_id, unsettledGameScoreStatuses())) {
+        if (!request()->ignore_results && !request()->is_odds_request && !in_array($game->game_score_status_id, unsettledGameScoreStatuses())) {
             return $this->matchMessage('Update status is satisfied.');
         }
 
@@ -59,27 +58,27 @@ class MatchHandler
             return $this->matchMessage('Last fetch is ' . (Carbon::parse($game->last_fetch)->diffForHumans()));
         }
 
-        $url = $this->sourceUrl . ltrim($source_uri, '/');
 
-        return $this->handleGame($game, $url);
+        return $this->handleGame($game, $source_uri);
     }
 
-    private function handleGame($game, $url)
+    private function handleGame($game, $source_uri)
     {
 
+        $url = $this->sourceUrl . ltrim($source_uri, '/');
 
         $content = Client::get($url);
         if (!$content) return $this->matchMessage('Source inaccessible or not found.', 500);
 
+        // $content = file_get_contents(Storage::path('tests/index.html'));
+        
         $crawler = new Crawler($content);
 
-        Log::channel($this->logChannel)->info("Getting match #{$game->id} ...");
         if (strpos($crawler->text(), 'Attention Required!') !== false) {
-            $message = "Attention Required! Blocked while getting match #{$game->id}";
+            $message = "Attention Required! Blocked while getting game #{$game->id}";
             Log::channel($this->logChannel)->critical($message);
             return $this->matchMessage($message, 500);
         }
-
 
         $header = $crawler->filter('div.predictioncontain');
         $l = $header->filter('div.lLogo a img.matchTLogo');
@@ -108,7 +107,8 @@ class MatchHandler
         if ($l->count() === 1)
             $away_team_logo = $l->attr('src');
 
-        $postponed = false;
+        $postponed = $cancelled = false;
+
         $full_time_results = $half_time_results = null;
 
         $res = $crawler->filter('div#m1x2_table .rcnt')->filter('.lscr_td')->first();
@@ -123,6 +123,7 @@ class MatchHandler
                 $res = $crawler->filter('div#m1x2_table .rcnt')->filter('.lmin_td .l_min')->first();
                 if ($res->count() > 0) {
                     $postponed = $res->text() == 'Postp.';
+                    $cancelled = $res->text() == 'Cancl.';
                 }
             }
 
@@ -182,6 +183,7 @@ class MatchHandler
             'full_time_results' => $full_time_results,
             'half_time_results' => $half_time_results,
             'postponed' => $postponed,
+            'cancelled' => $cancelled,
 
             'temperature' => $temperature,
             'weather_condition' => $weather_condition,
@@ -221,7 +223,10 @@ class MatchHandler
         $updated = $message ? 1 : 0;
 
         // AOB taking advantage of matches on page
-        $handled_teams_games = $this->teamsMatches->fetchMatches($game, $crawler);
+        $handled_teams_games = [];
+        if (!request()->is_odds_request){
+            $handled_teams_games = $this->teamsMatches->fetchMatches($game, $competition, $crawler, $source_uri);
+        }
 
         $response = [
             'message' => $message,

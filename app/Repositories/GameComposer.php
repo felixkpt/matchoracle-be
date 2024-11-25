@@ -76,7 +76,8 @@ class GameComposer
 
         $scoreData = $game['score'];
 
-        if (isset($scoreData['winner']) && $scoreData['winner'] == 'POSTPONED') return $integer ? -1 : 'POSTPONED';
+        if (isset($scoreData['winner']) && $scoreData['winner'] == 'PST') return $integer ? -1 : 'PST';
+        if (isset($scoreData['winner']) && $scoreData['winner'] == 'CANC') return $integer ? -1 : 'CANC';
 
         if (!$scoreData || !$scoreData['winner']) {
             return $integer ? -1 : 'U';
@@ -106,7 +107,7 @@ class GameComposer
 
         $homeTeamScore = (int)($scoreData['home_scores_half_time'] ?? 0);
         $awayTeamScore = (int)($scoreData['away_scores_half_time'] ?? 0);
-        
+
         $winner = null;
         if ($homeTeamScore > $awayTeamScore) {
             $winner = 'HOME_TEAM';
@@ -233,6 +234,19 @@ class GameComposer
         }
 
         return null;
+    }
+
+    public static function winnerIdHT($game)
+    {
+        $side = self::winningSideHT($game);
+
+        if ($side == 'h') {
+            return $game['home_team_id'];
+        } else if ($side == 'a') {
+            return $game['away_team_id'];
+        }
+
+        return -1;
     }
 
     public static function hasResults($game)

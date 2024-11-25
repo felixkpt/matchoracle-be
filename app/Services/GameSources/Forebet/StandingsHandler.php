@@ -2,7 +2,6 @@
 
 namespace App\Services\GameSources\Forebet;
 
-use App\Models\CompetitionAbbreviation;
 use App\Models\Standing;
 use App\Models\StandingTable;
 use App\Services\ClientHelper\Client;
@@ -13,7 +12,7 @@ use Illuminate\Support\Str;
 
 class StandingsHandler
 {
-    use ForebetInitializationTrait;
+    use ForebetInitializationTrait, CompetitionAbbreviationsTrait;
 
     protected $has_errors = false;
     /**
@@ -24,6 +23,10 @@ class StandingsHandler
     public function __construct()
     {
         $this->initialize();
+
+        if (!$this->jobId) {
+            $this->jobId = str()->random(6);
+        }
     }
 
     /**
@@ -150,90 +153,6 @@ class StandingsHandler
 
         // Otherwise, return HTTP response
         return response($response);
-    }
-
-    /**
-     * Check if an abbreviation for the competition exists.
-     *
-     * @param Competition $competition The competition object.
-     * @return bool True if the abbreviation exists, false otherwise.
-     */
-    private function abbreviationExists($competition)
-    {
-        return CompetitionAbbreviation::where('competition_id', $competition->id)->exists();
-    }
-
-    /**
-     * Get the tag from the provided URL.
-     *
-     * @param string $url The URL to extract the tag from.
-     * @return string|null The extracted tag or null if not found.
-     */
-    private function getTagFromUrl($url)
-    {
-        $content = Client::get($url);
-        if (!$content) {
-            // Handle the case when the source is not accessible or not found
-            return null;
-        }
-
-        $crawler = new Crawler($content);
-        $row = $crawler->filter('table.main tr td.contentmiddle div.schema div.rcnt')->first();
-
-        if ($row && $row->filter('div.stcn div.shortagDiv span.shortTag')->count()) {
-            return $row->filter('div.stcn div.shortagDiv span.shortTag')->text();
-        }
-
-        return null;
-    }
-
-    /**
-     * Create a competition abbreviation record.
-     *
-     * @param string $tag The abbreviation tag.
-     * @param Competition $competition The competition object.
-     * @param Country $country The country object.
-     * @return void
-     */
-    private function createAbbreviation($tag, $competition, $country = null)
-    {
-        CompetitionAbbreviation::updateOrCreate(
-            [
-                'name' => $tag,
-            ],
-            [
-                'name' => $tag,
-                'is_international' => $country->is_international ?? 0,
-                'country_id' => $country->id ?? null,
-                'competition_id' => $competition->id,
-            ]
-        );
-    }
-
-    /**
-     * Create competition abbreviation if it doesn't exist.
-     *
-     * @param Competition $competition The competition object.
-     * @param string $url The URL to extract the abbreviation tag from.
-     * @return void
-     */
-    private function createCompetitionAbbreviation($competition, $url)
-    {
-        if (!$this->abbreviationExists($competition)) {
-            $country = $competition->country;
-            $tag = $this->getTagFromUrl($url);
-
-            if ($tag) {
-                if ($country) {
-                    $this->createAbbreviation($tag, $competition, $country);
-                } else {
-                    $exists = CompetitionAbbreviation::where('name', $tag)->exists();
-                    if (!$exists) {
-                        $this->createAbbreviation($tag, $competition, null, true);
-                    }
-                }
-            }
-        }
     }
 
     private function handleFetchStandings($competition, $season, $table, $stage = null, $group = null, $type = null)

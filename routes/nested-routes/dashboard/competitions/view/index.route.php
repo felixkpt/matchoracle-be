@@ -31,7 +31,7 @@ Route::delete('/{id}', [$controller, 'destroy'])->name('destroy compe'); // Dele
 
 Route::get('/{id}/odds', [$controller, 'odds']); // View odds for a competition
 
-Route::get('/{id}/statistics', [$controller, 'statistics']); // View statistics for a competition
+Route::get('/{id}/results-statistics', [$controller, 'resultsStatistics']); // View statistics for a competition
 Route::get('/{id}/prediction-statistics', [$controller, 'predictionStatistics']); // View prediction statistics for a competition
 Route::post('/{id}/do-statistics', [$controller, 'doStatistics']); // do stats for a competition
 

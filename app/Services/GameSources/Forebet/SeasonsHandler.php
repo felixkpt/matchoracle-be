@@ -25,6 +25,10 @@ class SeasonsHandler
     public function __construct()
     {
         $this->initialize();
+
+        if (!$this->jobId) {
+            $this->jobId = str()->random(6);
+        }
     }
 
     function fetchSeasons($competition_id)
