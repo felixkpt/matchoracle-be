@@ -1,5 +1,4 @@
 import { CompetitionTabInterface, SeasonsListInterface } from '@/interfaces/FootballInterface'
-import CompetitionSubHeader from '../Inlcudes/CompetitionSubHeader';
 import AutoTable from '@/components/Autos/AutoTable';
 import GeneralModal from '@/components/Modals/GeneralModal';
 
@@ -28,9 +27,6 @@ const Seasons: React.FC<Props> = ({ record, selectedSeason }) => {
       {
         competition &&
         <div>
-          <div className='shadow-sm'>
-            <CompetitionSubHeader actionTitle="Fetch Seasons" actionButton={'fetchSeasons'} record={competition} />
-          </div>
           <AutoTable key={selectedSeason?.id} columns={columns} baseUri={`dashboard/seasons?competition_id=${competition.id}`} search={true} tableId={'competitionSeasonsTable'} customModalId="teamModal" />
 
           {

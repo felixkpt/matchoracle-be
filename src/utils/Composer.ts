@@ -4,12 +4,12 @@ import Str from "./Str";
 class GameComposer {
 
     static team(team: TeamInterface, prefers: 'name' | 'short' | 'TLA' | null = null) {
-        var fallback_name = team.name || team.short_name || team.tla
+        let fallback_name = team.name || team.short_name || team.tla
         return prefers === 'short' ? team.short_name || fallback_name : (prefers === 'TLA' ? team.tla || fallback_name : team.name || fallback_name)
     }
 
     static season(season: SeasonInterface) {
-        if (!season) return 'all'
+        if (!season || season.id == 0) return 'All seasons'
         return `${Str.before(season.start_date, '-')} / ${Str.before(season.end_date, '-')}`
     }
 

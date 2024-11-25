@@ -1,14 +1,13 @@
 import useAxios from '@/hooks/useAxios';
 import React, { useEffect, useState } from 'react';
 import { CompetitionInterface, CompetitionTabInterface } from '@/interfaces/FootballInterface';
-import CompetitionSubHeader from '../Inlcudes/CompetitionSubHeader';
 import GeneralModal from '@/components/Modals/GeneralModal';
 import StandingsTable from '@/components/Teams/StandingsTable';
 import Loader from '@/components/Loader';
 import NoContentMessage from '@/components/NoContentMessage';
 import Str from '@/utils/Str';
 
-const Standings: React.FC<CompetitionTabInterface> = ({ record, seasons, selectedSeason }) => {
+const Standings: React.FC<CompetitionTabInterface> = ({ record, selectedSeason }) => {
 
     const competition = record
     const [detailedCompetition, setDetailedCompetition] = useState<CompetitionInterface | null>(null);
@@ -34,9 +33,6 @@ const Standings: React.FC<CompetitionTabInterface> = ({ record, seasons, selecte
                 competition
                 &&
                 <div>
-                    <div className='shadow-sm'>
-                        <CompetitionSubHeader actionTitle="Fetch Standings" actionButton="fetchStandings" record={competition} seasons={seasons} selectedSeason={selectedSeason} />
-                    </div>
                     {
                         !loading ?
                             <div key={selectedSeason?.id} className='mt-3'>

@@ -26,11 +26,17 @@ const CompetitionHeader = ({ competition, currentTab, seasons, selectedSeason, s
             setKey((curr: number) => curr += 1)
         }
     }
+
+    const getOptionLabel = (option:any) => {
+        if (option.id === 0) return option.name
+        return `${Str.before(option['start_date'], '-')} / ${Str.before(option['end_date'], '-')}`
+    }
+    
     return (
         <div className='header-title shadow-sm p-3 rounded mb-4 row'>
             <div className="col-12">
                 <div className="d-flex gap-3">
-                    <img className="compe-logo shadow-sm rounded" src={renderCompetitionLogo(competition.logo)} alt="" />
+                    <img className="compe-logo shadow-sm rounded object-fit-contain" src={renderCompetitionLogo(competition.logo)} alt="" />
                     <div className="d-flex align-items-center gap-4">
                         <h5 className="row align-items-center gap-2">
                             <span><span>{competition.name}</span><span>{currentTab ? ' - ' + currentTab : ''}</span></span>
@@ -58,7 +64,7 @@ const CompetitionHeader = ({ competition, currentTab, seasons, selectedSeason, s
                                             options={seasons || []}
                                             onChange={(v: any) => handleSetSelectedSeason(v)}
                                             getOptionValue={(option: any) => `${option['id']}`}
-                                            getOptionLabel={(option: any) => `${Str.before(option['start_date'], '-')} / ${Str.before(option['end_date'], '-')}`}
+                                            getOptionLabel={(option: any) => getOptionLabel(option)}
                                         />
                                     }
                                 </div>

@@ -1,3 +1,4 @@
+// src/Pages/Dashboard/Dashboard/Index.tsx
 import { config } from "@/utils/helpers";
 import AdvancedDashboardStats from "./Includes/AdvancedDashboardStats";
 import TopMainStats from "./Includes/TopMainStats";
@@ -14,7 +15,7 @@ const Index = () => {
                   <TopMainStats />
                 </div>
                 <div className="col-xl-3">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium nesciunt, eveniet quisquam sint harum qui ut. Consequuntur rerum cum error corrupti id nesciunt, pariatur veritatis quod totam eligendi delectus nostrum!
+        
                 </div>
               </div>
             </div>

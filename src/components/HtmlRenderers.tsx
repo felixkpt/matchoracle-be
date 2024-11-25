@@ -20,7 +20,7 @@ export const renderDateTime = (value: string, realTime: boolean = false) => {
 }
 
 export const renderImage = (value: string) => {
-  return <img src={renderDefaultImage(value)} width={30} height={30} className='rounded shadow' />
+  return <img src={renderDefaultImage(value)} width={30} height={30} className='rounded shadow object-fit-contain' />
 }
 
 export const renderMatchViewlink = (value: string) => {

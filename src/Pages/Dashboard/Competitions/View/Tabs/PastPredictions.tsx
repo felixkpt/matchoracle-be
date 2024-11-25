@@ -58,7 +58,7 @@ const PastPredictions: React.FC<Props> = ({ record, seasons, selectedSeason }) =
                 <div>
                     <div className="row shadow-sm align-items-center">
                         <div className="col-xl-8">
-                            <CompetitionSubHeader actionTitle="Do Predictions" actionButton="doPredictions" record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
+                            <CompetitionSubHeader record={competition} seasons={seasons} selectedSeason={selectedSeason} fromToDates={fromToDates} setFromToDates={setFromToDates} setUseDates={setUseDates} />
                         </div>
                         <div className="col-xl-4">
                             <PredictionsModeSwitcher predictionMode={predictionMode} predictionModes={predictionModes} setPredictionMode={setPredictionMode} />

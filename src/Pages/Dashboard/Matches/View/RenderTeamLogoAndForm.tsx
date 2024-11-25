@@ -13,7 +13,7 @@ const RenderTeamLogoAndForm = ({ team, recentResults }: TeamInfoProps) => {
     return (
         <>
             <NavLink to={`/dashboard/teams/view/${team.id}`}>
-                <img className="symbol-image-lg shadow-sm rounded" src={renderTeamLogo(team.logo)} alt="" />
+                <img className="team-logo shadow-sm rounded" src={renderTeamLogo(team.logo)} alt="" />
             </NavLink>
             <LastXResultsIcons results={recentResults} size="sm" />
         </>

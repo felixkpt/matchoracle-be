@@ -51,7 +51,7 @@ const Index = () => {
 
                     const compe_seasons = data.seasons
                     if (compe_seasons.length > 0) {
-                        setSeasons(compe_seasons)
+                        setSeasons([...compe_seasons, { id: 0, name: 'All seasons' }])
                         setSelectedSeason(compe_seasons[0])
                     }
                 }
@@ -186,7 +186,7 @@ const Index = () => {
                 seasons={seasons}
                 selectedSeason={selectedSeason}
                 getRecord={getRecord}
-                />,
+            />,
         },
         {
             name: "Sources",

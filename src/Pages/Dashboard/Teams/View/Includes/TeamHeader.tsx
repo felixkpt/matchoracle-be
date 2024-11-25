@@ -12,7 +12,7 @@ const TeamHeader = ({ team, currentTab }: TeamHeaderProps) => {
         <div className='header-title shadow-sm p-3 rounded mb-3 row'>
             <div className="col-12 overflow-x-hidden">
                 <div className="d-flex gap-3">
-                    <img className="symbol-image-lg shadow-sm rounded" src={renderTeamLogo(team.logo)} alt="" />
+                    <img className="symbol-image-lg shadow-sm rounded object-fit-contain" src={renderTeamLogo(team.logo)} alt="" />
                     <div className="d-flex align-items-center gap-4">
                         <h5 className="row align-items-center gap-2">
                             <span><span>{team.name}</span><span>{currentTab ? ' - ' + currentTab : ''}</span></span>
