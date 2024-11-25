@@ -14,15 +14,12 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // Seasons commands
-        $schedule->command('app:seasons-handler')->twiceDaily();
+        $schedule->command('app:seasons-handler')->everyFourHours();
 
         // Standing commands
-        $schedule->command('app:standings-handler --task=historical_results')->everySixHours(5);
-        $schedule->command('app:standings-handler --task=recent_results')->everySixHours(10);
+        $schedule->command('app:standings-handler --task=historical_results')->everyFourHours(5);
+        $schedule->command('app:standings-handler --task=recent_results')->everyFourHours(10);
 
-        // Matches commands
-        require('matches_commands.php');
-        
         // Statistics commands
         $schedule->command('app:competition-statistics')->everySixHours(35);
         $schedule->command('app:competition-prediction-statistics')->everySixHours(40);
@@ -30,6 +27,12 @@ class Kernel extends ConsoleKernel
         // Predictions commands
         $schedule->command('app:predictions-handler')->everyTwoHours(45);
         $schedule->command('app:train-predictions-handler')->everyTwoHours();
+
+        // Matches commands
+        require('matches_commands.php');
+
+        // Odds commands
+        require('odds_commands.php');
     }
 
     /**

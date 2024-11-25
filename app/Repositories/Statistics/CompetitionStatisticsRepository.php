@@ -9,57 +9,112 @@ use App\Models\Game;
 use App\Models\Season;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\Game\GameRepository;
-use App\Repositories\Game\GameRepositoryInterface;
 use App\Repositories\GameComposer;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class CompetitionStatisticsRepository implements CompetitionStatisticsRepositoryInterface
 {
 
     use CommonRepoActions;
 
-    function __construct(protected CompetitionStatistics $model)
-    {
-    }
+    function __construct(protected CompetitionStatistics $model) {}
 
     function index()
     {
-
         sleep(0);
 
         $results = $this->model->where('competition_id', request()->competition_id)
-            ->when(request()->season_id, fn ($q) => $q->where('season_id', request()->season_id))
-            ->when(request()->from_date, fn ($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
-            ->when(request()->to_date, fn ($q) => $q->whereDate('date', '<=', Carbon::parse(request()->to_date)->format('Y-m-d')))
-            ->first();
+            ->when(request()->season_id, fn($q) => $q->where('season_id', request()->season_id))
+            ->when(request()->from_date, fn($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
+            ->when(request()->to_date, fn($q) => $q->whereDate('date', '<=', Carbon::parse(request()->to_date)->format('Y-m-d')))
+            ->get()->toArray();
 
-        $counts = $results->counts ?? 0;
+        $aggregatedResults = [];
+        $season_counts = 0;
+        foreach ($results as $seasonResults) {
+            $ft_counts = $seasonResults['ft_counts'] ?? 0;
+            if ($ft_counts > 0) {
+                $season_counts++;
+                // Aggregate raw counts and percentages
+                $this->updateAggregatedResults($aggregatedResults, $seasonResults, 'ft');
+            }
 
-        if ($counts > 0) {
+            $ht_counts = $seasonResults['ht_counts'] ?? 0;
+            if ($ht_counts > 0) {
+                $this->updateAggregatedResults($aggregatedResults, $seasonResults, 'ht');
+            }
+        }
 
-            $results->ft_home_wins_percentage = number_format($results->ft_home_wins / $counts * 100, 0, '');
-            $results->ft_draws_percentage = number_format($results->ft_draws / $counts * 100, 0, '');
-            $results->ft_away_wins_percentage = number_format($results->ft_away_wins / $counts * 100, 0, '');
 
-            $results->ht_home_wins_percentage = number_format($results->ht_home_wins / $counts * 100, 0, '');
-            $results->ht_draws_percentage = number_format($results->ht_draws / $counts * 100, 0, '');
-            $results->ht_away_wins_percentage = number_format($results->ht_away_wins / $counts * 100, 0, '');
+        if (count($aggregatedResults)) {
+            $results = $results[0];
 
-            $results->ft_gg_percentage = number_format($results->gg / $counts * 100, 0, '');
-            $results->ft_ng_percentage = number_format($results->ng / $counts * 100, 0, '');
+            // Normalize percentages based on total counts
+            $ft_counts = $aggregatedResults['ft_counts'];
+            $ht_counts = $aggregatedResults['ht_counts'];
+            $results['ft_counts'] = $ft_counts;
+            $results['ht_counts'] = $ht_counts;
+            foreach ($aggregatedResults as $key => &$value) {
+                if (str_starts_with($key, 'ft_')) {
+                    $results["{$key}_percentage"] = (int) round(($value / $ft_counts) * 100);
+                } elseif (str_starts_with($key, 'ht_')) {
+                    $results["{$key}_percentage"] = (int) round(($value / $ht_counts) * 100);
+                }
 
-            $results->ft_over15_percentage = number_format($results->over15 / $counts * 100, 0, '');
-            $results->ft_under15_percentage = number_format($results->under15 / $counts * 100, 0, '');
+                $results[$key] = $value;
+            }
 
-            $results->ft_over25_percentage = number_format($results->over25 / $counts * 100, 0, '');
-            $results->ft_under25_percentage = number_format($results->under25 / $counts * 100, 0, '');
-
-            $results->ft_over35_percentage = number_format($results->over35 / $counts * 100, 0, '');
-            $results->ft_under35_percentage = number_format($results->under35 / $counts * 100, 0, '');
+            $results['season_counts'] = 1;
+            if ($season_counts > 1) {
+                $results['season_id'] = null;
+                $results['season_counts'] = $season_counts;
+            }
+        } else {
+            $results = null;
         }
 
         return response(['results' => $results]);
+    }
+
+    private function updateAggregatedResults(&$aggregatedResults, &$seasonResults, $prefix)
+    {
+        // Aggregate raw counts (e.g., ft_home_wins, ft_draws, etc.)
+        foreach ($seasonResults as $key => $value) {
+            if (str_starts_with($key, "{$prefix}_") && !str_contains($key, '_percentage')) {
+                $aggregatedResults[$key] = ($aggregatedResults[$key] ?? 0) + $value;
+            }
+        }
+    }
+
+    private function initializeStatistics(): array
+    {
+        $keys = [
+            'ft_counts',
+            'ft_home_wins',
+            'ft_draws',
+            'ft_away_wins',
+            'ft_gg',
+            'ft_ng',
+            'ft_over15',
+            'ft_under15',
+            'ft_over25',
+            'ft_under25',
+            'ft_over35',
+            'ft_under35',
+            'ht_counts',
+            'ht_home_wins',
+            'ht_draws',
+            'ht_away_wins',
+            'ht_gg',
+            'ht_ng',
+            'ht_over15',
+            'ht_under15',
+            'ht_over25',
+            'ht_under25',
+            'ht_over35',
+            'ht_under35',
+        ];
+        return array_fill_keys($keys, 0);
     }
 
     public function store()
@@ -70,31 +125,14 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
         $season_id = $season->id ?? 0;
 
         request()->merge([
-            'per_page' => 700, 'order_by' => 'utc_date', 'order_direction' => 'asc',
+            'per_page' => 700,
+            'order_by' => 'utc_date',
+            'order_direction' => 'asc',
             'without_response' => true,
             'is_competition_stats' => true,
         ]);
 
         $games = (new GameRepository(new Game()))->index(null, true);
-
-        $counts = 0;
-
-        $ft_home_wins_counts = 0;
-        $ft_draws_counts = 0;
-        $ft_away_wins_counts = 0;
-        $ht_home_wins_counts = 0;
-        $ht_draws_counts = 0;
-        $ht_away_wins_counts = 0;
-
-        $gg_counts = 0;
-        $ng_counts = 0;
-
-        $over15_counts = 0;
-        $under15_counts = 0;
-        $over25_counts = 0;
-        $under25_counts = 0;
-        $over35_counts = 0;
-        $under35_counts = 0;
 
         $games = $games['results']['data'];
         $ct = count($games);
@@ -102,10 +140,11 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
         // echo "Total games for competition #{$competition_id}: $ct\n\n";
 
         $unique_dates_counts = count(array_unique(
-            array_map(fn ($c) => Carbon::parse($c)->format('Y-m-d'), array_column($games, 'utc_date'))
+            array_map(fn($c) => Carbon::parse($c)->format('Y-m-d'), array_column($games, 'utc_date'))
         ));
         // Log::info("Unique date counts: {$unique_dates_counts}");
 
+        $statistics = $this->initializeStatistics();
         $matchday = 0;
         foreach ($games as $game) {
             $id = $game['id'];
@@ -125,127 +164,139 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
 
             if (!$hasResults) continue;
 
-            $counts++;
+            $statistics['ft_counts']++;
 
             $winningSide = GameComposer::winningSide($game, true);
-
-            if ($winningSide === 0) {
-                $ft_home_wins_counts++;
-            } elseif ($winningSide === 1) {
-                $ft_draws_counts++;
-            } elseif ($winningSide === 2) {
-                $ft_away_wins_counts++;
-            }
-
-            $winningSide = GameComposer::winningSideHT($game, true);
-
-            if ($winningSide === 0) {
-                $ht_home_wins_counts++;
-            } elseif ($winningSide === 1) {
-                $ht_draws_counts++;
-            } elseif ($winningSide === 2) {
-                $ht_away_wins_counts++;
-            }
+            match ($winningSide) {
+                0 => $statistics['ft_home_wins']++,
+                1 => $statistics['ft_draws']++,
+                2 => $statistics['ft_away_wins']++,
+            };
 
             $bts = GameComposer::bts($game, true);
-
             if ($bts) {
-                $gg_counts++;
+                $statistics['ft_gg']++;
             } else {
-                $ng_counts++;
+                $statistics['ft_ng']++;
             }
 
             $goals = GameComposer::goals($game, true);
-
             if ($goals > 1) {
-                $over15_counts++;
+                $statistics['ft_over15']++;
             } else {
-                $under15_counts++;
+                $statistics['ft_under15']++;
             }
             if ($goals > 2) {
-                $over25_counts++;
+                $statistics['ft_over25']++;
             } else {
-                $under25_counts++;
+                $statistics['ft_under25']++;
             }
             if ($goals > 3) {
-                $over35_counts++;
+                $statistics['ft_over35']++;
             } else {
-                $under35_counts++;
+                $statistics['ft_under35']++;
+            }
+
+            $hasResults = GameComposer::hasResultsHT($game);
+            if ($hasResults) {
+                $statistics['ht_counts']++;
+
+                $winningSide = GameComposer::winningSideHT($game, true);
+                match ($winningSide) {
+                    0 => $statistics['ht_home_wins']++,
+                    1 => $statistics['ht_draws']++,
+                    2 => $statistics['ht_away_wins']++,
+                };
+
+                $bts = GameComposer::btsHT($game, true);
+                if ($bts) {
+                    $statistics['ht_gg']++;
+                } else {
+                    $statistics['ht_ng']++;
+                }
+
+                $goals = GameComposer::goalsHT($game, true);
+                if ($goals > 1) {
+                    $statistics['ht_over15']++;
+                } else {
+                    $statistics['ht_under15']++;
+                }
+                if ($goals > 2) {
+                    $statistics['ht_over25']++;
+                } else {
+                    $statistics['ht_under25']++;
+                }
+                if ($goals > 3) {
+                    $statistics['ht_over35']++;
+                } else {
+                    $statistics['ht_under35']++;
+                }
             }
         }
 
-        if ($counts > 0) {
+        if ($statistics['ft_counts'] > 0) {
+            $data = [
+                'competition_id' => $competition_id,
+                'season_id' => $season_id,
+                'ft_counts' => $statistics['ft_counts'],
+                'ft_home_wins' => $statistics['ft_home_wins'],
+                'ft_draws' => $statistics['ft_draws'],
+                'ft_away_wins' => $statistics['ft_away_wins'],
+                'ft_gg' => $statistics['ft_gg'],
+                'ft_ng' => $statistics['ft_ng'],
+                'ft_over15' => $statistics['ft_over15'],
+                'ft_under15' => $statistics['ft_under15'],
+                'ft_over25' => $statistics['ft_over25'],
+                'ft_under25' => $statistics['ft_under25'],
+                'ft_over35' => $statistics['ft_over35'],
+                'ft_under35' => $statistics['ft_under35'],
+                'ht_counts' => $statistics['ht_counts'],
+                'ht_home_wins' => $statistics['ht_home_wins'],
+                'ht_draws' => $statistics['ht_draws'],
+                'ht_away_wins' => $statistics['ht_away_wins'],
+                'ht_gg' => $statistics['ht_gg'],
+                'ht_ng' => $statistics['ht_ng'],
+                'ht_over15' => $statistics['ht_over15'],
+                'ht_under15' => $statistics['ht_under15'],
+                'ht_over25' => $statistics['ht_over25'],
+                'ht_under25' => $statistics['ht_under25'],
+                'ht_over35' => $statistics['ht_over35'],
+                'ht_under35' => $statistics['ht_under35'],
+            ];
+
             if ($season_id && (!request()->date || $unique_dates_counts > 1)) {
+
                 CompetitionStatistic::updateOrCreate(
                     [
                         'competition_id' => $competition_id,
                         'season_id' => $season_id,
                     ],
-                    [
-                        'competition_id' => $competition_id,
-                        'season_id' => $season_id,
-                        'counts' => $counts,
-                        'ht_home_wins' => $ht_home_wins_counts,
-                        'ht_draws' => $ht_draws_counts,
-                        'ht_away_wins' => $ht_away_wins_counts,
-                        'ft_home_wins' => $ft_home_wins_counts,
-                        'ft_draws' => $ft_draws_counts,
-                        'ft_away_wins' => $ft_away_wins_counts,
-                        'ft_gg' => $gg_counts,
-                        'ft_ng' => $ng_counts,
-                        'ft_over15' => $over15_counts,
-                        'ft_under15' => $under15_counts,
-                        'ft_over25' => $over25_counts,
-                        'ft_under25' => $under25_counts,
-                        'ft_over35' => $over35_counts,
-                        'ft_under35' => $under35_counts,
-                    ]
+                    $data
                 );
             } else {
 
-                $date = Carbon::parse(request()->date)->format('Y-m-d');
-
                 if (!$season_id) {
-
                     $game = Game::find($game['id']);
                     $season_id = $game->season_id ?? 0;
                 }
 
+                $data['date'] = Carbon::parse(request()->date)->format('Y-m-d');
+                $data['matchday'] = $matchday;
                 CompetitionStatistic::updateOrCreate(
                     [
                         'competition_id' => $competition_id,
                         'season_id' => $season_id,
-                        'date' => $date,
-                        'matchday' => $matchday,
+                        'date' => $data['date'],
+                        'matchday' => $data['matchday'],
                     ],
-                    [
-                        'competition_id' => $competition_id,
-                        'season_id' => $season_id,
-                        'date' => $date,
-                        'matchday' => $matchday,
-                        'counts' => $counts,
-                        'ht_home_wins' => $ht_home_wins_counts,
-                        'ht_draws' => $ht_draws_counts,
-                        'ht_away_wins' => $ht_away_wins_counts,
-                        'ft_home_wins' => $ft_home_wins_counts,
-                        'ft_draws' => $ft_draws_counts,
-                        'ft_away_wins' => $ft_away_wins_counts,
-                        'ft_gg' => $gg_counts,
-                        'ft_ng' => $ng_counts,
-                        'ft_over15' => $over15_counts,
-                        'ft_under15' => $under15_counts,
-                        'ft_over25' => $over25_counts,
-                        'ft_under25' => $under25_counts,
-                        'ft_over35' => $over35_counts,
-                        'ft_under35' => $under35_counts,
-                    ]
+                    $data
                 );
             }
         }
 
         Competition::find($competition_id)->update(['stats_last_done' => now()]);
 
-        $arr = ['message' => 'Total matches ' . $ct . ', successfully done stats, (updated ' . $counts . ').', 'results' => ['updated' => $counts]];
+        $arr = ['message' => 'Total matches ' . $ct . ', successfully done stats, (updated ' . $statistics['ft_counts'] . ').', 'results' => ['updated' => $statistics['ft_counts']]];
         if (request()->without_response) return $arr;
         return response($arr);
     }

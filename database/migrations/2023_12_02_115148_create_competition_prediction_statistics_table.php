@@ -77,6 +77,62 @@ return new class extends Migration
             $table->integer('ft_under35_preds_true');
             $table->integer('ft_under35_preds_true_percentage');
 
+            $table->unsignedBigInteger('ht_counts');
+            $table->integer('ht_home_wins_counts');
+            $table->integer('ht_home_wins_preds');
+            $table->integer('ht_home_wins_preds_true');
+            $table->integer('ht_home_wins_preds_true_percentage');
+
+            $table->integer('ht_draws_counts');
+            $table->integer('ht_draws_preds');
+            $table->integer('ht_draws_preds_true');
+            $table->integer('ht_draws_preds_true_percentage');
+
+            $table->integer('ht_away_wins_counts');
+            $table->integer('ht_away_wins_preds');
+            $table->integer('ht_away_wins_preds_true');
+            $table->integer('ht_away_wins_preds_true_percentage');
+
+            $table->integer('ht_gg_counts');
+            $table->integer('ht_gg_preds');
+            $table->integer('ht_gg_preds_true');
+            $table->integer('ht_gg_preds_true_percentage');
+
+            $table->integer('ht_ng_counts');
+            $table->integer('ht_ng_preds');
+            $table->integer('ht_ng_preds_true');
+            $table->integer('ht_ng_preds_true_percentage');
+
+            $table->integer('ht_over15_counts');
+            $table->integer('ht_over15_preds');
+            $table->integer('ht_over15_preds_true');
+            $table->integer('ht_over15_preds_true_percentage');
+
+            $table->integer('ht_under15_counts');
+            $table->integer('ht_under15_preds');
+            $table->integer('ht_under15_preds_true');
+            $table->integer('ht_under15_preds_true_percentage');
+
+            $table->integer('ht_over25_counts');
+            $table->integer('ht_over25_preds');
+            $table->integer('ht_over25_preds_true');
+            $table->integer('ht_over25_preds_true_percentage');
+
+            $table->integer('ht_under25_counts');
+            $table->integer('ht_under25_preds');
+            $table->integer('ht_under25_preds_true');
+            $table->integer('ht_under25_preds_true_percentage');
+
+            $table->integer('ht_over35_counts');
+            $table->integer('ht_over35_preds');
+            $table->integer('ht_over35_preds_true');
+            $table->integer('ht_over35_preds_true_percentage');
+
+            $table->integer('ht_under35_counts');
+            $table->integer('ht_under35_preds');
+            $table->integer('ht_under35_preds_true');
+            $table->integer('ht_under35_preds_true_percentage');
+            
             $table->integer('accuracy_score')->nullable();
             $table->integer('precision_score')->nullable();
             $table->integer('f1_score')->nullable();

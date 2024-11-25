@@ -20,6 +20,11 @@ return new class extends Migration
             $table->dateTime('match_fixtures_last_fetch')->nullable();
             $table->dateTime('match_shallow_fixtures_last_fetch')->nullable();
 
+            $table->dateTime('odd_recent_results_last_fetch')->nullable();
+            $table->dateTime('odd_historical_results_last_fetch')->nullable();
+            $table->dateTime('odd_fixtures_last_fetch')->nullable();
+            $table->dateTime('odd_shallow_fixtures_last_fetch')->nullable();
+
             $table->timestamps();
         });
     }

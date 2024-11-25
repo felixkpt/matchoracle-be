@@ -6,7 +6,7 @@ use App\Jobs\Automation\Traits\AutomationTrait;
 use App\Models\Competition;
 use App\Models\FailedMatchLog;
 use Illuminate\Support\Str;
-use App\Models\MatchJobLog;
+use App\Models\OddJobLog;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Carbon\Carbon;
@@ -18,7 +18,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class MatchHandlerJob implements ShouldQueue
+class OddHandlerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
@@ -85,9 +85,9 @@ class MatchHandlerJob implements ShouldQueue
     {
 
         // Set the request parameter to indicate no direct response is expected
-        request()->merge(['without_response' => true]);
+        request()->merge(['without_response' => true, 'is_odds_request' => true]);
 
-        $lastFetchColumn = 'match_' . $this->task . '_last_fetch';
+        $lastFetchColumn = 'odd_' . $this->task . '_last_fetch';
 
         // Set delay in minutes based on the task type:
         $delay = $this->getDelay();
@@ -101,8 +101,10 @@ class MatchHandlerJob implements ShouldQueue
         foreach ((clone $competitions)->get() as $key => $competition) {
             $seasons = $this->seasonsFilter($competition);
             foreach ($seasons as $season) {
+                // ensures games have game_source_id
                 $games = $this->filterGames($season);
-                $games = $this->lastActionFilters($games->whereIn('game_score_status_id', unsettledGameScoreStatuses()));
+                // filters games based on the task being performed
+                $games = $this->lastActionFilters($games);
                 $total_games = $games->count();
                 $actionCounts += $total_games;
             }
@@ -169,15 +171,13 @@ class MatchHandlerJob implements ShouldQueue
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereHas('games', function ($q) {
+
                 // Check when game_id is not provided
-                $q->when(
-                    !$this->game_id,
-                    function ($q) {
-                        // Exclude action filters for unsettled games
-                        $q->whereNotIn('game_score_status_id', settledGameScoreStatuses());
-                        $this->lastActionFilters($q);
-                    }
-                );
+                $q->when(!$this->game_id, function ($q) {
+                    // Exclude action filters when game_id is not provided
+                    $q->doesntHave('odds');
+                    $this->lastActionFilters($q);
+                });
 
                 // Check when game_id is provided
                 $q->when($this->game_id, function ($q) {
@@ -200,13 +200,14 @@ class MatchHandlerJob implements ShouldQueue
     {
         return $competition->seasons()
             ->when($this->task == 'fixtures', fn($q) => $q->where('is_current', true))
-            ->where('fetched_all_single_matches', false)
+            ->where('fetched_all_single_matches_odds', false)
             ->orderBy('start_date', 'desc')
             ->get();
     }
 
     private function filterGames($season)
     {
+
         return $season->games()
             ->when($this->game_id, function ($q) {
                 // Apply game ID filter when game_id is provided
@@ -223,7 +224,6 @@ class MatchHandlerJob implements ShouldQueue
             ->orderBy('utc_date', $this->task == 'historical_results' ? 'desc' : 'asc');
     }
 
-
     function applyRecentResultsFilter(Builder $query): Builder
     {
         return $query->where('utc_date', '>', Carbon::now()->subDays(5))
@@ -238,9 +238,8 @@ class MatchHandlerJob implements ShouldQueue
 
     function applyFixturesFilter(Builder $query): Builder
     {
-        return $query->where('utc_date', '>', Carbon::now()->addDays(7));
+        return $query->where('utc_date', '>', Carbon::now()->addDays(7))->where('utc_date', '<=', Carbon::now()->addDays(90));
     }
-
 
     private function workOnSeasons($seasons, $lastFetchColumn)
     {
@@ -260,14 +259,17 @@ class MatchHandlerJob implements ShouldQueue
 
             $season_games = $season->games()->count();
 
+            // ensures games have game_source_id
             $games = $this->filterGames($season);
-            $games = $this->lastActionFilters($games->whereIn('game_score_status_id', unsettledGameScoreStatuses()));
+            // filters games based on the task being performed
+            $games = $this->lastActionFilters($games->doesntHave('odds'));
 
             $start_date = Str::before($season->start_date, '-');
             $end_date = Str::before($season->end_date, '-');
             $unsettled_games = $games->count();
 
-            $this->automationInfo("***" . ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date}, unsettled games {$unsettled_games}/{$season_games} games)");
+
+            $this->automationInfo("***" . ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date}, games without odds {$unsettled_games}/{$season_games} games)");
             if ($unsettled_games === 0) continue;
 
             $delay_games = 90;
@@ -424,7 +426,7 @@ class MatchHandlerJob implements ShouldQueue
 
         $task = $this->task;
         $today = Carbon::now()->format('Y-m-d');
-        $record = MatchJobLog::where('task', $task)->where('date', $today)->where('source_id', $this->sourceContext->getId())->first();
+        $record = OddJobLog::where('task', $task)->where('date', $today)->where('source_id', $this->sourceContext->getId())->first();
 
         if (!$record) {
             if ($competition_counts <= 0) {
@@ -440,7 +442,7 @@ class MatchHandlerJob implements ShouldQueue
                 'action_counts' => $action_counts,
             ];
 
-            $record = MatchJobLog::create($arr);
+            $record = OddJobLog::create($arr);
         } elseif ($increment_job_run_counts) $record->update(['job_run_counts' => $record->job_run_counts + 1]);
 
         return $record;

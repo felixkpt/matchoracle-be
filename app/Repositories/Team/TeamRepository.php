@@ -24,8 +24,6 @@ class TeamRepository implements TeamRepositoryInterface
     public function index($id = null)
     {
 
-        Log::info("(message)", [request()->season_id]);
-
         $teams = $this->model::query()
             ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
             ->with(['country', 'competition', 'address', 'venue', 'coachContract' => fn ($q) => $q->with('coach'), 'gameSources'])

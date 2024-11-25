@@ -39,7 +39,7 @@ class MatchHandler
     {
         $game = Game::query()->where('id', $game_id)->firstOrFail();
 
-        if (!request()->ignore_results && !in_array($game->game_score_status_id, unsettledGameScoreStatuses())) {
+        if (!request()->ignore_results && !request()->is_odds_request && !in_array($game->game_score_status_id, unsettledGameScoreStatuses())) {
             return $this->matchMessage('Update status is satisfied.');
         }
 
@@ -223,7 +223,10 @@ class MatchHandler
         $updated = $message ? 1 : 0;
 
         // AOB taking advantage of matches on page
-        $handled_teams_games = $this->teamsMatches->fetchMatches($game, $competition, $crawler, $source_uri);
+        $handled_teams_games = [];
+        if (!request()->is_odds_request){
+            $handled_teams_games = $this->teamsMatches->fetchMatches($game, $competition, $crawler, $source_uri);
+        }
 
         $response = [
             'message' => $message,

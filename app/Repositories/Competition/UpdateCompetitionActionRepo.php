@@ -5,6 +5,7 @@ namespace App\Repositories\Competition;
 use App\Jobs\Automation\CompetitionAbbreviationsJob;
 use App\Jobs\Automation\MatchesHandlerJob;
 use App\Jobs\Automation\MatchHandlerJob;
+use App\Jobs\Automation\OddHandlerJob;
 use App\Jobs\Automation\PredictionsHandlerJob;
 use App\Jobs\Automation\SeasonsHandlerJob;
 use App\Jobs\Automation\StandingsHandlerJob;
@@ -98,6 +99,26 @@ class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterfac
             case 'match_shallow_fixtures_last_fetch':
                 // Dispatch job for shallow fixtures
                 dispatch(new MatchHandlerJob('shallow_fixtures', $jobId, $ignoreTiming, $competitionId));
+                break;
+
+            case 'odd_recent_results_last_fetch':
+                // Dispatch job for recent results
+                dispatch(new OddHandlerJob('recent_results', $jobId, $ignoreTiming, $competitionId));
+                break;
+
+            case 'odd_historical_results_last_fetch':
+                // Dispatch job for historical results
+                dispatch(new OddHandlerJob('historical_results', $jobId, $ignoreTiming, $competitionId));
+                break;
+
+            case 'odd_fixtures_last_fetch':
+                // Dispatch job for fixtures
+                dispatch(new OddHandlerJob('fixtures', $jobId, $ignoreTiming, $competitionId));
+                break;
+
+            case 'odd_shallow_fixtures_last_fetch':
+                // Dispatch job for shallow fixtures
+                dispatch(new OddHandlerJob('shallow_fixtures', $jobId, $ignoreTiming, $competitionId));
                 break;
 
             case 'predictions_last_train':

@@ -2,18 +2,18 @@
 
 namespace App\Console\Commands\Automation;
 
-use App\Jobs\Automation\MatchHandlerJob;
+use App\Jobs\Automation\OddHandlerJob;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
-class MatchHandlerCommand extends Command
+class OddHandlerCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:match-handler {--task=} {--ignore-timing} {--competition=} {--game-id=}';
+    protected $signature = 'app:odd-handler {--task=} {--ignore-timing} {--competition=} {--game-id=}';
 
     /**
      * The console command description.
@@ -39,9 +39,8 @@ class MatchHandlerCommand extends Command
 
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
 
-        $competition_id = $this->option('competition');
-
-        dispatch(new MatchHandlerJob($task, null, $ignore_timing, $competition_id, $game_id));
+        dispatch(new OddHandlerJob($task, null, $ignore_timing, $competition_id, $game_id));
+   
         $this->info('Match handler command executed successfully!');
 
         return 1;

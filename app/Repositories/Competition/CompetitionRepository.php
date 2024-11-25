@@ -21,7 +21,6 @@ use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class CompetitionRepository implements CompetitionRepositoryInterface
 {
@@ -296,7 +295,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         return app(OddsController::class)->index();
     }
 
-    function statistics($id)
+    function resultsStatistics($id)
     {
         return app(CompetitionsStatisticsController::class)->index($id);
     }
@@ -342,12 +341,16 @@ class CompetitionRepository implements CompetitionRepositoryInterface
     {
         $season_id = request()->season_id;
 
+        request()->merge(['competition_id' => $id, 'without_response' => true]);
+
+        $teams = app(TeamsController::class)->index();
+
         return response(['results' => [
             "standings" => $this->model::find($id)->seasons()
                 ->when($season_id, fn($q) => $this->seasonFilter($q, 'id'))
                 ->whereHas('standings')->count(),
 
-            "teams" => $this->model::find($id)->teams()->where('season_id', $season_id)->count(),
+            "teams" => $teams['results']['total'] ?? 0,
 
             "past-matches" => $this->model::find($id)->games()
                 ->when($season_id, fn($q) => $this->seasonFilter($q))

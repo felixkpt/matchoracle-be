@@ -34,7 +34,7 @@ interface CompetitionRepositoryInterface extends CommonRepoActionsInterface
 
     function odds($id);
 
-    function statistics($id);
+    function resultsStatistics($id);
 
     function predictionStatistics($id);
 

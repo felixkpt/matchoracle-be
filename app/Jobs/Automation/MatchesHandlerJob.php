@@ -133,7 +133,7 @@ class MatchesHandlerJob implements ShouldQueue
 
                 [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit, $has_errors] = $this->workOnSeason($competition, $season, $lastFetchColumn);
 
-                $should_update_last_action = $has_errors;
+                $should_update_last_action = !$has_errors;
                 $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
 
                 // Introduce a delay to avoid rapid consecutive requests

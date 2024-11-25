@@ -26,7 +26,7 @@ return [
     'expanded_root_folders' => [
         'dashboard',
     ],
-    'guestRoleId' => 1101,
+    'guestRoleId' => null,
 
     'defaultPublicRoutes' => [
         'auth/role-permissions/roles/get-user-roles-and-direct-permissions',

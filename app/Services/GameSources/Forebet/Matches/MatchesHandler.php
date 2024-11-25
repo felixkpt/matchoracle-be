@@ -190,7 +190,7 @@ class MatchesHandler implements MatchesInterface
                         $raw_date = $heading->filter('td b')->text();
 
                         if ($raw_date && $raw_date != $date) {
-                            $date = Carbon::parse($raw_date)->format('Y-m-d');
+                            $date = Carbon::parse($raw_date)->setTimezone('UTC')->format('Y-m-d');
                         }
                     } else if ($date) {
 
@@ -207,8 +207,11 @@ class MatchesHandler implements MatchesInterface
                         $awayTeam = $crawler->filter('td.resLnameLTd a')->text();
                         $awayTeamUri = $crawler->filter('td.resLnameLTd a')->attr('href');
 
+                        $utc_date = $date . ' ' . $time;
+
                         $match = [
                             'date' => $date,
+                            'utc_date' => $utc_date,
                             'time' => $time,
                             'has_time' => !!$time,
                             'home_team' => [
@@ -267,13 +270,17 @@ class MatchesHandler implements MatchesInterface
                         $raw_date = $heading->filter('td b')->text();
 
                         if ($raw_date && $raw_date != $date) {
-                            $date = Carbon::parse($raw_date)->format('Y-m-d');
+                            $date = Carbon::parse($raw_date)->setTimezone('UTC')->format('Y-m-d');
                         }
-                    } else if ($date && Carbon::parse($date)->isFuture()) {
+                    } else if ($date && Carbon::parse($date)->setTimezone('UTC')->isFuture()) {
+
+                        $time = '00:00:00';
+                        $utc_date = $date . ' ' . $time;
 
                         $match = [
                             'date' => $date,
-                            'time' => '00:00:00',
+                            'utc_date' => $utc_date,
+                            'time' => $time,
                             'has_time' => false,
                             'home_team' => [
                                 'name' => null,

@@ -20,11 +20,7 @@ return new class extends Migration
             $table->date('date')->nullable();
             $table->integer('matchday')->nullable();
 
-            $table->unsignedBigInteger('counts');
-            
-            $table->unsignedBigInteger('ht_home_wins');
-            $table->unsignedBigInteger('ht_draws');
-            $table->unsignedBigInteger('ht_away_wins');
+            $table->unsignedBigInteger('ft_counts');
             $table->unsignedBigInteger('ft_home_wins');
             $table->unsignedBigInteger('ft_draws');
             $table->unsignedBigInteger('ft_away_wins');
@@ -36,6 +32,19 @@ return new class extends Migration
             $table->unsignedBigInteger('ft_under25');
             $table->unsignedBigInteger('ft_over35');
             $table->unsignedBigInteger('ft_under35');
+
+            $table->unsignedBigInteger('ht_counts');
+            $table->unsignedBigInteger('ht_home_wins');
+            $table->unsignedBigInteger('ht_draws');
+            $table->unsignedBigInteger('ht_away_wins');
+            $table->unsignedBigInteger('ht_gg');
+            $table->unsignedBigInteger('ht_ng');
+            $table->unsignedBigInteger('ht_over15');
+            $table->unsignedBigInteger('ht_under15');
+            $table->unsignedBigInteger('ht_over25');
+            $table->unsignedBigInteger('ht_under25');
+            $table->unsignedBigInteger('ht_over35');
+            $table->unsignedBigInteger('ht_under35');
 
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();

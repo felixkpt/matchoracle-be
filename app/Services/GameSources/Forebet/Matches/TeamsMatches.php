@@ -91,7 +91,7 @@ class TeamsMatches
                 try {
                     $day_month = implode('/', array_reverse(explode('/', $day_month->text())));
                     $year = $year->text();
-                    $date = Carbon::parse($year . '/' . $day_month)->toDateString();
+                    $date = Carbon::parse($year . '/' . $day_month)->setTimezone('UTC')->toDateString();
                 } catch (InvalidFormatException $e) {
                     Log::error("Date parsing error for competition #{$competition->id}, source_uri: {$source_uri} : " . $e->getMessage());
                     $date = null;
@@ -100,9 +100,12 @@ class TeamsMatches
 
             if (!$date) return null;
 
+            $time = '00:00:00';
+            $utc_date = $date . ' ' . $time;
             $match = [
                 'date' => $date,
-                'time' => '00:00:00',
+                'utc_date' => $utc_date,
+                'time' => $time,
                 'has_time' => false,
                 'home_team' => [
                     'id' => null,

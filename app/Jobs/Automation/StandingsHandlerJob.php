@@ -137,7 +137,7 @@ class StandingsHandlerJob implements ShouldQueue
                 $start_date = Str::before($season->start_date, '-');
                 $end_date = Str::before($season->end_date, '-');
 
-                $this->automationInfo(($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date})");
+                $this->automationInfo("***" . ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date})");
 
                 while (!is_connected()) {
                     $this->automationInfo("You are offline. Retrying in 10 secs...");
@@ -164,7 +164,7 @@ class StandingsHandlerJob implements ShouldQueue
                 $seconds_taken = intval($requestEndTime - $requestStartTime);
 
                 // Log time taken for this game request
-                $this->automationInfo("Time taken working on  Compe #{$competition->id} - season #{$season->id}: " . $this->timeTaken($seconds_taken));
+                $this->automationInfo("***Time taken working on  Compe #{$competition->id} - season #{$season->id}: " . $this->timeTaken($seconds_taken));
 
                 $data['seconds_taken'] = $seconds_taken;
 

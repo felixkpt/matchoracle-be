@@ -29,6 +29,11 @@ class CompetitionLastAction extends Model
         'match_fixtures_last_fetch',
         'match_shallow_fixtures_last_fetch',
 
+        'odd_recent_results_last_fetch',
+        'odd_historical_results_last_fetch',
+        'odd_fixtures_last_fetch',
+        'odd_shallow_fixtures_last_fetch',
+
         'stats_last_done',
         'predictions_stats_last_done',
         

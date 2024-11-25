@@ -15,12 +15,8 @@ class CountriesSeeder extends Seeder
     public function run(): void
     {
 
-        // Country::truncate();
-        // DB::statement('ALTER TABLE countries AUTO_INCREMENT = 1100;');
-
         $countries =  json_decode(file_get_contents(database_path('seeders/jsons/countries.json')), true);
 
-        // dd(count($countries))
         foreach ($countries as $country) {
 
             if ($country['continent']) {
