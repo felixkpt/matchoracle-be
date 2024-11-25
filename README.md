@@ -195,7 +195,7 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 **Felix Kiptoo Biwott**  
 [GitHub Repository (Laravel Backend)](https://github.com/felixkpt/matchoracle-be)  
-[GitHub Repository (React Frontend)](https://github.com/felixkpt/matchoracle-fe)  
 [GitHub Repository (FastAPI Predictions)](https://github.com/felixkpt/matchoracle-predictions)
+[GitHub Repository (React Frontend)](https://github.com/felixkpt/matchoracle-fe)  
 
 ---
