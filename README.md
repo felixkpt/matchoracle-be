@@ -155,7 +155,7 @@ The timing of these commands is influenced by several factors:
 - **Active Competitions Count**: A higher number of active competitions can affect how frequently tasks are executed.
 - **Data Source Frequency**: Different data sources may have varying refresh rates, which can adjust scheduling.
 - **Database Size**: A larger dataset may result in longer processing times and thus require adjusted intervals.
-- **Application Performance**: The system is designed to optimize performance while avoiding overload by adjusting intervals based on load and resource availability.
+- **Application Performance**: The system is designed to optimize performance while avoiding overload by adjusting intervals based on load & resource availability.
 
 ---
 
@@ -195,7 +195,7 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 **Felix Kiptoo Biwott**  
 [GitHub Repository (Laravel Backend)](https://github.com/felixkpt/matchoracle-be)  
+[GitHub Repository (FastAPI Predictions)](https://github.com/felixkpt/matchoracle-predictions)  
 [GitHub Repository (React Frontend)](https://github.com/felixkpt/matchoracle-fe)  
-[GitHub Repository (FastAPI Predictions)](https://github.com/felixkpt/matchoracle-predictions)
 
 ---
