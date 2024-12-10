@@ -67,6 +67,12 @@ class PredictionsController extends Controller
         return $this->gameRepositoryInterface->tomorrow();
     }
 
+    // Retrieve upcoming predictions
+    function upcoming()
+    {
+        return $this->gameRepositoryInterface->upcoming();
+    }
+
     // Retrieve predictions for a specific year
     function year($year)
     {

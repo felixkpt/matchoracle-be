@@ -3487,6 +3487,20 @@
     },
     {
         "country": {
+            "name": "Laos"
+        },
+        "competitions": [
+            {
+                "uri": "\/en\/predictions-laos\/lao-league",
+                "name": "Lao League",
+                "category": "domestic",
+                "type": null,
+                "gender": 1
+            }
+        ]
+    },
+    {
+        "country": {
             "name": "Latvia"
         },
         "competitions": [
@@ -4263,6 +4277,13 @@
             {
                 "uri": "\/en\/football-tips-and-predictions-for-poland\/iii-liga-group-i",
                 "name": "III Liga Group I",
+                "category": "domestic",
+                "type": null,
+                "gender": 1
+            },
+            {
+                "uri": "\/en\/football-tips-and-predictions-for-poland\/iii-liga-group-ii",
+                "name": "III Liga Group II",
                 "category": "domestic",
                 "type": null,
                 "gender": 1

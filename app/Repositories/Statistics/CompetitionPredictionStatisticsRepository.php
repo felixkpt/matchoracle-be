@@ -50,6 +50,7 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
             'to_date' => Carbon::now()->format('Y-m-d'),
             'without_response' => true,
             'requires_preds' => true,
+            'type' => 'past',
         ]);
 
 

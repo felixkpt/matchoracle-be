@@ -37,6 +37,11 @@ class OddsController extends Controller
         return $this->oddsRepositoryInterface->tomorrow();
     }
 
+    function upcoming()
+    {
+        return $this->oddsRepositoryInterface->upcoming();
+    }
+
     function year($year)
     {
         return $this->oddsRepositoryInterface->year($year);

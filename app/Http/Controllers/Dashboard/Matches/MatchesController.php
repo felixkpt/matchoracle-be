@@ -47,6 +47,13 @@ class MatchesController extends Controller
         return $this->gameRepositoryInterface->tomorrow();
     }
 
+    function upcoming($competition_id = null)
+    {
+        request()->merge(["competition_id" => $competition_id]);
+
+        return $this->gameRepositoryInterface->upcoming();
+    }
+
     function year($year)
     {
         return $this->gameRepositoryInterface->year($year);

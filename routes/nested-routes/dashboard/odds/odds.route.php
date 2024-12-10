@@ -4,19 +4,23 @@ use App\Http\Controllers\Dashboard\Odds\OddsController;
 use Illuminate\Support\Facades\Route;
 
 $controller = OddsController::class;
+$match = '[0-9]+';
+
 Route::get('/', [$controller, 'index'])->name('all odds');
 Route::get('/today', [$controller, 'today'])->name('today\'s odds');
 Route::get('/yesterday', [$controller, 'yesterday'])->name('yesterday\'s odds');
 Route::get('/tomorrow', [$controller, 'tomorrow'])->name('tomorrow\'s odds');
-Route::get('/{year}', [$controller, 'year'])->name('year odds')->where(['year' => '[0-9]+']);
-Route::get('/{year}/{month}', [$controller, 'yearMonth'])->name('year_month odds')->where(['year' => '[0-9]+', 'month' => '[0-9]+']);
-Route::get('/{year}/{month}/{day}', [$controller, 'yearMonthDay'])->name('year_month_day odds')->where(['year' => '[0-9]+', 'month' => '[0-9]+', 'day' => '[0-9]+']);
+Route::get('/upcoming', [$controller, 'upcoming'])->name('upcoming odds'); // Upcoming odds
+
+Route::get('/{year}', [$controller, 'year'])->name('year odds')->where(['year' => $match]);
+Route::get('/{year}/{month}', [$controller, 'yearMonth'])->name('year_month odds')->where(['year' => $match, 'month' => $match]);
+Route::get('/{year}/{month}/{day}', [$controller, 'yearMonthDay'])->name('year_month_day odds')->where(['year' => $match, 'month' => $match, 'day' => $match]);
 
 // Updated routes for combined date ranges
 Route::get('/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{end_day}', [$controller, 'dateRange'])
     ->where([
-        'start_year' => '[0-9]+', 'start_month' => '[0-9]+', 'start_day' => '[0-9]+',
-        'end_year' => '[0-9]+', 'end_month' => '[0-9]+', 'end_day' => '[0-9]+'
+        'start_year' => $match, 'start_month' => $match, 'start_day' => $match,
+        'end_year' => $match, 'end_month' => $match, 'end_day' => $match
     ])
     ->name('Odds date_range'); // Odds for a specified date range
 

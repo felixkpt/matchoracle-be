@@ -12,6 +12,7 @@ interface GameRepositoryInterface extends CommonRepoActionsInterface
     public function today();
     public function yesterday();
     public function tomorrow();
+    public function upcoming();
     public function year($year);
     public function yearMonth($year, $month);
     public function yearMonthDay($year, $month, $date);

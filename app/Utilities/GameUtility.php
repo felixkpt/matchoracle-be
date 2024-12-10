@@ -69,10 +69,26 @@ class GameUtility
             ->when($params['yesterday'] ?? null, fn($q) => $q->whereDate('utc_date', '=', Carbon::yesterday()->format('Y-m-d')))
             ->when($params['today'] ?? null, fn($q) => $q->whereDate('utc_date', '=', Carbon::today()->format('Y-m-d')))
             ->when($params['tomorrow'] ?? null, fn($q) => $q->whereDate('utc_date', '=', Carbon::tomorrow()->format('Y-m-d')))
+            ->when($params['upcoming'] ?? null, fn($q) => $this->upcomingFilter($q))
             ->when($params['from_date'] ?? null, fn($q) => $q->whereDate('utc_date', '>=', Carbon::parse($params['from_date'])->format('Y-m-d')))
-            ->when($params['to_date'] ?? null, fn($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($params['to_date'])->format('Y-m-d')))
+            ->when($params['to_date'] ?? null, fn($q) => $this->toDateFilter($q, $params))
             ->when($params['date'] ?? null, fn($q) => $q->whereDate('utc_date', '=', Carbon::parse($params['date'])->format('Y-m-d')))
             ->when(!($params['date'] ?? null) && !($params['to_date'] ?? null) && ($params['type'] ?? null), fn($q) => $this->typeOrdering($q, $params['type'], $params['to_date'] ?? null));
+    }
+
+    private function upcomingFilter($query)
+    {
+        $query->where('utc_date', '>=', Carbon::now())->where('utc_date', '<=', Carbon::today()->addDays(7)->endOfDay());
+    }
+
+    private function toDateFilter($query, $params)
+    {
+        $to_date = Carbon::parse($params['to_date']);
+        if ($params['type'] == 'past' && $to_date->isFuture()){
+            $to_date = Carbon::now();
+        }
+
+        $query->whereDate('utc_date', request()->before_to_date ? '<' : '<=', $to_date->format('Y-m-d'));
     }
 
     private function applyMiscFilters($query, $params, $id)

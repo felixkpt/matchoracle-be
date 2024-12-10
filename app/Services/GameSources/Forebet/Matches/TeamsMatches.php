@@ -89,16 +89,18 @@ class TeamsMatches
             $year = $raw_date->eq(1);
             if ($day_month->count() === 1 && $year->count() === 1) {
                 try {
-                    $day_month = implode('/', array_reverse(explode('/', $day_month->text())));
+                    $day_month = implode('-', array_reverse(explode('/', $day_month->text())));
                     $year = $year->text();
-                    $date = Carbon::parse($year . '/' . $day_month)->setTimezone('UTC')->toDateString();
+                    $date = $year . '-' . $day_month;
                 } catch (InvalidFormatException $e) {
                     Log::error("Date parsing error for competition #{$competition->id}, source_uri: {$source_uri} : " . $e->getMessage());
                     $date = null;
                 }
             }
 
-            if (!$date) return null;
+            if (!$date) {
+                return null;
+            }
 
             $time = '00:00:00';
             $utc_date = $date . ' ' . $time;
@@ -181,7 +183,7 @@ class TeamsMatches
         return $matches;
     }
 
-    function updateCompetitionSourceID($competition, $crawler)
+    private function updateCompetitionSourceID($competition, $crawler)
     {
         // Update competition source ID
         $competition_id = $competition->id ?? null;
@@ -294,8 +296,9 @@ class TeamsMatches
                 $msg = 'Fixture updated successfully.';
             }
 
-            if ($game_utc_date != $data['utc_date'])
+            if ($game_utc_date != $data['utc_date']) {
                 $msg .= ' Time updated (' . $game_utc_date . ' > ' . $data['utc_date'] . ').';
+            }
 
 
             $game->update($arr);
@@ -324,8 +327,6 @@ class TeamsMatches
         if ($playing == 'away') {
             $team = $game->homeTeam;
         }
-
-        // echo "Team: {$team->name}<br>";
 
         $latest_date = Carbon::parse($game->utc_date)->subDay()->format('Y-m-d');
         $old_date = array_pop($matches)['date'];
@@ -366,6 +367,8 @@ class TeamsMatches
                     'game_score_status_id' => gameScoresStatus('Deactivated'),
                     'status' => 'Deactivated'
                 ]);
+
+                Log::info("Game #" . $team_game->id . " was deactivated");
             }
             // } else {
             //     echo 'Skipping...' . $team_game->id . '<br>';

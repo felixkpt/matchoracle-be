@@ -25,6 +25,7 @@ class OddsRepository implements OddsRepositoryInterface
         $odds = $this->model::query()
             ->when(request()->status == 1, fn($q) => $q->where('status_id', activeStatusId()))
             ->when(request()->competition_id, fn($q) => $q->whereHas('game', fn($q) => $q->where('competition_id', request()->competition_id)->when(request()->season_id, fn($q) => $q->where('season_id', request()->season_id))))
+            ->when(request()->upcoming ?? null, fn($q) => $this->upcomingFilter($q))
             ->when($from_date, fn($q) => $q->whereDate('utc_date', '>=', Carbon::parse($from_date)->format('Y-m-d')))
             ->when($to_date, fn($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($to_date)->format('Y-m-d')))
             ->when($date, fn($q) => $q->whereDate('utc_date', '=', Carbon::parse($date)->format('Y-m-d')))->when(request()->yesterday, fn($q) => $q->whereDate('utc_date', Carbon::yesterday()))
@@ -48,10 +49,15 @@ class OddsRepository implements OddsRepositoryInterface
             ->addColumn('under_25', fn($q) => $q->under_25_odds ?? '-')
             ->addColumn('GG', fn($q) => $q->gg_odds ?? '-')
             ->addColumn('NG', fn($q) => $q->ng_odds ?? '-')
-            ->orderBy('utc_date', 'desc')
+            ->orderBy('utc_date', request()->upcoming ? 'asc' : 'desc')
             ->paginate();
 
         return response(['results' => $results]);
+    }
+
+    private function upcomingFilter($query)
+    {
+        $query->whereDate('utc_date', '>=', Carbon::today())->whereDate('utc_date', '<=', Carbon::today()->addDays(7));
     }
 
     private function yearMonthFilter($q)
@@ -79,6 +85,13 @@ class OddsRepository implements OddsRepositoryInterface
     public function tomorrow()
     {
         request()->merge(['tomorrow' => true]);
+        return $this->index();
+    }
+
+
+    public function upcoming()
+    {
+        request()->merge(['upcoming' => true]);
         return $this->index();
     }
 

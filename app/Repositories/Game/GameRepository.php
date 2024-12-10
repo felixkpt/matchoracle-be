@@ -46,7 +46,9 @@ class GameRepository implements GameRepositoryInterface
 
         $results_raw = $gameUtilities->applyGameFilters($id);
 
-        if ($this->applyFiltersOnly) return $results_raw;
+        if ($this->applyFiltersOnly) {
+            return $results_raw;
+        }
 
         $results = $gameUtilities->formatGames($results_raw);
 
@@ -67,7 +69,9 @@ class GameRepository implements GameRepositoryInterface
 
             $arr = [];
             foreach ($results as $matchData) {
-                if (count($arr) == $limit) break;
+                if (count($arr) == $limit) {
+                    break;
+                }
 
                 $stats = (new GameStatsUtility())->addGameStatistics($matchData);
                 if ($stats) {
@@ -81,8 +85,6 @@ class GameRepository implements GameRepositoryInterface
             }
 
             $results = array_reverse($arr);
-
-            // Log::info('GameRepository:: ', ['compe' => request()->competition_id, 'rest ct' => count($results), 'request' => $limit]);
 
             if (request()->task == 'train') {
                 // if is train/test and results is less than 60% of limit then return empty
@@ -111,7 +113,10 @@ class GameRepository implements GameRepositoryInterface
 
             Log::critical('Time taken in secs to load matches::' . round((microtime(true) - $start)));
 
-            if (request()->without_response) return $arr;
+            if (request()->without_response) {
+                return $arr;
+            }
+
             return response($arr);
         }
     }
@@ -178,7 +183,7 @@ class GameRepository implements GameRepositoryInterface
         $prediction_type = GamePredictionType::updateOrCreate([
             'name' => $prediction_type,
         ]);
-        
+
         $competition_id = request()->competition_id;
         $carbon_date = Carbon::parse(request()->date);
         $date = $carbon_date->format('Y-m-d');
@@ -217,6 +222,12 @@ class GameRepository implements GameRepositoryInterface
     public function tomorrow()
     {
         request()->merge(['tomorrow' => true]);
+        return $this->index();
+    }
+
+    public function upcoming()
+    {
+        request()->merge(['upcoming' => true, 'order_direction' => 'asc']);
         return $this->index();
     }
 

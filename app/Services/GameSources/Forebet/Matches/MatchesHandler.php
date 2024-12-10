@@ -118,7 +118,9 @@ class MatchesHandler implements MatchesInterface
     private function getMatchesLinks($url, $competition)
     {
         $content = Client::get($url);
-        if (!$content) return $this->matchMessage('Source not accessible or not found.', 504);
+        if (!$content) {
+            return $this->matchMessage('Source not accessible or not found.', 504);
+        }
 
         $crawler = new Crawler($content);
 
@@ -187,12 +189,11 @@ class MatchesHandler implements MatchesInterface
                 if ($crawler->count() > 0) {
                     $heading = $crawler->filter('.heading');
                     if ($heading->count() > 0) {
-                        $raw_date = $heading->filter('td b')->text();
+                        $date = $this->getDate($heading, $date);
+                        return null;
+                    }
 
-                        if ($raw_date && $raw_date != $date) {
-                            $date = Carbon::parse($raw_date)->setTimezone('UTC')->format('Y-m-d');
-                        }
-                    } else if ($date) {
+                    if ($date) {
 
                         $time = $crawler->filter('td.resLdateTd')->text();
                         $homeTeam = $crawler->filter('td.resLnameRTd a')->text();
@@ -267,12 +268,11 @@ class MatchesHandler implements MatchesInterface
                 if ($crawler->count() > 0) {
                     $heading = $crawler->filter('.heading');
                     if ($heading->count() > 0) {
-                        $raw_date = $heading->filter('td b')->text();
+                        $date = $this->getDate($heading, $date);
+                        return null;
+                    }
 
-                        if ($raw_date && $raw_date != $date) {
-                            $date = Carbon::parse($raw_date)->setTimezone('UTC')->format('Y-m-d');
-                        }
-                    } else if ($date && Carbon::parse($date)->setTimezone('UTC')->isFuture()) {
+                    if ($date && Carbon::parse($date)->setTimezone('UTC')->isFuture()) {
 
                         $time = '00:00:00';
                         $utc_date = $date . ' ' . $time;
@@ -311,7 +311,23 @@ class MatchesHandler implements MatchesInterface
         return $matches;
     }
 
-    function addMatchDetails($crawler, &$match)
+    private function getDate($heading, $date)
+    {
+
+        $raw_date = $heading->filter('td b')->text();
+
+        if ($raw_date && $raw_date != $date) {
+            $arr = explode('.', $raw_date);
+            if (count($arr) != 3) {
+                abort(500, 'Date error');
+            }
+
+            $date = $arr[2] . '-' . $arr[1] . '-' . $arr[0];
+        }
+        return $date;
+    }
+
+    private function addMatchDetails($crawler, &$match)
     {
         $crawler->filter('td')->each(function ($crawler, $i) use (&$match) {
 
