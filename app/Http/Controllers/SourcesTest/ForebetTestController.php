@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Dashboard\SourcesTest;
+namespace App\Http\Controllers\SourcesTest;
 
 use App\Http\Controllers\Controller;
 use App\Models\Competition;
