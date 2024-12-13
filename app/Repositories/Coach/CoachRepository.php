@@ -25,7 +25,7 @@ class CoachRepository implements CoachRepositoryInterface
             ->with(['nationality']);
         if ($this->applyFiltersOnly) return $coaches;
 
-        $uri = '/dashboard/teams/coaches';
+        $uri = '/teams/coaches';
         $statuses = SearchRepo::of($coaches, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
@@ -51,7 +51,7 @@ class CoachRepository implements CoachRepositoryInterface
         // $countries = $this->model::with(['continent', 'country', 'gameSources'])->where('id', $id);
         $team = $this->model::with(['country', 'gameSources'])->where('id', $id);
 
-        $uri = '/dashboard/teams/';
+        $uri = '/teams/';
         $statuses = SearchRepo::of($team, ['id', 'name', 'country.name', 'slug'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

@@ -61,7 +61,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         if ($this->applyFiltersOnly)
             return $competitions;
 
-        $uri = '/dashboard/competitions/';
+        $uri = '/competitions/';
         $results = SearchRepo::of($competitions, ['id', 'name', 'code', 'country.name', 'seasons.start_date', 'slug'])
             ->setModelUri($uri)
             ->addColumn('name', fn($q) => $q->country->name . ' - ' . $q->name)
@@ -231,7 +231,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $gamesources = GameSource::whereIn('id', $competition->gameSources->pluck('id'));
 
-        $uri = '/dashboard/countries/';
+        $uri = '/countries/';
         $res = SearchRepo::of($gamesources, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
@@ -246,7 +246,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $seasons = Season::where('competition_id', $id)->with(['competition', 'winner']);
 
-        $uri = '/dashboard/countries/';
+        $uri = '/countries/';
         $res = SearchRepo::of($seasons, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

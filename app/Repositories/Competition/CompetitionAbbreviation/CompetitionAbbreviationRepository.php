@@ -23,7 +23,7 @@ class CompetitionAbbreviationRepository implements CompetitionAbbreviationReposi
         if (request()->all == '1')
             return response(['results' => $statuses->get()]);
 
-        $uri = '/dashboard/competitions/competition-abbreviations/';
+        $uri = '/competitions/competition-abbreviations/';
         $statuses = SearchRepo::of($statuses, ['id', 'name', 'country.name'])
             ->fillable(['competition_id', 'name'])
             ->setModelUri($uri)

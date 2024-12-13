@@ -26,7 +26,7 @@ class AddressRepository implements AddressRepositoryInterface
 
         if ($this->applyFiltersOnly) return $teams;
 
-        $uri = '/dashboard/teams/addresses';
+        $uri = '/teams/addresses';
         $statuses = SearchRepo::of($teams, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
@@ -72,7 +72,7 @@ class AddressRepository implements AddressRepositoryInterface
         // $countries = $this->model::with(['continent', 'country', 'gameSources'])->where('id', $id);
         $team = $this->model::with(['country', 'gameSources'])->where('id', $id);
 
-        $uri = '/dashboard/teams/address';
+        $uri = '/teams/address';
         $statuses = SearchRepo::of($team, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
@@ -152,7 +152,7 @@ class AddressRepository implements AddressRepositoryInterface
 
         $teams = Address::whereIn('id', $arr);
 
-        $uri = '/dashboard/teams/';
+        $uri = '/teams/';
         $res = SearchRepo::of($teams, ['name', 'founded'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

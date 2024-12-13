@@ -24,7 +24,7 @@ class ContinentRepository implements ContinentRepositoryInterface
 
         if ($this->applyFiltersOnly) return $continents;
 
-        $uri = '/dashboard/continents/';
+        $uri = '/continents/';
         $res = SearchRepo::of($continents, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

@@ -38,7 +38,7 @@ class SeasonRepository implements SeasonRepositoryInterface
 
         if ($this->applyFiltersOnly) return $seasons;
 
-        $uri = '/dashboard/seasons/';
+        $uri = '/seasons/';
         $results = SearchRepo::of($seasons, ['start_date'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

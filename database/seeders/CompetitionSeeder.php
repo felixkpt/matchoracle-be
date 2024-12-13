@@ -10,7 +10,7 @@ class CompetitionSeeder extends Seeder
 {
     protected $sourceContext;
 
-    function __construct()
+    public function __construct()
     {
         // Instantiate the context class
         $this->sourceContext = new GameSourceStrategy();
@@ -21,6 +21,7 @@ class CompetitionSeeder extends Seeder
 
     public function run()
     {
+
         $this->sourceContext->initialCompetitionsHandler()->seedCompetitions();
     }
 }

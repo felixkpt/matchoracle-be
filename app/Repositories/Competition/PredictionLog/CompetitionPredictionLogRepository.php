@@ -23,7 +23,7 @@ class CompetitionPredictionLogRepository implements CompetitionPredictionLogRepo
         if (request()->all == '1')
             return response(['results' => $statuses->get()]);
 
-        $uri = '/dashboard/competitions/prediction-logs/';
+        $uri = '/competitions/prediction-logs/';
         $statuses = SearchRepo::of($statuses, ['id', 'competition.name', 'competition.country.name', 'date', 'total_games'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

@@ -36,7 +36,7 @@ class OddsRepository implements OddsRepositoryInterface
 
         if ($this->applyFiltersOnly) return $odds;
 
-        $uri = '/dashboard/odds/';
+        $uri = '/odds/';
         $results = SearchRepo::of($odds, ['id', 'utc_date', 'home_team', 'away_team'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

@@ -25,7 +25,7 @@ class CoachContractRepository implements CoachContractRepositoryInterface
 
         if ($this->applyFiltersOnly) return $contracts;
 
-        $uri = '/dashboard/teams/contracts';
+        $uri = '/teams/contracts';
         $statuses = SearchRepo::of($contracts, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

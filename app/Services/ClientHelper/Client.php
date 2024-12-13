@@ -18,10 +18,12 @@ class Client
      * @param boolean $external_crawler_key
      * @return string|null
      */
-    public static function get($request_url, $external_crawler_key = null)
+    public static function get($request_url)
     {
-        $response = $external_crawler_key
-            ? self::fetchContentFromPuppeteer($request_url, $external_crawler_key)
+        $use_external_crawler = config('app.use_crawler');
+
+        $response = $use_external_crawler
+            ? self::fetchContentFromPuppeteer($request_url)
             : self::sendRequest($request_url)->getContent();
 
         return $response ?? null;
@@ -34,10 +36,12 @@ class Client
      * @param boolean $external_crawler_key
      * @return int|null
      */
-    public static function requestStatus($request_url, $external_crawler_key = null)
+    public static function requestStatus($request_url)
     {
-        $response = $external_crawler_key
-            ? self::fetchContentFromPuppeteer($request_url, $external_crawler_key)
+        $use_external_crawler = config('app.use_crawler');
+
+        $response = $use_external_crawler
+            ? self::fetchContentFromPuppeteer($request_url)
             : self::sendRequest($request_url)->getStatusCode();
 
         return $response ?? null;
@@ -67,21 +71,31 @@ class Client
      * @param string $request_url
      * @return string|null
      */
-    public static function fetchContentFromPuppeteer($request_url, $external_crawler_key = null)
+    public static function fetchContentFromPuppeteer($request_url)
     {
-        $external_crawler_urls = config('external_crawler_urls');
+        $crawler_urls = config('app.crawler_urls');
 
-        $crawler_url = $external_crawler_urls[$external_crawler_key] . '/fetch';
+        $external_crawler_key = 0;
+
+        $crawler_url = $crawler_urls[$external_crawler_key] . '/fetch';
 
         $response = Http::timeout(70)->get($crawler_url, ['url' => $request_url]);
 
         if ($response->successful()) {
-            return $response->body();
+
+            $data = $response->json();
+            if (isset($data['content'])) {
+
+                return $data['content'];
+            } else {
+                Log::warning("Response from $crawler_url did not include 'content'. Data: " . json_encode($data));
+            }
         } else {
             // Handle error response
             Log::error('Error fetching content: ' . $response->body());
-            return null;
         }
+
+        return null;
     }
 
     /**

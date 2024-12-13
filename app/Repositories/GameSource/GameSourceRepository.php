@@ -25,7 +25,7 @@ class GameSourceRepository implements GameSourceRepositoryInterface
         if (request()->all == '1')
             $statuses = $statuses->where('status_id', Status::where('name', 'active')->first()->id);
 
-        $uri = '/dashboard/settings/picklists/game-sources/';
+        $uri = '/settings/picklists/game-sources/';
         $results = SearchRepo::of($statuses, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

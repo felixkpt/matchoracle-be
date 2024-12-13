@@ -44,7 +44,7 @@ class UserRepository implements UserRepositoryInterface
 
         if ($this->applyFiltersOnly) return $users;
 
-        $uri = '/dashboard/settings/users/';
+        $uri = '/settings/users/';
 
         $users = SearchRepo::of($users, ['name', 'id'])
             ->setModelUri($uri)

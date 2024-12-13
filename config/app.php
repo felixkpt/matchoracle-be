@@ -128,7 +128,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
-    'external_crawler_urls' => explode(',', env('EXTERNAL_CRAWLER_URLS', 'http://localhost:3065')),
+    'use_crawler' => env('USE_CRAWLER', false),
+    'crawler_urls' => explode(',', env('CRAWLER_URLS', 'http://localhost:3065')),
 
     /*
     |--------------------------------------------------------------------------

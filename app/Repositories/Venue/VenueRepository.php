@@ -24,7 +24,7 @@ class VenueRepository implements VenueRepositoryInterface
         $teams = $this->model::query()
             ->when(request()->competition_id, fn ($q) => $q->where('competition_id', request()->competition_id));
 
-        $uri = '/dashboard/teams/venues';
+        $uri = '/teams/venues';
         $statuses = SearchRepo::of($teams, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
@@ -51,7 +51,7 @@ class VenueRepository implements VenueRepositoryInterface
         // $countries = $this->model::with(['continent', 'country', 'gameSources'])->where('id', $id);
         $team = $this->model::with(['country', 'gameSources'])->where('id', $id);
 
-        $uri = '/dashboard/teams/';
+        $uri = '/teams/';
         $statuses = SearchRepo::of($team, ['id', 'name', 'country.name', 'slug'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

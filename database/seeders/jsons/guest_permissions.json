@@ -1,1 +1,362 @@
-[]
+[
+    {
+        "name": "competitions",
+        "guard_name": "api",
+        "parent_folder": "competitions",
+        "uri": "competitions",
+        "title": "competitions",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "competitions.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "competitions",
+        "uri": "competitions@GET|@HEAD",
+        "title": "Competitions  List",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "competitions.country.id.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "competitions",
+        "uri": "competitions/country/{id}@GET|@HEAD",
+        "title": "Country  Competitions",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "countries",
+        "guard_name": "api",
+        "parent_folder": "countries",
+        "uri": "countries",
+        "title": "countries",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "countries.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "countries",
+        "uri": "countries@GET|@HEAD",
+        "title": "Countries  List",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "countries.where.has.club.teams.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "countries",
+        "uri": "countries/where-has-club-teams@GET|@HEAD",
+        "title": "Club  Teams",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "countries.where.has.national.teams.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "countries",
+        "uri": "countries/where-has-national-teams@GET|@HEAD",
+        "title": "National  Teams",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "matches",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches",
+        "title": "matches",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "matches.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches@GET|@HEAD",
+        "title": "All  Matches",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "matches.today.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches/today@GET|@HEAD",
+        "title": "Today's  Matches",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "matches.yesterday.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches/yesterday@GET|@HEAD",
+        "title": "Yesterday's  Matches",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "matches.tomorrow.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches/tomorrow@GET|@HEAD",
+        "title": "Tomorrow's  Matches",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "matches.year.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches/{year}@GET|@HEAD",
+        "title": "Year  Matches",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "matches.year.month.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches/{year}/{month}@GET|@HEAD",
+        "title": "Year_ Month  Matches",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "matches.year.month.day.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches/{year}/{month}/{day}@GET|@HEAD",
+        "title": "Year_ Month_ Day  Matches",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "matches.startyear.startmonth.startday.to.endyear.endmonth.endday.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{end_day}@GET|@HEAD",
+        "title": "Predictions  Date_ Range",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "matches.view",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches/view",
+        "title": "matches/view",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "matches.view.id.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches/view/{id}@GET|@HEAD",
+        "title": "Show",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "matches.view.id.head2head.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches/view/{id}/head2head@GET|@HEAD",
+        "title": "Head2Head",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "matches.view.id.vote.at.post",
+        "guard_name": "api",
+        "parent_folder": "matches",
+        "uri": "matches/view/{id}/vote@POST",
+        "title": "Vote",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "predictions",
+        "guard_name": "api",
+        "parent_folder": "predictions",
+        "uri": "predictions",
+        "title": "predictions",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "predictions.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "predictions",
+        "uri": "predictions@GET|@HEAD",
+        "title": "All  Predictions",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "predictions.today.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "predictions",
+        "uri": "predictions/today@GET|@HEAD",
+        "title": "Today's  Predictions",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "predictions.yesterday.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "predictions",
+        "uri": "predictions/yesterday@GET|@HEAD",
+        "title": "Yesterday's  Predictions",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "predictions.tomorrow.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "predictions",
+        "uri": "predictions/tomorrow@GET|@HEAD",
+        "title": "Tomorrow's  Predictions",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "predictions.year.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "predictions",
+        "uri": "predictions/{year}@GET|@HEAD",
+        "title": "Year  Predictions",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "predictions.year.month.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "predictions",
+        "uri": "predictions/{year}/{month}@GET|@HEAD",
+        "title": "Year_ Month  Predictions",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "predictions.year.month.day.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "predictions",
+        "uri": "predictions/{year}/{month}/{day}@GET|@HEAD",
+        "title": "Year_ Month_ Day  Predictions",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "predictions.startyear.startmonth.startday.to.endyear.endmonth.endday.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "predictions",
+        "uri": "predictions/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{end_day}@GET|@HEAD",
+        "title": "Date_ Range",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "settings",
+        "guard_name": "api",
+        "parent_folder": "settings",
+        "uri": "settings",
+        "title": "settings",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "settings.role.permissions",
+        "guard_name": "api",
+        "parent_folder": "settings",
+        "uri": "settings/role-permissions",
+        "title": "settings/role-permissions",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "settings.role.permissions.roles",
+        "guard_name": "api",
+        "parent_folder": "settings",
+        "uri": "settings/role-permissions/roles",
+        "title": "settings/role-permissions/roles",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "settings.role.permissions.roles.get.user.roles.and.direct.permissions.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "settings",
+        "uri": "settings/role-permissions/roles/get-user-roles-and-direct-permissions@GET|@HEAD",
+        "title": "Get User Roles And Direct Permissions",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "settings.role.permissions.roles.view",
+        "guard_name": "api",
+        "parent_folder": "settings",
+        "uri": "settings/role-permissions/roles/view",
+        "title": "settings/role-permissions/roles/view",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    },
+    {
+        "name": "settings.role.permissions.roles.view.id.get.role.menu.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "settings",
+        "uri": "settings/role-permissions/roles/view/{id}/get-role-menu@GET|@HEAD",
+        "title": "Get Role Menu",
+        "hidden": 0,
+        "is_public": 1,
+        "position": 999999
+    },
+    {
+        "name": "settings.role.permissions.roles.view.id.get.role.route.permissions.at.get.at.head",
+        "guard_name": "api",
+        "parent_folder": "settings",
+        "uri": "settings/role-permissions/roles/view/{id}/get-role-route-permissions@GET|@HEAD",
+        "title": "Get Role Route Permissions",
+        "hidden": 0,
+        "is_public": 0,
+        "position": 999999
+    }
+]

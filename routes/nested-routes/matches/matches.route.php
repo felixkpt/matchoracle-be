@@ -7,15 +7,15 @@ use Illuminate\Support\Facades\Route;
 $controller = MatchesController::class;
 
 // Routes for different match views
-Route::get('/', [$controller, 'index'])->name('all matches'); // All matches
-Route::get('/today', [$controller, 'today'])->name('today\'s matches'); // Today's matches
-Route::get('/yesterday', [$controller, 'yesterday'])->name('yesterday\'s matches'); // Yesterday's matches
-Route::get('/tomorrow', [$controller, 'tomorrow'])->name('tomorrow\'s matches'); // Tomorrow's matches
+Route::get('/', [$controller, 'index'])->name('all matches')->public(); // All matches
+Route::get('/today', [$controller, 'today'])->name('today\'s matches')->public(); // Today's matches
+Route::get('/yesterday', [$controller, 'yesterday'])->name('yesterday\'s matches')->public(); // Yesterday's matches
+Route::get('/tomorrow', [$controller, 'tomorrow'])->name('tomorrow\'s matches')->public(); // Tomorrow's matches
 
 // Routes for matches based on year, year/month, and year/month/day
-Route::get('/{year}', [$controller, 'year'])->name('year matches')->where(['year' => '[0-9]+']); // Matches for a specific year
-Route::get('/{year}/{month}', [$controller, 'yearMonth'])->name('year_month matches')->where(['year' => '[0-9]+', 'month' => '[0-9]+']); // Matches for a specific year and month
-Route::get('/{year}/{month}/{day}', [$controller, 'yearMonthDay'])->name('year_month_day matches')->where(['year' => '[0-9]+', 'month' => '[0-9]+', 'day' => '[0-9]+']); // Matches for a specific year, month, and day
+Route::get('/{year}', [$controller, 'year'])->name('year matches')->where(['year' => '[0-9]+'])->public(); // Matches for a specific year
+Route::get('/{year}/{month}', [$controller, 'yearMonth'])->name('year_month matches')->where(['year' => '[0-9]+', 'month' => '[0-9]+'])->public(); // Matches for a specific year and month
+Route::get('/{year}/{month}/{day}', [$controller, 'yearMonthDay'])->name('year_month_day matches')->where(['year' => '[0-9]+', 'month' => '[0-9]+', 'day' => '[0-9]+'])->public(); // Matches for a specific year, month, and day
 
 // Updated routes for combined date ranges
 Route::get('/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{end_day}', [$controller, 'dateRange'])
@@ -23,7 +23,7 @@ Route::get('/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{e
         'start_year' => '[0-9]+', 'start_month' => '[0-9]+', 'start_day' => '[0-9]+',
         'end_year' => '[0-9]+', 'end_month' => '[0-9]+', 'end_day' => '[0-9]+'
     ])
-    ->name('Predictions date_range'); // Predictions for a specified date range
+    ->name('Predictions date_range')->public(); // Predictions for a specified date range
 
 // Store, update, and delete match routes
 Route::post('/', [$controller, 'store'])->name('store match'); // Store a new match

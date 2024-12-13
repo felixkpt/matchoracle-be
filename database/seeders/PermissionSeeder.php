@@ -32,7 +32,7 @@ class PermissionSeeder extends Seeder
         $this->attachAndSync($role_name, $permissions);
     }
 
-    function attachAndSync($role_name, $permissions)
+    private function attachAndSync($role_name, $permissions)
     {
         $attach = [];
         foreach ($permissions as $row) {

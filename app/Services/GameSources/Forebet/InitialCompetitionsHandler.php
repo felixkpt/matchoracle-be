@@ -44,7 +44,7 @@ class InitialCompetitionsHandler
                 $countries = $this->getCountries($crawler, 'domestic');
                 // Filter out null values and merge the extracted data for this country
                 $allCountries = array_merge($allCountries, array_values(array_filter($countries)));
-            } else if ($crawler->filter('.moduletable')->text() === 'International') {
+            } elseif ($crawler->filter('.moduletable')->text() === 'International') {
 
                 $countries = $this->getCountries($crawler, 'international');
                 // Filter out null values and merge the extracted data for this country

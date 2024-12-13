@@ -24,7 +24,7 @@ class StatusRepository implements StatusRepositoryInterface
         if (request()->all == '1')
             return response(['results' => $statuses->get()]);
 
-        $uri = '/dashboard/settings/picklists/statuses/default/';
+        $uri = '/settings/picklists/statuses/default/';
         $statuses = SearchRepo::of($statuses, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

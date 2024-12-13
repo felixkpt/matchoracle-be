@@ -27,7 +27,7 @@ class PostStatusRepository implements PostStatusRepositoryInterface
 
         if ($this->applyFiltersOnly) return $statuses;
 
-        $uri = '/dashboard/settings/picklists/statuses/post-statuses/';
+        $uri = '/settings/picklists/statuses/post-statuses/';
         $statuses = SearchRepo::of($statuses, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

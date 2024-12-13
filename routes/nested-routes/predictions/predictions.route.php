@@ -7,15 +7,15 @@ use Illuminate\Support\Facades\Route;
 $controller = PredictionsController::class;
 
 // Routes for different prediction views
-Route::get('/', [$controller, 'index'])->name('all predictions'); // All predictions
-Route::get('/today', [$controller, 'today'])->name('today\'s predictions'); // Today's predictions
-Route::get('/yesterday', [$controller, 'yesterday'])->name('yesterday\'s predictions'); // Yesterday's predictions
-Route::get('/tomorrow', [$controller, 'tomorrow'])->name('tomorrow\'s predictions'); // Tomorrow's predictions
+Route::get('/', [$controller, 'index'])->name('all predictions')->public(); // All predictions
+Route::get('/today', [$controller, 'today'])->name('today\'s predictions')->public(); // Today's predictions
+Route::get('/yesterday', [$controller, 'yesterday'])->name('yesterday\'s predictions')->public(); // Yesterday's predictions
+Route::get('/tomorrow', [$controller, 'tomorrow'])->name('tomorrow\'s predictions')->public(); // Tomorrow's predictions
 
 // Routes for predictions based on year, year/month, and year/month/day
-Route::get('/{year}', [$controller, 'year'])->name('year predictions')->where(['year' => '[0-9]+']); // Predictions for a specific year
-Route::get('/{year}/{month}', [$controller, 'yearMonth'])->name('year_month predictions')->where(['year' => '[0-9]+', 'month' => '[0-9]+']); // Predictions for a specific year and month
-Route::get('/{year}/{month}/{day}', [$controller, 'yearMonthDay'])->name('year_month_day predictions')->where(['year' => '[0-9]+', 'month' => '[0-9]+', 'day' => '[0-9]+']); // Predictions for a specific year, month, and day
+Route::get('/{year}', [$controller, 'year'])->name('year predictions')->where(['year' => '[0-9]+'])->public(); // Predictions for a specific year
+Route::get('/{year}/{month}', [$controller, 'yearMonth'])->name('year_month predictions')->where(['year' => '[0-9]+', 'month' => '[0-9]+'])->public(); // Predictions for a specific year and month
+Route::get('/{year}/{month}/{day}', [$controller, 'yearMonthDay'])->name('year_month_day predictions')->where(['year' => '[0-9]+', 'month' => '[0-9]+', 'day' => '[0-9]+'])->public(); // Predictions for a specific year, month, and day
 
 // Updated routes for combined date ranges
 Route::get('/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{end_day}', [$controller, 'dateRange'])
@@ -23,7 +23,7 @@ Route::get('/{start_year}/{start_month}/{start_day}/to/{end_year}/{end_month}/{e
         'start_year' => '[0-9]+', 'start_month' => '[0-9]+', 'start_day' => '[0-9]+',
         'end_year' => '[0-9]+', 'end_month' => '[0-9]+', 'end_day' => '[0-9]+'
     ])
-    ->name('date_range'); // Predictions for a specified date range
+    ->name('date_range')->public(); // Predictions for a specified date range
 
 // Delete prediction route
 Route::delete('/{id}', [$controller, 'destroy'])->name('destroy prediction'); // Delete a specific prediction

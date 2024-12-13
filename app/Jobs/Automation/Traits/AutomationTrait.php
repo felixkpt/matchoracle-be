@@ -34,7 +34,7 @@ trait AutomationTrait
         ])->pluck('value', 'name');
 
         $this->historyStartDate = $settings['history_start_date'] ?? '2018-01-01';
-        $this->predictorUrl = $settings['predictor_url'] ?? 'http://127.0.0.1:8085';
+        $this->predictorUrl = $settings['predictor_url'] ?? 'http://127.0.0.1:3085';
         $this->delayCompetitions = $settings['delay_competitions'] ?? 20;
         $this->delaySeasons = $settings['delay_seasons'] ?? 20;
         $this->delayGames = $settings['delay_games'] ?? 20;

@@ -43,7 +43,7 @@ class TeamRepository implements TeamRepositoryInterface
 
         if ($this->applyFiltersOnly) return $teams;
 
-        $uri = '/dashboard/teams/';
+        $uri = '/teams/';
         $results = SearchRepo::of($teams, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
@@ -299,7 +299,7 @@ class TeamRepository implements TeamRepositoryInterface
 
         $teams = Team::whereIn('id', $arr);
 
-        $uri = '/dashboard/teams/';
+        $uri = '/teams/';
         $res = SearchRepo::of($teams, ['name', 'founded'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')

@@ -23,9 +23,7 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
         $this->model = $model;
     }
 
-    function raw()
-    {
-    }
+    function raw() {}
 
     function storeCompetitionPredictionTypeStatistics()
     {
@@ -89,7 +87,7 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
         $updated_counts = $data['results']['updated_counts'] ?? 0;
         $failed_counts = $data['results']['failed_counts'] ?? 0;
 
-        $exists = $this->trainPredictionsLoggerModel();
+        $exists = $this->trainPredictionsLoggerModel(false, 1, 1);
 
         if ($exists) {
             $run_action_counts = $exists->run_action_counts + 1;
@@ -107,7 +105,7 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
         }
     }
 
-    function updateCompetitionLastTraining()
+    public function updateCompetitionLastTraining()
     {
         $competition = Competition::findOrFail(request()->competition_id);
 
@@ -123,5 +121,4 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
 
         return response(['message' => 'Successfully updated or created last train time.']);
     }
-
 }
