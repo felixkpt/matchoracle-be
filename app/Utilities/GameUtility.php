@@ -223,7 +223,7 @@ class GameUtility
             }
         }
 
-        $uri = '/dashboard/matches/';
+        $uri = '/matches/';
         $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name', 'competition.name', 'competition.country.name'], $search_builder)
             ->setModelUri($uri)
             ->addColumnWhen(!request()->is_predictor, 'is_future', fn($q) => Carbon::parse($q->utc_date)->isFuture())
