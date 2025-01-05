@@ -100,7 +100,7 @@ trait DBActions
         }
     }
 
-    private function updateGame($data)
+    private function updateGames($data)
     {
 
         Common::saveTeamLogo($this->game['home_team_id'], $data['home_team_logo']);

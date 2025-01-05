@@ -24,6 +24,8 @@ class TeamController extends Controller
         private TeamRepositoryInterface $teamRepositoryInterface,
         private TeamValidationInterface $teamValidationInterface,
     ) {
+        sleep(request()->sleep ?? 10);
+
         $this->repo = $teamRepositoryInterface;
     }
 

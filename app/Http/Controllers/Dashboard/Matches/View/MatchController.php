@@ -14,27 +14,31 @@ class MatchController extends Controller
         private GameRepositoryInterface $gameRepositoryInterface,
         private TeamRepositoryInterface $teamRepositoryInterface,
         private GameValidationInterface $gameValidationInterface
-    ) {
-    }
+    ) {}
 
-    function show($id)
+    public function show($id)
     {
         return $this->gameRepositoryInterface->show($id);
     }
 
-    function head2head($id)
+    public function combinedMatches($id, $home_team_id, $away_team_id)
+    {
+        return $this->teamRepositoryInterface->combinedMatches($home_team_id, $away_team_id);
+    }
+
+    public function head2head($id)
     {
         return $this->teamRepositoryInterface->head2head($id);
     }
 
-    function vote($id)
+    public function vote($id)
     {
         $data = $this->gameValidationInterface->vote($id);
 
         return $this->gameRepositoryInterface->vote($id, $data);
     }
 
-    function updateGame($id)
+    public function updateGame($id)
     {
         return $this->gameRepositoryInterface->updateGame($id);
     }

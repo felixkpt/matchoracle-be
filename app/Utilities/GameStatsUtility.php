@@ -19,9 +19,12 @@ class GameStatsUtility
         $this->teamRepositoryInterface = new TeamRepository(new Team());
     }
 
-    // Add this new method to calculate and add game statistics
+    // Method to calculate and add game statistics
     function addGameStatistics($matchData)
     {
+
+        $start = now();
+        $game_id = $matchData['id'];
 
         $home_team_id = $matchData['home_team_id'];
 
@@ -55,7 +58,9 @@ class GameStatsUtility
         $to_date = Carbon::parse($matchData->utc_date)->subDay()->format('Y-m-d');
 
         $teamsStats = $this->teamStats($to_date, $home_team_id, $away_team_id);
+
         if ($teamsStats === null) return null;
+
 
         $teamsStatsRecent = $this->teamStatsCurrentground($to_date, $home_team_id, $away_team_id);
         if ($teamsStatsRecent === null) return null;
@@ -87,6 +92,13 @@ class GameStatsUtility
         ];
 
         $match_odds = $this->getMatchOdds($matchData);
+
+        $secs = $start->diffInSeconds(now());
+        if ($secs > 5) {
+            $end = now();
+            $timetaken = $secs . ' seconds';
+            Log::critical("AddGameStatistics #{$game_id} #End {$end}, (took {$timetaken})");
+        }
 
         return array_merge(
             $teamsStats,
@@ -120,7 +132,7 @@ class GameStatsUtility
             'team_ids' => null,
             'playing' => 'all',
             'to_date' => $to_date,
-            'currentground' => null,
+            'current_ground' => null,
             'season_id' => null,
             'type' => null,
             'order_by' => 'utc_date',
@@ -132,17 +144,16 @@ class GameStatsUtility
         request()->merge(['all_params' => $all_params]);
         $threshold = floor($per_page * .8);
 
-        $home_team_matches = app(TeamController::class)->matches($home_team_id)['data'];
+        $home_team_matches = $this->teamRepositoryInterface->matches($home_team_id)['data'];
 
         // Log::info('threshold: ' . $threshold . ' ct-->' . count($home_team_matches));
 
         if (count($home_team_matches) < $threshold) return null;
 
-
         $all_params['team_id'] = $away_team_id;
         request()->merge(['all_params' => $all_params]);
 
-        $away_team_matches = app(TeamController::class)->matches($away_team_id)['data'];
+        $away_team_matches = $this->teamRepositoryInterface->matches($away_team_id)['data'];
 
         if (count($away_team_matches) < $threshold) return null;
 
@@ -219,7 +230,7 @@ class GameStatsUtility
             'team_ids' => null,
             'playing' => 'all',
             'to_date' => $to_date,
-            'currentground' => 'home',
+            'current_ground' => 'home',
             'season_id' => null,
             'type' => null,
             'order_by' => 'utc_date',
@@ -231,14 +242,14 @@ class GameStatsUtility
         request()->merge(['all_params' => $all_params]);
         $threshold = floor($per_page * .8);
 
-        $home_team_matches = app(TeamController::class)->matches($home_team_id)['data'];
+        $home_team_matches = $this->teamRepositoryInterface->matches($home_team_id)['data'];
         if (count($home_team_matches) < $threshold) return null;
 
-        $all_params['currentground'] = 'away';
+        $all_params['current_ground'] = 'away';
         $all_params['team_id'] = $home_team_id;
         request()->merge(['all_params' => $all_params]);
 
-        $away_team_matches = app(TeamController::class)->matches($away_team_id)['data'];
+        $away_team_matches = $this->teamRepositoryInterface->matches($away_team_id)['data'];
         if (count($away_team_matches) < $threshold) return null;
 
         $home_team_matches_with_stats = $this->calculateTeamStats($home_team_matches, $home_team_id);
@@ -314,7 +325,7 @@ class GameStatsUtility
             'team_ids' => null,
             'playing' => 'all',
             'to_date' => $to_date,
-            'currentground' => null,
+            'current_ground' => null,
             'season_id' => null,
             'type' => null,
             'order_by' => 'utc_date',
@@ -325,7 +336,7 @@ class GameStatsUtility
 
         request()->merge(['all_params' => $all_params]);
 
-        $matches = app(TeamController::class)->head2head($game_id)['data'];
+        $matches = $this->teamRepositoryInterface->head2head($game_id)['data'];
 
         $home_team_matches_with_stats = $this->calculateTeamStats($matches, $home_team_id);
         $away_team_matches_with_stats = $this->calculateTeamStats($matches, $away_team_id);

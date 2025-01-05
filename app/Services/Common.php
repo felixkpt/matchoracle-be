@@ -177,7 +177,7 @@ class Common
     {
 
         $ext = pathinfo($source, PATHINFO_EXTENSION);
-        $filename = "c" . $competition->id . '.' . $ext;
+        $filename = 'c-' . time() . '-' . strtolower(Str::random(6)) . '.' . $ext;
 
         $dest = "images/competitions/" . $filename;
 
@@ -313,7 +313,7 @@ class Common
             return true;
 
         $ext = pathinfo($source, PATHINFO_EXTENSION);
-        $filename = "t" . $team->id . '.' . $ext;
+        $filename = 't-' . time() . '-' . strtolower(Str::random(6)) . '.' . $ext;
 
         $dest = "images/teams/" . $filename; /* Complete path & file name */
 

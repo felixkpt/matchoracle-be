@@ -62,7 +62,9 @@ trait ForebetInitializationTrait
     function matchMessage($message, $status = 422)
     {
         $arr = ['message' => $message, 'status' => $status];
-        if (request()->without_response) return $arr;
+                if (request()->without_response) {
+            return $arr;
+        }
         return response($arr, $status);
     }
 

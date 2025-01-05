@@ -26,13 +26,12 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
 
         $results = $this->model
             ->where('prediction_type_id', current_prediction_type_id())
-            ->where('competition_id', request()->competition_id)
+            ->when(request()->competition_id, fn($q) => $q->where('competition_id', request()->competition_id))
             ->when(request()->season_id, fn($q) => $q->where('season_id', request()->season_id))
             ->when(request()->from_date, fn($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
-            ->when(request()->to_date, fn($q) => $q->whereDate('date', '<=', Carbon::parse(request()->to_date)->format('Y-m-d')))
-            ->first();
+            ->when(request()->to_date, fn($q) => $q->whereDate('date', '<=', Carbon::parse(request()->to_date)->format('Y-m-d')));
 
-        return response(['results' => $results]);
+        return response(['results' => request()->competition_id ? $results->first() : $results->paginate()]);
     }
 
     public function store()
@@ -245,7 +244,9 @@ class CompetitionPredictionStatisticsRepository implements CompetitionPrediction
 
         $arr = ['message' => 'Total matches ' . $ct . ', successfully done predictions stats., (updated ' . $counts . ').', 'results' => ['updated' => $counts]];
 
-        if (request()->without_response) return $arr;
+        if (request()->without_response) {
+            return $arr;
+        }
         return response($arr);
     }
 }

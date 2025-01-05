@@ -25,14 +25,14 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:competition-prediction-statistics')->everySixHours(40);
 
         // Predictions commands
-        $schedule->command('app:predictions-handler')->everyTwoHours(45);
+        $schedule->command('app:predictions-handler')->everyTwoHours(5);
         $schedule->command('app:train-predictions-handler')->everyTwoHours();
 
         // Matches commands
-        require('matches_commands.php');
+        require_once 'matches_commands.php';
 
         // Odds commands
-        require('odds_commands.php');
+        require_once 'odds_commands.php';
     }
 
     /**
@@ -52,6 +52,6 @@ class Kernel extends ConsoleKernel
 
         $this->load(__DIR__ . '/Commands');
 
-        require base_path('routes/console.php');
+        require_once base_path('routes/console.php');
     }
 }

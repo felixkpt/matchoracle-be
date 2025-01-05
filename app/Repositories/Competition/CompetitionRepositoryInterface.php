@@ -34,12 +34,12 @@ interface CompetitionRepositoryInterface extends CommonRepoActionsInterface
 
     function odds($id);
 
-    function resultsStatistics($id);
+    function resultsStatistics($id = null);
 
-    function predictionStatistics($id);
+    function predictionStatistics($id = null);
 
     function doStatistics($id);
-    
+
     function getDatesWithUnpredictedGames($id);
 
     function tabs($id);

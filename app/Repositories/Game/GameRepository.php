@@ -34,8 +34,6 @@ class GameRepository implements GameRepositoryInterface
 
     public function index($id = null, $without_response = null)
     {
-
-        // if predicting
         if (request()->prediction_type) {
             $this->setPredictorOptions();
         }
@@ -43,77 +41,125 @@ class GameRepository implements GameRepositoryInterface
         $start = microtime(true);
 
         $gameUtilities = new GameUtility();
-
         $results_raw = $gameUtilities->applyGameFilters($id);
 
-        if ($this->applyFiltersOnly) return $results_raw;
+        if ($this->applyFiltersOnly) {
+            return $results_raw;
+        }
 
         $results = $gameUtilities->formatGames($results_raw);
 
-
-        if (request()->is_predictor == 1) {
-
-            $limit = request()->per_page;
-
-            // added 25 percent to handle where no stats
-            $results = $results->orderBy('utc_date', 'desc')->get($limit + $limit * .25)['data'];
-
-            if (request()->task == 'train') {
-                // if is train/test and results is less than 60% of limit then return empty
-                if ($this->trainTestLimitFails($results, $limit)) {
-                    return [];
-                }
-            }
-
-            $arr = [];
-            foreach ($results as $matchData) {
-                if (count($arr) == $limit) break;
-
-                $stats = (new GameStatsUtility())->addGameStatistics($matchData);
-                if ($stats) {
-                    $matchData->stats = $stats;
-                    $arr[] = $matchData;
-                }
-            }
-
-            if (request()->task == 'predict') {
-                $this->updateCompetitionPredLogs($results, $arr);
-            }
-
-            $results = array_reverse($arr);
-
-            // Log::info('GameRepository:: ', ['compe' => request()->competition_id, 'rest ct' => count($results), 'request' => $limit]);
-
-            if (request()->task == 'train') {
-                // if is train/test and results is less than 60% of limit then return empty
-                if ($this->trainTestLimitFails($results, $limit)) {
-                    return [];
-                }
-            }
-
-            return $results;
-        } else {
-
-            if ($id) {
-                $results = $results->first();
-            } else {
-
-                if (request()->get_prediction_stats) {
-
-                    $stats = (new GamePredictionStatsUtility())->doStats(($results_raw)->whereHas('score')->limit(-1)->get()->toArray());
-                    $results = $stats;
-                } else {
-                    $results = $results->paginate(request()->per_page ?? 50);
-                }
-            }
-
-            $arr = ['results' => $results];
-
-            Log::critical('Time taken in secs to load matches::' . round((microtime(true) - $start)));
-
-            if (request()->without_response) return $arr;
-            return response($arr);
+        if (request()->is_predictor) {
+            return $this->getPredictorGames($results);
         }
+
+        return $this->getStandardGames($id, $results, $results_raw, $start, $without_response);
+    }
+
+    /**
+     * Handles logic when the request is a predictor.
+     */
+    private function getPredictorGames($results)
+    {
+        $compe_id = request()->competition_id;
+        $start = now();
+        Log::info("GetPredictorGames: START, Competition: #$compe_id");
+
+        $limit = request()->per_page;
+        $results = $this->getPredictorResults($results, $limit);
+
+        $arr = [];
+        foreach ($results as $matchData) {
+            if (count($arr) == $limit) break;
+
+            $stats = (new GameStatsUtility())->addGameStatistics($matchData);
+            if ($stats) {
+                $matchData->stats = $stats;
+                $arr[] = $matchData;
+            }
+        }
+
+        if (request()->task == 'predict') {
+            $this->updateCompetitionPredLogs($results, $arr);
+        }
+
+        $results = array_reverse($arr);
+
+        $timetaken = $start->diffInMinutes(now()) . ' mins';
+        Log::info("GetPredictorGames: END, Competition:: #$compe_id, (took $timetaken)");
+
+        if ($this->shouldAbortTrainTask($results, $limit)) {
+            return [];
+        }
+
+        return $results;
+    }
+
+    /**
+     * Retrieves and filters predictor results.
+     */
+    private function getPredictorResults($results, $limit)
+    {
+        $results = $results->orderBy('utc_date', 'desc')->get($limit + $limit * .25)['data'];
+
+        if (request()->task == 'train' && $this->trainTestLimitFails($results, $limit)) {
+            return [];
+        }
+
+        return $results;
+    }
+
+    /**
+     * Determines if the train task should abort due to limit failure.
+     */
+    private function shouldAbortTrainTask($results, $limit)
+    {
+        return request()->task == 'train' && $this->trainTestLimitFails($results, $limit);
+    }
+
+    /**
+     * Handles logic for standard tasks (non-predictor requests).
+     */
+    private function getStandardGames($id, $results, $results_raw, $start, $without_response)
+    {
+        if ($id) {
+            $results = $results->first();
+        } else {
+            $results = $this->handleStandardResults($results, $results_raw);
+        }
+
+        $arr = ['results' => $results];
+
+        Log::critical('Time taken in secs to load matches::' . round((microtime(true) - $start)));
+
+        if ($without_response) {
+            return $arr;
+        }
+
+        return response($arr);
+    }
+
+    /**
+     * Processes standard results including pagination and grouping.
+     */
+    private function handleStandardResults($results, $results_raw)
+    {
+        if (request()->get_prediction_stats) {
+            $stats = (new GamePredictionStatsUtility())->doStats(
+                ($results_raw)->whereHas('score')->limit(-1)->get()->toArray()
+            );
+            return $stats;
+        }
+
+        $results = $results->paginate(request()->per_page ?? 50);
+
+        if (request()->group_by === 'competition') {
+            $data = $results['data'];
+            $groupedData = collect($data)->groupBy('competition_id');
+            $results['data'] = $groupedData;
+        }
+
+        return $results;
     }
 
     private function trainTestLimitFails($results, $limit)
@@ -178,7 +224,7 @@ class GameRepository implements GameRepositoryInterface
         $prediction_type = GamePredictionType::updateOrCreate([
             'name' => $prediction_type,
         ]);
-        
+
         $competition_id = request()->competition_id;
         $carbon_date = Carbon::parse(request()->date);
         $date = $carbon_date->format('Y-m-d');

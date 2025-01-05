@@ -17,17 +17,15 @@ class TeamRepository implements TeamRepositoryInterface
 
     use CommonRepoActions;
 
-    function __construct(protected Team $model)
-    {
-    }
+    function __construct(protected Team $model) {}
 
     public function index($id = null)
     {
 
         $teams = $this->model::query()
-            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
-            ->with(['country', 'competition', 'address', 'venue', 'coachContract' => fn ($q) => $q->with('coach'), 'gameSources'])
-            ->when(request()->competition_id, fn ($q) => $q->where('teams.competition_id', request()->competition_id))
+            ->when(request()->status == 1, fn($q) => $q->where('status_id', activeStatusId()))
+            ->with(['country', 'competition' => fn($q) => $q->with('currentSeason'), 'address', 'venue', 'coachContract' => fn($q) => $q->with('coach'), 'gameSources'])
+            ->when(request()->competition_id, fn($q) => $q->where('teams.competition_id', request()->competition_id))
             ->when(request()->season_id, function ($q) {
                 // Join with the pivot table and filter by season_id
                 $q->whereHas('seasons', function ($query) {
@@ -38,7 +36,7 @@ class TeamRepository implements TeamRepositoryInterface
                 $q->join('season_teams', 'teams.id', '=', 'season_teams.team_id')
                     ->where('season_teams.season_id', request()->season_id);
             })
-            ->when($id, fn ($q) => $q->where('id', $id));
+            ->when($id, fn($q) => $q->where('id', $id));
 
 
         if ($this->applyFiltersOnly) return $teams;
@@ -63,18 +61,20 @@ class TeamRepository implements TeamRepositoryInterface
 
         $arr = ['results' => $results];
 
-        if (request()->without_response) return $arr;
+        if (request()->without_response) {
+            return $arr;
+        }
         return response($arr);
     }
 
-    function matches($team_id = null)
+    public function matches($team_id = null)
     {
 
         request()->merge(['team_id' => $team_id]);
         $gameUtilities = new GameUtility();
         $results = $gameUtilities->applyGameFilters();
 
-        if (request()->type == 'past' && request()->with_upcoming) {
+        if (!request()->is_predictor && request()->type == 'past' && request()->with_upcoming) {
             request()->merge(['type' => 'upcoming', 'limit' => request()->upcoming_limit ?? 3, 'to_date' => null]);
 
             if (request()->per_page) {
@@ -97,7 +97,34 @@ class TeamRepository implements TeamRepositoryInterface
         return response(['results' => $results]);
     }
 
-    function teamLeagueDetails($id, $game_id = null)
+    public function combinedMatches($home_team_id, $away_team_id)
+    {
+
+        request()->merge(['without_response' => true]);
+        $all_params = request()->all();
+
+        if (request()->observe_current_grounds) {
+            request()->merge(['current_ground' => 'home']);
+        }
+        $home_matches = $this->matches($home_team_id);
+
+        // Restore initial request
+        request()->replace($all_params);
+
+        if (request()->observe_current_grounds) {
+            request()->merge(['current_ground' => 'away']);
+        }
+        $away_matches = $this->matches($away_team_id);
+
+        $results = [
+            $home_matches,
+            $away_matches,
+        ];
+
+        return response(['results' => $results]);
+    }
+
+    public function teamLeagueDetails($id, $game_id = null)
     {
         $arr = [
             'position' => 0,
@@ -120,7 +147,6 @@ class TeamRepository implements TeamRepositoryInterface
         if ($target_season) {
 
             $standings = $target_season->standings;
-            // Log::info('Target_season', ['ID' => $target_season->id, 'competiton' => $target_season->competition_id, 'start:' => $target_season->start_date, 'end_date' => $target_season->end_date, 'current_matchday' => $target_season->current_matchday, 'Standings' => $standings]);
 
             foreach ($standings as $standing) {
                 $lp_details = $standing->standingTable->where('team_id', $team->id)->first();
@@ -137,7 +163,6 @@ class TeamRepository implements TeamRepositoryInterface
                         'goal_difference' => $lp_details->goal_difference,
                     ];
 
-                    // Log::info("TeamLeaguePosition::", [$arr]);
                     break;
                 } else {
                     Log::info('TeamLeaguePosition', ['No position details.']);
@@ -159,7 +184,7 @@ class TeamRepository implements TeamRepositoryInterface
             'team_ids' => null,
             'playing' => request()->playing,
             'to_date' => request()->to_date,
-            'currentground' => null,
+            'current_ground' => null,
             'season_id' => null,
             'type' => request()->type,
             'order_by' => 'utc_date',

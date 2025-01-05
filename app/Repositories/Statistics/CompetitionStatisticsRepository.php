@@ -21,9 +21,9 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
 
     function index()
     {
-        sleep(0);
 
-        $results = $this->model->where('competition_id', request()->competition_id)
+        $results = $this->model
+            ->when(request()->competition_id, fn($q) => $q->where('competition_id', request()->competition_id))
             ->when(request()->season_id, fn($q) => $q->where('season_id', request()->season_id))
             ->when(request()->from_date, fn($q) => $q->whereDate('date', '>=', Carbon::parse(request()->from_date)->format('Y-m-d')))
             ->when(request()->to_date, fn($q) => $q->whereDate('date', '<=', Carbon::parse(request()->to_date)->format('Y-m-d')))
@@ -297,7 +297,9 @@ class CompetitionStatisticsRepository implements CompetitionStatisticsRepository
         Competition::find($competition_id)->update(['stats_last_done' => now()]);
 
         $arr = ['message' => 'Total matches ' . $ct . ', successfully done stats, (updated ' . $statistics['ft_counts'] . ').', 'results' => ['updated' => $statistics['ft_counts']]];
-        if (request()->without_response) return $arr;
+        if (request()->without_response) {
+            return $arr;
+        }
         return response($arr);
     }
 }

@@ -30,6 +30,16 @@ class CompetitionsController extends Controller
         return $this->competitionRepositoryInterface->index();
     }
 
+    function resultsStatistics()
+    {
+        return $this->competitionRepositoryInterface->resultsStatistics();
+    }
+
+    function predictionStatistics()
+    {
+        return $this->competitionRepositoryInterface->predictionStatistics();
+    }
+
     function store(Request $request)
     {
 
@@ -52,5 +62,4 @@ class CompetitionsController extends Controller
 
         return $this->competitionRepositoryInterface->storeFetch($request);
     }
-
 }

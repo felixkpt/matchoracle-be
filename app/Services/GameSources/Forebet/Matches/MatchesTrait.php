@@ -211,7 +211,7 @@ trait MatchesTrait
             if ($counts > 1) {
                 $games = $builder->where('id', '!=', $game->id);
                 Log::channel($this->logChannel)->info('MatchesTrait.saveGame >> Similar games deleted:', ['games' => $games->count(), 'qry' => $qry, 'game_id' => $game->id]);
-                $games->delete();
+                // $games->delete();
             }
 
             if ($has_time) {
@@ -238,7 +238,7 @@ trait MatchesTrait
             // If such a game exists, delete it
             if ($games->count() > 0) {
                 Log::channel($this->logChannel)->info('MatchesTrait.saveGame >> Games deleted:', ['games' => $games->count(), 'qry' => $qry, 'startDate' => $startDate, 'endDate' => $endDate]);
-                $games->delete();
+                // $games->delete();
             }
 
             $arr['utc_date'] = $utc_date;

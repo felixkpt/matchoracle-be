@@ -259,6 +259,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
     public function standings($id, $season_id = null)
     {
 
+        sleep(10);
         if (!$season_id) {
             $season_id = $this->model::find($id)->currentSeason->id ?? 0;
         }
@@ -277,7 +278,9 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
         $arr = ['results' => $competition];
 
-        if (request()->without_response) return $arr;
+                if (request()->without_response) {
+            return $arr;
+        }
         return response($arr);
     }
 
@@ -295,12 +298,12 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         return app(OddsController::class)->index();
     }
 
-    function resultsStatistics($id)
+    function resultsStatistics($id = null)
     {
         return app(CompetitionsStatisticsController::class)->index($id);
     }
 
-    function predictionStatistics($id)
+    function predictionStatistics($id = null)
     {
         return app(CompetitionsPredictionsStatisticsController::class)->index($id);
     }

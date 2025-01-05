@@ -49,9 +49,12 @@ class GameUtility
         // Apply filters
         $this->applyTeamFilters($games, $params);
         $this->applyDateFilters($games, $params);
+        $this->applyIdsFilter($games, $params);
         $this->applyMiscFilters($games, $params, $id);
 
-        $games = $this->applyWithRelations($games);
+        if (!request()->is_predictor || request()->source != 'team') {
+            $games = $this->applyWithRelations($games);
+        }
 
         return $games;
     }
@@ -59,8 +62,8 @@ class GameUtility
     private function applyTeamFilters($query, $params)
     {
         $query->when($params['team_id'] ?? null, fn($q) => $q->where(fn($q) => $q->where('home_team_id', $params['team_id'])->orWhere('away_team_id', $params['team_id'])))
-            ->when($params['team_ids'] ?? null, fn($q) => $this->teamsMatch($q, $params['team_ids'], $params['playing'] ?? null))
-            ->when($params['currentground'] ?? null, fn($q) => $this->filterByGround($q, $params['currentground'], $params['team_id']));
+            ->when($params['playing'] ?? null, fn($q) => $this->teamsMatch($q, $params))
+            ->when($params['current_ground'] ?? null, fn($q) => $this->filterByGround($q, $params['current_ground'], $params['team_id']));
     }
 
     private function applyDateFilters($query, $params)
@@ -73,6 +76,12 @@ class GameUtility
             ->when($params['to_date'] ?? null, fn($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($params['to_date'])->format('Y-m-d')))
             ->when($params['date'] ?? null, fn($q) => $q->whereDate('utc_date', '=', Carbon::parse($params['date'])->format('Y-m-d')))
             ->when(!($params['date'] ?? null) && !($params['to_date'] ?? null) && ($params['type'] ?? null), fn($q) => $this->typeOrdering($q, $params['type'], $params['to_date'] ?? null));
+    }
+
+    private function applyIdsFilter($query, $params)
+    {
+        $query->when($params['include_ids'] ?? null, fn($q) => $q->whereIn('games.id', $params['include_ids']))
+            ->when($params['exclude_ids'] ?? null, fn($q) => $q->whereNotIn('games.id', $params['exclude_ids']));
     }
 
     private function applyMiscFilters($query, $params, $id)
@@ -113,9 +122,9 @@ class GameUtility
         return $query->with($with);
     }
 
-    private function filterByGround($query, $currentground, $team_id)
+    private function filterByGround($query, $current_ground, $team_id)
     {
-        return $currentground == 'home' ? $query->where('home_team_id', $team_id) : ($currentground == 'away' ? $query->where('away_team_id', $team_id) : $query);
+        return $current_ground == 'home' ? $query->where('home_team_id', $team_id) : ($current_ground == 'away' ? $query->where('away_team_id', $team_id) : $query);
     }
 
     /**
@@ -146,8 +155,23 @@ class GameUtility
     /**
      * Helper function to filter games by team IDs.
      */
-    private function teamsMatch($q, $team_ids, $playing)
+    private function teamsMatch($q, $params)
     {
+        $playing = $params['playing'];
+        $team_ids = $params['team_ids'] ?? null;
+        $team_id = $params['team_id'] ?? null;
+
+        if (empty($team_ids)) {
+            return $q->where(function ($q) use ($team_id, $playing) {
+
+                if ($playing == 'home') {
+                    $q->where('home_team_id', $team_id);
+                } elseif ($playing == 'away') {
+                    $q->where('away_team_id', $team_id);
+                }
+            });
+        }
+
         return $q->where(function ($q) use ($team_ids, $playing) {
             [$home_team_id, $away_team_id] = $team_ids;
             $arr = [['home_team_id', $home_team_id], ['away_team_id', $away_team_id]];
@@ -197,8 +221,6 @@ class GameUtility
             return $q->votes->where('bts', 'ng')->count();
         };
 
-        $uri = '/dashboard/matches/';
-
         $search_builder = null;
         $joiners = [' vs ', ' v '];
         $req_search = request()->search ? trim(request()->search) : request()->search;
@@ -208,8 +230,6 @@ class GameUtility
             if (count($search) !== 2) {
                 $search = array_values(array_map('trim', array_filter(explode($joiners[1], $req_search))));
             }
-
-            Log::info("SEarc", $search);
 
             if (count($search) === 2) {
 
@@ -223,7 +243,7 @@ class GameUtility
             }
         }
 
-        $uri = '/matches/';
+        $uri = '/matches';
         $results = SearchRepo::of($games, ['id', 'home_team.name', 'away_team.name', 'competition.name', 'competition.country.name'], $search_builder)
             ->setModelUri($uri)
             ->addColumnWhen(!request()->is_predictor, 'is_future', fn($q) => Carbon::parse($q->utc_date)->isFuture())

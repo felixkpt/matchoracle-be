@@ -93,8 +93,8 @@ class PredictionsHandlerJob implements ShouldQueue
         $lastFetchColumn = 'predictions_last_done';
 
         // Set delay in minutes based on the task type:
-        // Default case for prediction 3 days
-        $delay = 60 * 24 * 3;
+        // Default case for prediction 1 days
+        $delay = 60 * 24 * 1;
         if ($this->ignoreTiming) $delay = 0;
 
         // Fetch competitions that need season data updates

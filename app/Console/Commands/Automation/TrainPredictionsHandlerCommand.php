@@ -43,8 +43,8 @@ class TrainPredictionsHandlerCommand extends Command
         $currentHour = Carbon::now()->format('H');
         $isWeekday = Carbon::now()->isWeekday();
 
-        if (!$ignore_timing && $isWeekday && ($currentHour >= 8 && $currentHour < 16)) {
-            $this->warn('This command can only be executed outside of 8 AM to 4 PM on weekdays, but runs anytime on weekends.');
+        if (!$ignore_timing && $isWeekday && ($currentHour >= 8 && $currentHour < 17)) {
+            $this->warn('This command can only be executed outside of 8 AM to 5 PM on weekdays, but runs anytime on weekends.');
             return 1; // Return a non-zero status code for failure
         }
 
