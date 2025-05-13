@@ -19,7 +19,7 @@ if (!function_exists('defaultColumns')) {
     {
 
         if (Schema::hasColumn($model->getTable(), 'user_id') && !$model->user_id)
-            $model->user_id = auth()->id() ?? 0;
+            $model->user_id = auth()->id() ?? null;
 
         if (Schema::hasColumn($model->getTable(), 'status_id') && !$model->status_id)
             $model->status_id = activeStatusId();

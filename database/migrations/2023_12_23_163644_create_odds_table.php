@@ -29,7 +29,7 @@ return new class extends Migration
             $table->unsignedBigInteger('source_id');
 
             $table->unsignedInteger('status_id')->default(1);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->uuid('user_id')->nullable();
             $table->timestamps();
         });
     }

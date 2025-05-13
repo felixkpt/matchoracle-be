@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('value');
             $table->text('description')->nullable();
             $table->unsignedInteger('status_id')->default(1);
-            $table->uuid('user_id')->default(0)->nullable();
+            $table->uuid('user_id')->nullable();
             $table->timestamps();
             // Unique combination of name, category
             $table->unique(['name', 'category']);
