@@ -51,5 +51,4 @@ Route::middleware(array_filter(array_merge($middleWares, [])))
         }
     });
 
-
 require 'auth.route.php';
