@@ -120,7 +120,7 @@ class SearchRepo
 
             if ($builder instanceof EloquentBuilder) {
 
-                $builder = $builder->where(function ($q) use ($searchable, $term, $model_table, $strategy, $search_builder) {
+                $builder = $builder->where(function ($q) use ($searchable, $term, $model_table, $strategy, $search_builder, $builder) {
 
                     if (is_callable($search_builder)) {
                         return $q->where($search_builder);
@@ -128,7 +128,7 @@ class SearchRepo
 
                     foreach ($searchable as $column) {
                         if (Str::contains($column, '.')) {
-                            self::applyNestedWhereHas($q, $column, $term, $strategy);
+                            self::applyNestedWhereHas($builder, $q, $column, $term, $strategy);
                         } else {
                             // Apply search condition on the main table
                             $q->orWhere($model_table . '.' . $column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
@@ -171,8 +171,10 @@ class SearchRepo
      * @param  string $strategy
      * @return void
      */
-    protected static function applyNestedWhereHas($query, $column, $term, $strategy)
+    protected static function applyNestedWhereHas($builder, $query, $column, $term, $strategy)
     {
+        $model = $builder->getModel();
+
         $segments = explode('.', $column);
         $column = end($segments);
         $segments = array_slice($segments, 0, -1);
@@ -182,12 +184,46 @@ class SearchRepo
             return $prev;
         }, []);
 
-        $relation = implode('.', $relation);
 
-        $query->orWhereHas($relation, function ($subQuery) use ($column, $term, $strategy) {
-            // Relation level, apply the condition
-            $subQuery->where($column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
+        $columnType = self::getRelationColumnType($model, $relation, $column);
+
+        $relationPath = is_array($relation) ? implode('.', $relation) : $relation;
+
+        $query->orWhereHas($relationPath, function ($subQuery) use ($column, $term, $columnType) {
+            if (!$columnType) return;
+
+            if (in_array($columnType, ['date', 'datetime', 'timestamp']) && strtotime($term)) {
+                $subQuery->whereDate($column, $term);
+            } elseif ($columnType === 'boolean') {
+                $subQuery->where($column, filter_var($term, FILTER_VALIDATE_BOOLEAN));
+            } elseif (in_array($columnType, ['integer', 'bigint'])) {
+                if (is_numeric($term)) {
+                    $subQuery->where($column, (int) $term);
+                }
+            } else {
+                $subQuery->where($column, 'ilike', "%$term%");
+            }
         });
+    }
+
+    protected static function getRelationColumnType($model, $relation, $column)
+    {
+        if (is_array($relation)) {
+            foreach ($relation as $rel) {
+                if (!method_exists($model, $rel)) return null;
+                $model = $model->$rel()->getRelated();
+            }
+        } elseif (is_string($relation) && method_exists($model, $relation)) {
+            $model = $model->$relation()->getRelated();
+        } else {
+            return null;
+        }
+
+        $table = $model->getTable();
+
+        return Schema::hasColumn($table, $column)
+            ? Schema::getColumnType($table, $column)
+            : null;
     }
 
     public function setModelUri($uri)

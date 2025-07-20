@@ -18,10 +18,12 @@ class Client
      * @param boolean $external_crawler_key
      * @return string|null
      */
-    public static function get($request_url, $external_crawler_key = null)
+    public static function get($request_url)
     {
-        $response = $external_crawler_key
-            ? self::fetchContentFromPuppeteer($request_url, $external_crawler_key)
+        $use_external_crawler_urls = config('app.use_external_crawler_urls');
+
+        $response = $use_external_crawler_urls
+            ? self::fetchContentFromPuppeteer($request_url)
             : self::sendRequest($request_url)->getContent();
 
         return $response ?? null;
@@ -31,13 +33,14 @@ class Client
      * Perform an HTTP request and return the status code.
      *
      * @param string $request_url
-     * @param boolean $external_crawler_key
      * @return int|null
      */
-    public static function requestStatus($request_url, $external_crawler_key = null)
+    public static function requestStatus($request_url)
     {
-        $response = $external_crawler_key
-            ? self::fetchContentFromPuppeteer($request_url, $external_crawler_key)
+        $use_external_crawler_urls = config('app.use_external_crawler_urls');
+
+        $response = $use_external_crawler_urls
+            ? self::fetchContentFromPuppeteer($request_url)
             : self::sendRequest($request_url)->getStatusCode();
 
         return $response ?? null;
@@ -67,11 +70,10 @@ class Client
      * @param string $request_url
      * @return string|null
      */
-    public static function fetchContentFromPuppeteer($request_url, $external_crawler_key = null)
+    public static function fetchContentFromPuppeteer($request_url)
     {
-        $external_crawler_urls = config('external_crawler_urls');
-
-        $crawler_url = $external_crawler_urls[$external_crawler_key] . '/fetch';
+        $external_crawler_urls = config('app.external_crawler_urls');
+        $crawler_url = $external_crawler_urls[array_rand($external_crawler_urls)] . '/fetch';
 
         $response = Http::timeout(70)->get($crawler_url, ['url' => $request_url]);
 

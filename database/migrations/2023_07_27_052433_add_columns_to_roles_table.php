@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('roles', function (Blueprint $table) {
-            $table->bigIncrements('id')->startingValue(1100)->change();
+
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->unsignedBigInteger('status_id')->default(1);
         });
