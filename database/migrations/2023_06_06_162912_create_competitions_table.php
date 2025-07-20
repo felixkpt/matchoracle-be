@@ -26,7 +26,7 @@ return new class extends Migration
             $table->boolean('has_teams')->nullable();
             $table->boolean('is_odds_enabled')->nullable();
             $table->unsignedBigInteger('continent_id')->default(0);
-            $table->string('country_id')->nullable();
+            $table->unsignedBigInteger('country_id')->nullable();
             $table->string('logo')->nullable();
             $table->string('plan')->nullable();
 

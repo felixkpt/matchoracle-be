@@ -3,7 +3,6 @@
 use Felixkpt\Nestedroutes\Http\Middleware\NestedroutesAuthMiddleware;
 use Felixkpt\Nestedroutes\RoutesHelper;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 

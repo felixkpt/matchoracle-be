@@ -59,8 +59,6 @@ return [
 
     'asset_url' => env('ASSET_URL'),
 
-    'gcs_project_folder' => env('GCS_PROJECT_FOLDER', 'matchoracle'),
-
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
@@ -72,7 +70,7 @@ return [
     |
     */
 
-    'timezone' => 'Africa/Nairobi',
+    'timezone' => 'UTC',
 
     /*
     |--------------------------------------------------------------------------
@@ -128,8 +126,6 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
-    'external_crawler_urls' => explode(',', env('EXTERNAL_CRAWLER_URLS', 'http://localhost:3065')),
-
     /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver
@@ -145,7 +141,7 @@ return [
 
     'maintenance' => [
         'driver' => 'file',
-        // 'store'  => 'redis',
+        // 'store' => 'redis',
     ],
 
     /*
@@ -172,12 +168,9 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-
-        App\Services\Filerepo\FileRepoProvider::class,
         App\Providers\RepositoryServiceProvider::class,
         App\Providers\ValidationServiceProvider::class,
-        Felixkpt\Nestedroutes\Providers\NestedroutesServiceProvider::class,
-
+        App\Services\Filerepo\FileRepoProvider::class,
     ])->toArray(),
 
     /*
