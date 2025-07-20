@@ -1,0 +1,30 @@
+import Str from '@/utils/Str';
+import AutoPage from '@/components/Autos/AutoPage';
+
+const Index = () => {
+  // begin component common config
+  const pluralName = 'Venues'
+  const singularName = 'Venue'
+  const uri = '/dashboard/teams/venues'
+  const componentId = Str.slug(pluralName)
+  const search = true
+  const columns = [
+    {
+      key: 'name',
+    },
+    {
+      key: 'created_at',
+    },
+    {
+      key: 'Status',
+    },
+    {
+      key: 'action',
+    },
+  ]
+  // end component common config
+
+  return <AutoPage pluralName={pluralName} singularName={singularName} uri={uri} columns={columns} componentId={componentId} search={search} />;
+};
+
+export default Index;

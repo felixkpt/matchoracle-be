@@ -1,0 +1,49 @@
+FROM php:8.1-fpm
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    locales \
+    zip \
+    jpegoptim optipng pngquant gifsicle \
+    vim \
+    unzip \
+    git \
+    curl \
+    libzip-dev \
+    wget \
+    nginx \
+    git-core \
+    openssl \
+    libssl-dev \
+    npm
+    
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /run/nginx
+
+COPY gcp/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# making app dir
+RUN mkdir -p /app
+
+COPY . /app
+
+COPY gcp/docker/.env_production /app/.env
+
+
+RUN chown -R www-data: /app
+
+
+# Install npm dependencies & Build the application
+RUN cd /app && npm install
+RUN cd /app && npm run build
+
+RUN chown -R www-data: /app/dist
+
+
+CMD sh /app/gcp/docker/startup.sh

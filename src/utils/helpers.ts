@@ -1,0 +1,119 @@
+import { RouteCollectionInterface } from "../interfaces/RolePermissionsInterfaces";
+import Str from "./Str";
+
+export function convertToTitleCase(str: string) {
+    return str.toLowerCase().replace(/_/g, ' ').replace(/(^|\s)\w/g, function (match: string) {
+        return match.toUpperCase();
+    });
+}
+
+// Event emitter to emit PrepareEdit to the parent component
+export const emitPrepareEdit = (row: any, action: any, data: any) => {
+    const event = new CustomEvent('prepareEdit', {
+        detail: { row, action, data }
+    });
+    window.dispatchEvent(event);
+};
+
+// Event emitter to emit statusUpdate to the parent component
+export const emitStatusUpdate = (e: Event) => {
+    e.preventDefault()
+    const event = new CustomEvent('statusUpdate', {
+        detail: e,
+    });
+    window.dispatchEvent(event);
+};
+
+// Event emitter to emit emitAjaxPost to the parent component
+export const emitAjaxPost = (e: any) => {
+    e.preventDefault()
+    const event = new CustomEvent('ajaxPost', {
+        detail: e,
+    });
+    window.dispatchEvent(event);
+};
+
+// Event emitter to emit emitAjaxPost to the parent component
+export const emitAjaxPostDone = (response: any) => {
+    const event = new CustomEvent('ajaxPostDone', {
+        detail: response,
+    });
+    window.dispatchEvent(event);
+};
+
+export const baseURL = (uri: string) => import.meta.env.VITE_APP_BASE_API + (uri ? '/' + uri.replace(/\/+/, '/') : '')
+
+interface Config {
+    name: string;
+    version: string;
+    release: string;
+    urls: {
+        home: string;
+        afteRegister: string
+        rolePermissions: string
+    };
+    storageName: string;
+}
+
+export const config: Config = {
+    name: import.meta.env.VITE_APP_NAME || 'App name',
+    version: 'v1.0',
+    release: String(new Date().getFullYear()),
+    urls: {
+        home: import.meta.env.VITE_APP_HOME || '/',
+        afteRegister: import.meta.env.VITE_APP_AFTER_REGISTER || '/user/account',
+        rolePermissions: import.meta.env.VITE_APP_ROLE_PERMISSION_PREFIX || '/auth'
+    },
+    storageName: Str.slug(import.meta.env.VITE_APP_NAME || 'App name')
+};
+
+export const environment: 'local' | 'production' = import.meta.env.VITE_APP_ENV || 'local'
+export const tnymce_key: string = import.meta.env.VITE_APP_CRYPO_TINYMCE_KEY || ''
+
+export const convertToLaravelPattern = (uri: string) => {
+    // Replace :id with {id}
+    const laravelPattern = uri.replace(/:\w+/g, (match) => `{${match.substring(1)}}`);
+    return laravelPattern;
+};
+
+export const appendFromToDates = (useDate: boolean, fromToDates: Array<Date | string | undefined>) => {
+
+    if (useDate && fromToDates && fromToDates.length == 2 && fromToDates[1]) {
+        return `&from_date=${fromToDates[0]}&to_date=${fromToDates[1]}`
+    }
+    return ''
+
+}
+export const renderCountryLogo = (logo: string | null | undefined) => {
+    return logo ? logo : '/images/default_country_logo.png'
+}
+
+export const renderCompetitionLogo = (logo: string | null | undefined) => {
+    return logo ? logo : '/images/default_competition_logo.png'
+}
+
+export const renderTeamLogo = (logo: string | null | undefined) => {
+    return logo ? logo : '/images/default_team_logo.png'
+}
+
+export const renderUserLogo = (logo: string | null | undefined) => {
+    return logo ? logo : '/images/default_user_logo.png'
+}
+
+export const renderDefaultImage = (logo: string | null | undefined) => {
+    return logo ? logo : '/images/default_image.png'
+}
+
+
+export const folderHasRoutes = (child: RouteCollectionInterface): boolean => {
+
+    const routes = child.routes
+    const children = child.children
+    if (routes.length > 0) return true
+
+    if (children.length > 0) {
+        return children.some(child => folderHasRoutes(child))
+    }
+
+    return false
+}
