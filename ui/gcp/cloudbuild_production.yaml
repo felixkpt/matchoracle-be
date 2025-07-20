@@ -1,0 +1,64 @@
+#gcloud builds submit . --config cloudbuild.yaml # push with command inside the project directory
+steps:
+  #Kaniko Build to allow cache for faster build time
+  - id: "Building-image-with-Kaniko"
+    name: 'gcr.io/kaniko-project/executor:latest'
+    args:
+      - --destination=gcr.io/$PROJECT_ID/${_SERVICE_NAME}
+      - --dockerfile=${_DOCKER_FILE_PATH}
+      - --cache=true
+      - --cache-ttl=24h
+  - id: "SQL-Proxy-Image"
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: /bin/bash
+    args:
+      - '-c'
+      - |
+        echo "FROM gcr.io/${PROJECT_ID}/${_SERVICE_NAME}
+        COPY --from=gcr.io/cloudsql-docker/gce-proxy /cloud_sql_proxy /cloudsql/cloud_sql_proxy" > Dockerfile-proxy;
+        docker build -f Dockerfile-proxy -t gcr.io/${PROJECT_ID}/${_SERVICE_NAME_PROXY} .
+  # Deploy container image to Cloud Run
+  - id : "Deploying to Cloud Run"
+    name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'run',
+      'deploy',
+      '${_SERVICE_NAME}',
+      '--allow-unauthenticated',
+      '--image',
+      'gcr.io/${PROJECT_ID}/${_SERVICE_NAME}',
+      '--region',
+      'us-central1',
+      '--platform',
+      'managed',
+      '--memory',
+      '524M',
+      '--concurrency=500',
+      '--set-cloudsql-instances=${_CLOUD_SQL_INSTANCES}', #Completely replace the current Cloud SQL instances with the given values.
+    ]
+  - id: "Update Jobs Image"
+    name: 'gcr.io/cloud-builders/gcloud'
+    env:
+      - PROJECT_ID=$PROJECT_ID
+      - SERVICE_NAME=${_SERVICE_NAME}
+    script: |
+      #!/usr/bin/env bash
+      jobs=$(gcloud run jobs list --format="value(name)")
+      fully_qualified_digest=$(gcloud container images describe gcr.io/$PROJECT_ID/$SERVICE_NAME --format 'value(image_summary.fully_qualified_digest)')
+      for job in $jobs; do
+        if [[ $job == $SERVICE_NAME* ]]; then
+          gcloud beta run jobs update $job --image=$fully_qualified_digest --region=us-central1
+          echo $job "updated"
+        fi
+      done
+images:
+  - gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:latest
+tags: ['production']
+options:
+#logging: CLOUD_LOGGING_ONLY  #to help make a job as complete in gitlab pipelines
+substitutions:
+  #  _APP_DEBUG: 'false'
+  _SERVICE_NAME: 'matchoracle-fe' #The name must use only lowercase alphanumeric characters and dashes, cannot begin or end with a dash, and cannot be longer than 63 characters
+  _SERVICE_NAME_PROXY: 'matchoracle-fe-proxy'
+  _CLOUD_SQL_INSTANCES: 'kipkiro:us-central1:kipkiro-mysql-ssd-10g'
+  _DOCKER_FILE_PATH: 'gcp/docker/Dockerfile_production'
