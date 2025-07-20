@@ -170,6 +170,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\RepositoryServiceProvider::class,
         App\Providers\ValidationServiceProvider::class,
+        App\Services\Filerepo\FileRepoProvider::class,
     ])->toArray(),
 
     /*
