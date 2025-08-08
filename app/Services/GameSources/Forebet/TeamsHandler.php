@@ -130,7 +130,8 @@ class TeamsHandler
 
             $exists = $team->seasons()->wherePivot('season_id', $season->id)->first();
 
-            $arr = ['competition_id' => $competition->id, 'status_id' => 1, 'user_id' => auth()->id() ?? 0, 'uuid' => Str::uuid()];
+            
+            $arr = ['competition_id' => $competition->id, 'status_id' => 1, 'user_id' => auth()->id() ?? 0, 'uuid' => (string) Str::uuid()];
 
             if ($position) {
                 $arr['position'] = $position;

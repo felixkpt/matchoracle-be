@@ -7,6 +7,7 @@ use App\Models\StandingTable;
 use App\Services\ClientHelper\Client;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\DomCrawler\Crawler;
 use Illuminate\Support\Str;
 
@@ -60,17 +61,37 @@ class StandingsHandler
             return $results;
         }
 
-        // Create or update competition abbreviation
-        $this->createCompetitionAbbreviation($competition, $this->constructUrl($source->source_uri));
+        if (!$season) {
+            return $this->matchMessage("No season associated with competition.");
+        }
 
-        // Construct URL for fetching standings
-        $url = $this->constructUrl($source->source_uri . '/standing/' . $season_str);
+        $cachePath = "standings_html/{$competition->id}.html";
 
-        // Fetch HTML content from the URL
-        $content = Client::get($url);
-        if (!$content) {
-            // Return error message if content retrieval fails
-            return $this->matchMessage('Source not accessible or not found.', 504);
+        $shouldFetch = false;
+        if (Storage::disk('local')->exists($cachePath)) {
+            $lastModified = Carbon::createFromTimestamp(Storage::disk('local')->lastModified($cachePath));
+            if ($lastModified->diffInMinutes(now()) < 10) {
+                $content = Storage::disk('local')->get($cachePath);
+                Log::channel($this->logChannel)->info("Reusing cached HTML for compe #{$competition->id}");
+            } else {
+                // expired, fetch fresh
+                $shouldFetch = true;
+            }
+        } else {
+            // no cache, fetch fresh
+            $shouldFetch = true;
+        }
+
+        if ($shouldFetch) {
+            // Create or update competition abbreviation
+            $this->createCompetitionAbbreviation($competition, $this->constructUrl($source->source_uri));
+
+            // Construct URL for fetching standings
+            $url = $this->constructUrl($source->source_uri . '/standing/' . $season_str);
+            // Fetch HTML content from the URL
+            $content = Client::get($url);
+            if (!$content) return $this->matchMessage('Source not accessible or not found.', 504);
+            Storage::disk('local')->put($cachePath, $content);
         }
 
         // Parse HTML content using Symfony DomCrawler

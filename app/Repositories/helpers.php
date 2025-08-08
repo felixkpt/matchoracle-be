@@ -25,7 +25,7 @@ if (!function_exists('defaultColumns')) {
             $model->status_id = activeStatusId();
 
         if (Schema::hasColumn($model->getTable(), 'uuid') && !$model->uuid)
-            $model->uuid = Str::uuid();
+            $model->uuid = (string) Str::uuid();
 
 
         return true;
@@ -55,14 +55,6 @@ if (!function_exists('respond')) {
             $res = response($content, $status);
 
         return $res->withHeaders($headers);
-    }
-}
-
-if (!function_exists('autoModel')) {
-
-    function autoModel($table)
-    {
-        return app(DynamicModelFactory::class)->create(Game::class, $table);
     }
 }
 

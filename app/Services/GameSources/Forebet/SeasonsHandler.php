@@ -40,11 +40,30 @@ class SeasonsHandler
             [$competition, $season, $source, $season_str] = $results['data'];
         } else return $results;
 
-        $url = $this->sourceUrl . ltrim($source->source_uri, '/');
-        // echo ($url) . "\n";
+        $cachePath = "seasons_html/{$competition->id}.html";
+        
+        $shouldFetch = false;
+        if (Storage::disk('local')->exists($cachePath)) {
+            $lastModified = Carbon::createFromTimestamp(Storage::disk('local')->lastModified($cachePath));
+            if ($lastModified->diffInMinutes(now()) < 10) {
+                $content = Storage::disk('local')->get($cachePath);
+                Log::channel($this->logChannel)->info("Reusing cached HTML for compe #{$competition->id}");
+            } else {
+                // expired, fetch fresh
+                $shouldFetch = true;
+            }
+        } else {
+            // no cache, fetch fresh
+            $shouldFetch = true;
+        }
 
-        $content = Client::get($url);
-        if (!$content) return $this->matchMessage('Source inaccessible');
+        if ($shouldFetch) {
+            $url = $this->sourceUrl . ltrim($source->source_uri, '/');
+            // Fetch HTML content from the URL
+            $content = Client::get($url);
+            if (!$content) return $this->matchMessage('Source inaccessible');
+            Storage::disk('local')->put($cachePath, $content);
+        }
 
         $crawler = new Crawler($content);
 
