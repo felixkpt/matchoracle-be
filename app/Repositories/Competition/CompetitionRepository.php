@@ -17,6 +17,7 @@ use App\Models\Odd;
 use App\Models\Season;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo\SearchRepo;
+use App\Repositories\Season\SeasonRepository;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Http\Request;
@@ -244,16 +245,8 @@ class CompetitionRepository implements CompetitionRepositoryInterface
     public function seasons($id)
     {
 
-        $seasons = Season::where('competition_id', $id)->with(['competition', 'winner']);
+        return app(SeasonRepository::class)->index();
 
-        $uri = '/dashboard/countries/';
-        $res = SearchRepo::of($seasons, ['id', 'name'])
-            ->setModelUri($uri)
-            ->addColumn('Created_by', 'getUser')
-            ->orderBy('start_date')
-            ->paginate();
-
-        return response(['results' => $res]);
     }
 
     public function standings($id, $season_id = null)

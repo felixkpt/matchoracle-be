@@ -42,7 +42,7 @@ class CountriesSeeder extends Seeder
                     'slug' => Str::slug($country['name']),
                     'code' => $country['code'],
                     'dial_code' => $country['dial_code'],
-                    'flag' => 'images/flags/png100px/' . Str::slug($country['code']) . '.png',
+                    'flag' => 'images/flags/svgs/' . Str::slug($country['code']) . '.svg',
                     'is_international' => $is_international,
                     'continent_id' => $continent->id ?? 0,
                     'status_id' => activeStatusId()

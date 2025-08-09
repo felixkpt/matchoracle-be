@@ -404,11 +404,11 @@ class OddHandlerJob implements ShouldQueue
             $newAverageSeconds = (($exists->average_seconds_per_action * $exists->run_action_counts) + $data['seconds_taken']) / $run_action_counts;
 
             $arr = [
-                'run_action_counts' => $run_action_counts,
-                'average_seconds_per_action' => $newAverageSeconds,
-                'created_counts' => $exists->created_counts + $created_counts,
-                'updated_counts' => $exists->updated_counts + $updated_counts,
-                'failed_counts' => $exists->failed_counts + $failed_counts,
+                'run_action_counts' => (int) $run_action_counts,
+                'average_seconds_per_action' => (int) $newAverageSeconds,
+                'created_counts' => (int) $exists->created_counts + $created_counts,
+                'updated_counts' => (int) $exists->updated_counts + $updated_counts,
+                'failed_counts' => (int) $exists->failed_counts + $failed_counts,
             ];
 
             $exists->update($arr);

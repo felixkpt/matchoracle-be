@@ -179,7 +179,7 @@ class Common
         $ext = pathinfo($source, PATHINFO_EXTENSION);
         $filename = "c" . $competition->id . '.' . $ext;
 
-        $dest = "images/competitions/" . $filename;
+        $dest = "public/images/competitions/" . $filename;
 
         $path = Client::downloadFileFromUrl($source, $dest);
         return $path;
@@ -315,7 +315,7 @@ class Common
         $ext = pathinfo($source, PATHINFO_EXTENSION);
         $filename = "t" . $team->id . '.' . $ext;
 
-        $dest = "images/teams/" . $filename; /* Complete path & file name */
+        $dest = "public/images/teams/" . $filename; /* Complete path & file name */
 
         $path = Client::downloadFileFromUrl($source, $dest);
         if ($path) {

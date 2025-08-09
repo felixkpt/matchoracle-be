@@ -1,4 +1,3 @@
-<!-- app/Console/odds_commands.php -->
 <?php
 $schedule->command('app:match-handler --task=fixtures')->everySixHours(30);
 

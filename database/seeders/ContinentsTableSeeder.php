@@ -54,7 +54,7 @@ class ContinentsTableSeeder extends Seeder
                     'name' => $country['name'],
                     'slug' => Str::slug($country['name']),
                     'code' => $country['code'],
-                    'flag' => 'images/flags/png100px/' . Str::slug($country['code']) . '.png',
+                    'flag' => 'images/flags/svgs/' . Str::slug($country['code']) . '.svg',
                     'status_id' => activeStatusId()
                 ]
             );

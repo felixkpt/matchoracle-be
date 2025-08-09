@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Test Source Strategies
+            Get Source Strategies
         </h2>
     </x-slot>
 
@@ -87,51 +87,59 @@
         <div class="mt-6 flex flex-wrap gap-4">
             <button onclick="runTest('seasons')"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow">
-                Test Seasons
+                Get Seasons
             </button>
             <button onclick="runTest('standings')"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow">
-                Test Standings
+                Get Standings
             </button>
             <button onclick="runTest('matches')"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow">
-                Test Matches
+                Get Matches
             </button>
             <button onclick="runTest('match')"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow">
-                Test Match
+                Get Match
             </button>
         </div>
 
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", loadCompetitions);
+        async function fetchWithAuth(url) {
 
-        function loadCompetitions() {
-            fetch('/api/admin/competitions')
-                .then(response => response.json())
-                .then(data => {
-                    const competitionSelect = document.getElementById('competition');
-                    data.forEach(competition => {
-                        const option = document.createElement('option');
-                        option.value = competition.id;
-                        option.text = competition.name;
-                        competitionSelect.add(option);
-                    });
+            return fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin',
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    throw error;
                 });
         }
 
         function loadSeasons(competitionId) {
-            fetch(`/api/admin/competitions/${competitionId}/seasons`)
-                .then(response => response.json())
+            fetchWithAuth(`/api/dashboard/competitions/view/${competitionId}/seasons?per_page=100`)
                 .then(data => {
                     const seasonSelect = document.getElementById('season');
                     seasonSelect.innerHTML = '<option value="">Select a season</option>';
-                    data.forEach(season => {
+                    data?.results?.data.forEach(season => {
                         const option = document.createElement('option');
                         option.value = season.id;
-                        option.text = season.name;
+                        const start = new Date(season.start_date).getFullYear();
+                        const end = new Date(season.end_date).getFullYear();
+                        option.text = `${start} - ${end}` + (season.is_current ? " (Current)" : "");
                         seasonSelect.add(option);
                     });
                 });
