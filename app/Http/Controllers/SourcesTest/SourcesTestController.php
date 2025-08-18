@@ -17,8 +17,8 @@ class SourcesTestController extends Controller
     public function __construct(protected Competition $model)
     {
         $this->sourceContext = new GameSourceStrategy();
-        // Set max execution time to 10 minutes
-        ini_set('max_execution_time', 600);
+        
+        ini_set('max_execution_time', 60 * 30);
         request()->merge(['without_response' => true]);
 
     }

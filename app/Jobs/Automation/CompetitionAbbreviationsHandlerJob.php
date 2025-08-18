@@ -12,27 +12,14 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class CompetitionAbbreviationsJob implements ShouldQueue
+class CompetitionAbbreviationsHandlerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
     /**
-     * Job details.
-     *
-     * @property string $jobId          The unique identifier for the job.
-     * @property string $task           The type of task to be performed by the job (default is 'train').
-     * @property bool   $ignore_timing  Whether to ignore timing constraints for the job.
-     * @property int    $competition_id The identifier for the competition associated with the job.
-     */
-    protected $jobId;
-    protected $task = 'fetch';
-    protected $ignoreTiming;
-    protected $competitionId;
-
-    /**
      * Create a new job instance.
      */
-    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null)
+    public function __construct($task, $jobId, $ignoreTiming = false, $competitionId = null, $seasonId = null)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 30;
@@ -47,20 +34,23 @@ class CompetitionAbbreviationsJob implements ShouldQueue
         $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
 
         // Set the jobID
-        $this->jobId = $job_id ?? str()->random(6);
+        $this->jobId = $jobId ?? str()->random(6);
 
         // Set the task property
-        if ($task) {
-            $this->task = $task;
+        $this->task = $task ?? 'fetch';
+
+        if ($ignoreTiming) {
+            $this->ignoreTiming = $ignoreTiming;
         }
 
-        if ($ignore_timing) {
-            $this->ignoreTiming = $ignore_timing;
+        if ($competitionId) {
+            $this->competitionId = $competitionId;
+            request()->merge(['competition_id' => $competitionId]);
         }
 
-        if ($competition_id) {
-            $this->competitionId = $competition_id;
-            request()->merge(['competition_id' => $competition_id]);
+        if ($seasonId) {
+            $this->seasonId = $seasonId;
+            request()->merge(['season_id' => $seasonId]);
         }
     }
 
@@ -72,34 +62,26 @@ class CompetitionAbbreviationsJob implements ShouldQueue
         // Set the request parameter to indicate no direct response is expected
         request()->merge(['without_response' => true]);
 
-        $lastFetchColumn = 'abbreviation_last_fetch';
+        $lastFetchColumn = 'abbreviations_last_fetch';
 
         $delay = 60 * 24 * 30;
-        if ($this->ignoreTiming) $delay = 0;
+        if ($this->ignoreTiming) {
+            $delay = 0;
+        }
 
         // Fetch competitions that need season data updates
-        $competitions = Competition::query()
-            ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
-            // ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
-            ->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))
-            ->whereHas('gameSources', function ($q) {
-                $q->where('game_source_id', $this->sourceContext->getId());
-            })
-            ->whereDoesntHave('abbreviation')
-            ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
-            ->select('competitions.*')
-            ->limit(1000)
-            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc');
+        $competitions = $this->getCompetitions($lastFetchColumn, $delay);
 
         // Process competitions to calculate action counts and log job details
-        $competitions = $competitions->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))->get();
-        $this->jobStartEndLog('START', $competitions);
+        $this->logAndBroadcastJobLifecycle('START', $competitions);
 
         // Loop through each competition to fetch and update seasons
         $total = $competitions->count();
         $should_exit = false;
         foreach ($competitions as $key => $competition) {
-            if ($should_exit) break;
+            if ($should_exit) {
+                break;
+            }
 
             if ($this->runTimeExceeded()) {
                 $should_exit = true;
@@ -142,7 +124,7 @@ class CompetitionAbbreviationsJob implements ShouldQueue
 
             $this->automationInfo("------------");
 
-            $this->updateLastAction($competition, true, $lastFetchColumn);
+            $this->updateCompetitionLastAction($competition, true, $lastFetchColumn, $this->seasonId);
 
             $should_sleep_for_competitions = true;
 
@@ -152,9 +134,32 @@ class CompetitionAbbreviationsJob implements ShouldQueue
         }
 
         if ($this->competitionId && $competitions->count() === 0) {
-            $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
+            $this->updateCompetitionLastAction($this->getCompetition(), true, $lastFetchColumn, $this->seasonId);
         }
 
-        $this->jobStartEndLog('END');
+        $this->logAndBroadcastJobLifecycle('END');
+    }
+
+    private function getCompetitions($lastFetchColumn, $delay)
+    {
+        return Competition::query()
+            ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
+            ->where('competitions.games_per_season', '>', 0)
+            ->when(!request()->ignore_status, fn($q) => $q->where('competitions.status_id', activeStatusId()))
+            ->when($this->competitionId, fn($q) => $q->where('competitions.id', $this->competitionId))
+            ->when(
+                $this->seasonId,
+                fn($q) => $q->where('competition_last_actions.season_id', $this->seasonId),
+                fn($q) => $q->whereNull('competition_last_actions.season_id')
+            )
+            ->whereHas('gameSources', function ($q) {
+                $q->where('game_source_id', $this->sourceContext->getId());
+            })
+            ->whereDoesntHave('abbreviation')
+            ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+            ->select('competitions.*')
+            ->limit(1000)
+            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
+            ->get();
     }
 }

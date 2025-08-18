@@ -22,13 +22,10 @@ class SeasonsHandler
      * 
      * Initializes the strategy and calls the trait's initialization method.
      */
-    public function __construct()
+    public function __construct($jobId)
     {
         $this->initialize();
-
-        if (!$this->jobId) {
-            $this->jobId = str()->random(6);
-        }
+        $this->jobId = $jobId;
     }
 
     function fetchSeasons($competition_id)
@@ -40,29 +37,19 @@ class SeasonsHandler
             [$competition, $season, $source, $season_str] = $results['data'];
         } else return $results;
 
-        $cachePath = "seasons_html/{$competition->id}.html";
-        
-        $shouldFetch = false;
-        if (Storage::disk('local')->exists($cachePath)) {
-            $lastModified = Carbon::createFromTimestamp(Storage::disk('local')->lastModified($cachePath));
-            if ($lastModified->diffInMinutes(now()) < 10) {
-                $content = Storage::disk('local')->get($cachePath);
-                Log::channel($this->logChannel)->info("Reusing cached HTML for compe #{$competition->id}");
-            } else {
-                // expired, fetch fresh
-                $shouldFetch = true;
-            }
-        } else {
-            // no cache, fetch fresh
-            $shouldFetch = true;
-        }
+        $url = $this->sourceUrl . ltrim($source->source_uri, '/');
+        $timeToLive = 60 * 96;
 
-        if ($shouldFetch) {
-            $url = $this->sourceUrl . ltrim($source->source_uri, '/');
-            // Fetch HTML content from the URL
-            $content = Client::get($url);
-            if (!$content) return $this->matchMessage('Source inaccessible');
-            Storage::disk('local')->put($cachePath, $content);
+        $content = $this->fetchWithCacheV2(
+            $url,
+            "seasons_html",             // Cache key
+            $timeToLive,                // TTL minutes
+            'local',                    // Storage disk
+            $this->logChannel           // Optional log channel
+        );
+
+        if (!$content) {
+            return $this->matchMessage('Source not accessible or not found.', 504);
         }
 
         $crawler = new Crawler($content);
@@ -128,7 +115,7 @@ class SeasonsHandler
             $is_current = ($key == 0);
 
             if ($seasonData->startDate) {
-                $season = (new self())::updateOrCreate($seasonData, $country, $competition, $is_current);
+                $season = $this->updateOrCreate($seasonData, $country, $competition, $is_current);
 
                 if ($season->wasRecentlyCreated) {
                     $saved++;
@@ -152,7 +139,7 @@ class SeasonsHandler
         return response($response);
     }
 
-    static function updateOrCreate($seasonData, $country, $competition, $is_current = false, $played_matches = null)
+    public function updateOrCreate($seasonData, $country, $competition, $is_current = false, $played_matches = null)
     {
 
         $arr = [
@@ -168,7 +155,7 @@ class SeasonsHandler
 
         $winner = null;
         if (isset($seasonData->winner)) {
-            $winner = app(TeamsHandler::class)->updateOrCreate($seasonData->winner, $country, $competition);
+            $winner = (new TeamsHandler($this->jobId))->updateOrCreate($seasonData->winner, $country, $competition);
         }
 
         if ($winner) {

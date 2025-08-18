@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\Automation;
 
-use App\Jobs\Automation\CompetitionAbbreviationsJob;
+use App\Jobs\Automation\CompetitionAbbreviationsHandlerJob;
 use Illuminate\Console\Command;
 
 class CompetitionAbbreviationsCommand extends Command
@@ -12,7 +12,7 @@ class CompetitionAbbreviationsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:competition-abbreviations {--ignore-timing} {--ignore-status} {--competition=}';
+    protected $signature = 'app:competition-abbreviations {--ignore-timing} {--ignore-status} {--competition=} {--sync}';
 
     /**
      * The console command description.
@@ -30,8 +30,25 @@ class CompetitionAbbreviationsCommand extends Command
         $ignore_timing = $this->option('ignore-timing');
 
         $competition_id = $this->option('competition');
+        $sync = $this->option('sync');
 
-        dispatch(new CompetitionAbbreviationsJob(null, null, $ignore_timing, $competition_id));
+        $params = [
+            null,
+            null,
+            $ignore_timing,
+            $competition_id,
+            null,
+        ];
+
+        if ($sync) {
+            CompetitionAbbreviationsHandlerJob::dispatchSync(...$params);
+            $this->info('Job executed synchronously.');
+        } else {
+            CompetitionAbbreviationsHandlerJob::dispatch(...$params);
+            $this->info('Job dispatched to queue.');
+        }
         $this->info('CompetitionAbbreviations handler command executed successfully!');
+
+        return 0;
     }
 }

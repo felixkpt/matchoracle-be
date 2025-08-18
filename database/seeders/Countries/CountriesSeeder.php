@@ -36,7 +36,10 @@ class CountriesSeeder extends Seeder
             $is_international = $country['name'] == $country['continent'];
 
             Country::updateOrCreate(
-                ['name' => $country['name']],
+                [
+                    'name' => $country['name'],
+                    'code' => $country['code'],
+                ],
                 [
                     'name' => $country['name'],
                     'slug' => Str::slug($country['name']),

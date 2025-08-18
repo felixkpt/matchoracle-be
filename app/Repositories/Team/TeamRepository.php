@@ -17,17 +17,15 @@ class TeamRepository implements TeamRepositoryInterface
 
     use CommonRepoActions;
 
-    function __construct(protected Team $model)
-    {
-    }
+    function __construct(protected Team $model) {}
 
     public function index($id = null)
     {
 
         $teams = $this->model::query()
-            ->when(request()->status == 1, fn ($q) => $q->where('status_id', activeStatusId()))
-            ->with(['country', 'competition', 'address', 'venue', 'coachContract' => fn ($q) => $q->with('coach'), 'gameSources'])
-            ->when(request()->competition_id, fn ($q) => $q->where('teams.competition_id', request()->competition_id))
+            ->when(request()->status == 1, fn($q) => $q->where('status_id', activeStatusId()))
+            ->with(['country', 'competition', 'address', 'venue', 'coachContract' => fn($q) => $q->with('coach'), 'gameSources'])
+            ->when(request()->competition_id, fn($q) => $q->where('teams.competition_id', request()->competition_id))
             ->when(request()->season_id, function ($q) {
                 // Join with the pivot table and filter by season_id
                 $q->whereHas('seasons', function ($query) {
@@ -38,7 +36,7 @@ class TeamRepository implements TeamRepositoryInterface
                 $q->join('season_teams', 'teams.id', '=', 'season_teams.team_id')
                     ->where('season_teams.season_id', request()->season_id);
             })
-            ->when($id, fn ($q) => $q->where('id', $id));
+            ->when($id, fn($q) => $q->where('id', $id));
 
 
         if ($this->applyFiltersOnly) return $teams;
@@ -63,7 +61,10 @@ class TeamRepository implements TeamRepositoryInterface
 
         $arr = ['results' => $results];
 
-        if (request()->without_response) return $arr;
+        if (request()->without_response) {
+            return $arr;
+        }
+        
         return response($arr);
     }
 

@@ -4,10 +4,8 @@ namespace App\Services\GameSources\Forebet;
 
 use App\Models\Standing;
 use App\Models\StandingTable;
-use App\Services\ClientHelper\Client;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\DomCrawler\Crawler;
 use Illuminate\Support\Str;
 
@@ -21,13 +19,10 @@ class StandingsHandler
      * 
      * Initializes the strategy and calls the trait's initialization method.
      */
-    public function __construct()
+    public function __construct($jobId)
     {
         $this->initialize();
-
-        if (!$this->jobId) {
-            $this->jobId = str()->random(6);
-        }
+        $this->jobId = $jobId;
     }
 
     /**
@@ -65,33 +60,23 @@ class StandingsHandler
             return $this->matchMessage("No season associated with competition.");
         }
 
-        $cachePath = "standings_html/{$competition->id}.html";
+        // Create or update competition abbreviation
+        $this->createCompetitionAbbreviation($competition, $this->constructUrl($source->source_uri));
 
-        $shouldFetch = false;
-        if (Storage::disk('local')->exists($cachePath)) {
-            $lastModified = Carbon::createFromTimestamp(Storage::disk('local')->lastModified($cachePath));
-            if ($lastModified->diffInMinutes(now()) < 10) {
-                $content = Storage::disk('local')->get($cachePath);
-                Log::channel($this->logChannel)->info("Reusing cached HTML for compe #{$competition->id}");
-            } else {
-                // expired, fetch fresh
-                $shouldFetch = true;
-            }
-        } else {
-            // no cache, fetch fresh
-            $shouldFetch = true;
-        }
+        // Construct URL for fetching standings
+        $url = $this->constructUrl($source->source_uri . '/standing/' . $season_str);
+        $timeToLive = 60 * 6;
 
-        if ($shouldFetch) {
-            // Create or update competition abbreviation
-            $this->createCompetitionAbbreviation($competition, $this->constructUrl($source->source_uri));
+        $content = $this->fetchWithCacheV2(
+            $url,
+            "standings_html",           // Cache key
+            $timeToLive,                // TTL minutes
+            'local',                    // Storage disk
+            $this->logChannel           // Optional log channel
+        );
 
-            // Construct URL for fetching standings
-            $url = $this->constructUrl($source->source_uri . '/standing/' . $season_str);
-            // Fetch HTML content from the URL
-            $content = Client::get($url);
-            if (!$content) return $this->matchMessage('Source not accessible or not found.', 504);
-            Storage::disk('local')->put($cachePath, $content);
+        if (!$content) {
+            return $this->matchMessage('Source not accessible or not found.', 504);
         }
 
         // Parse HTML content using Symfony DomCrawler
@@ -261,12 +246,14 @@ class StandingsHandler
         $winner = null;
         foreach ($standingData as $tableData) {
 
-            if (!isset($tableData[1]) || !is_array($tableData[1])) continue;
+            if (!isset($tableData[1]) || !is_array($tableData[1])) {
+                continue;
+            }
 
             $position = $tableData[0];
             $teamData = $tableData[1];
 
-            $team = (new TeamsHandler())->updateOrCreate($teamData, $country, $competition, $season, false, $position);
+            $team = (new TeamsHandler($this->jobId))->updateOrCreate($teamData, $country, $competition, $season, false, $position);
 
             if (!$team) {
                 Log::channel($this->logChannel)->critical("Team could not be created for compe: {$competition->id}, season {$season->id}", [$tableData]);

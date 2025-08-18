@@ -13,9 +13,9 @@ class StandingsHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:standings-handler {--task=} {--ignore-timing} {--competition=}';
+    protected $signature = 'app:standings-handler {--task=} {--ignore-timing} {--competition=} {--season=} {--sync}';
     // php artisan app:standings-handler --task=historical_results --ignore-timing --competition=1340
-    
+
     /**
      * The console command description.
      *
@@ -39,8 +39,26 @@ class StandingsHandlerCommand extends Command
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
 
         $competition_id = $this->option('competition');
+        $season_id = $this->option('season');
+        $sync = $this->option('sync');
 
-        dispatch(new StandingsHandlerJob($task, null, $ignore_timing, $competition_id));
+        $params = [
+            $task,
+            null,
+            $ignore_timing,
+            $competition_id,
+            $season_id,
+        ];
+
+        if ($sync) {
+            StandingsHandlerJob::dispatchSync(...$params);
+            $this->info('Job executed synchronously.');
+        } else {
+            StandingsHandlerJob::dispatch(...$params);
+            $this->info('Job dispatched to queue.');
+        }
         $this->info('Standings handler command executed successfully!');
+
+        return 1;
     }
 }

@@ -14,32 +14,21 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class TrainPredictionsHandlerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait, PredictionAutomationTrait;
 
-    /**
-     * Job details.
-     *
-     * @property string $jobId          The unique identifier for the job.
-     * @property string $task           The type of task to be performed by the job (default is 'train').
-     * @property bool   $ignore_timing  Whether to ignore timing constraints for the job.
-     * @property int    $competition_id The identifier for the competition associated with the job.
-     */
-    protected $jobId;
-    protected $task = 'train';
-    protected $ignoreTiming;
-    protected $competitionId;
-    protected $prefer_saved_matches = false;
-    protected $is_grid_search = true;
+    protected $preferSavedMatches = false;
+    protected $isGridSearch = true;
     protected $target;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null, $options = [])
+    public function __construct($task, $jobId, $ignoreTiming = false, $competitionId = null, $seasonId = null, $options = [])
     {
 
         // Set the maximum execution time (seconds)
@@ -55,28 +44,30 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
 
         // Set the jobID
-        $this->jobId = $job_id ?? str()->random(6);
+        $this->jobId = $jobId ?? str()->random(6);
 
         // Set the task property
-        if ($task) {
-            $this->task = $task;
+        $this->task = $task ?? 'train';
+
+        if ($ignoreTiming) {
+            $this->ignoreTiming = $ignoreTiming;
         }
 
-        if ($ignore_timing) {
-            $this->ignoreTiming = $ignore_timing;
+        if ($competitionId) {
+            $this->competitionId = $competitionId;
+            request()->merge(['competition_id' => $competitionId]);
         }
 
-        if ($competition_id) {
-            $this->competitionId = $competition_id;
-            request()->merge(['competition_id' => $competition_id]);
+        if ($seasonId) {
+            $this->seasonId = $seasonId;
+            request()->merge(['season_id' => $seasonId]);
         }
-
         if (isset($options['prefer_saved_matches'])) {
-            $this->prefer_saved_matches = $options['prefer_saved_matches'];
+            $this->preferSavedMatches = $options['prefer_saved_matches'];
         }
 
         if (isset($options['is_grid_search'])) {
-            $this->is_grid_search = $options['is_grid_search'];
+            $this->isGridSearch = $options['is_grid_search'];
         }
 
         if (isset($options['predictor_url']) && $options['predictor_url']) {
@@ -86,7 +77,6 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         if (isset($options['target']) && $options['target']) {
             $this->target = $options['target'];
         }
-
     }
 
     /**
@@ -106,25 +96,21 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         // Set delay in minutes based on the task type:
         // Default case for train 3 months
         $delay = 60 * 24 * 90;
-        if ($this->ignoreTiming) $delay = 0;
+        if ($this->ignoreTiming) {
+            $delay = 0;
+        }
+
+        $season_id = request()->season_id;
 
         // Fetch competitions that need season data updates
-        $competitions = Competition::query()
-            ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
-            ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
-            ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
-            ->whereHas('games')
-            ->select('competitions.*')
-            ->limit(1000)
-            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc');
+        $competitions = $this->getCompetitions($lastFetchColumn, $delay);
 
         // Process competitions to calculate action counts and log job details
         $actionCounts = $competitions->count();
         $competition_counts = $competitions->count();
-        $competitions = $competitions->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))->get();
-        $this->jobStartEndLog('START', $competitions);
+        $this->logAndBroadcastJobLifecycle('START', $competitions);
         $this->automationInfo("Predictor URL: {$this->predictorUrl}");
-        
+
         // loggerModel competition_counts and Action Counts
         $this->trainPredictionsLoggerModel(true, $competition_counts, $actionCounts);
 
@@ -132,8 +118,8 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         $options = [
             'target' => null,
             'target' => $this->target,
-            'prefer_saved_matches' => $this->prefer_saved_matches,
-            'is_grid_search' => $this->is_grid_search,
+            'prefer_saved_matches' => $this->preferSavedMatches,
+            'is_grid_search' => $this->isGridSearch,
             'retrain_if_last_train_is_before' => now()->subMinutes($delay)->toDateString(),
             'ignore_trained' => true,
             'per_page' => $per_page,
@@ -144,7 +130,9 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         $client = new Client();
         $should_exit = false;
         foreach ($competitions as $key => $competition) {
-            if ($should_exit) break;
+            if ($should_exit) {
+                break;
+            }
 
             if ($this->runTimeExceeded()) {
                 $should_exit = true;
@@ -155,9 +143,11 @@ class TrainPredictionsHandlerJob implements ShouldQueue
 
             // create a jobs table entity
             $processId = Str::random();
-            $job = $competition->jobs()->create([
-                'process_id' => $processId,
-                'status' => 'processing',
+            $job = $competition->predictionJobs()->create([
+                'process_id'   => $processId,
+                'status'       => 'pending',
+                'available_at' => time() + 60,
+                'created_at'   => time(),
             ]);
 
             $last_action = $competition->lastAction->{$lastFetchColumn} ?? 'N/A';
@@ -174,6 +164,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
 
             $options['competition'] = $competition->id;
             $options['job_id'] = (string) $job->id;
+            $options['season_id'] = $this->seasonId;
 
             try {
                 $should_update_last_action = true;
@@ -206,10 +197,10 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         }
 
         if ($this->competitionId && $competitions->count() === 0) {
-            $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
+            $this->updateCompetitionLastAction($this->getCompetition(), true, $lastFetchColumn, $this->seasonId);
         }
 
-        $this->jobStartEndLog('END');
+        $this->logAndBroadcastJobLifecycle('END');
     }
 
     /**
@@ -237,7 +228,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
 
             // Check if the process ID status is marked as "completed"
             $jobStatus = Competition::find($competition->id)
-                ->jobs()
+                ->predictionJobs()
                 ->where('id', $jobId)
                 ->first();
 
@@ -258,7 +249,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
                 $requestEndTime = microtime(true);
                 $seconds_taken = intval($requestEndTime - $requestStartTime);
 
-                $this->automationInfo("***Time taken working on  Compe #{$competition->id}: " . $this->timeTaken($seconds_taken).", new updated Last Action: {$lastActionTime}.");
+                $this->automationInfo("***Time taken working on  Compe #{$competition->id}: " . $this->timeTaken($seconds_taken) . ", new updated Last Action: {$lastActionTime}.");
 
                 if ($checked_last_action && $checked_last_action != $last_action) {
                 }
@@ -275,7 +266,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
             $this->automationInfo("***Timeout: Training for Competition #{$competition->id} did not complete within the expected time.");
         }
 
-        $this->updateLastAction($competition, $jobStatus == 'completed', $lastFetchColumn);
+        $this->updateCompetitionLastAction($competition, $jobStatus == 'completed', $lastFetchColumn, $options['season_id']);
     }
 
     private function lastActionFilters($query)
@@ -286,5 +277,34 @@ class TrainPredictionsHandlerJob implements ShouldQueue
         });
 
         return $query;
+    }
+
+    private function seasonsFilter($competitionQuery)
+    {
+        return $competitionQuery
+            ->when($this->seasonId, fn($q) => $q->where('id', $this->seasonId))
+            ->orderBy('start_date', 'asc');
+    }
+
+    private function getCompetitions($lastFetchColumn, $delay)
+    {
+
+        return Competition::query()
+            ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
+            ->where('competitions.games_per_season', '>', 0)
+            ->when(!request()->ignore_status, fn($q) => $q->where('competitions.status_id', activeStatusId()))
+            ->when($this->competitionId, fn($q) => $q->where('competitions.id', $this->competitionId))
+            ->when(
+                $this->seasonId,
+                fn($q) => $q->where('competition_last_actions.season_id', $this->seasonId),
+                fn($q) => $q->whereNull('competition_last_actions.season_id')
+            )
+            ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+            ->whereHas('games')
+            ->select('competitions.*')
+            ->limit(1000)
+            ->with(['seasons' => fn($q) => $this->seasonsFilter($q)])
+            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
+            ->get();
     }
 }

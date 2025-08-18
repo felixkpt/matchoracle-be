@@ -29,17 +29,27 @@ trait CompetitionAbbreviationsTrait
      */
     private function getTagFromUrl($url)
     {
-        $content = Client::get($url);
+
+        $timeToLive = 60 * 24 * 30;
+
+        $content = $this->fetchWithCacheV2(
+            $url,
+            "abbreviations_html",       // Cache path
+            $timeToLive,                // TTL minutes
+            'local',                    // Storage disk
+            $this->logChannel           // Optional log channel
+        );
+
         if (!$content) {
-            // Handle the case when the source is not accessible or not found
             return null;
         }
 
         $crawler = new Crawler($content);
-        $row = $crawler->filter('table.main tr td.contentmiddle div.schema div.rcnt')->first();
 
-        if ($row && $row->filter('div.stcn div.shortagDiv span.shortTag')->count()) {
-            return $row->filter('div.stcn div.shortagDiv span.shortTag')->text();
+        $row = $crawler->filter('table.main tr td.contentmiddle div.rcnt div.stcn span.shortTag')->first();
+
+        if ($row->count() === 1) {
+            return trim($row->text());
         }
 
         return null;

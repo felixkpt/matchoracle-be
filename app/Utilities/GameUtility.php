@@ -28,7 +28,7 @@ class GameUtility
 
     private function configureExecutionSettings()
     {
-        ini_set('max_execution_time', 60 * 10);
+        ini_set('max_execution_time', 60 * 20);
         ini_set('memory_limit', '2G');
     }
 
@@ -200,16 +200,18 @@ class GameUtility
         $uri = '/dashboard/matches/';
 
         $search_builder = null;
-        $joiners = [' vs ', ' v '];
-        $req_search = request()->search ? trim(request()->search) : request()->search;
+        $joiners = [' vs ', ' v ', ' - '];
+        $req_search = request()->search ? preg_replace('/\s+/', ' ', trim(request()->search)) : request()->search;
 
         if ($req_search && Str::contains($req_search, $joiners)) {
+
             $search = array_values(array_map('trim', array_filter(explode($joiners[0], $req_search))));
             if (count($search) !== 2) {
                 $search = array_values(array_map('trim', array_filter(explode($joiners[1], $req_search))));
             }
-
-            Log::info("SEarc", $search);
+            if (count($search) !== 2) {
+                $search = array_values(array_map('trim', array_filter(explode($joiners[2], $req_search))));
+            }
 
             if (count($search) === 2) {
 

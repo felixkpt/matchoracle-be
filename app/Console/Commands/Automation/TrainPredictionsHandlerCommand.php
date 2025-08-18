@@ -14,7 +14,7 @@ class TrainPredictionsHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:train-predictions-handler {--task=} {--ignore-timing} {--competition=} {--prefer-saved-matches} {--is-grid-search} {--predictor-url=} {--target=} ';
+    protected $signature = 'app:train-predictions-handler {--task=} {--ignore-timing} {--competition=} {--season=} {--sync} {--prefer-saved-matches} {--is-grid-search} {--predictor-url=} {--target=} ';
     // example: php artisan app:train-predictions-handler --task=train --ignore-timing --competition=1340 --prefer-saved-matches --is-grid-search --predictor-url=http://127.0.0.1:8000 
 
     /**
@@ -49,8 +49,9 @@ class TrainPredictionsHandlerCommand extends Command
         }
 
         $competition_id = $this->option('competition');
+        $season_id = $this->option('season');
 
-        
+
         $prefer_saved_matches = $this->option('prefer-saved-matches') ?? false;
         $is_grid_search = $this->option('is-grid-search') ?? true;
         $predictor_url = $this->option('predictor-url') ?? null;
@@ -63,9 +64,26 @@ class TrainPredictionsHandlerCommand extends Command
             'target' => $target,
         ];
 
-        dispatch(new TrainPredictionsHandlerJob($task, null, $ignore_timing, $competition_id, $options));
+        $sync = $this->option('sync');
+
+        $params = [
+            $task,
+            null,
+            $ignore_timing,
+            $competition_id,
+            $season_id,
+            $options,
+        ];
+
+        if ($sync) {
+            TrainPredictionsHandlerJob::dispatchSync(...$params);
+            $this->info('Job executed synchronously.');
+        } else {
+            TrainPredictionsHandlerJob::dispatch(...$params);
+            $this->info('Job dispatched to queue.');
+        }
         $this->info('Train Predictions handler command executed successfully!');
 
-        return 0;
+        return 1;
     }
 }

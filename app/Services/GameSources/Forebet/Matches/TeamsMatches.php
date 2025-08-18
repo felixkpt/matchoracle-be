@@ -15,7 +15,7 @@ class TeamsMatches
 {
     use ForebetInitializationTrait, MatchesTrait;
 
-    function fetchMatches($game, $competition, $crawler, $source_uri)
+    public function fetchMatches($game, $competition, $crawler, $source_uri)
     {
 
         $html = $crawler->filter('table.stat-content tr td.floatLeft.statWidth div.moduletable div.st_scrblock');
@@ -43,7 +43,7 @@ class TeamsMatches
                 $matches = $this->getMatchesFromDOM($game, $competition, $country, $source_uri, $homeTeamMatches);
                 if (count($matches) > 0) {
                     [$homeSaved, $homeUpdated, $homeMessage] = $this->saveGames($matches);
-                    $this->deactivateGames($game, $matches, 'home');
+                    // $this->deactivateGames($game, $matches, 'home');
                     $totalSaved += $homeSaved;
                     $totalUpdated += $homeUpdated;
                     $finalMessage .= $homeMessage . " ---- ";
@@ -56,7 +56,7 @@ class TeamsMatches
                 $matches = $this->getMatchesFromDOM($game, $competition, $country, $source_uri, $awayTeamMatches);
                 if (count($matches) > 0) {
                     [$awaySaved, $awayUpdated, $awayMessage] = $this->saveGames($matches);
-                    $this->deactivateGames($game, $matches, 'away');
+                    // $this->deactivateGames($game, $matches, 'away');
                     $totalSaved += $awaySaved;
                     $totalUpdated += $awayUpdated;
                     $finalMessage .= $awayMessage;
@@ -73,14 +73,16 @@ class TeamsMatches
 
         $chosen_crawler = $crawler;
 
-        if (!$chosen_crawler) return [];
+        if (!$chosen_crawler) {
+            return [];
+        }
 
         // Now $chosen_crawler contains the desired crawler
         $matches = [];
         // Extracted data from the HTML will be stored in this array
-        $matches = $chosen_crawler->each(function ($crawler, $i) use ($game, $competition, $country, $source_uri) {
+        $matches = $chosen_crawler->each(function ($crawler) use ($game, $competition, $country, $source_uri) {
 
-            $this->updateCompetitionSourceID($competition, $crawler);
+            // $this->updateCompetitionSourceID($competition, $crawler);
 
             $date = null;
             $raw_date = $crawler->filter('div.st_date div');
@@ -89,16 +91,18 @@ class TeamsMatches
             $year = $raw_date->eq(1);
             if ($day_month->count() === 1 && $year->count() === 1) {
                 try {
-                    $day_month = implode('/', array_reverse(explode('/', $day_month->text())));
-                    $year = $year->text();
-                    $date = Carbon::parse($year . '/' . $day_month)->setTimezone('UTC')->toDateString();
+                    $day_month = implode('/', array_reverse(explode('/', trim($day_month->text()))));
+                    $year = trim($year->text());
+                    $date = Carbon::createFromFormat('Y/m/d', $year . '/' . $day_month, config('app.timezone'))->toDateString();
                 } catch (InvalidFormatException $e) {
                     Log::error("Date parsing error for competition #{$competition->id}, source_uri: {$source_uri} : " . $e->getMessage());
                     $date = null;
                 }
             }
 
-            if (!$date) return null;
+            if (!$date) {
+                return null;
+            }
 
             $time = '00:00:00';
             $utc_date = $date . ' ' . $time;
@@ -126,11 +130,11 @@ class TeamsMatches
             ];
 
             $k = $crawler->filter('div.st_hteam a');
-            $match['home_team']['name'] = $k->text();
+            $match['home_team']['name'] = trim($k->text());
             $match['home_team']['uri'] = getUriFromUrl($k->attr('href'));
 
             $k = $crawler->filter('div.st_ateam a');
-            $match['away_team']['name'] = $k->text();
+            $match['away_team']['name'] = trim($k->text());
             $match['away_team']['uri'] = getUriFromUrl($k->attr('href'));
 
 
@@ -148,7 +152,7 @@ class TeamsMatches
 
             $k = $crawler->filter('div.st_ltag');
             if ($k->count()) {
-                $abbrv = $k->text();
+                $abbrv = trim($k->text());
 
                 $competition_abbrv = CompetitionAbbreviation::where('name', $abbrv)
                     ->when($country, function ($q) use ($country) {
@@ -181,7 +185,7 @@ class TeamsMatches
         return $matches;
     }
 
-    function updateCompetitionSourceID($competition, $crawler)
+    private function updateCompetitionSourceID($competition, $crawler)
     {
         // Update competition source ID
         $competition_id = $competition->id ?? null;
@@ -212,7 +216,7 @@ class TeamsMatches
         }
     }
 
-    function getCompetionSourceId($crawler)
+    private function getCompetionSourceId($crawler)
     {
         $classes = $crawler->attr('class'); // Get the class attribute
         preg_match('/\bstlg_(\d+)\b/', $classes, $matches); // Capture the digits after "stlg_"
@@ -220,7 +224,7 @@ class TeamsMatches
         return $source_competion_id;
     }
 
-    function getScoresAndURI($game, $crawler)
+    private function getScoresAndURI($game, $crawler)
     {
         $full_time_results = $half_time_results = $uri = null;
 
@@ -234,21 +238,19 @@ class TeamsMatches
 
             $k = $crawler->filter('span.st_res');
             if ($k->count()) {
-                $full_time_results = $k->text();
+                $full_time_results = trim($k->text());
             }
 
             $k = $crawler->filter('span.st_htscr');
             if ($k->count()) {
-                $half_time_results = Str::before(Str::after($k->text(), '('), ')');
+                $half_time_results = Str::before(Str::after(trim($k->text()), '('), ')');
             }
         } else {
             $game_id = $game->id;
             Log::info("TeamsMatches error getting scores for games found while crawling game #{$game_id}:");
         }
 
-        $res = [$full_time_results, $half_time_results, $uri];
-
-        return  $res;
+        return  [$full_time_results, $half_time_results, $uri];
     }
 
     public function updateGame($game, $data)
@@ -276,8 +278,7 @@ class TeamsMatches
 
             $results_status = gameScoresStatus('scheduled');
             if ($data['full_time_results'] || $data['postponed'] || $data['cancelled']) {
-                $scores = $data;
-                $results_status = $this->storeScores($game, $scores);
+                $results_status = $this->storeScores($game, $data);
             }
 
             if ($stadium) {
@@ -288,15 +289,15 @@ class TeamsMatches
                 $arr['weather_condition_id'] = $weather_condition->id;
             }
 
-            $msg = 'Game updated successfully, (results status ' . ($results_status > -1 ? ($game_results_status . ' > ' . $results_status) : 'unchanged') . ').';
+            $msg = "Game #{$game->id} updated successfully, (results status " . ($results_status > -1 ? ($game_results_status . ' > ' . $results_status) : 'unchanged') . ').';
 
             if (Carbon::parse($data['utc_date'])->isFuture()) {
-                $msg = 'Fixture updated successfully.';
+                $msg = "Game #{$game->id} fixture updated successfully.";
             }
 
-            if ($game_utc_date != $data['utc_date'])
-                $msg .= ' Time updated (' . $game_utc_date . ' > ' . $data['utc_date'] . ').';
-
+            if (!Str::startsWith($game_utc_date, $data['utc_date'])) {
+                $msg .= ' Time updated (' . $game_utc_date . ' > ' . $data['utc_date'] . '), Has time: ' . var_export($data['has_time'], true);
+            }
 
             $game->update($arr);
 
@@ -304,10 +305,9 @@ class TeamsMatches
             $this->handleCompetitionAbbreviation($competition);
 
             // update season fetched_all_single_matches
-            if ($game->season && $game->season->games()->whereIn('game_score_status_id', unsettledGameScoreStatuses())->count() === 0) {
+            if ($game->season && $game->season->fetched_all_matches === true && $game->season->games()->whereIn('game_score_status_id', unsettledGameScoreStatuses())->count() === 0) {
                 $game->season->update(['fetched_all_single_matches' => true]);
             }
-
 
             return $msg;
         } else {
@@ -315,8 +315,7 @@ class TeamsMatches
         }
     }
 
-
-    function deactivateGames($game, $matches, $playing = 'home')
+    private function deactivateGames($game, $matches, $playing = 'home')
     {
         return;
 

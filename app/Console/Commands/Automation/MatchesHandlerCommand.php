@@ -13,7 +13,7 @@ class MatchesHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:matches-handler {--task=} {--ignore-timing} {--competition=} ';
+    protected $signature = 'app:matches-handler {--task=} {--ignore-timing} {--competition=} {--season=} {--sync}';
 
     /**
      * The console command description.
@@ -38,9 +38,26 @@ class MatchesHandlerCommand extends Command
         $ignore_timing = $this->option('ignore-timing');
 
         $competition_id = $this->option('competition');
+        $season_id = $this->option('season');
+        $sync = $this->option('sync');
 
+        $params = [
+            $task,
+            null,
+            $ignore_timing,
+            $competition_id,
+            $season_id,
+        ];
 
-        dispatch(new MatchesHandlerJob($task, null, $ignore_timing, $competition_id));
+        if ($sync) {
+            MatchesHandlerJob::dispatchSync(...$params);
+            $this->info('Job executed synchronously.');
+        } else {
+            MatchesHandlerJob::dispatch(...$params);
+            $this->info('Job dispatched to queue.');
+        }
         $this->info('Matches handler command executed successfully!');
+
+        return 0;
     }
 }

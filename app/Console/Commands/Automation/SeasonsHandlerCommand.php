@@ -12,7 +12,7 @@ class SeasonsHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:seasons-handler {--ignore-timing} {--ignore-status} {--competition=}';
+    protected $signature = 'app:seasons-handler {--ignore-timing} {--ignore-status} {--competition=} {--sync}';
 
     /**
      * The console command description.
@@ -30,8 +30,24 @@ class SeasonsHandlerCommand extends Command
         $ignore_timing = $this->option('ignore-timing');
 
         $competition_id = $this->option('competition');
+        $sync = $this->option('sync');
 
-        dispatch(new SeasonsHandlerJob(null, null, $ignore_timing, $competition_id));
+        $params = [
+            null,
+            null,
+            $ignore_timing,
+            $competition_id,
+        ];
+
+        if ($sync) {
+            SeasonsHandlerJob::dispatchSync(...$params);
+            $this->info('Job executed synchronously.');
+        } else {
+            SeasonsHandlerJob::dispatch(...$params);
+            $this->info('Job dispatched to queue.');
+        }
         $this->info('Seasons handler command executed successfully!');
+
+        return 1;
     }
 }

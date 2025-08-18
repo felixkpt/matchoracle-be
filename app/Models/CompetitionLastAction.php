@@ -11,8 +11,10 @@ class CompetitionLastAction extends Model
 
     protected $fillable = [
         'competition_id',
+        
+        'season_id',
 
-        'abbreviation_last_fetch',
+        'abbreviations_last_fetch',
         
         'seasons_last_fetch',
 

@@ -11,7 +11,12 @@ use App\Models\GameSource;
 use App\Models\Referee;
 use App\Models\Season;
 use App\Models\Team;
+use App\Services\ClientHelper\Client;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\FacadesStorage;
 use Illuminate\Support\Str;
 
 /**
@@ -246,5 +251,231 @@ trait ForebetInitializationTrait
         }
 
         return ['message' => true, 'data' => [$competition, $season, $source, $season_str]];
+    }
+
+    /**
+     * Fetch a URL with caching.
+     *
+     * @param string $url
+     * @param string $cachePath
+     * @param int $ttlMinutes            Cache time-to-live in minutes.
+     * @param string $disk               Storage disk to use (default 'local').
+     * @param string|null $logChannel    Optional log channel name.
+     *
+     * @return string|null  The content or null if failed.
+     */
+    protected function fetchWithCacheV1(
+        string $url,
+        string $cachePath,
+        int $ttlMinutes = 10,
+        string $disk = 'local',
+        ?string $logChannel = null
+    ) {
+        $cachePath = 'cached/' . $cachePath;
+
+        // Calculate expiry timestamp
+        $expiryTimestamp = now()->addMinutes($ttlMinutes)->format('YmdHis');
+        $baseKey = $cachePath . "/" . md5($url);
+        $cacheFile = "{$baseKey}_exp{$expiryTimestamp}.html";
+
+        // Find an existing cache file in the right directory
+        $cacheDir = $cachePath; // e.g. cached/abbreviations_html
+        $existingFile = collect(Storage::disk($disk)->files($cacheDir))
+            ->first(fn($file) => str_starts_with($file, $baseKey . '_exp'));
+
+        if ($existingFile) {
+            preg_match('/_exp(\d{14})\.html$/', $existingFile, $matches);
+            if (!empty($matches[1])) {
+                $expiryTime = Carbon::createFromFormat('YmdHis', $matches[1]);
+                if (now()->lt($expiryTime)) {
+                    if ($logChannel) {
+                        Log::channel($logChannel)->info("Reusing cached content for {$url}");
+                    }
+                    return Storage::disk($disk)->get($existingFile);
+                }
+            }
+        }
+
+        // Fetch fresh
+        try {
+            $content = Client::get($url);
+            if (!$content) {
+                return null;
+            }
+
+            if (str_contains($content, '<table class="main"')) {
+                // Clean up old cache files for this key
+                if ($existingFile) {
+                    Storage::disk($disk)->delete($existingFile);
+                }
+                // Save new file with expiry info
+                Storage::disk($disk)->put($cacheFile, $content);
+            }
+
+            return $content;
+        } catch (ConnectionException $e) {
+            if ($logChannel) {
+                Log::channel($logChannel)->error("Connection error fetching {$url}: {$e->getMessage()}");
+            }
+            return null;
+        } catch (\Exception $e) {
+            if ($logChannel) {
+                Log::channel($logChannel)->critical("Unexpected error fetching {$url}: {$e->getMessage()}");
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Fetch a URL with caching.
+     *
+     * @param string $url
+     * @param string $cachePath
+     * @param int $ttlMinutes            Cache time-to-live in minutes.
+     * @param string $disk               Storage disk to use (default 'local').
+     * @param string|null $logChannel    Optional log channel name.
+     *
+     * @return string|null  The content or null if failed.
+     */
+    protected function fetchWithCacheV2(
+        string $url,
+        string $cachePath,
+        int $ttlMinutes = 10,
+        string $disk = 'local',
+        ?string $logChannel = null
+    ) {
+        $t0 = microtime(true);
+        $logger = $logChannel ? Log::channel($logChannel) : Log::channel('stack');
+        $trace = class_basename($this) . '-' . ($this->jobId ?? 'n/a');
+
+        // Normalize cache path and ensure directory exists
+        $cachePath = 'cached/automation/' . trim($cachePath, '/');
+        if (!Storage::disk($disk)->exists($cachePath)) {
+            Storage::disk($disk)->makeDirectory($cachePath);
+            $logger->debug("$trace: STEP 0: Created cache directory", ['disk' => $disk, 'cachePath' => $cachePath]);
+        } else {
+            $logger->debug("$trace: STEP 0: Using cache directory", ['disk' => $disk, 'cachePath' => $cachePath]);
+        }
+
+        // Prepare keys (machine + human-readable)
+        $newExpiryCarbon   = now()->addMinutes($ttlMinutes);
+        $newExpiryRaw      = $newExpiryCarbon->format('YmdHis');   // machine
+        $newExpiryHuman    = $newExpiryCarbon->toDateTimeString(); // human-readable
+        $baseKey           = $cachePath . '/' . md5($url);
+
+        $logger->debug("$trace: STEP 1: Built cache keys", [
+            'url' => $url,
+            'baseKey' => $baseKey,
+            'requestedTtlMinutes' => $ttlMinutes,
+            'newExpiryTimestamp' => $newExpiryRaw,
+            'newExpiryAt' => $newExpiryHuman,
+        ]);
+
+        // Find existing cache file
+        $files = Storage::disk($disk)->files($cachePath);
+        $existingFile = collect($files)->first(fn($file) => str_starts_with($file, $baseKey . '_exp'));
+        $logger->debug("$trace: STEP 2: Scanned for existing cache", [
+            'found' => (bool) $existingFile,
+            'existingFile' => $existingFile,
+            'filesCount' => count($files),
+        ]);
+
+        if ($existingFile) {
+            if (preg_match('/_exp(\d{14})\.html$/', $existingFile, $matches)) {
+                $expiryTime   = \Carbon\Carbon::createFromFormat('YmdHis', $matches[1]);
+                $remaining    = now()->diffInMinutes($expiryTime, false);
+
+                $logger->debug("$trace: STEP 3: Parsed existing expiry", [
+                    'expiryAt' => $expiryTime->toDateTimeString(),
+                    'expiryRaw' => $matches[1],
+                    'remainingHours' => round($remaining / 60),
+                    'now' => now()->toDateTimeString(),
+                ]);
+
+                if (now()->lt($expiryTime)) {
+                    if ($remaining <= $ttlMinutes) {
+                        // Cache is valid and within TTL window → reuse
+                        $logger->info("$trace: Reusing cached content", [
+                            'url' => $url,
+                            'cacheFile' => $existingFile,
+                            'remainingMinutes' => $remaining,
+                            'requestedTtl' => $ttlMinutes,
+                            'expiresAt' => $expiryTime->toDateTimeString(),
+                        ]);
+                        return Storage::disk($disk)->get($existingFile);
+                    } else {
+                        // Existing cache lasts longer than allowed → refresh
+                        $logger->info("$trace: Refreshing cache (existing expiry too far)", [
+                            'url' => $url,
+                            'cacheFile' => $existingFile,
+                            'remainingMinutes' => $remaining,
+                            'requestedTtl' => $ttlMinutes,
+                            'expiresAt' => $expiryTime->toDateTimeString(),
+                        ]);
+                        Storage::disk($disk)->delete($existingFile);
+                    }
+                }
+            } else {
+                $logger->warning("$trace: Could not parse expiry from filename. Deleting and refetching.", [
+                    'file' => $existingFile,
+                ]);
+                Storage::disk($disk)->delete($existingFile);
+            }
+        }
+
+        // Fetch fresh
+        try {
+            $logger->debug("$trace: STEP 4: Fetching fresh content", ['url' => $url]);
+            $tFetch = microtime(true);
+            $content = Client::get($url); // keep your existing client
+            $fetchMs = (int) round((microtime(true) - $tFetch) * 1000);
+
+            if (!$content) {
+                $logger->warning("$trace: Empty response received", ['url' => $url, 'durationMs' => $fetchMs]);
+                return null;
+            }
+
+            $bytes = strlen($content);
+            $logger->debug("$trace: STEP 4b: Fetch complete", [
+                'url' => $url,
+                'durationMs' => $fetchMs,
+                'bytes' => $bytes,
+            ]);
+
+            // Only cache if the expected marker exists
+            if (str_contains($content, '<table class="main"')) {
+                $cacheFile = "{$baseKey}_exp{$newExpiryRaw}.html";
+                Storage::disk($disk)->put($cacheFile, $content);
+                $logger->info("$trace: Cached fresh content", [
+                    'cacheFile' => $cacheFile,
+                    'expiresAt' => $newExpiryHuman,
+                    'expiresRaw' => $newExpiryRaw,
+                    'bytes' => $bytes,
+                ]);
+            } else {
+                $logger->warning("$trace: Content did not match expected selector. Not caching.", [
+                    'selector' => 'table.main',
+                    'url' => $url,
+                ]);
+            }
+
+            $logger->debug("$trace: STEP 5: Done", [
+                'totalElapsedMs' => (int) round((microtime(true) - $t0) * 1000),
+            ]);
+
+            return $content;
+        } catch (ConnectionException $e) {
+            $logger->error("$trace: Connection error fetching", [
+                'url' => $url,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        } catch (\Exception $e) {
+            $logger->critical("$trace: Unexpected error fetching", [
+                'url' => $url,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
     }
 }

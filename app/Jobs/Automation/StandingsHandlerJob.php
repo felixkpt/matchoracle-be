@@ -22,22 +22,9 @@ class StandingsHandlerJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, AutomationTrait;
 
     /**
-     * Job details.
-     *
-     * @property string $jobId          The unique identifier for the job.
-     * @property string $task           The type of task to be performed by the job (default is 'train').
-     * @property bool   $ignore_timing  Whether to ignore timing constraints for the job.
-     * @property int    $competition_id The identifier for the competition associated with the job.
-     */
-    protected $jobId;
-    protected $task = 'train';
-    protected $ignoreTiming;
-    protected $competitionId;
-
-    /**
      * Create a new job instance.
      */
-    public function __construct($task, $job_id, $ignore_timing = false, $competition_id = null)
+    public function __construct($task, $jobId, $ignoreTiming = false, $competitionId = null, $seasonId = null)
     {
 
         // Set the maximum execution time (seconds)
@@ -53,20 +40,23 @@ class StandingsHandlerJob implements ShouldQueue
         $this->sourceContext->setGameSourceStrategy(new ForebetStrategy());
 
         // Set the jobID
-        $this->jobId = $job_id ?? str()->random(6);
+        $this->jobId = $jobId ?? str()->random(6);
 
         // Set the task property
-        if ($task) {
-            $this->task = $task;
+        $this->task = $task ?? 'train';
+
+        if ($ignoreTiming) {
+            $this->ignoreTiming = $ignoreTiming;
         }
 
-        if ($ignore_timing) {
-            $this->ignoreTiming = $ignore_timing;
+        if ($competitionId) {
+            $this->competitionId = $competitionId;
+            request()->merge(['competition_id' => $competitionId]);
         }
 
-        if ($competition_id) {
-            $this->competitionId = $competition_id;
-            request()->merge(['competition_id' => $competition_id]);
+        if ($seasonId) {
+            $this->seasonId = $seasonId;
+            request()->merge(['season_id' => $seasonId]);
         }
     }
 
@@ -81,35 +71,24 @@ class StandingsHandlerJob implements ShouldQueue
 
         $lastFetchColumn = 'standings_' . $this->task . '_last_fetch';
 
-        $delay = 60 * 24 * 15;
-        if ($this->ignoreTiming) $delay = 0;
+        $delay = 60 * 24 * 1;
+        if ($this->ignoreTiming) {
+            $delay = 0;
+        }
 
         // Fetch competitions that need season data updates
-        $competitions = Competition::query()
-            ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
-            ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
-            ->whereHas('gameSources', function ($query) {
-                $query->where('game_source_id', $this->sourceContext->getId());
-            })
-            ->whereHas('seasons')
-            ->when($this->task == 'recent_results', fn($q) => $this->applyRecentResultsFilter($q))
-            ->where('has_standings', true)
-            ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
-            ->select('competitions.*')
-            ->limit(1000)
-            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc');
+        $competitions = $this->getCompetitions($lastFetchColumn, $delay);
 
         // Process competitions to calculate action counts and log job details
         $actionCounts = 0;
-        foreach ((clone $competitions)->get() as $key => $competition) {
-            $seasons = $this->seasonsFilter($competition);
+        foreach ($competitions as $key => $competition) {
+            $seasons = $competition->seasons;
             $total_seasons = $seasons->count();
             $actionCounts += $total_seasons;
         }
 
         $competition_counts = $competitions->count();
-        $competitions = $competitions->when(request()->competition_id, fn($q) => $q->where('competitions.id', request()->competition_id))->get();
-        $this->jobStartEndLog('START', $competitions);
+        $this->logAndBroadcastJobLifecycle('START', $competitions);
         // loggerModel competition_counts and Action Counts
         $this->loggerModel(true, $competition_counts, $actionCounts);
 
@@ -118,11 +97,13 @@ class StandingsHandlerJob implements ShouldQueue
         $total = $competitions->count();
         $should_exit = false;
         foreach ($competitions as $key => $competition) {
-            if ($should_exit) break;
+            if ($should_exit) {
+                break;
+            }
 
-            $this->automationInfo($key + 1) . "/{$total}. Competition: #{$competition->id}, ({$competition->country->name} - {$competition->name})";
+            $this->automationInfo(($key + 1) . "/{$total}. Competition: #{$competition->id}, Season: #{$this->seasonId}, ({$competition->country->name} - {$competition->name})");
 
-            $seasons = $this->seasonsFilter($competition);
+            $seasons = $competition->seasons;
             $total_seasons = $seasons->count();
 
             $should_sleep_for_seasons = false;
@@ -153,9 +134,6 @@ class StandingsHandlerJob implements ShouldQueue
                 // Fetch standings for the current competition
                 $data = $standingsHandler->fetchStandings($competition->id, $season->id);
 
-                // recheck if compe has_standings
-                if (!Competition::find($competition->id)->has_standings) break;
-
                 // Output the fetch result for logging
                 $this->automationInfo($data['message'] . "");
 
@@ -168,8 +146,11 @@ class StandingsHandlerJob implements ShouldQueue
 
                 $data['seconds_taken'] = $seconds_taken;
 
-                $should_sleep_for_competitions = true;
-                $should_sleep_for_seasons = true;
+                if ($total_seasons > 1) {
+                    $should_sleep_for_competitions = true;
+                    $should_sleep_for_seasons = true;
+                }
+
                 $should_update_last_action = true;
 
                 $this->doLogging($data);
@@ -183,9 +164,9 @@ class StandingsHandlerJob implements ShouldQueue
                 // Introduce a delay to avoid rapid consecutive requests
                 sleep($should_sleep_for_seasons ? $this->getRequestDelaySeasons() : 0);
                 $should_sleep_for_seasons = false;
-            }
 
-            $this->updateLastAction($competition, $should_update_last_action, $lastFetchColumn);
+                $this->updateCompetitionLastAction($competition, $should_update_last_action, $lastFetchColumn, $season->id);
+            }
 
             // Increment Completed Competition Counts
             $this->incrementCompletedCompetitionCounts();
@@ -197,20 +178,13 @@ class StandingsHandlerJob implements ShouldQueue
         }
 
         if ($this->competitionId && $competitions->count() === 0) {
-            $this->updateLastAction($this->getCompetition(), true, $lastFetchColumn);
+            $this->updateCompetitionLastAction($this->getCompetition(), true, $lastFetchColumn, $this->seasonId);
         }
 
-        $this->jobStartEndLog('END');
+        $this->logAndBroadcastJobLifecycle('END');
     }
 
-    private function seasonsFilter($competition)
-    {
-        return $competition->seasons()
-            ->where('fetched_standings', false)
-            ->orderBy('start_date', 'desc')->get();
-    }
-
-    function applyRecentResultsFilter(Builder $query): Builder
+    private function applyRecentResultsFilter(Builder $query): Builder
     {
         return $query->whereHas('games', function ($subQuery) {
             $subQuery->where('utc_date', '>=', Carbon::now()->subDays(5))
@@ -248,7 +222,9 @@ class StandingsHandlerJob implements ShouldQueue
 
     private function loggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
     {
-        if ($this->competitionId) return;
+        if ($this->competitionId) {
+            return;
+        }
 
         $task = $this->task;
         $today = Carbon::now()->format('Y-m-d');
@@ -272,5 +248,38 @@ class StandingsHandlerJob implements ShouldQueue
         } elseif ($increment_job_run_counts) $record->update(['job_run_counts' => $record->job_run_counts + 1]);
 
         return $record;
+    }
+
+    private function seasonsFilter($competitionQuery)
+    {
+        return $competitionQuery
+            ->when($this->seasonId, fn($q) => $q->where('id', $this->seasonId))
+            ->where('fetched_standings', false)
+            ->orderBy('start_date', 'asc');
+    }
+
+    private function getCompetitions($lastFetchColumn, $delay)
+    {
+        return Competition::query()
+            ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
+            ->where('competitions.games_per_season', '>', 0)
+            ->when(!request()->ignore_status, fn($q) => $q->where('competitions.status_id', activeStatusId()))
+            ->when($this->competitionId, fn($q) => $q->where('competitions.id', $this->competitionId))
+            ->when(
+                $this->seasonId,
+                fn($q) => $q->where('competition_last_actions.season_id', $this->seasonId),
+                fn($q) => $q->whereNull('competition_last_actions.season_id')
+            )
+            ->whereHas('gameSources', function ($q) {
+                $q->where('game_source_id', $this->sourceContext->getId());
+            })
+            ->when($this->task == 'recent_results', fn($q) => $this->applyRecentResultsFilter($q))
+            ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+            ->where('competitions.has_standings', true)
+            ->select('competitions.*')
+            ->limit(1000)
+            ->with(['seasons' => fn($q) => $this->seasonsFilter($q)])
+            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
+            ->get();
     }
 }
