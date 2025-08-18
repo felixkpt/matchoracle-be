@@ -17,6 +17,7 @@ use App\Models\Odd;
 use App\Models\Season;
 use App\Repositories\CommonRepoActions;
 use App\Repositories\SearchRepo\SearchRepo;
+use App\Repositories\Season\SeasonRepository;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use Illuminate\Http\Request;
@@ -44,12 +45,12 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         $competitions = $this->model::query()
             ->when(request()->status == 1, fn($q) => $q->where('status_id', activeStatusId()))
             ->with([
-                'lastAction',
+                'lastActions',
                 'continent',
                 'country',
                 'currentSeason',
                 'seasons' => fn($q) => $q->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
-                    ->select(['id', 'competition_id', 'start_date', 'end_date', 'current_matchday', 'winner_id']),
+                    ->select(['id', 'competition_id', 'start_date', 'end_date', 'current_matchday', 'winner_id'])->orderby('start_date', 'desc'),
                 'stages',
                 'gameSources',
 
@@ -64,27 +65,27 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         $uri = '/dashboard/competitions/';
         $results = SearchRepo::of($competitions, ['id', 'name', 'code', 'country.name', 'seasons.start_date', 'slug'])
             ->setModelUri($uri)
-            ->addColumn('name', fn($q) => $q->country->name . ' - ' . $q->name)
+            ->addColumn('Name', fn($q) => $q->country->name . ' - ' . $q->name)
             ->addColumn('Created_by', 'getUser')
             ->addColumn('season', fn($q) => $q->currentSeason ? (Carbon::parse($q->currentSeason->start_date)->format('Y') . '/' . Carbon::parse($q->currentSeason->end_date)->format('Y')) : null)
             ->addColumn('Has_teams', fn($q) => $q->has_teams ? 'Yes' : 'No')
             ->addColumn('seasons_fetched', function ($q) {
-                $item = $q->lastAction->seasons_last_fetch ?? null;
+                $item = $q->lastActions[0]?->seasons_last_fetch ?? null;
                 return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
             })
             ->addColumn('standings_fetched', function ($q) {
-                $item = $q->lastAction->standings_recent_results_last_fetch ?? null;
+                $item = $q->lastActions[0]?->standings_recent_results_last_fetch ?? null;
                 return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
             })
             ->addColumn('p_matches_fetched', function ($q) {
-                $item = $q->lastAction->matches_recent_results_last_fetch ?? null;
+                $item = $q->lastActions[0]?->matches_recent_results_last_fetch ?? null;
                 return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
             })
             ->addColumn('u_matches_fetched', function ($q) {
-                $item = $q->lastAction->matches_fixtures_last_fetch ?? null;
+                $item = $q->lastActions[0]?->matches_fixtures_last_fetch ?? null;
                 return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
             })->addColumn('Predictions_last_train', function ($q) {
-                $item = $q->lastAction->predictions_last_train ?? null;
+                $item = $q->lastActions[0]?->predictions_last_train ?? null;
                 return $item ? Carbon::parse($item)->diffForHumans() : 'N/A';
             })
             ->addColumn('Games_counts', function ($q) {
@@ -109,12 +110,14 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                 return $ct;
             })
             ->addFillable('continent_id', ['input' => 'select'], 'continent_id')
+            ->addFillable('has_standings', ['input' => 'select'], 'has_teams')
             ->addFillable('has_teams', ['input' => 'select'], 'has_teams')
+            ->addFillable('gender', ['input' => 'select'], 'has_standings')
             ->orderby('id');
 
         $results = $single ? $results->first() : $results->paginate();
 
-        return response(['results' => $results]);
+        return $single ? $results : response(['results' => $results]);
     }
 
     public function store(Request $request, $data)
@@ -124,7 +127,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
         $action = 'created';
         if ($request->id)
             $action = 'updated';
-        return response(['type' => 'success', 'message' => 'Status ' . $action . ' successfully', 'results' => $res]);
+        return response(['type' => 'success', 'message' => 'Status ' . $action . ' successfully', 'results' => $this->index(true, $res->id)]);
     }
 
     public function storeFromSource(Request $request, $data)
@@ -150,13 +153,22 @@ class CompetitionRepository implements CompetitionRepositoryInterface
 
     public function show($id)
     {
-        $this->model->findOrFail($id)->lastAction()->firstOrCreate([], [
-            'competition_id' => $id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $this->model->findOrFail($id)
+            ->lastActions()
+            ->firstOrCreate(
+                [
+                    'competition_id' => $id,
+                    'season_id' => request()->season_id,
+                ],
+                [
+                    'competition_id' => $id,
+                    'season_id' => request()->season_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
 
-        return $this->index(true, $id);
+        return response(['results' => $this->index(true, $id)]);
     }
 
     function addSources(Request $request, $data)
@@ -244,16 +256,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
     public function seasons($id)
     {
 
-        $seasons = Season::where('competition_id', $id)->with(['competition', 'winner']);
-
-        $uri = '/dashboard/countries/';
-        $res = SearchRepo::of($seasons, ['id', 'name'])
-            ->setModelUri($uri)
-            ->addColumn('Created_by', 'getUser')
-            ->orderBy('start_date')
-            ->paginate();
-
-        return response(['results' => $res]);
+        return app(SeasonRepository::class)->index();
     }
 
     public function standings($id, $season_id = null)
@@ -341,9 +344,11 @@ class CompetitionRepository implements CompetitionRepositoryInterface
     {
         $season_id = request()->season_id;
 
-        request()->merge(['competition_id' => $id, 'without_response' => true]);
+        request()->merge(['without_response' => true]);
 
         $teams = app(TeamsController::class)->index();
+
+        request()->merge(['competition_id' => $id]);
 
         return response(['results' => [
             "standings" => $this->model::find($id)->seasons()
@@ -377,7 +382,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                 CompetitionPredictionStatistic::where('competition_id', $id)
                 ->when($season_id, fn($q) => $this->seasonFilter($q))
                 ->count(),
-            "seasons" => $this->model::find($id)->seasons()->count(),
+            "seasons" => $this->model::with(['seasons' => fn($q) => $q->when($season_id, fn($q) => $q->where('id', $season_id))])->find($id)->seasons->count(),
             "details" => 1,
             "sources" => $this->model::find($id)->gameSources()->count(),
         ]]);

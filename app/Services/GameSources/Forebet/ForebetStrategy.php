@@ -41,7 +41,7 @@ class ForebetStrategy implements GameSourceStrategyInterface
     public function initialCompetitionsHandler()
     {
         // Method to get the handler for initial competitions data.
-        return new InitialCompetitionsHandler();
+        return new InitialCompetitionsHandler($this->jobId);
     }
 
     /**
@@ -50,7 +50,7 @@ class ForebetStrategy implements GameSourceStrategyInterface
     public function competitionAbbreviationsHandler()
     {
         // Method to get the handler for competitions abbreviations data.
-        return new CompetitionAbbreviationsHandler();
+        return new CompetitionAbbreviationsHandler($this->jobId);
     }
 
     /**
@@ -59,7 +59,7 @@ class ForebetStrategy implements GameSourceStrategyInterface
     public function competitionsHandler()
     {
         // Method to get the handler for competitions data.
-        return new CompetitionsHandler();
+        return new CompetitionsHandler($this->jobId);
     }
 
     /**
@@ -68,7 +68,7 @@ class ForebetStrategy implements GameSourceStrategyInterface
     public function seasonsHandler()
     {
         // Method to get the handler for seasons data.
-        return new SeasonsHandler();
+        return new SeasonsHandler($this->jobId);
     }
 
     /**
@@ -77,7 +77,7 @@ class ForebetStrategy implements GameSourceStrategyInterface
     public function standingsHandler()
     {
         // Method to get the handler for standings data.
-        return new StandingsHandler();
+        return new StandingsHandler($this->jobId);
     }
 
     /**
@@ -86,7 +86,7 @@ class ForebetStrategy implements GameSourceStrategyInterface
     public function teamsHandler()
     {
         // Method to get the handler for teams data.
-        return new TeamsHandler();
+        return new TeamsHandler($this->jobId);
     }
 
     /**
@@ -95,7 +95,7 @@ class ForebetStrategy implements GameSourceStrategyInterface
     public function matchesHandler()
     {
         // Method to get the handler for matches data.
-        return new MatchesHandler();
+        return new MatchesHandler($this->jobId);
     }
 
     /**
@@ -104,6 +104,6 @@ class ForebetStrategy implements GameSourceStrategyInterface
     public function matchHandler()
     {
         // Method to get the handler for single match data.
-        return new MatchHandler();
+        return new MatchHandler($this->jobId);
     }
 }

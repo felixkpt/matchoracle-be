@@ -146,8 +146,8 @@
 │   │       ├── SeasonsHandlerJob.php
 │   │       ├── StandingsHandlerJob.php
 │   │       ├── Statistics
-│   │       │   ├── CompetitionPredictionStatisticsJob.php
-│   │       │   └── CompetitionStatisticsJob.php
+│   │       │   ├── CompetitionPredictionsStatsHandlerJob.php
+│   │       │   └── CompetitionStatsHandlerJob.php
 │   │       ├── TrainPredictionsHandlerJob.php
 │   │       └── Traits
 │   │           ├── AutomationTrait.php

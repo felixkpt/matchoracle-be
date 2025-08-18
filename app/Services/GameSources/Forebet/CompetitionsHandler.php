@@ -23,14 +23,10 @@ class CompetitionsHandler
      * 
      * Initializes the strategy and calls the trait's initialization method.
      */
-    public function __construct()
+    public function __construct($jobId)
     {
         $this->initialize();
-        
-        if (!$this->jobId) {
-            $this->jobId = str()->random(6);
-        }
-
+        $this->jobId = $jobId;
     }
 
     function updateOrCreate($data)
@@ -66,7 +62,7 @@ class CompetitionsHandler
             return response(['type' => 'warning', 'message' => 'Could not save competition.'], 500);
         }
 
-        $competitionData = $this->findCompetitionById($data['source_id']);
+        // $competitionData = $this->findCompetitionById($data['source_id']);
 
         // $jsonResult = json_encode($standing, JSON_PRETTY_PRINT);
         // dd($jsonResult);
@@ -74,63 +70,64 @@ class CompetitionsHandler
         // die;
 
 
-        $country = $competitionData->area;
+        // $country = $competitionData->area;
 
-        $country = Country::where('name', $country->name)->first();
-        $country->has_competitions = true;
-        $country->save();
+        // $country = Country::where('name', $country->name)->first();
+        // $country->has_competitions = true;
+        // $country->save();
 
-        $name = $competitionData->name;
+        // $name = $competitionData->name;
 
-        $arr = [
-            'name' => $name,
-            'slug' => Str::slug($name),
-            'code' => $competitionData->code,
-            'type' => $competitionData->type,
-            'country_id' => $country->id,
-            'plan' => $competitionData->plan ?? null,
-            'last_updated' => Carbon::parse($competitionData->lastUpdated)->format('Y-m-d H:i:s'),
-        ];
+        // $arr = [
+        //     'name' => $name,
+        //     'slug' => Str::slug($name),
+        //     'code' => $competitionData->code,
+        //     'type' => $competitionData->type,
+        //     'country_id' => $country->id,
+        //     'plan' => $competitionData->plan ?? null,
+        //     'last_updated' => Carbon::parse($competitionData->lastUpdated)->format('Y-m-d H:i:s'),
+        // ];
 
-        if ($competitionData->emblem) {
-            $arr['logo'] = $competitionData->emblem;
-        }
+        // if ($competitionData->emblem) {
+        //     $arr['logo'] = $competitionData->emblem;
+        // }
 
-        $competition = Competition::updateOrCreate(
-            [
-                'name' => $name,
-                'code' => $competitionData->code,
-                'country_id' => $country->id,
-            ],
-            $arr
-        );
+        // $competition = Competition::updateOrCreate(
+        //     [
+        //         'name' => $name,
+        //         'code' => $competitionData->code,
+        //         'country_id' => $country->id,
+        //     ],
+        //     $arr
+        // );
 
 
-        // Check if $item (URI && source_id) is not null before proceeding
-        if ($data['uri'] || $data['source_id']) {
-            // Check if the game source with the given ID doesn't exist
-            if (!$competition->gameSources()->where('game_source_id', $this->sourceId)->exists()) {
-                // Attach the relationship with the URI & or source_id
-                $competition->gameSources()->attach($this->sourceId, $data);
-            } else {
-                $competition->gameSources()->where('game_source_id', $this->sourceId)->update($data);
-            }
-        } else {
-            // Detach the relationship if URI & source_id are null
-            $competition->gameSources()->detach($this->sourceId);
-        }
+        // // Check if $item (URI && source_id) is not null before proceeding
+        // if ($data['uri'] || $data['source_id']) {
+        //     // Check if the game source with the given ID doesn't exist
+        //     if (!$competition->gameSources()->where('game_source_id', $this->sourceId)->exists()) {
+        //         // Attach the relationship with the URI & or source_id
+        //         $competition->gameSources()->attach($this->sourceId, $data);
+        //     } else {
+        //         $competition->gameSources()->where('game_source_id', $this->sourceId)->update($data);
+        //     }
+        // } else {
+        //     // Detach the relationship if URI & source_id are null
+        //     $competition->gameSources()->detach($this->sourceId);
+        // }
 
-        // Save all seasons
-        $seasons = $competitionData->seasons;
-        foreach ($seasons as $seasonData) {
-            SeasonsHandler::updateOrCreate($seasonData, $country, $competition, false);
-        }
+        // $seasonsHandler = new SeasonsHandler($this->jobId);
+        // // Save all seasons
+        // $seasons = $competitionData->seasons;
+        // foreach ($seasons as $seasonData) {
+        //     $seasonsHandler->updateOrCreate($seasonData, $country, $competition, false);
+        // }
 
-        // Save/update current season
-        $seasonData = $competitionData->currentSeason;
-        if ($seasonData) {
-            SeasonsHandler::updateOrCreate($seasonData, $country, $competition, true);
-        }
+        // // Save/update current season
+        // $seasonData = $competitionData->currentSeason;
+        // if ($seasonData) {
+        //     $seasonsHandler->updateOrCreate($seasonData, $country, $competition, true);
+        // }
 
         return response(['message' => 'Successfully saved competition.']);
     }
@@ -163,9 +160,9 @@ class CompetitionsHandler
             return response(['message' => 'Source #' . $source->source_id . ' not subscribed.'], 402);
         }
 
-        $matches = $this->findMatchesByCompetition($source->source_id, $season, $matchday);
+        // $matches = $this->findMatchesByCompetition($source->source_id, $season, $matchday);
 
-        Log::channel($this->logChannel)->critical('MATCHES', [$matches]);
+        // Log::channel($this->logChannel)->critical('MATCHES', [$matches]);
 
         return response(['message' => 'Matches for ' . $competition->name . ' updated.']);
     }

@@ -1,3 +1,7 @@
-*
-!public/
-!.gitignore
+
+abbreviations_html/
+seasons_html/
+standings_html/
+matches_html/
+match_html/
+system/

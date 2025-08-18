@@ -59,7 +59,8 @@ trait MatchesTrait
                     } catch (\Exception $e) {
                         DB::rollBack();
                         $this->has_errors = true;
-                        $msg = "SaveGames > Error during data import for compe#$competition->id: ";
+                        $class_name = class_basename($this);
+                        $msg = "SaveGames $class_name > Error during data import for compe#$competition->id: ";
 
                         Log::channel($this->logChannel)->error($msg . $e->getMessage() . ', File: ' . $e->getFile() . ', Line no:' . $e->getLine());
                     }
@@ -129,7 +130,7 @@ trait MatchesTrait
         })->first();
 
         if (!$team) {
-            $team = (new TeamsHandler())->updateOrCreate($teamData, $country, $competition, $season, true);
+            $team = (new TeamsHandler($this->jobId))->updateOrCreate($teamData, $country, $competition, $season, true);
             if (!$team) {
                 if (!isset($teamNotFound[$country->name])) {
                     $teamNotFound[$teamData['name']] = 1;
@@ -144,16 +145,39 @@ trait MatchesTrait
         return $team;
     }
 
-    function saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam)
+    private function saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam)
     {
         if (!$competition) {
             $msg = 'MatchesTrait.saveGame >> Game cannot be saved without competition';
             Log::channel($this->logChannel)->info($msg, ['games' => $match]);
-            $msg;
             return $msg;
         }
 
-        // Extracting necessary information for creating or updating a game
+        [$game, $msg] = $this->createOrUpdateGame($match, $country, $competition, $season, $homeTeam, $awayTeam);
+
+        // Attach game sources
+        $game_details_uri = $match['game_details']['uri'];
+        $query = $game->gameSources()->where('game_source_id', $this->sourceId);
+        if (!$query->exists()) {
+            $game->gameSources()->attach($this->sourceId, ['source_uri' => $game_details_uri]);
+        } elseif ($query->whereNull('source_uri')->exists()) {
+            $game->gameSources()->updateExistingPivot($this->sourceId, [
+                'source_uri' => $game_details_uri
+            ]);
+        }
+
+        // Synchronize referees and scores
+        $this->syncReferees($game, $match);
+        $this->storeScores($game, $match['game_details']);
+
+        // Run duplicate cleanup last
+        // $this->deleteDuplicates($game);
+
+        return $msg;
+    }
+
+    private function createOrUpdateGame($match, $country, $competition, $season, $homeTeam, $awayTeam)
+    {
         $competition_id = $competition->id;
         $season_id = $season->id ?? null;
         $country_id = $country->id;
@@ -161,113 +185,96 @@ trait MatchesTrait
         $utc_date = $match['utc_date'];
         $has_time = $match['has_time'];
 
-        $matchday = null;
-        $stage = null;
-        $group = null;
+        $parsed_date = Carbon::parse($utc_date);
 
-        // Prepare data array for creating or updating a game
-        $arr = [
-            'competition_id' => $competition_id,
-            'home_team_id' => $homeTeam->id,
-            'away_team_id' => $awayTeam->id,
-            'country_id' => $country_id,
-            'date' => $date,
-            'matchday' => $matchday,
-            'stage' => $stage,
-            'group' => $group,
-        ];
-
-        if ($season_id) {
-            $arr['season_id'] = $season_id;
+        if ($parsed_date->isFuture()) {
+            $status = 'SCHEDULED';
+        } else {
+            $status = Str::contains($match['date'], ':') ? 'PENDING' : 'FINISHED';
         }
 
-        $qry = [
-            ['home_team_id', $homeTeam->id],
-            ['away_team_id', $awayTeam->id],
+        $data = [
+            'competition_id' => $competition_id,
+            'season_id'      => $season_id ? $season_id : null,
+            'home_team_id'   => $homeTeam->id,
+            'away_team_id'   => $awayTeam->id,
+            'country_id'     => $country_id,
+            'date'           => $date,
+            'matchday'       => null,
+            'stage'          => null,
+            'group'          => null,
+            'status'         => $status,
+            'status_id'      => activeStatusId(),
+            'user_id'        => auth()->id(),
         ];
 
-        // Check if a game with the same details already exists
-        $builder = Game::query()
+        $game = Game::query()
             ->whereDate('date', $date)
-            ->where($qry);
+            ->where('home_team_id', $homeTeam->id)
+            ->where('away_team_id', $awayTeam->id)->first();
 
-        // Append dynamic / optionals
-        $parsed_date = Carbon::parse($utc_date)->timezone('UTC');
-        $status = $parsed_date->isFuture() ? 'SCHEDULED' : (Str::contains($match['date'], ':') ? 'PENDING' : 'FINISHED');
-        $arr['status'] = $status;
-
-        $status_id = activeStatusId();
-        $arr['status_id'] = $status_id;
-
-        $user_id = auth()->id();
-        $arr['user_id'] = $user_id;
-
-        // If the game exists, update it; otherwise, create a new one
-        $counts = $builder->count();
-
-        if ($counts > 0) {
-            $game = (clone $builder)->first();
-
-            if ($counts > 1) {
-                $games = $builder->where('id', '!=', $game->id);
-                Log::channel($this->logChannel)->info('MatchesTrait.saveGame >> Similar games deleted:', ['games' => $games->count(), 'qry' => $qry, 'game_id' => $game->id]);
-                $games->delete();
+        if ($game) {
+            if ($has_time || !$game->has_time) {
+                $data['utc_date'] = $utc_date;
+                $data['has_time'] = $has_time;
             }
-
-            if ($has_time) {
-                $arr['utc_date'] = $utc_date;
-                $arr['has_time'] = $has_time;
-            } else if (!$game->has_time) {
-                $arr['utc_date'] = $utc_date;
-                $arr['has_time'] = $has_time;
-            }
-
-            $game->update($arr);
+            // Remove nulls only
+            $data = array_filter($data, fn($v) => !is_null($v));
+            $game->update($data);
             $msg = 'updated';
         } else {
-            // Define the date range (2 weeks before and after)
-            $startDate = $parsed_date->copy()->subWeeks(2)->format('Y-m-d');
-            $endDate = $parsed_date->copy()->addWeeks(2)->format('Y-m-d');
-
-            // Query for a games within the date range and matching additional conditions
-            $games = Game::query()
-                ->whereBetween('date', [$startDate, $endDate])
-                ->where($qry)
-                ->whereIn('game_score_status_id', unsettledGameScoreStatuses());
-
-            // If such a game exists, delete it
-            if ($games->count() > 0) {
-                Log::channel($this->logChannel)->info('MatchesTrait.saveGame >> Games deleted:', ['games' => $games->count(), 'qry' => $qry, 'startDate' => $startDate, 'endDate' => $endDate]);
-                $games->delete();
-            }
-
-            $arr['utc_date'] = $utc_date;
-            $arr['has_time'] = $has_time;
-            $arr['game_score_status_id'] = gameScoresStatus('scheduled');
-            $game = Game::create($arr);
+            $data['utc_date'] = $utc_date;
+            $data['has_time'] = $has_time;
+            $data['game_score_status_id'] = gameScoresStatus('scheduled');
+            $game = Game::create($data);
             $msg = 'saved';
         }
 
-        // Attach game source information to the game if not already attached
-        $game_details_uri = $match['game_details']['uri'];
+        return [$game, $msg];
+    }
 
-        // Check if the entry already exists in the pivot table
-        $query = $game->gameSources()->where('game_source_id', $this->sourceId);
-        if (!$query->exists()) {
-            $game->gameSources()->attach($this->sourceId, ['source_uri' => $game_details_uri]);
-        } elseif ($query->whereNull('source_uri')->exists()) {
-            // If the entry exists but the source_uri is NULL, update the source_uri
-            $query->update(['source_uri' => $game_details_uri]);
+    private function deleteDuplicates($game)
+    {
+        $class_name = class_basename($this);
+        $parsed_date = Carbon::parse($game->utc_date);
+
+        // 1. Remove exact same date duplicates except current game
+        $duplicates = Game::query()
+            ->whereDate('date', $game->date)
+            ->where('home_team_id', $game->home_team_id)
+            ->where('away_team_id', $game->away_team_id)
+            ->where('id', '!=', $game->id)
+            ->get();
+
+        if ($duplicates->isNotEmpty()) {
+            Log::channel($this->logChannel)->info('MatchesTrait.deleteDuplicates >> Same date duplicates removed:', [
+                'Game in question' => $game->id,
+                'duplicates'       => $duplicates->pluck('id'),
+            ]);
+            $duplicates->each->delete();
         }
 
-        // Synchronize referees
-        $this->syncReferees($game, $match);
+        // 2. Remove games within ±2 weeks if unsettled
+        $startDate = $parsed_date->copy()->subWeeks(2)->format('Y-m-d');
+        $endDate = $parsed_date->copy()->addWeeks(2)->format('Y-m-d');
 
-        if ($game) {
-            $this->storeScores($game, $match['game_details']);
+        $nearbyDuplicates = Game::query()
+            ->whereBetween('date', [$startDate, $endDate])
+            ->where('home_team_id', $game->home_team_id)
+            ->where('away_team_id', $game->away_team_id)
+            ->whereIn('game_score_status_id', unsettledGameScoreStatuses())
+            ->where('id', '!=', $game->id)
+            ->get();
+
+        if ($nearbyDuplicates->isNotEmpty()) {
+            Log::channel($this->logChannel)->info('MatchesTrait.deleteDuplicates >> Nearby unsettled games removed:', [
+                'Class name'       => $class_name,
+                'Game in question' => $game->id,
+                'duplicates'       => $nearbyDuplicates->pluck('id')->toArray(),
+                'startDate'        => $startDate,
+                'endDate'          => $endDate
+            ]);
+            // $nearbyDuplicates->each->delete();
         }
-
-        // Return a message indicating whether the game was saved or updated
-        return $msg;
     }
 }

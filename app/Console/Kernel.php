@@ -4,6 +4,8 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -12,7 +14,28 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        Log::info("Cron job was run");
+
+        // Seasons commands
+        $schedule->command('app:seasons-handler')->everyFourHours();
+
+        // Standing commands
+        $schedule->command('app:standings-handler --task=historical_results')->everyFourHours(5);
+        $schedule->command('app:standings-handler --task=recent_results')->everyFourHours(10);
+
+        // // Statistics commands
+        // $schedule->command('app:competition-statistics')->everySixHours(35);
+        // $schedule->command('app:competition-prediction-statistics')->everySixHours(40);
+
+        // // Predictions commands
+        // $schedule->command('app:predictions-handler')->everyTwoHours(45);
+        // $schedule->command('app:train-predictions-handler')->everyTwoHours();
+
+        // // Matches commands
+        require('matches_commands.php');
+
+        // Odds commands
+        require('odds_commands.php');
     }
 
     /**
@@ -20,7 +43,17 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+
+        // Artisan::command('migrate:fresh {--seed}', function () {
+        //     /** @var \Illuminate\Console\Command $cmd */
+        //     $cmd = $this;
+
+        //     $confirmed = $cmd->ask("Are you sure you want to resign?", "Yes");
+
+        //     $cmd->comment('Nope!');
+        // })->purpose('Disable fresh command');
+
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

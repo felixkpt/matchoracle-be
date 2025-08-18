@@ -17,11 +17,17 @@ class SourcesTestController extends Controller
     public function __construct(protected Competition $model)
     {
         $this->sourceContext = new GameSourceStrategy();
+        
+        ini_set('max_execution_time', 60 * 30);
+        request()->merge(['without_response' => true]);
+
     }
 
     public function index(Request $request)
     {
-        return view('sources-test/index');
+        $competitions = $this->model->orderby('country_id')->get();
+
+        return view('sources-test/index', ['competitions' => $competitions]);
     }
 
     protected function setSourceStrategy(string $source): void
@@ -47,12 +53,17 @@ class SourcesTestController extends Controller
         $this->setSourceStrategy($source);
 
         $job = $request->get('job');
-        return match($job) {
+
+        if (empty($job)) {
+            return redirect()->back()->with('error', 'No job selected.');
+        }
+
+        return match ($job) {
             'match' => $this->fetchMatch($request),
             'matches' => $this->fetchMatches($request),
             'seasons' => $this->fetchSeasons($request),
             'standings' => $this->fetchStandings($request),
-            default => response()->json(['error' => 'No job selected.'], 400),
+            default => redirect()->back()->with('error', 'Invalid job selected.'),
         };
     }
 
@@ -63,13 +74,14 @@ class SourcesTestController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $competition_id = $request->competition_id;
         $seasonsHandler = $this->sourceContext->seasonsHandler();
         $results = $seasonsHandler->fetchSeasons($competition_id);
-        return $results;
+
+        return redirect()->back()->with('success', 'Seasons fetched successfully!')->with('seasons', $results);
     }
 
     public function fetchStandings(Request $request)
@@ -80,18 +92,19 @@ class SourcesTestController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $competition_id = $request->competition_id;
         $season_id = $request->season_id ?? Season::where('competition_id', $competition_id)
             ->orderBy('start_date', 'desc')
             ->first()
-            ->id;
+            ?->id;
 
         $standingsHandler = $this->sourceContext->standingsHandler();
         $results = $standingsHandler->fetchStandings($competition_id, $season_id);
-        return $results;
+
+        return redirect()->back()->with('success', 'Standings fetched successfully!')->with('standings', $results);
     }
 
     public function fetchMatches(Request $request)
@@ -102,7 +115,7 @@ class SourcesTestController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $competition_id = $request->competition_id;
@@ -116,7 +129,8 @@ class SourcesTestController extends Controller
 
         $matchesHandler = $this->sourceContext->matchesHandler();
         $results = $matchesHandler->fetchMatches($competition_id, $season_id, $is_fixtures);
-        return $results;
+
+        return redirect()->back()->with('success', 'Matches fetched successfully!')->with('matches', $results);
     }
 
     public function fetchMatch(Request $request)
@@ -126,7 +140,7 @@ class SourcesTestController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $game_id = $request->game_id;
@@ -134,6 +148,7 @@ class SourcesTestController extends Controller
 
         $matchesHandler = $this->sourceContext->matchHandler();
         $results = $matchesHandler->fetchMatch($game_id);
-        return $results;
+
+        return redirect()->back()->with('success', 'Match fetched successfully!')->with('match', $results);
     }
 }

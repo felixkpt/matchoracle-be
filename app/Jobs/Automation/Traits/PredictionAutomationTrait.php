@@ -10,7 +10,6 @@ use Illuminate\Support\Carbon;
 
 trait PredictionAutomationTrait
 {
-    protected $competitionId;
 
     /**
      * Retrieves or creates a prediction log record for a given date and model.
@@ -43,7 +42,9 @@ trait PredictionAutomationTrait
      */
     protected function trainPredictionsLoggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
     {
-        if ($this->competitionId) return;
+        if ($this->competitionId) {
+            return;
+        }
 
         $today = Carbon::now()->format('Y-m-d');
 
@@ -94,9 +95,6 @@ trait PredictionAutomationTrait
 
         // Create new log entry if record doesn't exist
         if (!$record) {
-            if ($competition_counts <= 0) {
-                abort(422, 'Competition counts is needed');
-            }
 
             $arr = [
                 'date' => $today,

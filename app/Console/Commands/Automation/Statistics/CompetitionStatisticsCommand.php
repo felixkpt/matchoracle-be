@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\Automation\Statistics;
 
-use App\Jobs\Automation\Statistics\CompetitionStatisticsJob;
+use App\Jobs\Automation\Statistics\CompetitionStatsHandlerJob;
 use Illuminate\Console\Command;
 
 class CompetitionStatisticsCommand extends Command
@@ -31,7 +31,7 @@ class CompetitionStatisticsCommand extends Command
         $competitionId = $this->option('competition');
         $ignore_timing = $this->option('ignore-timing');
 
-        dispatch(new CompetitionStatisticsJob(null, null, $ignore_timing, $competitionId));
+        dispatch(new CompetitionStatsHandlerJob(null, null, $ignore_timing, $competitionId));
         $this->info('Competition Statistics Job command executed successfully!');
     }
 }

@@ -13,7 +13,7 @@ class OddHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:odd-handler {--task=} {--ignore-timing} {--competition=} {--game-id=}';
+    protected $signature = 'app:odd-handler {--task=} {--ignore-timing} {--competition=} {--season=} {--sync} {--game-id=}';
 
     /**
      * The console command description.
@@ -30,6 +30,7 @@ class OddHandlerCommand extends Command
         $task = $this->option('task');
         $ignore_timing = $this->option('ignore-timing');
         $competition_id = $this->option('competition');
+        $season_id = $this->option('season');
         $game_id = $this->option('game-id');
 
         if ($task != 'recent_results' && $task != 'historical_results' && $task != 'shallow_fixtures' && $task != 'fixtures') {
@@ -37,10 +38,24 @@ class OddHandlerCommand extends Command
             return 0;
         }
 
-        $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
+        $sync = $this->option('sync');
 
-        dispatch(new OddHandlerJob($task, null, $ignore_timing, $competition_id, $game_id));
-   
+        $params = [
+            $task,
+            null,
+            $ignore_timing,
+            $competition_id,
+            $season_id,
+            $game_id,
+        ];
+
+        if ($sync) {
+            OddHandlerJob::dispatchSync(...$params);
+            $this->info('Job executed synchronously.');
+        } else {
+            OddHandlerJob::dispatch(...$params);
+            $this->info('Job dispatched to queue.');
+        }
         $this->info('Match handler command executed successfully!');
 
         return 1;

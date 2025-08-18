@@ -27,9 +27,10 @@ class MatchHandler
      * 
      * Initializes the strategy and calls the trait's initialization method.
      */
-    public function __construct()
+    public function __construct($jobId)
     {
         $this->initialize();
+        $this->jobId = $jobId;
         $this->matchOdds = new MatchOdds();
         $this->teamsMatches = new TeamsMatches();
         $this->sourcePreds = new SourcePreds();
@@ -58,7 +59,6 @@ class MatchHandler
             return $this->matchMessage('Last fetch is ' . (Carbon::parse($game->last_fetch)->diffForHumans()));
         }
 
-
         return $this->handleGame($game, $source_uri);
     }
 
@@ -67,11 +67,29 @@ class MatchHandler
 
         $url = $this->sourceUrl . ltrim($source_uri, '/');
 
-        $content = Client::get($url);
-        if (!$content) return $this->matchMessage('Source inaccessible or not found.', 500);
+        // Get TTL based on special rules
+        $gameDate = Carbon::parse($game->utc_date);
 
-        // $content = file_get_contents(Storage::path('tests/index.html'));
-        
+        $timeToLive = $this->getCacheTtlForGame($gameDate);
+        if ($gameDate->addDays(2)->isPast()) {
+            $timeToLive = 60 * 24 * 7;
+        }
+
+        Log::channel($this->logChannel)->info("Game time to live: " . $timeToLive);
+
+        $content = $this->fetchWithCacheV2(
+            $url,
+            "match_html",                // Cache key
+            $timeToLive,                // TTL minutes
+            'local',                    // Storage disk
+            $this->logChannel           // Optional log channel
+        );
+
+        if (!$content) {
+            return $this->matchMessage('Source not accessible or not found.', 504);
+        }
+
+        // Parse HTML content
         $crawler = new Crawler($content);
 
         if (strpos($crawler->text(), 'Attention Required!') !== false) {
@@ -85,27 +103,29 @@ class MatchHandler
 
         $res = $header->filter('.weather_main_pr');
         $temperature = null;
-        if ($res->count() > 0)
+        if ($res->count() > 0) {
             $temperature = $this->getTemperature($res);
-
+        }
 
         $wc = $header->filter('.weather_main_pr img.wthc');
         $weather_condition = null;
-        if ($wc->count() === 1)
+        if ($wc->count() === 1) {
             $weather_condition = $wc->attr('src');
+        }
 
         $competition_node = $crawler->filter('center.leagpredlnk a');
         $competition_url = null;
         $competition = null;
         if ($competition_node->count() === 1) {
             $competition_url = $competition_node->attr('href');
-            $competition = $competition_node->text();
+            $competition = trim($competition_node->text());
         }
 
         $l = $header->filter('div.rLogo a img.matchTLogo');
         $away_team_logo = null;
-        if ($l->count() === 1)
+        if ($l->count() === 1) {
             $away_team_logo = $l->attr('src');
+        }
 
         $postponed = $cancelled = false;
 
@@ -117,7 +137,7 @@ class MatchHandler
             $l = $res->filter('.lscrsp');
             $full_time_results = null;
             if ($l->count() === 1) {
-                $full_time_results = $l->text();
+                $full_time_results = trim($l->text());
             } else {
                 // Case game was Postp.
                 $res = $crawler->filter('div#m1x2_table .rcnt')->filter('.lmin_td .l_min')->first();
@@ -130,11 +150,10 @@ class MatchHandler
             $l = $res->filter('.ht_scr');
             $half_time_results = null;
             if ($l->count() === 1) {
-                $half_time_results = $l->text();
+                $half_time_results = trim($l->text());
                 $half_time_results = preg_replace('#\)|\(#', '', $half_time_results);
             }
         }
-
 
         $header = $crawler->filter('div.predictioncontain');
 
@@ -168,10 +187,11 @@ class MatchHandler
         $gg_ng_preds_pick = ($gg_ng_preds_pick == 'No') ? 0 : ($gg_ng_preds_pick == 'Yes' ? 1 : null);
         $ht_hda_preds_pick = ($ht_hda_preds_pick == '1' ? 0 : ($ht_hda_preds_pick == 'X' ? 1 : ($ht_hda_preds_pick == '2' ? 2 : null)));
 
-        if (!empty($game['competition_id']))
+        if (!empty($game['competition_id'])) {
             $competition = $game->competition;
-        else
+        } else {
             $competition = Common::saveCompetition($competition_url, $competition);
+        }
 
         $data = [
             'home_team_logo' => $home_team_logo,
@@ -224,7 +244,7 @@ class MatchHandler
 
         // AOB taking advantage of matches on page
         $handled_teams_games = [];
-        if (!request()->is_odds_request){
+        if (!request()->is_odds_request) {
             $handled_teams_games = $this->teamsMatches->fetchMatches($game, $competition, $crawler, $source_uri);
         }
 
@@ -234,14 +254,54 @@ class MatchHandler
             'results' => ['created_counts' => $saved, 'updated_counts' => $updated,  'failed_counts' => 0, 'handled_teams_games' => $handled_teams_games]
         ];
 
-        if (request()->without_response) return $response;
+        if (request()->without_response) {
+            return $response;
+        }
 
         return response($response);
     }
 
+    /**
+     * Determine cache TTL based on game date.
+     *
+     * @param \Carbon\Carbon $gameDate
+     * @return int  TTL in minutes
+     */
+    private function getCacheTtlForGame(Carbon $gameDate): int
+    {
+        $today = now()->startOfDay();
+        $daysDiff = $gameDate->diffInDays($today, false);
+        // negative => future, 0 => today, positive => past
+
+        if ($daysDiff < 0) {
+            // Future game
+            $daysAhead = abs($daysDiff);
+
+            if ($daysAhead > 30) {
+                $ttl = 60 * 24 * 30; // 30 days
+            } elseif ($daysAhead > 15) {
+                $ttl = 60 * 24 * 15; // 15 days
+            } elseif ($daysAhead > 7) {
+                $ttl = 60 * 24 * 7; // 7 days
+            } elseif ($daysAhead > 3) {
+                $ttl = 60 * 24 * 3; // 3 days
+            } else {
+                $ttl = 60 * 24 * 1; // 1 day
+            }
+        } elseif ($daysDiff === 0 || $daysDiff === 1) {
+            // Today or yesterday
+            $ttl = 60 * 3; // 3 hours
+        } else {
+            // Past yesterday
+            $ttl = 60 * 24 * 7; // 7 days
+        }
+
+        return $ttl;
+    }
+
     private function getTemperature($res)
     {
-        $temperatureElements = explode(', ', $res->text());
+        $temperatureElements = explode(', ', trim($res->text()));
 
         $temperature = null;
         if (count($temperatureElements) == 1) {
@@ -293,23 +353,21 @@ class MatchHandler
             $this->handleNoDate();
         }
 
-        $dtRaw = preg_replace('#\/#', '-', $dateElement->text());
+        $dtRaw = str_replace('/', '-', trim($dateElement->text()));
 
-        return Str::endsWith($dtRaw, 'GMT')
-            ? Carbon::parse($dtRaw)->addMinutes(0)->format('Y-m-d H:i')
-            : Carbon::parse($dtRaw)->format('Y-m-d H:i');
+        return Carbon::createFromDate($dtRaw, config('app.timezone'))->addHours(3)->format('Y-m-d H:i');
     }
 
     private function hasTime($header)
     {
         $dateElement = $header->filter('time div.date_bah');
-        return Str::endsWith(preg_replace('#\/#', '-', $dateElement->text()), 'GMT');
+        return Str::endsWith(str_replace('/', '-', trim($dateElement->text())), 'GMT');
     }
 
     private function getStadium($header)
     {
         $stadiumElement = $header->filter('div.weather_main_pr div span');
-        return $stadiumElement->count() === 1 ? $stadiumElement->text() : null;
+        return $stadiumElement->count() === 1 ? trim($stadiumElement->text()) : null;
     }
 
     private function handleNoDate()

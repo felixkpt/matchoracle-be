@@ -21,7 +21,7 @@ class CompetitionValidation implements CompetitionValidationInterface
 
         $this->ensuresSlugIsUnique($request->name, Competition::class);
 
-        $validateData = $request->validate(
+       $validateData = $request->validate(
             [
                 'name' => [
                     'required',
@@ -35,11 +35,14 @@ class CompetitionValidation implements CompetitionValidationInterface
                 'type' => 'nullable|string',
                 'continent_id' => 'required|exists:continents,id',
                 'country_id' => 'required|exists:countries,id',
+                'games_per_season' => 'required|integer',
                 'last_updated' => 'nullable|date',
                 'last_fetch' => 'nullable|date',
                 'last_detailed_fetch' => 'nullable|date',
                 'logo' => $this->imageRules(),
                 'plan' => 'nullable|string',
+                'gender' => 'required|integer',
+                'has_standings' => 'required|integer',
                 'has_teams' => 'required|integer',
                 'priority_number' => 'nullable|integer|between:1,99999999',
             ]

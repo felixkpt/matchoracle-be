@@ -13,7 +13,7 @@ class MatchHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:match-handler {--task=} {--ignore-timing} {--competition=} {--game-id=}';
+    protected $signature = 'app:match-handler {--task=} {--ignore-timing} {--competition=} {--season=} {--sync} {--game-id=}';
 
     /**
      * The console command description.
@@ -40,8 +40,25 @@ class MatchHandlerCommand extends Command
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
 
         $competition_id = $this->option('competition');
+        $season_id = $this->option('season');
+        $sync = $this->option('sync');
 
-        dispatch(new MatchHandlerJob($task, null, $ignore_timing, $competition_id, $game_id));
+        $params = [
+            $task,
+            null,
+            $ignore_timing,
+            $competition_id,
+            $season_id,
+            $game_id,
+        ];
+
+        if ($sync) {
+            MatchHandlerJob::dispatchSync(...$params);
+            $this->info('Job executed synchronously.');
+        } else {
+            MatchHandlerJob::dispatch(...$params);
+            $this->info('Job dispatched to queue.');
+        }
         $this->info('Match handler command executed successfully!');
 
         return 1;

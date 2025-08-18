@@ -14,7 +14,7 @@ class PredictionsHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:predictions-handler {--task=} {--ignore-timing} {--competition=} {--predictor-url=} {--target=}';
+    protected $signature = 'app:predictions-handler {--task=} {--ignore-timing} {--competition=} {--season=} {--sync} {--predictor-url=} {--target=}';
 
     /**
      * The console command description.
@@ -48,7 +48,8 @@ class PredictionsHandlerCommand extends Command
         }
 
         $competition_id = $this->option('competition');
-        
+        $season_id = $this->option('season');
+
         $predictor_url = $this->option('predictor-url') ?? null;
         $target = $this->option('target') ?? null;
 
@@ -57,9 +58,26 @@ class PredictionsHandlerCommand extends Command
             'target' => $target,
         ];
 
-        dispatch(new PredictionsHandlerJob($task, null, $ignore_timing, $competition_id, $options));
+        $sync = $this->option('sync');
+
+        $params = [
+            $task,
+            null,
+            $ignore_timing,
+            $competition_id,
+            $season_id,
+            $options,
+        ];
+
+        if ($sync) {
+            PredictionsHandlerJob::dispatchSync(...$params);
+            $this->info('Job executed synchronously.');
+        } else {
+            PredictionsHandlerJob::dispatch(...$params);
+            $this->info('Job dispatched to queue.');
+        }
         $this->info('Predictions handler command executed successfully!');
 
-        return 0;
+        return 1;
     }
 }

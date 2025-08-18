@@ -24,8 +24,9 @@ class MatchesHandler implements MatchesInterface
      * 
      * Initializes the strategy and calls the trait's initialization method.
      */
-    public function __construct()
+    public function __construct($jobId)
     {
+        $this->jobId = $jobId;
         $this->initialize();
     }
 
@@ -63,11 +64,22 @@ class MatchesHandler implements MatchesInterface
 
         $messages = [];
         $saved = $updated = 0;
-        foreach ($links as $i => $link) {
+        foreach ($links as $link) {
             $url = $this->sourceUrl . ltrim($link, '/');
 
-            $content = Client::get($url);
-            if (!$content) $this->has_errors = true;
+            $timeToLive = 60 * 6;
+
+            $content = $this->fetchWithCacheV2(
+                $url,
+                "matches_html",             // Cache key
+                $timeToLive,                // TTL minutes
+                'local',                    // Storage disk
+                $this->logChannel           // Optional log channel
+            );
+
+            if (!$content) {
+                $this->has_errors = true;
+            }
 
             $crawler = new Crawler($content);
 
@@ -85,7 +97,6 @@ class MatchesHandler implements MatchesInterface
                 }
             }
 
-
             [$saved_new, $updated_new, $msg_new] = $this->handleMatches($competition, $season, $crawler);
             $saved = $saved + $saved_new;
             $updated = $updated + $updated_new;
@@ -102,7 +113,7 @@ class MatchesHandler implements MatchesInterface
             ]);
         }
 
-        if (!$this->has_errors && $season && !$season->is_current && Carbon::parse($season->end_date)->isPast()) {
+        if (!$this->has_errors && $season && Carbon::parse($season->end_date)->isPast() && $season->games()->count() == $competition->games_per_season) {
             $season->update(['fetched_all_matches' => true]);
         }
 
@@ -110,15 +121,28 @@ class MatchesHandler implements MatchesInterface
 
         $response = ['message' => $message, 'results' => ['created_counts' => $saved, 'updated_counts' => $updated,  'failed_counts' => 0], 'status' => 200];
 
-        if (request()->without_response) return $response;
+        if (request()->without_response) {
+            return $response;
+        }
 
         return response($response);
     }
 
     private function getMatchesLinks($url, $competition)
     {
-        $content = Client::get($url);
-        if (!$content) return $this->matchMessage('Source not accessible or not found.', 504);
+        $timeToLive = 60 * 6;
+
+        $content = $this->fetchWithCacheV2(
+            $url,
+            "matches_html",             // Cache key
+            $timeToLive,                // TTL minutes
+            'local',                    // Storage disk
+            $this->logChannel           // Optional log channel
+        );
+
+        if (!$content) {
+            return $this->matchMessage('Source not accessible or not found.', 504);
+        }
 
         $crawler = new Crawler($content);
 
@@ -140,7 +164,6 @@ class MatchesHandler implements MatchesInterface
 
     private function handleMatches($competition, $season, $crawler)
     {
-
         $matchesData = $this->is_fixtures ? $this->filterUpcomingMatches($competition, $season, $crawler) : $this->filterPlayedMatches($competition, $season, $crawler);
 
         $msg = "";
@@ -180,9 +203,8 @@ class MatchesHandler implements MatchesInterface
             $matches = [];
             $date = null;
 
-
             // Extracted data from the HTML will be stored in this array
-            $matches = $chosen_crawler->filter('tr')->each(function ($crawler, $index) use (&$date) {
+            $matches = $chosen_crawler->filter('tr')->each(function ($crawler) use (&$date) {
 
                 if ($crawler->count() > 0) {
                     $heading = $crawler->filter('.heading');
@@ -190,9 +212,9 @@ class MatchesHandler implements MatchesInterface
                         $raw_date = $heading->filter('td b')->text();
 
                         if ($raw_date && $raw_date != $date) {
-                            $date = Carbon::parse($raw_date)->setTimezone('UTC')->format('Y-m-d');
+                            $date = Carbon::createFromFormat('d.m.Y', $raw_date, config('app.timezone'))->format('Y-m-d');
                         }
-                    } else if ($date) {
+                    } elseif ($date) {
 
                         $time = $crawler->filter('td.resLdateTd')->text();
                         $homeTeam = $crawler->filter('td.resLnameRTd a')->text();
@@ -266,13 +288,14 @@ class MatchesHandler implements MatchesInterface
 
                 if ($crawler->count() > 0) {
                     $heading = $crawler->filter('.heading');
+                    $parsed = Carbon::parse($date);
                     if ($heading->count() > 0) {
                         $raw_date = $heading->filter('td b')->text();
 
                         if ($raw_date && $raw_date != $date) {
-                            $date = Carbon::parse($raw_date)->setTimezone('UTC')->format('Y-m-d');
+                            $date = Carbon::createFromFormat('d.m.Y', $raw_date, config('app.timezone'))->format('Y-m-d');
                         }
-                    } else if ($date && Carbon::parse($date)->setTimezone('UTC')->isFuture()) {
+                    } elseif ($date && ($parsed->today() || $parsed->isFuture())) {
 
                         $time = '00:00:00';
                         $utc_date = $date . ' ' . $time;
@@ -311,7 +334,7 @@ class MatchesHandler implements MatchesInterface
         return $matches;
     }
 
-    function addMatchDetails($crawler, &$match)
+    private function addMatchDetails($crawler, &$match)
     {
         $crawler->filter('td')->each(function ($crawler, $i) use (&$match) {
 

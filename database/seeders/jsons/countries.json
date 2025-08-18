@@ -479,7 +479,7 @@
     {
         "name": "England",
         "slug": "england",
-        "code": "ENG",
+        "code": "GB-ENG",
         "dial_code": "+44",
         "flag": null,
         "continent": "Europe"
@@ -898,6 +898,13 @@
         "continent": "Asia"
     },
     {
+        "name": "Laos",
+        "code": "LA",
+        "dial_code": "+856",
+        "flag": null,
+        "continent": "Asia"
+    },
+    {
         "name": "Latvia",
         "code": "LV",
         "dial_code": "+371",
@@ -1081,7 +1088,7 @@
     },
     {
         "name": "Montenegro",
-        "code": "CS",
+        "code": "ME",
         "dial_code": "+382",
         "flag": null,
         "continent": "Europe"
@@ -1200,7 +1207,7 @@
     },
     {
         "name": "Northern Ireland",
-        "code": "NIR",
+        "code": "GB-NIR",
         "dial_code": "+44",
         "flag": null,
         "continent": "Europe"
@@ -1242,13 +1249,13 @@
     },
     {
         "name": "Palestine",
-        "code": "PAL",
+        "code": "PS",
         "dial_code": null,
         "flag": null,
         "continent": "Asia"
     },
     {
-
+        
         "name": "Panama",
         "code": "PA",
         "dial_code": "+507",
@@ -1334,13 +1341,13 @@
     },
     {
         "name": "Russia",
-        "code": "RUS",
+        "code": "RU",
         "dial_code": "+7",
         "flag": null,
         "continent": "Europe"
     },
     {
-        "name": "RWANDA",
+        "name": "Rwanda",
         "code": "RW",
         "dial_code": "+250",
         "flag": null,
@@ -1412,7 +1419,7 @@
     {
         "name": "Scotland",
         "slug": "scotland",
-        "code": "SCO",
+        "code": "GB-SCT",
         "dial_code": "+44",
         "flag": null,
         "continent": "Europe"
@@ -1426,7 +1433,7 @@
     },
     {
         "name": "Serbia",
-        "code": "SER",
+        "code": "RS",
         "dial_code": "+381",
         "flag": null,
         "continent": "Europe"
@@ -1741,7 +1748,7 @@
     },
     {
         "name": "Wales",
-        "code": "WAL",
+        "code": "GB-WLS",
         "dial_code": "+44",
         "flag": null,
         "continent": "Europe"

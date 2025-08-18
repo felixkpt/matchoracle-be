@@ -19,25 +19,24 @@ class TeamsHandler
      * 
      * Initializes the strategy and calls the trait's initialization method.
      */
-    public function __construct()
+    public function __construct($jobId)
     {
         $this->initialize();
-
-        if (!$this->jobId) {
-            $this->jobId = str()->random(6);
-        }
+        $this->jobId = $jobId;
     }
 
-    function updateOrCreate($teamData, $country, $competition = null, $season = null, $ignore_competition = false, $position = null)
+    public function updateOrCreate($teamData, $country, $competition = null, $season = null, $ignore_competition = false, $position = null)
     {
 
-        if (!isset($teamData['name'])) return false;
+        if (!isset($teamData['name'])) {
+            return false;
+        }
 
         $name = $teamData['name'];
         // Create or update the team record
 
         $address = null;
-        if (isset($teamData->address))
+        if (isset($teamData->address)) {
             $address = Address::updateOrCreate(
                 [
                     'name' => $teamData->address,
@@ -46,9 +45,10 @@ class TeamsHandler
                     'name' => $teamData->address,
                 ]
             );
+        }
 
         $venue = null;
-        if (isset($teamData->venue))
+        if (isset($teamData->venue)) {
             $venue = Venue::updateOrCreate(
                 [
                     'name' => $teamData->venue,
@@ -58,9 +58,12 @@ class TeamsHandler
                     'slug' => Str::slug($teamData->venue),
                 ]
             );
+        }
 
         $country_id = (isset($country->id) && $country->continent->id != 'World') ? $country->id : null;
-        if (!$country_id) return null;
+        if (!$country_id) {
+            return null;
+        }
 
         $arr = [
             'name' => $name,
@@ -130,7 +133,7 @@ class TeamsHandler
 
             $exists = $team->seasons()->wherePivot('season_id', $season->id)->first();
 
-            $arr = ['competition_id' => $competition->id, 'status_id' => 1, 'user_id' => auth()->id() ?? 0, 'uuid' => Str::uuid()];
+            $arr = ['competition_id' => $competition->id, 'status_id' => activeStatusId(), 'user_id' => auth()->id() ?? 0, 'uuid' => (string) Str::uuid()];
 
             if ($position) {
                 $arr['position'] = $position;

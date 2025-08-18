@@ -24,17 +24,17 @@ class AppSettingSeeder extends Seeder
             [
                 'category' => 'automation',
                 'name' => 'delay_competitions',
-                'value' => '20',
+                'value' => '15',
             ],
             [
                 'category' => 'automation',
                 'name' => 'delay_seasons',
-                'value' => '20',
+                'value' => '15',
             ],
             [
                 'category' => 'automation',
                 'name' => 'delay_games',
-                'value' => '20',
+                'value' => '15',
             ],
         ];
 

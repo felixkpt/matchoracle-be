@@ -12,11 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('jobs', function (Blueprint $table) {
-            $table->id();
-            $table->morphs('morphable');
+            $table->bigIncrements('id')->startingValue(1100);
+
+            $table->string('queue')->index();
+            $table->longText('payload');
+            $table->unsignedTinyInteger('attempts')->default(0);
+            $table->unsignedInteger('reserved_at')->nullable();
+            $table->unsignedInteger('available_at');
+
+            $table->nullableMorphs('morphable');
             $table->string('process_id')->nullable();
             $table->string('status')->default('pending');
-            $table->timestamps();
+
+            $table->unsignedInteger('created_at');
         });
     }
 

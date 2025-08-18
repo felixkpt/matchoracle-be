@@ -131,7 +131,7 @@ class SearchRepo
                             self::applyNestedWhereHas($builder, $q, $column, $term, $strategy);
                         } else {
                             // Apply search condition on the main table
-                            $q->orWhere($model_table . '.' . $column, $strategy === 'like' ? 'like' : '=', $strategy === 'like' ? "%$term%" : "$term");
+                            $q->orWhere($model_table . '.' . $column, $strategy === 'like' ? 'ilike' : '=', $strategy === 'like' ? "%$term%" : "$term");
                         }
                     }
                 });

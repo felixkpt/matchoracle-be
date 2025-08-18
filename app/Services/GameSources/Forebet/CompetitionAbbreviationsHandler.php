@@ -14,13 +14,10 @@ class CompetitionAbbreviationsHandler
      * Constructor for the CompetitionsHandler class.
      * Initializes the strategy and calls the trait's initialization method.
      */
-    public function __construct()
+    public function __construct($jobId)
     {
         $this->initialize();
-
-        if (!$this->jobId) {
-            $this->jobId = str()->random(6);
-        }
+        $this->jobId = $jobId;
     }
 
     /**

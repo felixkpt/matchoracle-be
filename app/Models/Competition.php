@@ -42,9 +42,9 @@ class Competition extends Model
     'status_id',
   ];
 
-  public function lastAction()
+  public function lastActions()
   {
-    return $this->hasOne(CompetitionLastAction::class);
+    return $this->hasMany(CompetitionLastAction::class);
   }
 
   public function predictionLog()
@@ -119,9 +119,9 @@ class Competition extends Model
     return $this->hasMany(CompetitionPredictionStatistic::class);
   }
 
-  public function jobs()
+  public function predictionJobs()
   {
-    return $this->morphMany(Job::class, 'morphable');
+    return $this->morphMany(PredictionJob::class, 'morphable');
   }
 
   public function abbreviation()

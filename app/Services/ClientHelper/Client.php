@@ -12,10 +12,15 @@ use Symfony\Component\HttpClient\HttpClient;
 class Client
 {
     /**
+     * Maximum safe size (in bytes) for response bodies we’ll allow.
+     * 10MB is usually safe for HTML parsing.
+     */
+    const MAX_RESPONSE_SIZE = 10 * 1024 * 1024; // 10MB
+
+    /**
      * Perform an HTTP request and return the content.
      *
      * @param string $request_url
-     * @param boolean $external_crawler_key
      * @return string|null
      */
     public static function get($request_url)
@@ -25,6 +30,19 @@ class Client
         $response = $use_external_crawler_urls
             ? self::fetchContentFromPuppeteer($request_url)
             : self::sendRequest($request_url)->getContent();
+
+        if ($response !== null) {
+            $size = strlen($response);
+
+            // Defensive check
+            if ($size > self::MAX_RESPONSE_SIZE) {
+                Log::warning("Response too large to process", [
+                    'url' => $request_url,
+                    'size_bytes' => $size
+                ]);
+                return null;
+            }
+        }
 
         return $response ?? null;
     }
@@ -73,14 +91,25 @@ class Client
     public static function fetchContentFromPuppeteer($request_url)
     {
         $external_crawler_urls = config('app.external_crawler_urls');
-        $crawler_url = $external_crawler_urls[array_rand($external_crawler_urls)] . '/fetch';
+        $index = random_int(0, count($external_crawler_urls) - 1);
+        $crawler_url = $external_crawler_urls[$index] . '/fetch';
 
         $response = Http::timeout(70)->get($crawler_url, ['url' => $request_url]);
 
         if ($response->successful()) {
-            return $response->body();
+            $body = $response->body();
+            $size = strlen($body);
+
+            if ($size > self::MAX_RESPONSE_SIZE) {
+                Log::warning("External crawler returned oversized response", [
+                    'url' => $request_url,
+                    'size_bytes' => $size
+                ]);
+                return null;
+            }
+
+            return $body;
         } else {
-            // Handle error response
             Log::error('Error fetching content: ' . $response->body());
             return null;
         }
