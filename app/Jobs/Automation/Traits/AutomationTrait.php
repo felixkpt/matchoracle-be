@@ -383,7 +383,7 @@ trait AutomationTrait
             'message' => $jobName . ' job ' . $state,
             'results' => [
                 'actionKey'     => $actionKey,
-                'competitionId' => $this->competitionId ?? 'all',
+                'competitionId' => $this->competitionId,
                 'jobId'         => $this->jobId,
             ],
             'timestamp' => now()->toIso8601String(),
