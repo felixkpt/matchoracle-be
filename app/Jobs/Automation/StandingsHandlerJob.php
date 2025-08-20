@@ -90,6 +90,7 @@ class StandingsHandlerJob implements ShouldQueue
         $competition_counts = $competitions->count();
         $this->logAndBroadcastJobLifecycle('START', $competitions);
         // loggerModel competition_counts and Action Counts
+
         $this->loggerModel(true, $competition_counts, $actionCounts);
 
         // Loop through each competition to fetch and update standings
@@ -231,9 +232,6 @@ class StandingsHandlerJob implements ShouldQueue
         $record = StandingJobLog::where('task', $task)->where('date', $today)->where('source_id', $this->sourceContext->getId())->first();
 
         if (!$record) {
-            if ($competition_counts <= 0) {
-                abort(422, 'Competition counts is needed');
-            }
 
             $arr = [
                 'source_id' => $this->sourceContext->getId(),

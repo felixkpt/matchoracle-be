@@ -55,9 +55,6 @@ trait PredictionAutomationTrait
 
         // Create new log entry if record doesn't exist
         if (!$record) {
-            if ($competition_counts <= 0) {
-                abort(422, 'Competition counts is needed');
-            }
 
             $arr = [
                 'date' => $today,

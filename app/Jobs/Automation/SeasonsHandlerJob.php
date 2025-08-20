@@ -187,9 +187,6 @@ class SeasonsHandlerJob implements ShouldQueue
         $record = SeasonJobLog::where('date', $today)->where('source_id', $this->sourceContext->getId())->first();
 
         if (!$record) {
-            if ($competition_counts <= 0) {
-                abort(422, 'Competition counts is needed');
-            }
 
             $arr = [
                 'source_id' => $this->sourceContext->getId(),

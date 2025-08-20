@@ -174,9 +174,6 @@ class CompetitionPredictionsStatsHandlerJob implements ShouldQueue
         $record = CompetitionPredictionStatisticJobLog::where('prediction_type_id', request()->prediction_type_id)->where('date', $today)->first();
 
         if (!$record) {
-            if ($competition_counts <= 0) {
-                abort(422, 'Competition counts is needed');
-            }
 
             $arr = [
                 'prediction_type_id' => request()->prediction_type_id,

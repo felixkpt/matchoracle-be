@@ -111,11 +111,8 @@ trait AutomationTrait
         if ($competitionsMsg) {
             Log::channel($this->channel)->info($competitionsMsg);
         }
-
-        // Include queue connection in response
-        $queueConnection = config('queue.default');
-
-        if ($queueConnection !== 'sync' && $lifecycleEvent === 'START' || $lifecycleEvent === 'END') {
+        
+        if ($this->connection !== 'sync' && ($lifecycleEvent === 'START' || $lifecycleEvent === 'END')) {
             $payload = $this->getJobBroadcastPayload($lifecycleEvent === 'START' ? 'started' : 'completed');
             event(new CompetitionActionUpdated($payload));
         }
@@ -379,7 +376,7 @@ trait AutomationTrait
         // Get base job name without "Handler" suffix
         $jobName = Str::camel(Str::before(class_basename($this), 'Handler'));
         // Map the task to a standardized key
-        $actionKey = $this->taskKeyMap[$jobName.Str::studly($this->task)] ?? 'unknown_task';
+        $actionKey = $this->taskKeyMap[$jobName . Str::studly($this->task)] ?? 'unknown_task';
 
         return [
             'status' => $state,

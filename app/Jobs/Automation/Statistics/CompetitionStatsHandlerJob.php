@@ -153,9 +153,6 @@ class CompetitionStatsHandlerJob implements ShouldQueue
         $record = CompetitionStatisticJobLog::where('date', $today)->first();
 
         if (!$record) {
-            if ($competition_counts <= 0) {
-                abort(422, 'Competition counts is needed');
-            }
 
             $arr = [
                 'date' => $today,
