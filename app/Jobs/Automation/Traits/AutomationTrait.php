@@ -112,7 +112,7 @@ trait AutomationTrait
             Log::channel($this->channel)->info($competitionsMsg);
         }
         
-        if ($this->connection !== 'sync' && ($lifecycleEvent === 'START' || $lifecycleEvent === 'END')) {
+        if ($this->competitionId && $this->connection !== 'sync' && ($lifecycleEvent === 'START' || $lifecycleEvent === 'END')) {
             $payload = $this->getJobBroadcastPayload($lifecycleEvent === 'START' ? 'started' : 'completed');
             event(new CompetitionActionUpdated($payload));
         }
