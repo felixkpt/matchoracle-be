@@ -7,9 +7,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: matchoracle-v5
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -33,10 +33,6 @@ services:
     environment:
       DB_CONNECTION: pgsql
       DB_HOST: db
-      DB_PORT: 5432
-      DB_DATABASE: matchoracle-v5
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
       EXTERNAL_CRAWLER_URLS: http://crawler1:3065,http://crawler2:3066,http://crawler3:3067
     networks:
       - appnet
