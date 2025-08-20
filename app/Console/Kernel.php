@@ -14,14 +14,16 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        Log::info("Cron job was run");
 
         // Seasons commands
-        $schedule->command('app:seasons-handler')->everyFourHours();
+        $schedule->command('app:seasons-handler')->everyThreeHours();
+
+        // Competition Abbreviations commands
+        $schedule->command('app:competition-abbreviations')->everyThreeHours();
 
         // Standing commands
-        $schedule->command('app:standings-handler --task=historical_results')->everyFourHours(5);
-        $schedule->command('app:standings-handler --task=recent_results')->everyFourHours(10);
+        $schedule->command('app:standings-handler --task=historical_results')->everyThreeHours(5);
+        $schedule->command('app:standings-handler --task=recent_results')->everyThreeHours(10);
 
         // // Statistics commands
         // $schedule->command('app:competition-statistics')->everySixHours(35);

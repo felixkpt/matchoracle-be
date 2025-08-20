@@ -160,7 +160,7 @@ class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterfac
         ];
 
         // If the queue is database, update message to indicate job queued
-        if ($queueConnection === 'database') {
+        if ($queueConnection !== 'sync') {
             $responseData['message'] = ucfirst(str_replace('_', ' ', $action)) . ' job queued';
             $responseData['status'] = 'warning';
         }

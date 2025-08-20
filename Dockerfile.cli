@@ -1,0 +1,20 @@
+# --- Worker Container: PHP + Composer ---
+FROM php:8.3-fpm
+
+# Install PHP extensions needed by Laravel + queues
+RUN apt-get update && apt-get install -y \
+    libpq-dev libzip-dev unzip git curl \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && docker-php-ext-install pdo pdo_pgsql zip bcmath
+
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Copy backend files (no frontend build)
+COPY . .
+
+# Install Laravel dependencies
+RUN composer install --no-dev --optimize-autoloader
