@@ -5,6 +5,10 @@ namespace App\Jobs\Automation\Traits;
 use App\Events\CompetitionActionUpdated;
 use App\Models\AppSetting;
 use App\Models\Competition;
+use App\Models\Game;
+use App\Models\GameLastAction;
+use App\Repositories\GameComposer;
+use App\Utilities\GameUtility;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -42,6 +46,7 @@ trait AutomationTrait
     protected $competitionId;
     protected $seasonId;
     protected $gameId;
+    protected $lastFetchColumn;
 
     // Automation settings/properties
     protected $sourceContext;
@@ -112,10 +117,7 @@ trait AutomationTrait
             Log::channel($this->channel)->info($competitionsMsg);
         }
 
-        // Include queue connection in response
-        $queueConnection = config('queue.default');
-
-        if ($queueConnection !== 'sync' && $lifecycleEvent === 'START' || $lifecycleEvent === 'END') {
+        if ($this->competitionId && $this->connection !== 'sync' && ($lifecycleEvent === 'START' || $lifecycleEvent === 'END')) {
             $payload = $this->getJobBroadcastPayload($lifecycleEvent === 'START' ? 'started' : 'completed');
             event(new CompetitionActionUpdated($payload));
         }
@@ -379,14 +381,14 @@ trait AutomationTrait
         // Get base job name without "Handler" suffix
         $jobName = Str::camel(Str::before(class_basename($this), 'Handler'));
         // Map the task to a standardized key
-        $actionKey = $this->taskKeyMap[$jobName.Str::studly($this->task)] ?? 'unknown_task';
+        $actionKey = $this->taskKeyMap[$jobName . Str::studly($this->task)] ?? 'unknown_task';
 
         return [
             'status' => $state,
             'message' => $jobName . ' job ' . $state,
             'results' => [
                 'actionKey'     => $actionKey,
-                'competitionId' => $this->competitionId,
+                'competitionId' => $this->competitionId ?? 'all',
                 'jobId'         => $this->jobId,
             ],
             'timestamp' => now()->toIso8601String(),

@@ -3,8 +3,11 @@
 namespace App\Services\GameSources\Forebet\Matches;
 
 use App\Models\Game;
+use App\Models\GameLastAction;
 use App\Models\Team;
+use App\Repositories\GameComposer;
 use App\Services\GameSources\Forebet\TeamsHandler;
+use App\Utilities\GameUtility;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -229,6 +232,8 @@ trait MatchesTrait
             $game = Game::create($data);
             $msg = 'saved';
         }
+
+        (new GameUtility())->updateMatchStatus($game, 'match_ft_status');
 
         return [$game, $msg];
     }

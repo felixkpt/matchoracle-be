@@ -1,0 +1,32 @@
+{
+    "authHost": "http://api:8000",
+    "authEndpoint": "/broadcasting/auth",
+    "clients": [
+        {
+            "appId": "app-id",
+            "key": "app-key"
+        }
+    ],
+    "database": "redis",
+    "databaseConfig": {
+        "redis": {
+            "host": "redis",
+            "port": "6379",
+            "db": 0
+        }
+    },
+    "devMode": true,
+    "host": "0.0.0.0",
+    "port": "6001",
+    "protocol": "http",
+    "subscribers": {
+        "http": true,
+        "redis": true
+    },
+    "apiOriginAllow": {
+        "allowCors": true,
+        "allowOrigin": "*",
+        "allowMethods": "GET, POST",
+        "allowHeaders": "Origin, Content-Type, X-Auth-Token, Authorization, Accept, X-Requested-With"
+    }
+}

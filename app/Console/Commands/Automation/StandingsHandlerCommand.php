@@ -28,7 +28,7 @@ class StandingsHandlerCommand extends Command
      */
     public function handle()
     {
-        $task = $this->option('task') ?? 'recent_results';
+        $task = $this->option('task') ?? 'historical_results';
         $ignore_timing = $this->option('ignore-timing');
 
         if ($task != 'recent_results' && $task != 'historical_results') {

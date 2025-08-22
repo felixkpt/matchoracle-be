@@ -1,0 +1,164 @@
+services:
+  # PostgreSQL Database
+  db:
+    container_name: db
+    image: postgres:16
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - appnet
+
+  # Laravel Backend API
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - .:/var/www/html
+      - storage:/var/www/html/storage
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "3055:8000"
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      EXTERNAL_CRAWLER_URLS: http://crawler1:3065,http://crawler2:3066,http://crawler3:3067
+    networks:
+      - appnet
+
+  # Realtime (Laravel Echo Server)
+  echo:
+    container_name: echo
+    build: ./laravel-echo-server
+    volumes:
+      - ./laravel-echo-server:/app
+    ports:
+      - "6001:6001"
+    depends_on:
+      - api
+      - redis
+    networks:
+      - appnet
+
+  # Redis (queues + broadcasting pub/sub)
+  redis:
+    container_name: redis
+    image: redis:7
+    ports:
+      - "6379:6379"
+    networks:
+      - appnet
+
+  # Redis Commander (UI for Redis)
+  redis-commander:
+    container_name: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - appnet
+
+  # Laravel Queue Workers
+  worker1:
+    container_name: worker1
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+    restart: always
+    volumes:
+      - .:/var/www/html
+      - storage:/var/www/html/storage
+    command: php artisan queue:work --queue=default --sleep=3 --tries=3 --timeout=60
+    depends_on:
+      - api
+      - redis
+    networks:
+      - appnet
+
+  worker2:
+    container_name: worker2
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+    restart: always
+    volumes:
+      - .:/var/www/html
+      - storage:/var/www/html/storage
+    command: php artisan queue:work --queue=default --sleep=3 --tries=3 --timeout=60
+    depends_on:
+      - api
+      - redis
+    networks:
+      - appnet
+
+  worker3:
+    container_name: worker3
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+    restart: always
+    volumes:
+      - .:/var/www/html
+      - storage:/var/www/html/storage
+    command: php artisan queue:work --queue=default --sleep=3 --tries=3 --timeout=60
+    depends_on:
+      - api
+      - redis
+    networks:
+      - appnet
+
+  # Laravel Backend API Scheduler
+  scheduler:
+    container_name: scheduler
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+    volumes:
+      - .:/var/www/html
+      - storage:/var/www/html/storage
+    command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"
+    depends_on:
+      - worker1
+      - worker2
+      - worker3
+    networks:
+      - appnet
+
+  # PgAdmin (DB Management)
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - db
+    networks:
+      - appnet
+
+volumes:
+  pgdata:
+  storage:
+
+networks:
+  appnet:
+    external: true

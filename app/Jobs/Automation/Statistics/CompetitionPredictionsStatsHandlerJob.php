@@ -66,7 +66,7 @@ class CompetitionPredictionsStatsHandlerJob implements ShouldQueue
         foreach ($prediction_types as $index => $prediction_type) {
             request()->merge(['prediction_type_id' => $prediction_type->id]);
 
-            $lastFetchColumn = 'predictions_stats_last_done';
+            $this->lastFetchColumn = 'predictions_stats_last_done';
             // Set delay in minutes, 10 days is okay for this case
             $delay = 60 * 24 * 10;
             if ($this->ignoreTiming) {
@@ -74,7 +74,7 @@ class CompetitionPredictionsStatsHandlerJob implements ShouldQueue
             }
 
             // Get competitions that need stats done
-            $competitions = $this->getCompetitions($lastFetchColumn, $delay);
+            $competitions = $this->getCompetitions($delay);
 
             // Process competitions to calculate action counts and log job details
             $actionCounts = 0;
@@ -132,7 +132,7 @@ class CompetitionPredictionsStatsHandlerJob implements ShouldQueue
                     $this->automationinfo($data['message'] . "");
                     $this->doLogging($data);
 
-                    $this->updateCompetitionLastAction($competition, $should_update_last_action, $lastFetchColumn, $season->id);
+                    $this->updateCompetitionLastAction($competition, $should_update_last_action, $this->lastFetchColumn, $season->id);
                 }
 
                 // Increment Completed Competition Counts
@@ -141,7 +141,7 @@ class CompetitionPredictionsStatsHandlerJob implements ShouldQueue
             }
 
             if ($this->competitionId && $competitions->count() === 0) {
-                $this->updateCompetitionLastAction($this->getCompetition(), true, $lastFetchColumn, $this->seasonId);
+                $this->updateCompetitionLastAction($this->getCompetition(), true, $this->lastFetchColumn, $this->seasonId);
             }
 
             $this->logAndBroadcastJobLifecycle('END');
@@ -164,7 +164,7 @@ class CompetitionPredictionsStatsHandlerJob implements ShouldQueue
         }
     }
 
-    private function loggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
+    private function loggerModel($increment_job_run_counts = false, $competition_counts = 1, $action_counts = 1)
     {
         if ($this->competitionId) {
             return;
@@ -174,9 +174,6 @@ class CompetitionPredictionsStatsHandlerJob implements ShouldQueue
         $record = CompetitionPredictionStatisticJobLog::where('prediction_type_id', request()->prediction_type_id)->where('date', $today)->first();
 
         if (!$record) {
-            if ($competition_counts <= 0) {
-                abort(422, 'Competition counts is needed');
-            }
 
             $arr = [
                 'prediction_type_id' => request()->prediction_type_id,
@@ -200,7 +197,7 @@ class CompetitionPredictionsStatsHandlerJob implements ShouldQueue
             ->orderBy('start_date', 'desc');
     }
 
-    private function getCompetitions($lastFetchColumn, $delay)
+    private function getCompetitions($delay)
     {
         return Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
@@ -212,14 +209,14 @@ class CompetitionPredictionsStatsHandlerJob implements ShouldQueue
                 fn($q) => $q->where('competition_last_actions.season_id', $this->seasonId),
                 fn($q) => $q->whereNull('competition_last_actions.season_id')
             )
-            ->where(fn($query) => $this->lastActionDelay($query, $lastFetchColumn, $delay))
+            ->where(fn($query) => $this->lastActionDelay($query, $this->lastFetchColumn, $delay))
             ->where('competitions.has_standings', true)
             ->select('competitions.*')
             ->limit(1000)
             ->with(['seasons' => fn($q) => $this->seasonsFilter($q)])
             ->where('games_counts', '>=', 500)
             ->whereHas('games')
-            ->orderBy('competition_last_actions.' . $lastFetchColumn, 'asc')
+            ->orderBy('competition_last_actions.' . $this->lastFetchColumn, 'asc')
             ->get();
     }
 }

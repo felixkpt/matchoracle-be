@@ -11,11 +11,11 @@ class CompetitionLastAction extends Model
 
     protected $fillable = [
         'competition_id',
-        
         'season_id',
+        'source_id',
 
         'abbreviations_last_fetch',
-        
+
         'seasons_last_fetch',
 
         'standings_recent_results_last_fetch',
@@ -38,7 +38,7 @@ class CompetitionLastAction extends Model
 
         'stats_last_done',
         'predictions_stats_last_done',
-        
+
         'predictions_last_train',
         'predictions_trained_to',
         'predictions_last_done',
