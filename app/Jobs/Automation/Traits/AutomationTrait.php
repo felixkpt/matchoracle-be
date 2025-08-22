@@ -5,6 +5,10 @@ namespace App\Jobs\Automation\Traits;
 use App\Events\CompetitionActionUpdated;
 use App\Models\AppSetting;
 use App\Models\Competition;
+use App\Models\Game;
+use App\Models\GameLastAction;
+use App\Repositories\GameComposer;
+use App\Utilities\GameUtility;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -42,6 +46,7 @@ trait AutomationTrait
     protected $competitionId;
     protected $seasonId;
     protected $gameId;
+    protected $lastFetchColumn;
 
     // Automation settings/properties
     protected $sourceContext;
@@ -111,7 +116,7 @@ trait AutomationTrait
         if ($competitionsMsg) {
             Log::channel($this->channel)->info($competitionsMsg);
         }
-        
+
         if ($this->competitionId && $this->connection !== 'sync' && ($lifecycleEvent === 'START' || $lifecycleEvent === 'END')) {
             $payload = $this->getJobBroadcastPayload($lifecycleEvent === 'START' ? 'started' : 'completed');
             event(new CompetitionActionUpdated($payload));

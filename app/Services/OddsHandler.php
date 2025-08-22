@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Game;
+use App\Models\GameLastAction;
 use App\Models\Odd;
 use Exception;
 use Illuminate\Database\Schema\Blueprint;

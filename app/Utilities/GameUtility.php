@@ -3,6 +3,7 @@
 namespace App\Utilities;
 
 use App\Models\Game;
+use App\Models\GameLastAction;
 use App\Repositories\GameComposer;
 use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Support\Carbon;
@@ -340,5 +341,39 @@ class GameUtility
         }
 
         return $modelClass->latest()->first()->updated_at ?? now();
+    }
+
+    public function updateMatchStatus(Game $game, $column = 'match_ht_status'): void
+    {
+        $this->applyStatusUpdate($game, $column, function ($freshGame) use ($column) {
+            return $column == 'match_ht_status' ? GameComposer::hasResultsHT($freshGame) : GameComposer::hasResults($freshGame);
+        });
+    }
+
+    public function updateOddStatus(Game $game, $column = 'odd_ft_status'): void
+    {
+        (new GameUtility())->applyStatusUpdate($game, $column, function ($freshGame) {
+            return $freshGame->odds->isNotEmpty();
+        });
+    }
+
+    public function applyStatusUpdate(Game $game, string $column, callable $hasDataCheck): void
+    {
+        $freshGame = Game::with(['lastAction', 'score', 'odds'])->find($game->id);
+        $utcDate = Carbon::parse($freshGame->utc_date);
+
+        if ($freshGame && $freshGame->lastAction) {
+            $status = null;
+
+            if ($hasDataCheck($freshGame)) {
+                $status = GameLastAction::STATUS_FETCHED;
+            } elseif ($utcDate->lessThan(now()->subDays(3))) {
+                $status = GameLastAction::STATUS_MISSING;
+            }
+
+            if ($status !== null) {
+                $freshGame->lastAction()->update([$column => $status]);
+            }
+        }
     }
 }

@@ -40,7 +40,7 @@ trait PredictionAutomationTrait
      * @param int|null $action_counts The count of actions (optional for new records)
      * @return TrainPredictionJobLog The training prediction log record for the current date
      */
-    protected function trainPredictionsLoggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
+    protected function trainPredictionsloggerModel($increment_job_run_counts = false, $competition_counts = 1, $action_counts = 1)
     {
         if ($this->competitionId) {
             return;
@@ -81,7 +81,7 @@ trait PredictionAutomationTrait
      * @param int|null $action_counts The count of actions (optional for new records)
      * @return PredictionJobLog The prediction job log record for the current date
      */
-    protected function predictionsLoggerModel($increment_job_run_counts = false, $competition_counts = null, $action_counts = null)
+    protected function predictionsloggerModel($increment_job_run_counts = false, $competition_counts = 1, $action_counts = 1)
     {
         $today = Carbon::now()->format('Y-m-d');
 

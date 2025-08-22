@@ -14,12 +14,17 @@ return new class extends Migration
         Schema::create('game_last_actions', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('game_id')->unique();
-                        
+            $table->unsignedBigInteger('source_id')->nullable();
+
+            $table->tinyInteger('match_ft_status')->default(0);
+            $table->tinyInteger('match_ht_status')->default(0);
             $table->dateTime('match_recent_results_last_fetch')->nullable();
             $table->dateTime('match_historical_results_last_fetch')->nullable();
             $table->dateTime('match_fixtures_last_fetch')->nullable();
             $table->dateTime('match_shallow_fixtures_last_fetch')->nullable();
 
+            $table->tinyInteger('odd_ft_status')->default(0);
+            $table->tinyInteger('odd_ht_status')->default(0);
             $table->dateTime('odd_recent_results_last_fetch')->nullable();
             $table->dateTime('odd_historical_results_last_fetch')->nullable();
             $table->dateTime('odd_fixtures_last_fetch')->nullable();

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('competition_id');
             $table->unsignedInteger('season_id')->nullable();
+            $table->unsignedBigInteger('source_id')->nullable();
 
             $table->dateTime('abbreviations_last_fetch')->nullable();
             $table->dateTime('seasons_last_fetch')->nullable();

@@ -29,7 +29,7 @@ services:
       - db
       - redis
     ports:
-      - "8000:8000"
+      - "3055:8000"
     environment:
       DB_CONNECTION: pgsql
       DB_HOST: db
