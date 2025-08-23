@@ -65,8 +65,8 @@ class MatchHandler
         // update season fetched_all_single_matches
         if ($res && $season) {
             $seasonGamesCount = $season->games_count;
-            $finishedGamesCount = $season->games()->whereHas('lastAction', fn($q) => $q->where('match_ht_status', '>', 0))->count();
-            // Check if all season games have lastAction.match_ft_status > 0
+            $finishedGamesCount = $season->games()->whereHas('lastAction', fn($q) => $q->where('ht_status', '>', 0))->count();
+            // Check if all season games have lastAction.ft_status > 0
             $this->automationInfo("****Fetched_all_single_matches check: {$finishedGamesCount}/{$seasonGamesCount}");
             if ($finishedGamesCount === $seasonGamesCount) {
                 $game->season->update(['fetched_all_single_matches' => true]);

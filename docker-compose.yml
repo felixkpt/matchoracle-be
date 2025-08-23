@@ -20,7 +20,7 @@ services:
     container_name: api
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./docker/Dockerfile
     restart: always
     volumes:
       - .:/var/www/html
@@ -33,6 +33,7 @@ services:
     environment:
       DB_CONNECTION: pgsql
       DB_HOST: db
+      MIGRATE_FRESH: false
       EXTERNAL_CRAWLER_URLS: http://crawler1:3065,http://crawler2:3066,http://crawler3:3067
     networks:
       - appnet
@@ -79,7 +80,7 @@ services:
     container_name: worker1
     build:
       context: .
-      dockerfile: Dockerfile.cli
+      dockerfile: ./docker/Dockerfile.cli
     restart: always
     volumes:
       - .:/var/www/html
@@ -95,7 +96,7 @@ services:
     container_name: worker2
     build:
       context: .
-      dockerfile: Dockerfile.cli
+      dockerfile: ./docker/Dockerfile.cli
     restart: always
     volumes:
       - .:/var/www/html
@@ -111,7 +112,7 @@ services:
     container_name: worker3
     build:
       context: .
-      dockerfile: Dockerfile.cli
+      dockerfile: ./docker/Dockerfile.cli
     restart: always
     volumes:
       - .:/var/www/html
@@ -128,7 +129,7 @@ services:
     container_name: scheduler
     build:
       context: .
-      dockerfile: Dockerfile.cli
+      dockerfile: ./docker/Dockerfile.cli
     volumes:
       - .:/var/www/html
       - storage:/var/www/html/storage

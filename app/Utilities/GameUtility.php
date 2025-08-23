@@ -344,11 +344,11 @@ class GameUtility
         return $modelClass->latest()->first()->updated_at ?? now();
     }
 
-    public function updateMatchStatus(Game $game, $column = 'match_ft_status'): void
+    public function updateMatchStatus(Game $game, $column = 'ft_status'): void
     {
         $freshGame = Game::with(['lastAction', 'score', 'odds'])->find($game->id);
 
-        $this->applyStatusUpdate($freshGame, $column, $column == 'match_ht_status' ? GameComposer::hasResultsHT($freshGame) : GameComposer::hasResults($freshGame));
+        $this->applyStatusUpdate($freshGame, $column, $column == 'ht_status' ? GameComposer::hasResultsHT($freshGame) : GameComposer::hasResults($freshGame));
     }
 
     public function updateOddStatus(Game $game, $column = 'odd_ft_status'): void

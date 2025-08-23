@@ -153,7 +153,7 @@ trait ForebetInitializationTrait
             $game->update(['game_score_status_id' => $game_score_status_id, 'status' => GameScoreStatus::find($game_score_status_id)->name]);
         }
 
-        (new GameUtility())->updateMatchStatus($game, $isSingleMatchJob == 'match' ? 'match_ht_status' : 'match_ft_status');
+        (new GameUtility())->updateMatchStatus($game, $isSingleMatchJob == 'match' ? 'ht_status' : 'ft_status');
 
         return $game_score_status_id;
     }

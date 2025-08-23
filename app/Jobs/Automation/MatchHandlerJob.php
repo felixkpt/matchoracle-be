@@ -494,7 +494,7 @@ class MatchHandlerJob implements ShouldQueue
         });
         $q->where(function ($q) {
             $q->whereHas('lastAction', function ($sub) {
-                $sub->where('match_ht_status', '=', GameLastAction::STATUS_PENDING);
+                $sub->where('ht_status', '=', GameLastAction::STATUS_PENDING);
             })->orWhereDoesntHave('lastAction');
         });
     }

@@ -1,40 +1,45 @@
-# Use the official PHP image as the base
-FROM php:8.1-fpm
+# --- Stage 1: Frontend build with Node ---
+FROM node:20 AS frontend
+WORKDIR /app
 
-# Set working directory
-WORKDIR /var/www
+# Install frontend deps
+COPY package*.json ./
+RUN npm install
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    curl
+# Copy project files
+COPY . .
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Build frontend (Vite)
+RUN npm run build
+
+# --- Stage 2: Backend with PHP + Composer ---
+FROM php:8.3-fpm
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+RUN apt-get update && apt-get install -y \
+    libpq-dev libzip-dev unzip git curl \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && docker-php-ext-install pdo pdo_pgsql zip bcmath
 
 # Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy existing application directory contents
-COPY . /var/www
+WORKDIR /var/www/html
 
-# Copy existing application directory permissions
-COPY --chown=www-data:www-data . /var/www
+# Copy Laravel files
+COPY . .
 
-# Change the owner of the working directory
-RUN chown -R www-data:www-data /var/www
+# Copy built frontend assets from frontend stage
+COPY --from=frontend /app/public/build ./public/build
 
-# Expose port 9000 for PHP-FPM
-EXPOSE 9000
+# Install backend dependencies
+RUN composer install --no-dev --optimize-autoloader
 
-CMD ["php-fpm"]
+# Expose app port
+EXPOSE 8000
+
+# Copy entrypoint script
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
