@@ -12,6 +12,7 @@ use App\Models\Referee;
 use App\Models\Season;
 use App\Models\Team;
 use App\Services\ClientHelper\Client;
+use App\Utilities\GameUtility;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -103,7 +104,7 @@ trait ForebetInitializationTrait
         )->id ?? 0;
     }
 
-    private function storeScores($game, $score)
+    private function storeScores($game, $score, $isSingleMatchJob = false)
     {
         $full_time_results = $score['full_time_results'];
 
@@ -151,6 +152,8 @@ trait ForebetInitializationTrait
 
             $game->update(['game_score_status_id' => $game_score_status_id, 'status' => GameScoreStatus::find($game_score_status_id)->name]);
         }
+
+        (new GameUtility())->updateMatchStatus($game, $isSingleMatchJob == 'match' ? 'match_ht_status' : 'match_ft_status');
 
         return $game_score_status_id;
     }

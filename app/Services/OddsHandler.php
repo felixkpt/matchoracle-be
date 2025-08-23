@@ -3,22 +3,20 @@
 namespace App\Services;
 
 use App\Models\Game;
-use App\Models\GameLastAction;
 use App\Models\Odd;
 use Exception;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 
 class OddsHandler
 {
-    static function updateOrCreate($data)
+    public static function updateOrCreate($data)
     {
 
 
-        if (count($data['hda_odds']) !== 3)
+        if (count($data['hda_odds']) !== 3) {
             return false;
+        }
 
         try {
             DB::beginTransaction();
@@ -75,43 +73,6 @@ class OddsHandler
                 'odds_counts' => $predictionCount
             ]);
             $competition->save();
-        }
-    }
-
-    static function whereGame($game)
-    {
-
-        $table = str_replace('games', 'odds', $game['table']);
-        return autoModel($table)->where('game_id', $game['id']);
-    }
-
-
-    private static function createTable($table)
-    {
-        if (!Schema::hasTable($table)) {
-            Schema::create($table, function (Blueprint $table) {
-                $table->uuid('id')->primary();
-                $table->dateTime('utc_date');
-                $table->year('year');
-                $table->date('date');
-                $table->time('time')->nullable();
-                $table->boolean('has_time')->default(0);
-                $table->string('home_team')->nullable();
-                $table->string('away_team')->nullable();
-                $table->uuid('competition_id')->nullable();
-                $table->string('source')->nullable();
-                $table->decimal('home_win_odds', 6, 2, true)->nullable();
-                $table->decimal('draw_odds', 6, 2, true)->nullable();
-                $table->decimal('away_win_odds', 6, 2, true)->nullable();
-                $table->decimal('over_odds', 6, 2, true)->nullable();
-                $table->decimal('under_odds', 6, 2, true)->nullable();
-                $table->decimal('gg_odds', 6, 2, true)->nullable();
-                $table->decimal('ng_odds', 6, 2, true)->nullable();
-                $table->uuid('game_id')->nullable();
-                $table->uuid('user_id');
-                $table->tinyInteger('status')->default(1);
-                $table->timestamps();
-            });
         }
     }
 }

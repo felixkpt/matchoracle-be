@@ -1,0 +1,23 @@
+# Ignore git
+.git
+.gitignore
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Laravel / PHP
+vendor
+.env
+.env.*
+storage/logs
+storage/app/cached
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+
+# Docker itself
+docker-compose*.yml
+Dockerfile
+.dockerignore

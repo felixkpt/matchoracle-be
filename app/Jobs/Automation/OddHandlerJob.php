@@ -271,7 +271,7 @@ class OddHandlerJob implements ShouldQueue
             // Capture start time
             $requestStartTime = microtime(true);
 
-            $data = $matchHandler->fetchMatch($game->id);
+            $data = $matchHandler->fetchMatch($game->id, $season);
 
             // Output the fetch result for logging
             $this->automationInfo("***" . $data['message'] . "");
@@ -318,11 +318,6 @@ class OddHandlerJob implements ShouldQueue
 
             $this->doLogging($data);
             $this->updateGameLastAction($game, $should_update_last_action, $this->lastFetchColumn);
-
-            // Update match status
-            if ($data['status'] === 200) {
-                (new GameUtility())->updateOddStatus($game);
-            }
 
             // update last action after 15, 30, 50, 100 games the process takes time and logging can be skipped by process termination
             if ($game_key === 15 - 1 || $game_key === 30 - 1 || $game_key === 50 - 1 || $game_key === 100 - 1) {
@@ -421,7 +416,7 @@ class OddHandlerJob implements ShouldQueue
         });
         $q->where(function ($q) {
             $q->whereHas('lastAction', function ($sub) {
-                $sub->where('match_ft_status', '=', GameLastAction::STATUS_PENDING);
+                $sub->where('odd_ft_status', '=', GameLastAction::STATUS_PENDING);
             })->orWhereDoesntHave('lastAction');
         });
     }

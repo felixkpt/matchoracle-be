@@ -7,6 +7,7 @@ use App\Models\GameLastAction;
 use App\Repositories\GameComposer;
 use App\Repositories\SearchRepo\SearchRepo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -343,37 +344,47 @@ class GameUtility
         return $modelClass->latest()->first()->updated_at ?? now();
     }
 
-    public function updateMatchStatus(Game $game, $column = 'match_ht_status'): void
+    public function updateMatchStatus(Game $game, $column = 'match_ft_status'): void
     {
-        $this->applyStatusUpdate($game, $column, function ($freshGame) use ($column) {
-            return $column == 'match_ht_status' ? GameComposer::hasResultsHT($freshGame) : GameComposer::hasResults($freshGame);
-        });
+        $freshGame = Game::with(['lastAction', 'score', 'odds'])->find($game->id);
+
+        $this->applyStatusUpdate($freshGame, $column, $column == 'match_ht_status' ? GameComposer::hasResultsHT($freshGame) : GameComposer::hasResults($freshGame));
     }
 
     public function updateOddStatus(Game $game, $column = 'odd_ft_status'): void
     {
-        (new GameUtility())->applyStatusUpdate($game, $column, function ($freshGame) {
-            return $freshGame->odds->isNotEmpty();
-        });
+        $freshGame = Game::with(['lastAction', 'score', 'odds'])->find($game->id);
+
+        $this->applyStatusUpdate($freshGame, $column, $freshGame->odds->isNotEmpty());
     }
 
-    public function applyStatusUpdate(Game $game, string $column, callable $hasDataCheck): void
+    public function applyStatusUpdate(Game $freshGame, string $column, bool $hasData): void
     {
-        $freshGame = Game::with(['lastAction', 'score', 'odds'])->find($game->id);
-        $utcDate = Carbon::parse($freshGame->utc_date);
+        try {
+            DB::transaction(function () use ($freshGame, $column, $hasData) {
+                $utcDate = Carbon::parse($freshGame->utc_date);
 
-        if ($freshGame && $freshGame->lastAction) {
-            $status = null;
+                $status = GameLastAction::STATUS_PENDING;
+                if ($hasData) {
+                    $status = GameLastAction::STATUS_FETCHED;
+                } elseif ($utcDate->lessThan(now()->subDays(3))) {
+                    $status = GameLastAction::STATUS_MISSING;
+                }
 
-            if ($hasDataCheck($freshGame)) {
-                $status = GameLastAction::STATUS_FETCHED;
-            } elseif ($utcDate->lessThan(now()->subDays(3))) {
-                $status = GameLastAction::STATUS_MISSING;
-            }
+                $lastAction = $freshGame->lastAction;
 
-            if ($status !== null) {
-                $freshGame->lastAction()->update([$column => $status]);
-            }
+                if ($lastAction) {
+                    $lastAction->update([$column => $status]);
+                } else {
+                    $freshGame->lastAction()->create([
+                        'game_id' => $freshGame->id,
+                        $column   => $status,
+                    ]);
+                }
+            });
+        } catch (\Exception $e) {
+            Log::channel($this->channel ?? 'stack')
+                ->error("Failed to update last action: " . $e->getMessage());
         }
     }
 }

@@ -290,7 +290,7 @@ class MatchHandlerJob implements ShouldQueue
 
             // Obtain the specific handler for fetching match based on the game source strategy
             $matchHandler = $this->sourceContext->matchHandler();
-            $data = $matchHandler->fetchMatch($game->id);
+            $data = $matchHandler->fetchMatch($game->id, $season);
 
             // Output the fetch result for logging
             $this->automationInfo("***" . $data['message'] . "");
