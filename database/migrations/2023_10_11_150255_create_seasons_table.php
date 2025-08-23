@@ -28,6 +28,24 @@ return new class extends Migration
             $table->boolean('fetched_all_single_matches')->default(false);
             $table->boolean('fetched_all_single_matches_odds')->default(false);
 
+            $table->unsignedBigInteger('games_total_count')->default(0);
+
+            $table->unsignedBigInteger('ft_pending_count')->default(0);
+            $table->unsignedBigInteger('ft_fetched_count')->default(0);
+            $table->unsignedBigInteger('ft_missing_count')->default(0);
+
+            $table->unsignedBigInteger('ht_pending_count')->default(0);
+            $table->unsignedBigInteger('ht_fetched_count')->default(0);
+            $table->unsignedBigInteger('ht_missing_count')->default(0);
+
+            $table->unsignedBigInteger('odd_ft_pending_count')->default(0);
+            $table->unsignedBigInteger('odd_ft_fetched_count')->default(0);
+            $table->unsignedBigInteger('odd_ft_missing_count')->default(0);
+
+            $table->unsignedBigInteger('odd_ht_pending_count')->default(0);
+            $table->unsignedBigInteger('odd_ht_fetched_count')->default(0);
+            $table->unsignedBigInteger('odd_ht_missing_count')->default(0);
+
             $table->unsignedBigInteger('status_id')->default(1);
             $table->unsignedBigInteger('user_id')->default(0)->nullable();
             $table->timestamps();

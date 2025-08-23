@@ -16,8 +16,8 @@ return new class extends Migration
             $table->unsignedInteger('game_id')->unique();
             $table->unsignedBigInteger('source_id')->nullable();
 
-            $table->tinyInteger('match_ft_status')->default(0);
-            $table->tinyInteger('match_ht_status')->default(0);
+            $table->tinyInteger('ft_status')->default(0);
+            $table->tinyInteger('ht_status')->default(0);
             $table->dateTime('match_recent_results_last_fetch')->nullable();
             $table->dateTime('match_historical_results_last_fetch')->nullable();
             $table->dateTime('match_fixtures_last_fetch')->nullable();
