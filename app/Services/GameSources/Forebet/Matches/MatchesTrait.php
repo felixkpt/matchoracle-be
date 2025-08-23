@@ -3,11 +3,9 @@
 namespace App\Services\GameSources\Forebet\Matches;
 
 use App\Models\Game;
-use App\Models\GameLastAction;
 use App\Models\Team;
-use App\Repositories\GameComposer;
+use App\Services\Common;
 use App\Services\GameSources\Forebet\TeamsHandler;
-use App\Utilities\GameUtility;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -148,7 +146,7 @@ trait MatchesTrait
         return $team;
     }
 
-    private function saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam)
+    private function saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam, $isSingleMatchJob = false)
     {
         if (!$competition) {
             $msg = 'MatchesTrait.saveGame >> Game cannot be saved without competition';
@@ -171,12 +169,127 @@ trait MatchesTrait
 
         // Synchronize referees and scores
         $this->syncReferees($game, $match);
-        $this->storeScores($game, $match['game_details']);
+        $this->storeScores($game, $match['game_details'], $isSingleMatchJob);
 
         // Run duplicate cleanup last
         // $this->deleteDuplicates($game);
 
         return $msg;
+    }
+
+    public function updateGame($game, $data, $isSingleMatchJob = false)
+    {
+
+        Common::saveTeamLogo($game['homeTeam'], $data['home_team_logo']);
+        Common::saveTeamLogo($game['awayTeam'], $data['away_team_logo']);
+
+        $stadium = Common::saveStadium($data['stadium']);
+        $weather_condition = Common::saveWeatherCondition($data['weather_condition']);
+
+        $competition = !empty($game['competition_id']) ? $game->competition : $game['competition'];
+
+        if ($game) {
+            $game_utc_date = $game->utc_date;
+            $game_results_status = $game->game_score_status_id;
+
+            // common columns during create and update
+            $arr = [
+                'utc_date' => $data['utc_date'],
+                'has_time' => $data['has_time'],
+                'temperature' => $data['temperature'],
+                'last_fetch' => now(),
+            ];
+
+            $results_status = gameScoresStatus('scheduled');
+            if ($data['full_time_results'] || $data['postponed'] || $data['cancelled']) {
+                $results_status = $this->storeScores($game, $data, $isSingleMatchJob);
+            }
+
+            if ($stadium) {
+                $arr['stadium_id'] = $stadium->id;
+            }
+
+            if ($weather_condition) {
+                $arr['weather_condition_id'] = $weather_condition->id;
+            }
+
+            $msg = "Game #{$game->id} updated successfully, (results status " . ($results_status > -1 ? ($game_results_status . ' > ' . $results_status) : 'unchanged') . ').';
+
+            if (Carbon::parse($data['utc_date'])->isFuture()) {
+                $msg = "Game #{$game->id} fixture updated successfully.";
+            }
+
+            if (!Str::startsWith($game_utc_date, $data['utc_date'])) {
+                $has_time = $data['has_time'] ? 'Yes' : 'No';
+                $msg .= ' Time updated (' . $game_utc_date . ' > ' . $data['utc_date'] . '), Has time: ' . $has_time;
+            }
+
+            $game->update($arr);
+
+            // add abbr if not exists
+            $this->handleCompetitionAbbreviation($competition);
+
+            return $msg;
+        } else {
+            // delete fixture, date changed
+        }
+    }
+
+    private function deactivateGames($game, $matches, $playing = 'home')
+    {
+        return;
+
+        $team = $game->homeTeam;
+        if ($playing == 'away') {
+            $team = $game->homeTeam;
+        }
+
+        // echo "Team: {$team->name}<br>";
+
+        $latest_date = Carbon::parse($game->utc_date)->subDay()->format('Y-m-d');
+        $old_date = array_pop($matches)['date'];
+
+        $team_games = Game::query()
+            ->where('status_id', activeStatusId())
+            ->whereIn('game_score_status_id', unsettledGameScoreStatuses())
+            ->where('date', '>=', $old_date)
+            ->where('date', '<=', $latest_date)
+            ->where(function ($q) use ($team) {
+                $q->where('home_team_id', $team->id)
+                    ->orWhere('away_team_id', $team->id);
+            })
+            ->get();
+
+
+        foreach ($team_games as $team_game) {
+            $gameDate = Carbon::parse($team_game->utc_date)->format('Y-m-d');
+            // if ($gameDate == '2023-09-26') {
+            // echo $team_game->id . "<br>";
+            $gameCompetition = $team_game->competition;
+
+            $matchFound = false;
+            foreach ($matches as $match) {
+
+                $d = Carbon::parse($match['date'])->format('Y-m-d');
+                $playingFound = $match['home_team']['id'] == $team_game->home_team_id  && $match['away_team']['id'] == $team_game->away_team_id;
+
+                if ($d === $gameDate && $match['competition']->id === $gameCompetition->id && $playingFound) {
+                    $matchFound = true;
+                    break;
+                }
+            }
+
+            if (!$matchFound) {
+                $team_game->update([
+                    'status_id' => inActiveStatusId(),
+                    'game_score_status_id' => gameScoresStatus('Deactivated'),
+                    'status' => 'Deactivated'
+                ]);
+            }
+            // } else {
+            //     echo 'Skipping...' . $team_game->id . '<br>';
+            // }
+        }
     }
 
     private function createOrUpdateGame($match, $country, $competition, $season, $homeTeam, $awayTeam)
@@ -233,9 +346,23 @@ trait MatchesTrait
             $msg = 'saved';
         }
 
-        (new GameUtility())->updateMatchStatus($game, 'match_ft_status');
-
         return [$game, $msg];
+    }
+
+    function handleCompetitionAbbreviation($competition)
+    {
+        if ($competition) {
+            // $arr['competition_id'] = $competition->id;
+
+            // $abbrv = CompetitionAbbreviation::where('name', $game['competition_abbreviation'])->wherenull('competition_id');
+
+            // if ($abbrv->count() === 1) {
+            //     $abbrv->update(['competition_id' => $competition->id]);
+            //     $competition->update(['abbreviation' => $game['competition_abbreviation']]);
+
+            //     $msg = 'Fixture updated -- ' . $game['competition_abbreviation'] . ' abbrv tagged';
+            // }
+        }
     }
 
     private function deleteDuplicates($game)

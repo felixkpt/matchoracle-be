@@ -3,6 +3,7 @@
 namespace App\Services\GameSources\Forebet\Matches;
 
 use App\Services\OddsHandler;
+use App\Utilities\GameUtility;
 use Symfony\Component\DomCrawler\Crawler;
 
 class MatchOdds
@@ -106,5 +107,7 @@ class MatchOdds
             'source_id' => $sourceId,
             'competition' => $competition,
         ]);
+
+        (new GameUtility())->updateOddStatus($game);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services\GameSources\Forebet\Matches;
 
+use App\Jobs\Automation\Traits\AutomationTrait;
 use App\Models\Game;
 use App\Services\ClientHelper\Client;
 use App\Services\Common;
@@ -16,7 +17,7 @@ use Symfony\Component\DomCrawler\Crawler;
 class MatchHandler
 {
 
-    use ForebetInitializationTrait;
+    use ForebetInitializationTrait, MatchesTrait, AutomationTrait;
 
     protected $has_errors = false;
     protected $matchOdds;
@@ -36,7 +37,7 @@ class MatchHandler
         $this->sourcePreds = new SourcePreds();
     }
 
-    function fetchMatch($game_id)
+    function fetchMatch($game_id, $season = null)
     {
         $game = Game::query()->where('id', $game_id)->firstOrFail();
 
@@ -59,7 +60,20 @@ class MatchHandler
             return $this->matchMessage('Last fetch is ' . (Carbon::parse($game->last_fetch)->diffForHumans()));
         }
 
-        return $this->handleGame($game, $source_uri);
+        $res =  $this->handleGame($game, $source_uri);
+
+        // update season fetched_all_single_matches
+        if ($res && $season) {
+            $seasonGamesCount = $season->games_count;
+            $finishedGamesCount = $season->games()->whereHas('lastAction', fn($q) => $q->where('match_ht_status', '>', 0))->count();
+            // Check if all season games have lastAction.match_ft_status > 0
+            $this->automationInfo("****Fetched_all_single_matches check: {$finishedGamesCount}/{$seasonGamesCount}");
+            if ($finishedGamesCount === $seasonGamesCount) {
+                $game->season->update(['fetched_all_single_matches' => true]);
+            }
+        }
+
+        return $res;
     }
 
     private function handleGame($game, $source_uri)
@@ -159,7 +173,7 @@ class MatchHandler
 
         $home_team_logo = $this->getTeamLogo($header, 'div.lLogo a img.matchTLogo');
         $utc_date = $this->parseDateTime($header);
-        $has_time = $this->hasTime($header);
+        $has_time = $this->hasTime($utc_date);
         $stadium = $this->getStadium($header);
 
         // Initialize default values for the variables before the try-catch block
@@ -210,7 +224,7 @@ class MatchHandler
         ];
 
 
-        $message = $this->teamsMatches->updateGame($game, $data);
+        $message = $this->updateGame($game, $data, true);
 
         $oddsAndPredsData = [
             'utc_date' => $utc_date,
@@ -358,11 +372,12 @@ class MatchHandler
         return Carbon::createFromDate($dtRaw, config('app.timezone'))->addHours(3)->format('Y-m-d H:i');
     }
 
-    private function hasTime($header)
+    private function hasTime(string $datetime): bool
     {
-        $dateElement = $header->filter('time div.date_bah');
-        return Str::endsWith(str_replace('/', '-', trim($dateElement->text())), 'GMT');
+        // Checks if string ends with "HH:MM" or "HH:MM:SS"
+        return preg_match('/\b\d{1,2}:\d{2}(:\d{2})?$/', trim($datetime)) === 1;
     }
+
 
     private function getStadium($header)
     {
