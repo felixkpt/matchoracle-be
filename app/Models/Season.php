@@ -21,6 +21,21 @@ class Season extends Model
         'fetched_standings',
         'fetched_all_matches',
         'fetched_all_single_matches',
+
+        'games_total_count',
+        'ft_pending_count',
+        'ft_fetched_count',
+        'ft_missing_count',
+        'ht_pending_count',
+        'ht_fetched_count',
+        'ht_missing_count',
+        'odd_ft_pending_count',
+        'odd_ft_fetched_count',
+        'odd_ft_missing_count',
+        'odd_ht_pending_count',
+        'odd_ht_fetched_count',
+        'odd_ht_missing_count',
+
         'status_id',
         'user_id',
     ];

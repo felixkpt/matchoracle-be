@@ -50,7 +50,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                 'country',
                 'currentSeason',
                 'seasons' => fn($q) => $q->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
-                    ->select(['id', 'competition_id', 'start_date', 'end_date', 'current_matchday', 'winner_id'])->orderby('start_date', 'desc'),
+                    ->orderby('start_date', 'desc'),
                 'stages',
                 'gameSources',
 

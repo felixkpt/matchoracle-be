@@ -42,7 +42,7 @@ class TeamsMatches
             if ($homeTeamMatches->count() > 0) {
                 $matches = $this->getMatchesFromDOM($game, $competition, $country, $source_uri, $homeTeamMatches);
                 if (count($matches) > 0) {
-                    [$homeSaved, $homeUpdated, $homeMessage] = $this->saveGames($matches);
+                    [$homeSaved, $homeUpdated, $homeMessage] = $this->saveGames($matches, null, null, true);
                     // $this->deactivateGames($game, $matches, 'home');
                     $totalSaved += $homeSaved;
                     $totalUpdated += $homeUpdated;
@@ -55,7 +55,7 @@ class TeamsMatches
             if ($awayTeamMatches->count() > 0) {
                 $matches = $this->getMatchesFromDOM($game, $competition, $country, $source_uri, $awayTeamMatches);
                 if (count($matches) > 0) {
-                    [$awaySaved, $awayUpdated, $awayMessage] = $this->saveGames($matches);
+                    [$awaySaved, $awayUpdated, $awayMessage] = $this->saveGames($matches, null, null, true);
                     // $this->deactivateGames($game, $matches, 'away');
                     $totalSaved += $awaySaved;
                     $totalUpdated += $awayUpdated;

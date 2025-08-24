@@ -349,6 +349,10 @@ class GameUtility
         $freshGame = Game::with(['lastAction', 'score', 'odds'])->find($game->id);
 
         $this->applyStatusUpdate($freshGame, $column, $column == 'ht_status' ? GameComposer::hasResultsHT($freshGame) : GameComposer::hasResults($freshGame));
+
+        if ($column === 'ht_status') {
+            $this->applyStatusUpdate($freshGame, 'ft_status', GameComposer::hasResults($freshGame));
+        }
     }
 
     public function updateOddStatus(Game $game, $column = 'odd_ft_status'): void
