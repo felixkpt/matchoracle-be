@@ -8,6 +8,7 @@ use App\Models\FailedMatchesLog;
 use App\Models\MatchesJobLog;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
+use App\Utilities\SeasonStatsUtility;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;
@@ -130,6 +131,10 @@ class MatchesHandlerJob implements ShouldQueue
                 $this->automationInfo("***" . ($season_key + 1) . "/{$total_seasons}. Season #{$season->id} ({$start_date}/{$end_date})");
 
                 [$should_sleep_for_competitions, $should_sleep_for_seasons, $should_exit, $has_errors] = $this->workOnSeason($competition, $season);
+
+                if (!$has_errors) {
+                    (new SeasonStatsUtility())->updateSeasonStats($season);
+                }
 
                 $should_update_last_action = !$has_errors;
                 $this->updateCompetitionLastAction($competition, $should_update_last_action, $this->lastFetchColumn, $season->id);

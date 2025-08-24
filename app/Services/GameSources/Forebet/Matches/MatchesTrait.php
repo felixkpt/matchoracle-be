@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 trait MatchesTrait
 {
 
-    function saveGames(&$matches, $competition = null, $season = null)
+    public function saveGames(&$matches, $competition = null, $season = null, $expectsHtResults = false)
     {
         $msg = "";
         $saved = $updated = 0;
@@ -47,7 +47,7 @@ trait MatchesTrait
                         $match['away_team']['id'] = $awayTeam->id;
 
                         // All is set, can save/update game now!
-                        $result = $this->saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam);
+                        $result = $this->saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam, $expectsHtResults);
 
                         // Check the result of the save operation
                         if ($result === 'saved') {
@@ -95,7 +95,6 @@ trait MatchesTrait
                 Log::channel($this->logChannel)->critical('Match has no date or competition:', $no_date_mgs);
             }
 
-            sleep(0);
         }
 
         $msg = "Fetching matches completed, (saved $saved, updated: $updated).";
@@ -146,7 +145,7 @@ trait MatchesTrait
         return $team;
     }
 
-    private function saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam, $isSingleMatchJob = false)
+    private function saveGame($match, $country, $competition, $season, $homeTeam, $awayTeam, $expectsHtResults = false)
     {
         if (!$competition) {
             $msg = 'MatchesTrait.saveGame >> Game cannot be saved without competition';
@@ -169,7 +168,7 @@ trait MatchesTrait
 
         // Synchronize referees and scores
         $this->syncReferees($game, $match);
-        $this->storeScores($game, $match['game_details'], $isSingleMatchJob);
+        $this->storeScores($game, $match['game_details'], $expectsHtResults);
 
         // Run duplicate cleanup last
         // $this->deleteDuplicates($game);
@@ -177,7 +176,7 @@ trait MatchesTrait
         return $msg;
     }
 
-    public function updateGame($game, $data, $isSingleMatchJob = false)
+    public function updateGame($game, $data, $expectsHtResults = false)
     {
 
         Common::saveTeamLogo($game['homeTeam'], $data['home_team_logo']);
@@ -202,7 +201,7 @@ trait MatchesTrait
 
             $results_status = gameScoresStatus('scheduled');
             if ($data['full_time_results'] || $data['postponed'] || $data['cancelled']) {
-                $results_status = $this->storeScores($game, $data, $isSingleMatchJob);
+                $results_status = $this->storeScores($game, $data, $expectsHtResults);
             }
 
             if ($stadium) {

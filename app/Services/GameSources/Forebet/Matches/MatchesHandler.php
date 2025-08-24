@@ -47,7 +47,9 @@ class MatchesHandler implements MatchesInterface
 
         if (is_array($results) && $results['message'] === true) {
             [$competition, $season, $source, $season_str] = $results['data'];
-        } else return $results;
+        } else {
+            return $results;
+        }
 
         $uri = $source->source_uri . ($this->is_fixtures ? '/fixtures/' : '/results/') . $season_str;
         $url = $this->sourceUrl . ltrim($uri, '/');
@@ -164,6 +166,7 @@ class MatchesHandler implements MatchesInterface
 
     private function handleMatches($competition, $season, $crawler)
     {
+
         $matchesData = $this->is_fixtures ? $this->filterUpcomingMatches($competition, $season, $crawler) : $this->filterPlayedMatches($competition, $season, $crawler);
 
         $msg = "";
@@ -174,6 +177,21 @@ class MatchesHandler implements MatchesInterface
         }
 
         [$saved, $updated, $msg] = $this->saveGames($matchesData, $competition, $season);
+
+        // 'games_total_count',
+        // 'ft_pending_count',
+        // 'ft_fetched_count',
+        // 'ft_missing_count',
+        // 'ht_pending_count',
+        // 'ht_fetched_count',
+        // 'ht_missing_count',
+        // 'odd_ft_pending_count',
+        // 'odd_ft_fetched_count',
+        // 'odd_ft_missing_count',
+        // 'odd_ht_pending_count',
+        // 'odd_ht_fetched_count',
+        // 'odd_ht_missing_count',
+
 
         return [$saved, $updated, $msg];
     }

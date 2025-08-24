@@ -11,6 +11,7 @@ use App\Models\MatchJobLog;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use App\Utilities\GameUtility;
+use App\Utilities\SeasonStatsUtility;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -337,14 +338,12 @@ class MatchHandlerJob implements ShouldQueue
             $this->doLogging($data);
             $this->updateGameLastAction($game, $should_update_last_action, $this->lastFetchColumn);
 
-            // Update match status
-            if ($data['status'] === 200) {
-                (new GameUtility())->updateMatchStatus($game);
-            }
-
             // update last action after 15, 30, 50, 100 games the process takes time and logging can be skipped by process termination
-            if ($game_key === 15 - 1 || $game_key === 30 - 1 || $game_key === 50 - 1 || $game_key === 100 - 1) {
+            if (!$has_errors && ($game_key === 15 - 1 || $game_key === 30 - 1 || $game_key === 50 - 1 || $game_key === 100 - 1)) {
                 $this->updateCompetitionLastAction($competition, $should_update_last_action, $this->lastFetchColumn, $season->id);
+                if (!$has_errors) {
+                    (new SeasonStatsUtility())->updateSeasonStats($season);
+                }
             }
 
             // Introduce a delay to avoid rapid consecutive requests

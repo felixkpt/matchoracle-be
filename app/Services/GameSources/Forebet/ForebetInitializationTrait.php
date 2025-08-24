@@ -104,7 +104,7 @@ trait ForebetInitializationTrait
         )->id ?? 0;
     }
 
-    private function storeScores($game, $score, $isSingleMatchJob = false)
+    private function storeScores($game, $score, $expectsHtResults = false)
     {
         $full_time_results = $score['full_time_results'];
 
@@ -153,7 +153,7 @@ trait ForebetInitializationTrait
             $game->update(['game_score_status_id' => $game_score_status_id, 'status' => GameScoreStatus::find($game_score_status_id)->name]);
         }
 
-        (new GameUtility())->updateMatchStatus($game, $isSingleMatchJob == 'match' ? 'ht_status' : 'ft_status');
+        (new GameUtility())->updateMatchStatus($game, $expectsHtResults ? 'ht_status' : 'ft_status');
 
         return $game_score_status_id;
     }

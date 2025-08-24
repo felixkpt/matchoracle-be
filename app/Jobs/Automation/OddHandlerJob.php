@@ -11,6 +11,7 @@ use App\Models\OddJobLog;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
 use App\Utilities\GameUtility;
+use App\Utilities\SeasonStatsUtility;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -320,8 +321,9 @@ class OddHandlerJob implements ShouldQueue
             $this->updateGameLastAction($game, $should_update_last_action, $this->lastFetchColumn);
 
             // update last action after 15, 30, 50, 100 games the process takes time and logging can be skipped by process termination
-            if ($game_key === 15 - 1 || $game_key === 30 - 1 || $game_key === 50 - 1 || $game_key === 100 - 1) {
+            if (!$has_errors && ($game_key === 15 - 1 || $game_key === 30 - 1 || $game_key === 50 - 1 || $game_key === 100 - 1)) {
                 $this->updateCompetitionLastAction($competition, $should_update_last_action, $this->lastFetchColumn, $season->id);
+                (new SeasonStatsUtility())->updateSeasonStats($season);
             }
 
             // Introduce a delay to avoid rapid consecutive requests

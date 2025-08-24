@@ -4,14 +4,12 @@ namespace App\Services\GameSources\Forebet\Matches;
 
 use App\Jobs\Automation\Traits\AutomationTrait;
 use App\Models\Game;
-use App\Services\ClientHelper\Client;
 use App\Services\Common;
 use App\Services\GameSources\Forebet\ForebetInitializationTrait;
+use App\Utilities\GameUtility;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
 class MatchHandler
@@ -60,6 +58,7 @@ class MatchHandler
             return $this->matchMessage('Last fetch is ' . (Carbon::parse($game->last_fetch)->diffForHumans()));
         }
 
+        
         $res =  $this->handleGame($game, $source_uri);
 
         // update season fetched_all_single_matches
