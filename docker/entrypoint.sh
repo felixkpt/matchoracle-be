@@ -1,5 +1,7 @@
 #!/bin/sh
 
+php artisan key:gen
+
 php artisan storage:link
 
 if [ "$MIGRATE_FRESH" = "true" ]; then

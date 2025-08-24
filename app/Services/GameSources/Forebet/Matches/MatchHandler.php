@@ -85,7 +85,7 @@ class MatchHandler
 
         $timeToLive = $this->getCacheTtlForGame($gameDate);
         if ($gameDate->addDays(2)->isPast()) {
-            $timeToLive = 60 * 24 * 7;
+            $timeToLive = 60 * 24 * 30;
         }
 
         Log::channel($this->logChannel)->info("Game time to live: " . $timeToLive);

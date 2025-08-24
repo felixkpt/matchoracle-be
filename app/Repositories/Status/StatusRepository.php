@@ -12,9 +12,7 @@ class StatusRepository implements StatusRepositoryInterface
 {
     use CommonRepoActions;
 
-    function __construct(protected Status $model)
-    {
-    }
+    function __construct(protected Status $model) {}
 
     public function index()
     {
@@ -28,6 +26,8 @@ class StatusRepository implements StatusRepositoryInterface
         $statuses = SearchRepo::of($statuses, ['id', 'name'])
             ->setModelUri($uri)
             ->addColumn('Created_by', 'getUser')
+            ->addColumn('name', fn($q) => Str::title(str_replace('_', ' ', $q->name)))
+            ->orderBy('name')
             ->paginate();
 
         return response(['results' => $statuses]);

@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 use App\Models\OddJobLog;
 use App\Services\GameSources\Forebet\ForebetStrategy;
 use App\Services\GameSources\GameSourceStrategy;
-use App\Utilities\GameUtility;
 use App\Utilities\SeasonStatsUtility;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
