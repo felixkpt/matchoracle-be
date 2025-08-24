@@ -319,8 +319,8 @@ class OddHandlerJob implements ShouldQueue
             $this->doLogging($data);
             $this->updateGameLastAction($game, $should_update_last_action, $this->lastFetchColumn);
 
-            // update last action after 15, 30, 50, 100 games the process takes time and logging can be skipped by process termination
-            if (!$has_errors && ($game_key === 15 - 1 || $game_key === 30 - 1 || $game_key === 50 - 1 || $game_key === 100 - 1)) {
+            // update last action after 15, 30, 45, 60, etc games the process takes time and logging can be skipped by process termination
+            if (!$has_errors && ($game_key + 1) % 15 === 0) {
                 $this->updateCompetitionLastAction($competition, $should_update_last_action, $this->lastFetchColumn, $season->id);
                 (new SeasonStatsUtility())->updateSeasonStats($season);
             }
