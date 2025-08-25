@@ -426,6 +426,7 @@ class OddHandlerJob implements ShouldQueue
     private function seasonsFilter($competitionQuery)
     {
         return $competitionQuery
+            ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
             ->when($this->seasonId, fn($q) => $q->where('id', $this->seasonId))
             ->when($this->task == 'fixtures', fn($q) => $q->where('is_current', true))
             ->where('fetched_all_single_matches_odds', false)

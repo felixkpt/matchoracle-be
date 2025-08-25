@@ -33,7 +33,7 @@ services:
     environment:
       DB_CONNECTION: pgsql
       DB_HOST: db
-      MIGRATE_FRESH: false
+      MIGRATE_FRESH: true
       EXTERNAL_CRAWLER_URLS: http://crawler1:3065,http://crawler2:3066,http://crawler3:3067
     networks:
       - appnet

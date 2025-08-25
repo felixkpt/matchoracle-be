@@ -140,7 +140,7 @@ class PredictionsHandlerJob implements ShouldQueue
                 'available_at' => time() + 60,
                 'created_at'   => time(),
             ]);
-            
+
             $last_action = $competition->lastAction->{$this->lastFetchColumn} ?? 'N/A';
             $this->automationInfo(sprintf(
                 "%d/%d [Job ID: %s] - Competition: #%d (%s - %s) | Last predicted: %s",
@@ -273,6 +273,7 @@ class PredictionsHandlerJob implements ShouldQueue
     private function seasonsFilter($competitionQuery)
     {
         return $competitionQuery
+            ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
             ->when($this->seasonId, fn($q) => $q->where('id', $this->seasonId))
             ->when(Str::endsWith($this->task, 'fixtures'), fn($q) => $q->where('is_current', true))
             // ->where('fetched_all_matches', false)
