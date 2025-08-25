@@ -2,8 +2,10 @@
 
 namespace App\Services\GameSources\Forebet;
 
+use App\Models\AppSetting;
 use App\Models\Season;
 use App\Services\Common;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use stdClass;
 use Symfony\Component\DomCrawler\Crawler;
@@ -139,11 +141,15 @@ class SeasonsHandler
     public function updateOrCreate($seasonData, $country, $competition, $is_current = false, $played_matches = null)
     {
 
+        $historyStartDate = Carbon::parse(getAppSettingValue('history_start_date', '2018-01-01'));
+        $isBeforeHistoryStartDate = Carbon::parse($seasonData->startDate)->isBefore($historyStartDate);
+
         $arr = [
             'competition_id' => $competition->id,
             'start_date' => $seasonData->startDate,
             'end_date' => $seasonData->endDate,
-            'is_current' => $is_current
+            'is_current' => $is_current,
+            'status_id' => $isBeforeHistoryStartDate ? activeStatusId() : inActiveStatusId(),
         ];
 
         if (isset($seasonData->currentMatchday) && $seasonData->currentMatchday) {

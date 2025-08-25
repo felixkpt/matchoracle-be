@@ -282,6 +282,7 @@ class TrainPredictionsHandlerJob implements ShouldQueue
     private function seasonsFilter($competitionQuery)
     {
         return $competitionQuery
+            ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
             ->when($this->seasonId, fn($q) => $q->where('id', $this->seasonId))
             ->orderBy('start_date', 'asc');
     }
