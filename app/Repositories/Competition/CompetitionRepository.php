@@ -53,6 +53,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
                     ->orderby('start_date', 'desc'),
                 'stages',
                 'gameSources',
+                'status',
 
             ])
             ->when(request()->country_id, fn($q) => $q->where('country_id', request()->country_id))
@@ -113,6 +114,7 @@ class CompetitionRepository implements CompetitionRepositoryInterface
             ->addFillable('has_standings', ['input' => 'select'], 'has_teams')
             ->addFillable('has_teams', ['input' => 'select'], 'has_teams')
             ->addFillable('gender', ['input' => 'select'], 'has_standings')
+            ->addFillable('status_id', ['input' => 'select'], '')
             ->orderby('id');
 
         $results = $single ? $results->first() : $results->paginate();
