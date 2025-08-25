@@ -142,11 +142,13 @@ class MatchHandlerJob implements ShouldQueue
             case 'shallow_fixtures':
                 return 60 * 24;
             case 'fixtures':
-                return 60 * 24 * 3;
+                return 60 * 24 * 7;
             case 'recent_results':
                 return 60;
+            case 'historical_results':
+                return 60 * 3;
             default:
-                return 60 * 24 * 2;
+                return 60 * 24;
         }
     }
 

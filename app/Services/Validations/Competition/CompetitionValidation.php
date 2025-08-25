@@ -35,7 +35,7 @@ class CompetitionValidation implements CompetitionValidationInterface
                 'type' => 'nullable|string',
                 'continent_id' => 'required|exists:continents,id',
                 'country_id' => 'required|exists:countries,id',
-                'status_id' => 'required|exists:statues,id',
+                'status_id' => 'required|exists:statuses,id',
                 'games_per_season' => 'required|integer',
                 'last_updated' => 'nullable|date',
                 'last_fetch' => 'nullable|date',
