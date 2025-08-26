@@ -94,7 +94,6 @@ trait MatchesTrait
                 $date_or_compe_not_found['match'][$key] = $match;
                 Log::channel($this->logChannel)->critical('Match has no date or competition:', $no_date_mgs);
             }
-
         }
 
         $msg = "Fetching matches completed, (saved $saved, updated: $updated).";
@@ -324,16 +323,20 @@ trait MatchesTrait
         ];
 
         $game = Game::query()
-            ->whereDate('date', $date)
+            ->where(fn($q) => $q->where('season_id', $season_id)->orwherenull('season_id'))
             ->where('home_team_id', $homeTeam->id)
-            ->where('away_team_id', $awayTeam->id)->first();
+            ->where('away_team_id', $awayTeam->id)
+            ->whereBetween('date', [
+                Carbon::parse($date)->subMonth(),
+                Carbon::parse($date)->addMonth(),
+            ])
+            ->first();
 
         if ($game) {
             if ($has_time || !$game->has_time) {
                 $data['utc_date'] = $utc_date;
                 $data['has_time'] = $has_time;
             }
-            // Remove nulls only
             $data = array_filter($data, fn($v) => !is_null($v));
             $game->update($data);
             $msg = 'updated';
