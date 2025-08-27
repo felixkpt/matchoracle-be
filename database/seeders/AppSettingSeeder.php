@@ -19,7 +19,7 @@ class AppSettingSeeder extends Seeder
             [
                 'category' => 'automation',
                 'name' => 'predictor_url',
-                'value' => 'http://127.0.0.1:8085',
+                'value' => 'http://127.0.0.1:3075',
             ],
             [
                 'category' => 'automation',

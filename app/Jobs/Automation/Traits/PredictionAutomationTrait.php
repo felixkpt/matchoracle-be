@@ -2,7 +2,9 @@
 
 namespace App\Jobs\Automation\Traits;
 
+use App\Models\Competition;
 use App\Models\Game;
+use App\Models\PredictionJob;
 use App\Models\PredictionJobLog;
 use App\Models\TrainPredictionJobLog;
 use App\Repositories\Game\GameRepository;
@@ -126,5 +128,25 @@ trait PredictionAutomationTrait
 
         // Log polling attempt message
         $this->automationInfo("***Polling attempt {$attempt} of {$totalPolls} (~{$remainingTime} mins left) - Checking process status...");
+    }
+
+    protected function isJobAcknowledged($jobId, $ackTimeout)
+    {
+        $ackStart = time();
+        $acknowledged = false;
+
+        while ((time() - $ackStart) < $ackTimeout) {
+            $jobStatus = PredictionJob::where('id', $jobId)
+                ->value('status');
+
+            if ($jobStatus === 'started') {
+                $this->automationInfo("***Job ID #{$jobId} acknowledged as STARTED.");
+                $acknowledged = true;
+                break;
+            }
+
+            sleep(2); // check every seconds
+        }
+        return $acknowledged;
     }
 }

@@ -11,7 +11,7 @@ class PredictionJob extends Model
 
     public $timestamps = false; // no Eloquent managed created_at/updated_at
 
-    protected $fillable = ['process_id', 'status', 'attempts', 'reserved_at', 'available_at', 'created_at'];
+    protected $fillable = ['process_id', 'status', 'attempts', 'reserved_at', 'available_at', 'created_at', 'finished_at'];
 
     public function morphable()
     {
@@ -34,5 +34,6 @@ class PredictionJob extends Model
         'reserved_at' => 'datetime:U',
         'available_at' => 'datetime:U',
         'created_at'  => 'datetime:U',
+        'finished_at'  => 'datetime:U',
     ];
 }

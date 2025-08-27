@@ -148,7 +148,7 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
 
         if ($exists) {
             $run_action_counts = $exists->run_action_counts + 1;
-            $newAverageSeconds = (($exists->average_seconds_per_action * $exists->run_action_counts) + $data['seconds_taken']) / $run_action_counts;
+            $newAverageSeconds = intval((($exists->average_seconds_per_action * $exists->run_action_counts) + $data['seconds_taken']) / $run_action_counts);
 
             $arr = [
                 'run_action_counts' => $run_action_counts,
@@ -168,8 +168,8 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
     {
         $competition = Competition::findOrFail(request()->competition_id);
 
-        $competition->lastAction()->updateOrCreate(
-            [],
+        $competition->lastActions()->updateOrCreate(
+            ['season_id' => null],
             [
                 'predictions_last_done' => now(),
             ]

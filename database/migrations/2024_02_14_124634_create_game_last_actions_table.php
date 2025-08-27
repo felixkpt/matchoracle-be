@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('game_last_actions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('game_id')->unique();
+            $table->unsignedInteger('game_id');
             $table->unsignedBigInteger('source_id')->nullable();
 
             $table->tinyInteger('ft_status')->default(0);
@@ -29,6 +29,8 @@ return new class extends Migration
             $table->dateTime('odd_historical_results_last_fetch')->nullable();
             $table->dateTime('odd_fixtures_last_fetch')->nullable();
             $table->dateTime('odd_shallow_fixtures_last_fetch')->nullable();
+
+            $table->unique(['game_id', 'source_id']);
 
             $table->timestamps();
         });

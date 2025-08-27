@@ -172,8 +172,16 @@ class PredictionsHandlerJob implements ShouldQueue
             }
 
             if ($should_update_last_action) {
-                // Call the polling function
-                $this->pollJobCompletion($competition, $job->id, $last_action, $compe_run_start_time, $options);
+                // Wait max 15 seconds for FastAPI to acknowledge the job
+                $ackTimeout = 15;
+                $acknowledged = $this->isJobAcknowledged($job->id, $ackTimeout);
+
+                if (!$acknowledged) {
+                    $this->automationInfo("***Job ID #{$job->id} was not acknowledged by predictor within {$ackTimeout} seconds.");
+                } else {
+                    // Call the polling function
+                    $this->pollJobCompletion($competition, $job->id, $last_action, $compe_run_start_time, $options);
+                }
             } else {
                 $this->automationInfo("***No data received, logging skipped.");
             }
@@ -226,9 +234,15 @@ class PredictionsHandlerJob implements ShouldQueue
             $this->logPollingAttempt($i, $totalPolls, $startTime, $maxWaitTime);
 
             if ($jobStatus && $jobStatus->status == 'completed') {
-                $this->automationInfo("***Job ID #{$jobId} marked as completed {$jobStatus->updated_at->diffForHumans()}.");
+                $this->automationInfo("***Job ID #{$jobId} marked as completed {$jobStatus->finished_at->diffForHumans()}.");
 
-                $checked_last_action = Competition::find($competition->id)->lastAction->{$this->lastFetchColumn} ?? null;
+                $checked_last_action = optional(
+                    Competition::find($competition->id)
+                        ->lastActions()
+                        ->whereNull('season_id')
+                        ->first()
+                )->{$this->lastFetchColumn};
+
                 $lastActionTime = 'N/A';
 
                 if ($checked_last_action) {

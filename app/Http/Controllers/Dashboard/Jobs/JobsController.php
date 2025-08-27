@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Dashboard\Jobs;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Job;
+use App\Models\PredictionJob;
 
 class JobsController extends Controller
 {
@@ -23,10 +23,16 @@ class JobsController extends Controller
         ]);
 
         // Find the job by its ID
-        $job = Job::findOrFail($id);
+        $job = PredictionJob::findOrFail($id);
 
         // Update the job status
         $job->status = $request->input('status');
+
+        // If status is completed, set finished_at
+        if ($job->status === 'completed') {
+            $job->finished_at = now()->timestamp;
+        }
+
         $job->save();
 
         return response()->json([
