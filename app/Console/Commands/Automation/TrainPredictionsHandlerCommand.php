@@ -51,9 +51,8 @@ class TrainPredictionsHandlerCommand extends Command
         $competition_id = $this->option('competition');
         $season_id = $this->option('season');
 
-
-        $prefer_saved_matches = $this->option('prefer-saved-matches') ?? false;
-        $is_grid_search = $this->option('is-grid-search') ?? true;
+        $prefer_saved_matches = $this->option('prefer-saved-matches') ?: false;
+        $is_grid_search = $this->option('is-grid-search') ?: false;
         $predictor_url = $this->option('predictor-url') ?? null;
         $target = $this->option('target') ?? null;
 

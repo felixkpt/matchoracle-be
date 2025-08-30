@@ -102,9 +102,9 @@ class PredictionsHandlerJob implements ShouldQueue
         // loggerModel competition_counts and Action Counts
         $this->predictionsLoggerModel(true, $competition_counts, $actionCounts);
 
-        // predict for last 3 months plus 10 days from today
-        $fromDate = Carbon::today()->subDays(30 * 3)->format('Y-m-d');
-        $toDate = Carbon::today()->addDays(10)->format('Y-m-d');
+        // predict for last 6 months plus 14 days from today
+        $fromDate = Carbon::today()->subDays(30 * 6)->format('Y-m-d');
+        $toDate = Carbon::today()->addDays(14)->format('Y-m-d');
 
         // Loop through each competition to fetch and update matches
         $options = [

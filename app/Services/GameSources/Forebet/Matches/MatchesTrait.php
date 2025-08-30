@@ -175,11 +175,13 @@ trait MatchesTrait
         return $msg;
     }
 
-    public function updateGame($game, $data, $expectsHtResults = false)
+    public function updateGame($game, $data, $expectsHtResults = false, $isFromCache = false)
     {
 
-        Common::saveTeamLogo($game['homeTeam'], $data['home_team_logo']);
-        Common::saveTeamLogo($game['awayTeam'], $data['away_team_logo']);
+        if (!$isFromCache) {
+            Common::saveTeamLogo($game['homeTeam'], $data['home_team_logo']);
+            Common::saveTeamLogo($game['awayTeam'], $data['away_team_logo']);
+        }
 
         $stadium = Common::saveStadium($data['stadium']);
         $weather_condition = Common::saveWeatherCondition($data['weather_condition']);

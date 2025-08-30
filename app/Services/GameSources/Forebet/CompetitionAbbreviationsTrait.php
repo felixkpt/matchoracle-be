@@ -32,7 +32,7 @@ trait CompetitionAbbreviationsTrait
 
         $timeToLive = 60 * 24 * 30;
 
-        $content = $this->fetchWithCacheV2(
+        [$content] = $this->fetchWithCacheV2(
             $url,
             "abbreviations_html",       // Cache path
             $timeToLive,                // TTL minutes

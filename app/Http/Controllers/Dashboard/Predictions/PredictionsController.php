@@ -34,11 +34,6 @@ class PredictionsController extends Controller
             'include_preds' => true,
         ];
 
-        // Modify the order direction if type is 'upcoming'
-        if (request()->type == 'upcoming') {
-            $arr['order_direction'] = 'desc';
-        }
-
         // Merge the modified parameters into the request
         request()->merge($arr);
     }

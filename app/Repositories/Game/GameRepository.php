@@ -103,7 +103,27 @@ class GameRepository implements GameRepositoryInterface
                     $stats = (new GamePredictionStatsUtility())->doStats(($results_raw)->whereHas('score')->limit(-1)->get()->toArray());
                     $results = $stats;
                 } else {
-                    $results = $results->paginate(request()->per_page ?? 50);
+
+                    if (request()->cursor_mode) {
+                        $cursor = request()->get('cursor');
+                        if (!$cursor) {
+                            $cursor = new \Illuminate\Pagination\Cursor([
+                                'utc_date' => now()->startOfDay()->toDateTimeString(),
+                                'id' => null,
+                            ], true, false);
+                        }
+
+                        $total = $results->count();
+                        $results = $results->cursorPaginate(
+                            request()->get('per_page', 15),
+                            ['*'],
+                            'cursor',
+                            $cursor,
+                            $total,
+                        );
+                    } else {
+                        $results = $results->paginate(request()->per_page ?? 50);
+                    }
                 }
             }
 
@@ -178,7 +198,7 @@ class GameRepository implements GameRepositoryInterface
         $prediction_type = GamePredictionType::updateOrCreate([
             'name' => $prediction_type,
         ]);
-        
+
         $competition_id = request()->competition_id;
         $carbon_date = Carbon::parse(request()->date);
         $date = $carbon_date->format('Y-m-d');

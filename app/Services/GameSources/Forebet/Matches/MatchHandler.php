@@ -90,7 +90,7 @@ class MatchHandler
 
         Log::channel($this->logChannel)->info("Game time to live: " . $timeToLive);
 
-        $content = $this->fetchWithCacheV2(
+        [$content, $isFromCache] = $this->fetchWithCacheV2(
             $url,
             "match_html",                // Cache key
             $timeToLive,                // TTL minutes
@@ -223,7 +223,7 @@ class MatchHandler
         ];
 
 
-        $message = $this->updateGame($game, $data, true);
+        $message = $this->updateGame($game, $data, true, $isFromCache);
 
         $oddsAndPredsData = [
             'utc_date' => $utc_date,

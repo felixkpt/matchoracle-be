@@ -39,7 +39,7 @@ class SeasonsHandler
         $url = $this->sourceUrl . ltrim($source->source_uri, '/');
         $timeToLive = 60 * 96;
 
-        $content = $this->fetchWithCacheV2(
+        [$content, $isFromCache] = $this->fetchWithCacheV2(
             $url,
             "seasons_html",             // Cache key
             $timeToLive,                // TTL minutes
@@ -91,7 +91,7 @@ class SeasonsHandler
             });
         }
 
-        if (!$competition->logo || !@file_get_contents($competition->logo)) {
+        if (!$isFromCache && (!$competition->logo || !@file_get_contents($competition->logo))) {
 
             $elem = $crawler->filter('.contentmiddle h1.frontH img[alt="league_logo"]');
             if ($elem->count() == 1) {
