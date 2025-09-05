@@ -4,6 +4,7 @@ namespace App\Repositories\SearchRepo;
 
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -373,6 +374,51 @@ class SearchRepo
         // $results['pagination'] = $pagination;
 
         return $results;
+    }
+
+    public function count()
+    {
+        return $this->builder->count();
+    }
+
+    public function cursorPaginate($perPage = 15, $columns = ['*'], $cursorName = 'cursor', $cursor = null, $total = 0)
+    {
+        $this->sort();
+
+        $builder = $this->builder;
+
+        $perPage = ($perPage ?? request()->per_page) ?? 50;
+
+        $results = $builder->cursorPaginate($perPage, $columns, $cursorName, $cursor);
+
+        // Apply additional columns
+        $r = $this->additionalColumns($results);
+
+        // Create a pseudo paginator that looks like LengthAwarePaginator
+        $currentPage = request()->page ?? 1; // not really used in cursor mode
+
+        $fakePaginator = new LengthAwarePaginator(
+            collect($r),
+            $total,
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        // Attach cursor links too
+        $fakePaginator->withPath(request()->url());
+        $fakePaginator->appends($this->request_data);
+
+        $custom = collect($this->getCustoms());
+        $merged = $custom->merge($fakePaginator);
+
+        // Inject cursor-specific info
+        $merged['next_cursor'] = $results->nextCursor()?->encode();
+        $merged['prev_cursor'] = $results->previousCursor()?->encode();
+        $merged['next_page_url'] = $results->nextPageUrl();
+        $merged['prev_page_url'] = $results->previousPageUrl();
+
+        return $merged;
     }
 
     /**

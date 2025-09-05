@@ -47,10 +47,28 @@ class OddsRepository implements OddsRepositoryInterface
             ->addColumn('over_25', fn($q) => $q->over_25_odds ?? '-')
             ->addColumn('under_25', fn($q) => $q->under_25_odds ?? '-')
             ->addColumn('GG', fn($q) => $q->gg_odds ?? '-')
-            ->addColumn('NG', fn($q) => $q->ng_odds ?? '-')
-            ->orderBy('utc_date', 'desc')
-            ->paginate();
+            ->addColumn('NG', fn($q) => $q->ng_odds ?? '-');
 
+        if (request()->cursor_mode) {
+            $cursor = request()->get('cursor');
+            if (!$cursor) {
+                $cursor = new \Illuminate\Pagination\Cursor([
+                    'date' => now()->startOfDay()->toDateTimeString(),
+                    'id' => null,
+                ], true, false);
+            }
+
+            $total = $results->count();
+            $results = $results->cursorPaginate(
+                request()->get('per_page', 15),
+                ['*'],
+                'cursor',
+                $cursor,
+                $total,
+            );
+        } else {
+            $results = $results->paginate(request()->per_page ?? 50);
+        }
         return response(['results' => $results]);
     }
 

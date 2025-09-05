@@ -37,7 +37,7 @@ COPY --from=frontend /app/public/build ./public/build
 RUN composer install --no-dev --optimize-autoloader
 
 # Expose app port
-EXPOSE 8000
+EXPOSE 8055 3055
 
 # Copy entrypoint script
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh

@@ -35,7 +35,7 @@ class MatchHandler
         $this->sourcePreds = new SourcePreds();
     }
 
-    function fetchMatch($game_id, $season = null)
+    function fetchMatch($game_id, $season = null, $isFromOdds = false)
     {
         $game = Game::query()->where('id', $game_id)->firstOrFail();
 
@@ -58,17 +58,23 @@ class MatchHandler
             return $this->matchMessage('Last fetch is ' . (Carbon::parse($game->last_fetch)->diffForHumans()));
         }
 
-        
+
         $res =  $this->handleGame($game, $source_uri);
 
         // update season fetched_all_single_matches
         if ($res && $season) {
             $seasonGamesCount = $season->games_count;
-            $finishedGamesCount = $season->games()->whereHas('lastAction', fn($q) => $q->where('ht_status', '>', 0))->count();
-            // Check if all season games have lastAction.ft_status > 0
-            $this->automationInfo("****Fetched_all_single_matches check: {$finishedGamesCount}/{$seasonGamesCount}");
+            $col = 'fetched_all_single_matches';
+            if (!$isFromOdds) {
+                $finishedGamesCount = $season->games()->whereHas('lastAction', fn($q) => $q->where('ht_status', '>', 0))->count();
+            } else {
+                $col = 'fetched_all_single_matches_odds';
+                $finishedGamesCount = $season->games()->whereHas('odds', fn($q) => $q->where('source_id', $this->sourceId))->count();
+            }
+            $this->automationInfo("****{$col} check: {$finishedGamesCount}/{$seasonGamesCount}");
+            // Check if all season games are statisfied
             if ($finishedGamesCount === $seasonGamesCount) {
-                $game->season->update(['fetched_all_single_matches' => true]);
+                $game->season->update([$col => true]);
             }
         }
 
@@ -90,7 +96,7 @@ class MatchHandler
 
         Log::channel($this->logChannel)->info("Game time to live: " . $timeToLive);
 
-        $content = $this->fetchWithCacheV2(
+        [$content, $isFromCache] = $this->fetchWithCacheV2(
             $url,
             "match_html",                // Cache key
             $timeToLive,                // TTL minutes
@@ -223,7 +229,7 @@ class MatchHandler
         ];
 
 
-        $message = $this->updateGame($game, $data, true);
+        $message = $this->updateGame($game, $data, true, $isFromCache);
 
         $oddsAndPredsData = [
             'utc_date' => $utc_date,

@@ -2,7 +2,9 @@
 
 namespace App\Jobs\Automation\Traits;
 
+use App\Models\Competition;
 use App\Models\Game;
+use App\Models\PredictionJob;
 use App\Models\PredictionJobLog;
 use App\Models\TrainPredictionJobLog;
 use App\Repositories\Game\GameRepository;
@@ -126,5 +128,66 @@ trait PredictionAutomationTrait
 
         // Log polling attempt message
         $this->automationInfo("***Polling attempt {$attempt} of {$totalPolls} (~{$remainingTime} mins left) - Checking process status...");
+    }
+
+    protected function isJobAcknowledged($jobId, $ackTimeout)
+    {
+        $ackStart = time();
+        $acknowledged = false;
+
+        while ((time() - $ackStart) < $ackTimeout) {
+            $jobStatus = PredictionJob::where('id', $jobId)
+                ->value('status');
+
+            if ($jobStatus === 'started') {
+                $this->automationInfo("***Job ID #{$jobId} acknowledged as STARTED.");
+                $acknowledged = true;
+                break;
+            }
+
+            sleep(2); // check every seconds
+        }
+        return $acknowledged;
+    }
+
+    private function workOnSeasons($competition, $seasons, $limit): array
+    {
+        $result = [
+            'should_exit'  => false,
+            'should_sleep' => false,
+            'has_errors'   => false,
+        ];
+
+        $totalSeasons = $seasons->take($limit)->count();
+
+        foreach ($seasons->take($limit) as $index => $season) {
+
+            $this->automationInfo(
+                sprintf(
+                    "**[%d/%d] Season: #%d (%s - %s)",
+                    $index + 1,
+                    $totalSeasons,
+                    $season->id,
+                    $competition->country->name,
+                    $competition->name
+                )
+            );
+
+            $seasonResult = $this->workOnSeason($competition, $season, $index);
+
+            $result['should_exit']  = $result['should_exit']  || $seasonResult['should_exit'];
+            $result['should_sleep'] = $result['should_sleep'] || $seasonResult['should_sleep'];
+            $result['has_errors']   = $result['has_errors']   || $seasonResult['has_errors'];
+
+            if ($seasonResult['should_exit'] || $seasonResult['has_errors']) {
+                break;
+            }
+
+            if ($seasonResult['should_sleep'] && $seasons->count() > 1) {
+                sleep($this->getRequestDelaySeasons());
+            }
+        }
+
+        return $result;
     }
 }

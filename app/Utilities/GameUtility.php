@@ -42,7 +42,7 @@ class GameUtility
         $order_by = $params['order_by'] ?? 'utc_date';
         $order_direction = $params['order_direction'] ?? 'desc';
         $per_page = $params['per_page'] ?? null;
-
+        
         request()->merge(['order_by' => $order_by, 'per_page' => $per_page, 'order_direction' => $order_direction]);
 
         $games = Game::query()
@@ -74,7 +74,7 @@ class GameUtility
             ->when($params['from_date'] ?? null, fn($q) => $q->whereDate('utc_date', '>=', Carbon::parse($params['from_date'])->format('Y-m-d')))
             ->when($params['to_date'] ?? null, fn($q) => $q->whereDate('utc_date', request()->before_to_date ? '<' : '<=', Carbon::parse($params['to_date'])->format('Y-m-d')))
             ->when($params['date'] ?? null, fn($q) => $q->whereDate('utc_date', '=', Carbon::parse($params['date'])->format('Y-m-d')))
-            ->when(!($params['date'] ?? null) && !($params['to_date'] ?? null) && ($params['type'] ?? null), fn($q) => $this->typeOrdering($q, $params['type'], $params['to_date'] ?? null));
+            ->when(!($params['date'] ?? null) && !($params['to_date'] ?? null) && ($params['type'] ?? null), fn($q) => $this->filteringByType($q, $params['type'], $params['to_date'] ?? null));
     }
 
     private function applyMiscFilters($query, $params, $id)
@@ -93,7 +93,7 @@ class GameUtility
         // Check if predictor mode is active
         if (!request()->is_predictor) {
             $with = [
-                'competition' => fn($q) => $q->with(['country', 'currentSeason']),
+                'competition' => fn($q) => $q->with(['country', 'currentSeason', 'abbreviation']),
                 'homeTeam',
                 'awayTeam',
                 'score',
@@ -123,7 +123,7 @@ class GameUtility
     /**
      * Helper function to order games by type.
      */
-    private function typeOrdering($q, $type, $to_date)
+    private function filteringByType($q, $type, $to_date)
     {
         $to_date = $to_date ?? Carbon::now();
         $type == 'past' ? $q->where('utc_date', '<', $to_date) : ($type == 'upcoming' ? $q->where('utc_date', '>=', Carbon::now()) :  $q);

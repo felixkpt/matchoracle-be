@@ -33,7 +33,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Adding the unique index to restrain duplicates
-            $table->unique(['home_team_id', 'away_team_id', 'date'], 'unique_game_match');
+            $table->unique(['season_id', 'home_team_id', 'away_team_id', 'date'], 'unique_game_match');
         });
     }
 

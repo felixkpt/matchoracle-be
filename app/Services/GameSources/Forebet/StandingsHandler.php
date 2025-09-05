@@ -67,7 +67,7 @@ class StandingsHandler
         $url = $this->constructUrl($source->source_uri . '/standing/' . $season_str);
         $timeToLive = 60 * 6;
 
-        $content = $this->fetchWithCacheV2(
+        [$content] = $this->fetchWithCacheV2(
             $url,
             "standings_html",           // Cache key
             $timeToLive,                // TTL minutes

@@ -71,7 +71,7 @@ class MatchesHandler implements MatchesInterface
 
             $timeToLive = 60 * 6;
 
-            $content = $this->fetchWithCacheV2(
+            [$content, $isCached] = $this->fetchWithCacheV2(
                 $url,
                 "matches_html",             // Cache key
                 $timeToLive,                // TTL minutes
@@ -134,7 +134,7 @@ class MatchesHandler implements MatchesInterface
     {
         $timeToLive = 60 * 6;
 
-        $content = $this->fetchWithCacheV2(
+        [$content, $isCached] = $this->fetchWithCacheV2(
             $url,
             "matches_html",             // Cache key
             $timeToLive,                // TTL minutes
@@ -177,21 +177,6 @@ class MatchesHandler implements MatchesInterface
         }
 
         [$saved, $updated, $msg] = $this->saveGames($matchesData, $competition, $season);
-
-        // 'games_total_count',
-        // 'ft_pending_count',
-        // 'ft_fetched_count',
-        // 'ft_missing_count',
-        // 'ht_pending_count',
-        // 'ht_fetched_count',
-        // 'ht_missing_count',
-        // 'odd_ft_pending_count',
-        // 'odd_ft_fetched_count',
-        // 'odd_ft_missing_count',
-        // 'odd_ht_pending_count',
-        // 'odd_ht_fetched_count',
-        // 'odd_ht_missing_count',
-
 
         return [$saved, $updated, $msg];
     }

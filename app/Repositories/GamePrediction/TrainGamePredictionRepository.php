@@ -23,9 +23,7 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
         $this->model = $model;
     }
 
-    function raw()
-    {
-    }
+    function raw() {}
 
     function storeCompetitionPredictionTypeStatistics()
     {
@@ -34,6 +32,7 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
         request()->validate([
             'prediction_type' => 'required',
             'competition_id' => 'required',
+            'season_id' => 'nullable',
             'from_date' => 'required',
             'to_date' => 'required',
             'score_target_outcome_id' => 'required',
@@ -54,6 +53,7 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
         $data = [
             'prediction_type' => $data['prediction_type'],
             'competition_id' => $data['competition_id'],
+            // 'season_id' => $data['season_id'],
             'train_counts' => $data['train_counts'],
             'test_counts' => $data['test_counts'],
             'score_target_outcome_id' => $score_target_outcome_id,
@@ -93,7 +93,7 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
 
         if ($exists) {
             $run_action_counts = $exists->run_action_counts + 1;
-            $newAverageSeconds = (($exists->average_seconds_per_action * $exists->run_action_counts) + $data['seconds_taken']) / $run_action_counts;
+            $newAverageSeconds = intval((($exists->average_seconds_per_action * $exists->run_action_counts) + $data['seconds_taken']) / $run_action_counts);
 
             $arr = [
                 'run_action_counts' => $run_action_counts,
@@ -109,11 +109,17 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
 
     function updateCompetitionLastTraining()
     {
-        $competition = Competition::findOrFail(request()->competition_id);
 
-        $competition->lastAction()->updateOrCreate(
-            [],
+        $competition = Competition::findOrFail(request()->competition_id);
+        
+        $season_id = request()->season_id;
+
+        $competition->lastActions()->updateOrCreate(
             [
+                'season_id' => $season_id,
+            ],
+            [
+                'season_id' => $season_id,
                 'predictions_trained_to' => Carbon::parse(request()->trained_to)->format('Y-m-d'),
                 'predictions_last_train' => now(),
             ]
@@ -123,5 +129,4 @@ class TrainGamePredictionRepository implements TrainGamePredictionRepositoryInte
 
         return response(['message' => 'Successfully updated or created last train time.']);
     }
-
 }

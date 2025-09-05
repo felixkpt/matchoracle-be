@@ -25,6 +25,7 @@ return new class extends Migration
             $table->unsignedInteger('reserved_at')->nullable();
             $table->unsignedInteger('available_at')->nullable();
             $table->unsignedInteger('created_at');  // job pushed time
+            $table->unsignedInteger('finished_at')->nullable(); // when worker finished
 
         });
     }

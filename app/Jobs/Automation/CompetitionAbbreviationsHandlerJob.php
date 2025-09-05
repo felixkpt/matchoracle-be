@@ -19,11 +19,11 @@ class CompetitionAbbreviationsHandlerJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($task, $jobId, $ignoreTiming = false, $competitionId = null, $seasonId = null)
+    public function __construct($task, $jobId, $lastActionDelay = false, $competitionId = null, $seasonId = null)
     {
         // Set the maximum execution time (seconds)
         $this->maxExecutionTime = 60 * 30;
-        $this->startTime = time();
+        $this->startTime = now();
 
         $this->initializeSettings();
 
@@ -39,8 +39,8 @@ class CompetitionAbbreviationsHandlerJob implements ShouldQueue
         // Set the task property
         $this->task = $task ?? 'fetch';
 
-        if ($ignoreTiming) {
-            $this->ignoreTiming = $ignoreTiming;
+        if (is_numeric($lastActionDelay)) {
+            $this->lastActionDelay = $lastActionDelay;
         }
 
         if ($competitionId) {
@@ -62,15 +62,14 @@ class CompetitionAbbreviationsHandlerJob implements ShouldQueue
         // Set the request parameter to indicate no direct response is expected
         request()->merge(['without_response' => true]);
 
-        $this->lastFetchColumn = 'abbreviations_last_fetch';
+        $this->lastActionColumn = 'abbreviations_last_fetch';
 
-        $delay = 60 * 24 * 30;
-        if ($this->ignoreTiming) {
-            $delay = 0;
+        if (!is_numeric($this->lastActionDelay)) {
+            $this->lastActionDelay = 60 * 24 * 60;
         }
 
         // Fetch competitions that need season data updates
-        $competitions = $this->getCompetitions($delay);
+        $competitions = $this->getCompetitions();
 
         // Process competitions to calculate action counts and log job details
         $this->logAndBroadcastJobLifecycle('START', $competitions);
@@ -124,7 +123,7 @@ class CompetitionAbbreviationsHandlerJob implements ShouldQueue
 
             $this->automationInfo("------------");
 
-            $this->updateCompetitionLastAction($competition, true, $this->lastFetchColumn, $this->seasonId);
+            $this->updateCompetitionLastAction($competition, true, $this->lastActionColumn, $this->seasonId);
 
             $should_sleep_for_competitions = true;
 
@@ -134,13 +133,13 @@ class CompetitionAbbreviationsHandlerJob implements ShouldQueue
         }
 
         if ($this->competitionId && $competitions->count() === 0) {
-            $this->updateCompetitionLastAction($this->getCompetition(), true, $this->lastFetchColumn, $this->seasonId);
+            $this->updateCompetitionLastAction($this->getCompetition(), true, $this->lastActionColumn, $this->seasonId);
         }
 
         $this->logAndBroadcastJobLifecycle('END');
     }
 
-    private function getCompetitions($delay)
+    private function getCompetitions()
     {
         return Competition::query()
             ->leftJoin('competition_last_actions', 'competitions.id', 'competition_last_actions.competition_id')
@@ -156,10 +155,10 @@ class CompetitionAbbreviationsHandlerJob implements ShouldQueue
                 $q->where('game_source_id', $this->sourceContext->getId());
             })
             ->whereDoesntHave('abbreviation')
-            ->where(fn($query) => $this->lastActionDelay($query, $this->lastFetchColumn, $delay))
+            ->where(fn($query) => $this->lastActionDelay($query, $this->lastActionColumn, $this->lastActionDelay))
             ->select('competitions.*')
             ->limit(1000)
-            ->orderBy('competition_last_actions.' . $this->lastFetchColumn, 'asc')
+            ->orderBy('competition_last_actions.' . $this->lastActionColumn, 'asc')
             ->get();
     }
 }

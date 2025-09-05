@@ -405,7 +405,8 @@ trait ForebetInitializationTrait
                             'requestedTtl' => $ttlMinutes,
                             'expiresAt' => $expiryTime->toDateTimeString(),
                         ]);
-                        return Storage::disk($disk)->get($existingFile);
+                        $content = Storage::disk($disk)->get($existingFile);
+                        return [$content, true];
                     } else {
                         // Existing cache lasts longer than allowed → refresh
                         $logger->info("$trace: Refreshing cache (existing expiry too far)", [
@@ -435,7 +436,7 @@ trait ForebetInitializationTrait
 
             if (!$content) {
                 $logger->warning("$trace: Empty response received", ['url' => $url, 'durationMs' => $fetchMs]);
-                return null;
+                return [null, false];
             }
 
             $bytes = strlen($content);
@@ -466,19 +467,20 @@ trait ForebetInitializationTrait
                 'totalElapsedMs' => (int) round((microtime(true) - $t0) * 1000),
             ]);
 
-            return $content;
+            return [$content, false]; // fresh fetch, not cached
+
         } catch (ConnectionException $e) {
             $logger->error("$trace: Connection error fetching", [
                 'url' => $url,
                 'error' => $e->getMessage(),
             ]);
-            return null;
+            return [null, false];
         } catch (\Exception $e) {
             $logger->critical("$trace: Unexpected error fetching", [
                 'url' => $url,
                 'error' => $e->getMessage(),
             ]);
-            return null;
+            return [null, false];
         }
     }
 }

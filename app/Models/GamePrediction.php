@@ -46,6 +46,8 @@ class GamePrediction extends Model
         'cs_proba',
         'user_id',
         'status_id',
+        
+        'updated_at',
     ];
 
     public function score()

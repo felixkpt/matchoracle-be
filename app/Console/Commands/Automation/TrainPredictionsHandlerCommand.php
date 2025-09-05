@@ -14,8 +14,8 @@ class TrainPredictionsHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:train-predictions-handler {--task=} {--ignore-timing} {--competition=} {--season=} {--sync} {--prefer-saved-matches} {--is-grid-search} {--predictor-url=} {--target=} ';
-    // example: php artisan app:train-predictions-handler --task=train --ignore-timing --competition=1340 --prefer-saved-matches --is-grid-search --predictor-url=http://127.0.0.1:8000 
+    protected $signature = 'app:train-predictions-handler {--task=} {--last-action-delay=} {--competition=} {--season=} {--sync} {--prefer-saved-matches} {--is-random-search} {--predictor-url=} {--target=} {--model-type=}';
+    // example: php artisan app:train-predictions-handler --task=train --last-action-delay --competition=1340 --prefer-saved-matches --is-grid-search --predictor-url=http://127.0.0.1:8000 
 
     /**
      * The console command description.
@@ -32,36 +32,42 @@ class TrainPredictionsHandlerCommand extends Command
 
         $task = $this->option('task') ?? 'train';
 
-        if ($task != 'train') {
-            $this->warn('Task should be train');
+        if ($task != 'current_predictions' && $task != 'historical_predictions') {
+            $this->warn('Task should be current_predictions or historical_predictions');
             return 1;
         }
 
         $this->info('Task: ' . Str::title(preg_replace('#_#', ' ', $task)));
-        $ignore_timing = $this->option('ignore-timing');
+        $last_action_delay = $this->option('last-action-delay');
+        $last_action_delay = $last_action_delay !== null ? intval($last_action_delay) * 60 : null;
 
-        $currentHour = Carbon::now()->format('H');
-        $isWeekday = Carbon::now()->isWeekday();
+        $blockedRange = config('automation.blocked_hours');
+        [$startHour, $endHour] = array_map('intval', explode('-', $blockedRange));
 
-        if (!$ignore_timing && $isWeekday && ($currentHour >= 8 && $currentHour < 16)) {
-            $this->warn('This command can only be executed outside of 8 AM to 4 PM on weekdays, but runs anytime on weekends.');
-            return 1; // Return a non-zero status code for failure
+        $currentHour = now()->hour;
+        $isWeekday   = now()->isWeekday();
+
+        if ($this->option('last-action-delay') !== null && $isWeekday && $currentHour >= $startHour && $currentHour < $endHour) {
+            $this->warn("This command can only be executed outside of {$startHour}:00 to {$endHour}:00 on weekdays, but runs anytime on weekends.");
+            return 1;
         }
 
         $competition_id = $this->option('competition');
         $season_id = $this->option('season');
 
-
-        $prefer_saved_matches = $this->option('prefer-saved-matches') ?? false;
-        $is_grid_search = $this->option('is-grid-search') ?? true;
+        $prefer_saved_matches = $this->option('prefer-saved-matches') ?: false;
+        $is_random_search = $this->option('is-random-search') ?: false;
         $predictor_url = $this->option('predictor-url') ?? null;
         $target = $this->option('target') ?? null;
+        $modelType = $this->option('model-type') ?? null;
 
         $options = [
             'prefer_saved_matches' => $prefer_saved_matches,
-            'is_grid_search' => $is_grid_search,
+            'is_grid_search' => true,
+            'is_random_search' => $is_random_search,
             'predictor_url' => $predictor_url,
             'target' => $target,
+            'modelType' => $modelType,
         ];
 
         $sync = $this->option('sync');
@@ -69,7 +75,7 @@ class TrainPredictionsHandlerCommand extends Command
         $params = [
             $task,
             null,
-            $ignore_timing,
+            $last_action_delay,
             $competition_id,
             $season_id,
             $options,

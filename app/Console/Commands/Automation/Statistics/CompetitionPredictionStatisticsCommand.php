@@ -12,7 +12,7 @@ class CompetitionPredictionStatisticsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:competition-prediction-statistics {--competition=} {--ignore-timing}';
+    protected $signature = 'app:competition-prediction-statistics {--task=} {--last-action-delay=} {--competition=} {--season=} {--sync}';
 
     /**
      * The console command description.
@@ -26,10 +26,30 @@ class CompetitionPredictionStatisticsCommand extends Command
      */
     public function handle()
     {
-        $competitionId = $this->option('competition');
-        $ignore_timing = $this->option('ignore-timing');
+        $task = $this->option('task');
 
-        dispatch(new CompetitionPredictionsStatsHandlerJob(null, null, $ignore_timing, $competitionId));
+        $last_action_delay = $this->option('last-action-delay');
+        $last_action_delay = $last_action_delay !== null ? intval($last_action_delay) * 60 : null;
+
+        $competition_id = $this->option('competition');
+        $season_id = $this->option('season');
+        $sync = $this->option('sync');
+
+        $params = [
+            $task,
+            null,
+            $last_action_delay,
+            $competition_id,
+            $season_id,
+        ];
+
+        if ($sync) {
+            CompetitionPredictionsStatsHandlerJob::dispatchSync(...$params);
+            $this->info('Job executed synchronously.');
+        } else {
+            CompetitionPredictionsStatsHandlerJob::dispatch(...$params);
+            $this->info('Job dispatched to queue.');
+        }
         $this->info('Competition Prediction Statistics Job command executed successfully!');
     }
 }

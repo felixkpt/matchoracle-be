@@ -76,6 +76,7 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
                         'prediction_type_id' => $prediction_type->id,
                         'competition_id' => $competition_id,
                         'date' => $date,
+                        'updated_at' => now(),
                         ...$game_pred
                     ]
                 );
@@ -148,7 +149,7 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
 
         if ($exists) {
             $run_action_counts = $exists->run_action_counts + 1;
-            $newAverageSeconds = (($exists->average_seconds_per_action * $exists->run_action_counts) + $data['seconds_taken']) / $run_action_counts;
+            $newAverageSeconds = intval((($exists->average_seconds_per_action * $exists->run_action_counts) + $data['seconds_taken']) / $run_action_counts);
 
             $arr = [
                 'run_action_counts' => $run_action_counts,
@@ -166,11 +167,15 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
 
     function updateCompetitionLastPrediction()
     {
+        
         $competition = Competition::findOrFail(request()->competition_id);
 
-        $competition->lastAction()->updateOrCreate(
-            [],
+        $season_id = request()->season_id;
+
+        $competition->lastActions()->updateOrCreate(
+            ['season_id' => $season_id],
             [
+                'season_id' => $season_id,
                 'predictions_last_done' => now(),
             ]
         );

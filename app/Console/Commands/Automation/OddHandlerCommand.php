@@ -13,7 +13,7 @@ class OddHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:odd-handler {--task=} {--ignore-timing} {--competition=} {--season=} {--sync} {--game-id=}';
+    protected $signature = 'app:odd-handler {--task=} {--last-action-delay=} {--competition=} {--season=} {--sync} {--game-id=}';
 
     /**
      * The console command description.
@@ -28,7 +28,8 @@ class OddHandlerCommand extends Command
     public function handle()
     {
         $task = $this->option('task');
-        $ignore_timing = $this->option('ignore-timing');
+        $last_action_delay = $this->option('last-action-delay');
+        $last_action_delay = $last_action_delay !== null ? intval($last_action_delay) * 60 : null;
         $competition_id = $this->option('competition');
         $season_id = $this->option('season');
         $game_id = $this->option('game-id');
@@ -43,7 +44,7 @@ class OddHandlerCommand extends Command
         $params = [
             $task,
             null,
-            $ignore_timing,
+            $last_action_delay,
             $competition_id,
             $season_id,
             $game_id,
