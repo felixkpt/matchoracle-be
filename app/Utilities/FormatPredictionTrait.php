@@ -10,10 +10,10 @@ trait FormatPredictionTrait
     function prediction_strategy($q)
     {
         $strategy = $q->{$this->predictionTypeMode};
-        $created_at = $strategy ? Carbon::parse($strategy->created_at)->diffForHumans() : 'N/A';
+        $updated_at = $strategy ? Carbon::parse($strategy->updated_at)->diffForHumans() : 'N/A';
         return [
            'prediction_strategy' => $q->{$this->predictionTypeMode},
-           'Predicted' => $created_at,
+           'Predicted' => $updated_at,
         ];
     }
 

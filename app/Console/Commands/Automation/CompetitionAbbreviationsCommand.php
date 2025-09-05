@@ -12,7 +12,7 @@ class CompetitionAbbreviationsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:competition-abbreviations {--ignore-timing} {--ignore-status} {--competition=} {--sync}';
+    protected $signature = 'app:competition-abbreviations {--last-action-delay=} {--ignore-status} {--competition=} {--sync}';
 
     /**
      * The console command description.
@@ -27,7 +27,8 @@ class CompetitionAbbreviationsCommand extends Command
     public function handle()
     {
         request()->merge(['ignore_status' => !!$this->option('ignore-status')]);
-        $ignore_timing = $this->option('ignore-timing');
+        $last_action_delay = $this->option('last-action-delay');
+        $last_action_delay = $last_action_delay !== null ? intval($last_action_delay) * 60 : null;
 
         $competition_id = $this->option('competition');
         $sync = $this->option('sync');
@@ -35,7 +36,7 @@ class CompetitionAbbreviationsCommand extends Command
         $params = [
             null,
             null,
-            $ignore_timing,
+            $last_action_delay,
             $competition_id,
             null,
         ];

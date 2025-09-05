@@ -21,6 +21,7 @@ class Season extends Model
         'fetched_standings',
         'fetched_all_matches',
         'fetched_all_single_matches',
+        'fetched_all_single_matches_odds',
 
         'games_total_count',
         'ft_pending_count',

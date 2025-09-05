@@ -30,8 +30,11 @@ class Kernel extends ConsoleKernel
         // $schedule->command('app:competition-prediction-statistics')->everySixHours(40);
 
         // // Predictions commands
-        // $schedule->command('app:predictions-handler')->everyTwoHours(45);
-        // $schedule->command('app:train-predictions-handler')->everyTwoHours();
+        $schedule->command('app:predictions-handler --task=current_predictions')->everyThreeHours(45);
+        $schedule->command('app:train-predictions-handler --task=current_predictions')->everyThreeHours(45);
+
+        $schedule->command('app:predictions-handler --task=historical_predictions')->everyThreeHours(45);
+        $schedule->command('app:train-predictions-handler --task=historical_predictions')->everyThreeHours(45);
 
         // // Matches commands
         require('matches_commands.php');

@@ -76,6 +76,7 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
                         'prediction_type_id' => $prediction_type->id,
                         'competition_id' => $competition_id,
                         'date' => $date,
+                        'updated_at' => now(),
                         ...$game_pred
                     ]
                 );
@@ -166,11 +167,15 @@ class GamePredictionRepository implements GamePredictionRepositoryInterface
 
     function updateCompetitionLastPrediction()
     {
+        
         $competition = Competition::findOrFail(request()->competition_id);
 
+        $season_id = request()->season_id;
+
         $competition->lastActions()->updateOrCreate(
-            ['season_id' => null],
+            ['season_id' => $season_id],
             [
+                'season_id' => $season_id,
                 'predictions_last_done' => now(),
             ]
         );

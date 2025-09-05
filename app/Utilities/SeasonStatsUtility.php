@@ -7,8 +7,9 @@ use App\Models\GameLastAction;
 
 class SeasonStatsUtility
 {
-    public function updateSeasonStats(Season $season): Season
+    public function updateSeasonStats($seasonId): Season
     {
+        $season = Season::find($seasonId);
         $counts = $season->games()
         ->join('game_last_actions as gla', 'games.id', '=', 'gla.game_id')
         ->selectRaw('

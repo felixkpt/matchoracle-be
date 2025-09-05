@@ -53,7 +53,7 @@ class OddsRepository implements OddsRepositoryInterface
             $cursor = request()->get('cursor');
             if (!$cursor) {
                 $cursor = new \Illuminate\Pagination\Cursor([
-                    'utc_date' => now()->startOfDay()->toDateTimeString(),
+                    'date' => now()->startOfDay()->toDateTimeString(),
                     'id' => null,
                 ], true, false);
             }
@@ -69,8 +69,6 @@ class OddsRepository implements OddsRepositoryInterface
         } else {
             $results = $results->paginate(request()->per_page ?? 50);
         }
-
-
         return response(['results' => $results]);
     }
 

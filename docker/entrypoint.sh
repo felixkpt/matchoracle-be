@@ -8,4 +8,4 @@ else
     php artisan migrate --force
 fi
 
-php artisan serve --host=0.0.0.0 --port=8000
+php artisan serve --host=0.0.0.0 --port=8055

@@ -115,6 +115,60 @@ class Client
         }
     }
 
+
+    /**
+     * Fetch content using Puppeteer.
+     *
+     * @param string $request_url
+     * @return string|null
+     */
+    public static function fetchContentFromPuppeteerV2($request_url)
+    {
+        $external_crawler_urls = config('app.external_crawler_urls');
+
+        foreach ($external_crawler_urls as $crawler_base) {
+            // Check crawler status first
+            try {
+                $statusResponse = Http::timeout(5)->get($crawler_base . '/status');
+                if ($statusResponse->successful()) {
+                    $statusData = $statusResponse->json();
+                    if (!empty($statusData['status']) && $statusData['status'] === 'free') {
+                        $crawler_url = $crawler_base . '/fetch';
+
+                        $response = Http::timeout(70)->get($crawler_url, [
+                            'url' => $request_url
+                        ]);
+
+                        if ($response->successful()) {
+                            $body = $response->body();
+                            $size = strlen($body);
+
+                            if ($size > self::MAX_RESPONSE_SIZE) {
+                                Log::warning("External crawler returned oversized response", [
+                                    'url' => $request_url,
+                                    'size_bytes' => $size
+                                ]);
+                                return null;
+                            }
+
+                            return $body;
+                        } else {
+                            Log::error('Crawler fetch error: ' . $response->body());
+                            return null;
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::error("Error checking crawler {$crawler_base}: " . $e->getMessage());
+                continue; // Try next crawler
+            }
+        }
+
+        // If no crawler is free
+        Log::error('No available crawler found for request: ' . $request_url);
+        return null;
+    }
+
     /**
      * Download a file from a given URL and save it to a specified destination path.
      *

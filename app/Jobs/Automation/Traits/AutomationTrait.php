@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Log;
  *
  * @property string      $jobId            The unique identifier for the job.
  * @property string      $task             The type of task to be performed by the job.
- * @property bool        $ignoreTiming     Whether to ignore timing constraints for the job.
+ * @property bool        $lastActionDelay     Whether to ignore timing constraints for the job.
  * @property int|null    $competitionId    The identifier for the competition associated with the job.
  * @property int|null    $seasonId         The identifier for the season associated with the job.
  * @property int|null    $gameId           The identifier for the match associated with the job.
@@ -42,11 +42,11 @@ trait AutomationTrait
     // Core job properties (common across jobs)
     protected $jobId;
     protected $task;
-    protected $ignoreTiming;
+    protected $lastActionDelay;
     protected $competitionId;
     protected $seasonId;
     protected $gameId;
-    protected $lastFetchColumn;
+    protected $lastActionColumn;
 
     // Automation settings/properties
     protected $sourceContext;
@@ -97,12 +97,21 @@ trait AutomationTrait
 
         $competitionIds = $competitions ? $competitions->pluck('id')->implode(', ') : 'None';
 
+        // Append start or end time
+        $timestamp = '';
+        if ($lifecycleEvent === 'START') {
+            $timestamp = ' | Started at: ' . now()->toDateTimeString();
+        } elseif ($lifecycleEvent === 'END') {
+            $timestamp = ' | Ended at: ' . now()->toDateTimeString();
+        }
+
         $formattedMessage = sprintf(
-            "%s: %s, Task: %s%s",
+            "%s: %s, Task: %s%s%s",
             $jobName,
             $lifecycleEvent,
             $this->task,
             ', Competition #' . ($this->competitionId ?? 'N/A'),
+            $timestamp
         );
 
         $competitionsMsg = $competitions ? $jobName . ': Working on competitions IDs: [' . $competitionIds . ']' : '';
@@ -291,12 +300,18 @@ trait AutomationTrait
      */
     private function runTimeExceeded()
     {
-        // Calculate elapsed time
-        $elapsedTime = time() - $this->startTime;
+        // Calculate elapsed time in seconds
+        $elapsedTime = now()->diffInSeconds($this->startTime);
 
         if ($elapsedTime >= $this->maxExecutionTime) {
-            // Convert elapsed time to seconds or minutes
-            $formattedTime = round($elapsedTime / 60) . ' mins';
+            // Format elapsed time in a human-friendly way
+            if ($elapsedTime < 60) {
+                $formattedTime = $elapsedTime . ' secs';
+            } elseif ($elapsedTime < 3600) {
+                $formattedTime = round($elapsedTime / 60) . ' mins';
+            } else {
+                $formattedTime = round($elapsedTime / 3600, 1) . ' hrs';
+            }
 
             // Get the class name dynamically
             $jobName = class_basename($this) . '-' . $this->jobId;
@@ -308,12 +323,31 @@ trait AutomationTrait
 
             return true;
         }
+
         return false;
     }
 
     public function timeTaken($seconds_taken): string
     {
-        return round($seconds_taken) . " secs";
+        $seconds_taken = (int) round($seconds_taken);
+
+        $hours   = floor($seconds_taken / 3600);
+        $minutes = floor(($seconds_taken % 3600) / 60);
+        $seconds = $seconds_taken % 60;
+
+        $parts = [];
+
+        if ($hours > 0) {
+            $parts[] = $hours . "h";
+        }
+        if ($minutes > 0) {
+            $parts[] = $minutes . "m";
+        }
+        if ($seconds > 0 || empty($parts)) {
+            $parts[] = $seconds . "s";
+        }
+
+        return implode(" ", $parts);
     }
 
     /**
@@ -392,6 +426,44 @@ trait AutomationTrait
                 'jobId'         => $this->jobId,
             ],
             'timestamp' => now()->toIso8601String(),
+        ];
+    }
+
+    private function getLastAction($competition, $seasonId)
+    {
+        return $competition->lastActions()
+            ->when($seasonId, fn($q) => $q->where('season_id', $seasonId), fn($q) => $q->orWhereNull('season_id'))
+            ->first()->{$this->lastActionColumn};
+    }
+
+    private function seasonsFilter($seasonQuery, $clause)
+    {
+        $lastActionDate = now()->subMinutes($this->lastActionDelay);
+        return $seasonQuery
+            ->when(!request()->ignore_status, fn($q) => $q->where('status_id', activeStatusId()))
+            ->when($this->seasonId, fn($q) => $q->where('seasons.id', $this->seasonId))
+            ->where(fn($q) => $clause($q))
+            ->leftJoin('competition_last_actions as cla', 'cla.season_id', '=', 'seasons.id')
+            ->orderByRaw("CASE WHEN cla.$this->lastActionColumn IS NULL THEN 0 ELSE 1 END ASC")
+            ->where("cla.$this->lastActionColumn", '<=', $lastActionDate)
+            ->orderBy("cla.$this->lastActionColumn", 'asc')
+            ->select('seasons.*');
+    }
+
+    private function seasonEagerLoads()
+    {
+        return [
+            'games' => function ($q) {
+                $this->gamesFilter($q);
+                $q->with([
+                    'gameSources',
+                    'homeTeam',
+                    'awayTeam',
+                    'competition.country',
+                    'odds',
+                    'lastAction'
+                ])->orderby('updated_at', 'asc')->limit(500); // Limit games
+            },
         ];
     }
 }

@@ -45,102 +45,110 @@ class UpdateCompetitionActionRepo implements UpdateCompetitionActionRepoInterfac
         // Set the jobID
         $jobId = request()->job_id ?? str()->random(6);
 
-        $ignoreTiming = true;
+        $lastActionDelay = 0;
 
         $seasonId = request()->season_id;
 
         // Switch based on the action to update specific fields in lastAction
         switch ($action) {
             case 'abbreviations_last_fetch':
-                dispatch(new CompetitionAbbreviationsHandlerJob('fetch', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new CompetitionAbbreviationsHandlerJob('fetch', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'seasons_last_fetch':
-                dispatch(new SeasonsHandlerJob('fetch', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new SeasonsHandlerJob('fetch', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'standings_recent_results_last_fetch':
-                dispatch(new StandingsHandlerJob('recent_results', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new StandingsHandlerJob('recent_results', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'standings_historical_results_last_fetch':
-                dispatch(new StandingsHandlerJob('historical_results', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new StandingsHandlerJob('historical_results', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'matches_recent_results_last_fetch':
                 // Dispatch the job for recent results
-                dispatch(new MatchesHandlerJob('recent_results', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new MatchesHandlerJob('recent_results', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'matches_historical_results_last_fetch':
                 // Dispatch the job for historical results
-                dispatch(new MatchesHandlerJob('historical_results', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new MatchesHandlerJob('historical_results', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'matches_fixtures_last_fetch':
                 // Dispatch the job for fixtures
-                dispatch(new MatchesHandlerJob('fixtures', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new MatchesHandlerJob('fixtures', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'matches_shallow_fixtures_last_fetch':
                 // Dispatch the job for shallow fixtures
-                dispatch(new MatchesHandlerJob('shallow_fixtures', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new MatchesHandlerJob('shallow_fixtures', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'match_recent_results_last_fetch':
                 // Dispatch job for recent results
-                dispatch(new MatchHandlerJob('recent_results', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new MatchHandlerJob('recent_results', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'match_historical_results_last_fetch':
                 // Dispatch job for historical results
-                dispatch(new MatchHandlerJob('historical_results', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new MatchHandlerJob('historical_results', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'match_fixtures_last_fetch':
                 // Dispatch job for fixtures
-                dispatch(new MatchHandlerJob('fixtures', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new MatchHandlerJob('fixtures', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'match_shallow_fixtures_last_fetch':
                 // Dispatch job for shallow fixtures
-                dispatch(new MatchHandlerJob('shallow_fixtures', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new MatchHandlerJob('shallow_fixtures', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'odd_recent_results_last_fetch':
                 // Dispatch job for recent results
-                dispatch(new OddHandlerJob('recent_results', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new OddHandlerJob('recent_results', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'odd_historical_results_last_fetch':
                 // Dispatch job for historical results
-                dispatch(new OddHandlerJob('historical_results', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new OddHandlerJob('historical_results', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'odd_fixtures_last_fetch':
                 // Dispatch job for fixtures
-                dispatch(new OddHandlerJob('fixtures', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new OddHandlerJob('fixtures', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'odd_shallow_fixtures_last_fetch':
                 // Dispatch job for shallow fixtures
-                dispatch(new OddHandlerJob('shallow_fixtures', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new OddHandlerJob('shallow_fixtures', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
-            case 'predictions_last_train':
-                dispatch(new TrainPredictionsHandlerJob('train', $jobId, $ignoreTiming, $competitionId, $seasonId));
+            case 'historical_predictions_last_train':
+                dispatch(new TrainPredictionsHandlerJob('historical_predictions', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
-            case 'predictions_last_done':
-                dispatch(new PredictionsHandlerJob('prediction', $jobId, $ignoreTiming, $competitionId, $seasonId));
+            case 'current_predictions_last_train':
+                dispatch(new TrainPredictionsHandlerJob('current_predictions', $jobId, $lastActionDelay, $competitionId, $seasonId));
+                break;
+
+            case 'historical_predictions_last_done':
+                dispatch(new PredictionsHandlerJob('historical_predictions', $jobId, $lastActionDelay, $competitionId, $seasonId));
+                break;
+
+            case 'current_predictions_last_done':
+                dispatch(new PredictionsHandlerJob('current_predictions', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'stats_last_done':
-                dispatch(new CompetitionStatsHandlerJob('stats', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new CompetitionStatsHandlerJob('stats', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             case 'predictions_stats_last_done':
-                dispatch(new CompetitionPredictionsStatsHandlerJob('stats', $jobId, $ignoreTiming, $competitionId, $seasonId));
+                dispatch(new CompetitionPredictionsStatsHandlerJob('stats', $jobId, $lastActionDelay, $competitionId, $seasonId));
                 break;
 
             default:

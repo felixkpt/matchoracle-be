@@ -24,13 +24,13 @@ services:
       dockerfile: ./docker/Dockerfile
     restart: always
     volumes:
-      - .:/var/www/html
+      # - .:/var/www/html
       - storage:/var/www/html/storage
     depends_on:
       - db
       - redis
     ports:
-      - "3055:8000"
+      - "3055:8055"
     environment:
       DB_CONNECTION: pgsql
       DB_HOST: db

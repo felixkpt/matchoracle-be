@@ -13,8 +13,8 @@ class StandingsHandlerCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:standings-handler {--task=} {--ignore-timing} {--competition=} {--season=} {--sync}';
-    // php artisan app:standings-handler --task=historical_results --ignore-timing --competition=1340
+    protected $signature = 'app:standings-handler {--task=} {--last-action-delay=} {--competition=} {--season=} {--sync}';
+    // php artisan app:standings-handler --task=historical_results --last-action-delay --competition=1340
 
     /**
      * The console command description.
@@ -29,7 +29,8 @@ class StandingsHandlerCommand extends Command
     public function handle()
     {
         $task = $this->option('task') ?? 'historical_results';
-        $ignore_timing = $this->option('ignore-timing');
+        $last_action_delay = $this->option('last-action-delay');
+        $last_action_delay = $last_action_delay !== null ? intval($last_action_delay) * 60 : null;
 
         if ($task != 'recent_results' && $task != 'historical_results') {
             $this->warn('Task should be either recent_results or historical_results');
@@ -45,7 +46,7 @@ class StandingsHandlerCommand extends Command
         $params = [
             $task,
             null,
-            $ignore_timing,
+            $last_action_delay,
             $competition_id,
             $season_id,
         ];
